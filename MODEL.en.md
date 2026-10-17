@@ -20,10 +20,10 @@ Confidence=`min(1,starts/20)*(1-exp(-recentWeightedStarts/6))`; it is experience
 Horse suspension/retirement thresholds are >365/>720 days; jockey/trainer >730/>1095. Season reversion towards 1500 is 5%/2%/2%; original code also triggers across calendar years. Predictor reads horse overall, not a five-axis weighted blend. Composite predictor weights are horse .7/jockey .2/trainer .1, normalized over available weights.
 
 ## LightGBM training
-Objective lambdarank; metrics NDCG@1 and NDCG@3; truncation level 4. Labels for finishes 1/2/3/4 are 4/3/2/1, later finishers 0. label_gain begins [0,1,7,31,127,...]. All missing numeric values=-1; going_code is categorical. Early stopping selects the iteration count, then all eligible training rows are refit. Historical inputs must be strictly before the race date; odds are not model features.
+Objective lambdarank; production early stopping uses race_logloss; the separate walk-forward path uses NDCG; truncation level 4. Labels for finishes 1/2/3/4 are 4/3/2/1, later finishers 0. label_gain begins [0,1,7,31,127,...]. All missing numeric values=-1; going_code is excluded from production. Early stopping selects the iteration count, then all eligible training rows are refit. Historical inputs must be strictly before the race date; odds are not model features.
 
-## 52 numeric features, plus categorical going_code
-All values are floats except categorical going_code. Missing=-1; inactive interaction=0. All aggregates exclude the current and future race dates.
+## 52 numeric production features
+All production inputs are numeric. Missing=-1; inactive interaction=0. All aggregates exclude the current and future race dates.
 
 | # | Source identifier | Derivation / encoding |
 |---|---|---|
@@ -80,6 +80,6 @@ All values are floats except categorical going_code. Missing=-1; inactive intera
 | 51 | `sire_dist_top3_sm` | same sire smoothing restricted to distance ±200m |
 | 52 | `damsire_top3_sm` | damsire offspring top-3 using same smoothing |
 
-Going text is encoded with pandas Categorical and passed to LightGBM as a categorical feature. Training factor rules, source paths and unused research features remain in MODEL.md. Feature importance is gain/split from the actual serialized production refit, tied to hashes; not SHAP, causal attribution or an automatic promotion signal.
+Going text is encoded only by the separate lgb_walkforward.py path, not the production 52-feature list. Training factor rules, source paths and unused research features remain in MODEL.md. Feature importance is gain/split from the actual serialized production refit, tied to hashes; not SHAP, causal attribution or an automatic promotion signal.
 
 Historical prediction timestamps are not immutable publication receipts. Backfilled Elo is not historical inference evidence. The v12 update gap was 2026-04-16 through 2026-10-14; affected prediction differences have not been quantified.

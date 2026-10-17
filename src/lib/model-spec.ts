@@ -82,11 +82,11 @@ export const ELO = {
 
 export const LGB = {
   objective: "lambdarank",
-  metric: "NDCG@1、NDCG@3",
+  metric: "生產早停：逐場race_logloss；回測另計NDCG",
   truncation: 4,
   labelGain: "[0, 1, 7, 31, 127, …]",
   labels: "第1名→4、第2名→3、第3名→2、第4名→1、第5名或之後→0",
   missing: "全部特徵缺失值填 −1",
-  categorical: "going_code：場地狀況文字轉類別代號",
+  categorical: "生產52項全部為數值；going_code只見於另一路回測",
   alpha: 0.88,
 };

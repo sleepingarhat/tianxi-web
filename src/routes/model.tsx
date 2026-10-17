@@ -4,6 +4,8 @@ import { AppShell } from "@/components/tx/AppShell";
 import { Card, PageHead } from "@/components/tx/ui";
 import { ELO, FACTOR_RULES, FEATURES, LGB } from "@/lib/model-spec";
 import report from "@/lib/retraining-report.json";
+import repair from "@/lib/repair-retraining-report.json";
+import trainingAsset from "../../public/reports/repair-retraining-2026-10-18/training-rebuilt.csv.gz.asset.json";
 
 const TITLE = "模型說明 · Elo 公式與 LightGBM 特徵 · 天喜賽馬";
 const DESC = "天喜 TX-Oracle v3 公開模型說明：Elo 更新公式、K 值、騎練權重、52 項 LightGBM 特徵衍生及編碼方式。";
@@ -41,9 +43,13 @@ function ModelPage() {
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>
 
-    <Card title="修復後歷史重訓 · 證據待補齊" en="未完成驗收">
-      <P>本次隔離重建逐匹配對102,252行／8,408場；79場驗證選定796輪。執行摘要顯示：10月19日11場145匹原始LGB分表，5場頭四組合改變、9場頭四次序改變、74匹排名改變；平均絕對log(p)分差0.14855，最大0.54507。</P>
-      <P><b>尚未完成：</b>完整輸入、模型、逐馬CSV／JSON及候選修復未成功保存，暫存不可取回，以上僅為執行觀察，不能獨立重現。網站融合四揀及finalScore未逐場重播；血統先驗及並頭標籤亦有差異，不能把全部變化歸因Elo停更或宣稱準確度改善。未升版、未改正式預測、未發布；前批凍結及發布缺口仍待修復驗收。</P>
+    <Card title="修復後歷史重訓 · 已保存核對報告" en="研究候選 · 未升版">
+      <P>重新生成歷史特徵後，匹配{repair.trainingRows.toLocaleString()}行／{repair.trainingRaces.toLocaleString()}場、52項特徵；79場969行驗證選定986輪，再全資料重擬合。原102,252行中134行未配對：107行現有賽果表找不到，27行名次不在有效訓練範圍；不以舊特徵冒充補齊。</P>
+      <P>10月19日11場145匹原始模型分表：{repair.top4SetChanges}場頭四組合、{repair.top4OrderChanges}場頭四次序改變，{repair.rankChanges}匹排名改變；平均絕對log(p)分差{repair.meanAbsDelta.toFixed(5)}，最大{repair.maxAbsDelta.toFixed(5)}。不是網站融合四揀；變化亦包含血統先驗、並頭標籤及來源分母，不能全歸因Elo停更。</P>
+      <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-[12px]"><thead className="text-ink-3"><tr><th>場次</th><th>匹數</th><th>頭四保留</th><th>排名改變</th></tr></thead><tbody className="divide-y divide-hairline">{repair.races.map(r => <tr key={r.race}><td className="py-2">第{r.race}場</td><td>{r.runners}</td><td>{r.retained}／4</td><td>{r.rankChanges}</td></tr>)}</tbody></table></div>
+      <P><b>未通過升版驗收：</b>訓練內τ_elo接近100上限、α接近1；網站α=0.88融合四揀及finalScore未完整重播，凍結空值／缺行與原子發布保護仍未部署修復。非逐日walk-forward，亦未有10月19日賽果，不能宣稱準確度改善。舊凍結及正式模型不變。</P>
+      <P>10月14日對帳頁101匹與資料倉賽果逐匹匹配；99匹有名次全部一致，2匹無名次保持未完整。Elo日誌298筆（三軸101／101／96），屬補計快照淨變動，不是當日賽前使用證明；本次非直接向馬會獨立核證。</P>
+      <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-gold"><a href="/reports/repair-retraining-2026-10-18/report.json" download>報告及指紋 JSON</a><a href="/reports/repair-retraining-2026-10-18/comparison.csv" download>145匹分數／排名 CSV</a><a href="/reports/repair-retraining-2026-10-18/missing-cohort.csv" download>134行缺配對清單</a><a href={trainingAsset.url} download>訓練輸入 GZIP</a><a href="/reports/repair-retraining-2026-10-18/model.txt" download>候選模型</a><a href="/reports/repair-retraining-2026-10-18/feature-importance.json" download>特徵重要性</a></div>
     </Card>
     <Card title="舊CSV重現對照 · 2026-10-18" en="只讀研究">
       <P>全部102,252行／8,408場／52項特徵；79場驗證選定870輪，再用全部資料重擬合。正式10月19日模型分表11場145匹：四揀改變0／11場、排序改變0／145匹、原始log(p)分數最大差0。序列化模型SHA-256與現行完全相同，未切換模型、權重或正式預測。</P>
@@ -87,13 +93,13 @@ K_base：馬 ${ELO.k.horse}／騎師 ${ELO.k.jockey}／練馬師 ${ELO.k.trainer
         <div>缺失值：{LGB.missing}</div>
         <div>類別特徵：{LGB.categorical}</div>
         <div>輪數：以早停搵最佳輪數，再用全部資料重訓</div>
-        <div>防洩漏：所有往績只用賽日之前資料；唔用任何賠率</div>
+        <div>日期限制：往績只用賽日之前資料；血統先驗修復仍屬候選；唔用賠率</div>
       </div>
       <Src path="scripts/backtest/predict_upcoming.py" />
       <P>正式訓練新增保存序列化模型嘅gain（樹分裂改善量）及split（使用次數），各自列百分比、保留零值與訓練欄序，附模型及設定檔指紋。不是單馬SHAP、因果或Elo貢獻，亦不自動升版；首份正式完整重訓報告仍待驗收。</P>
     </Card>
 
-    <Card title={`特徵清單（${FEATURES.length} 項＋going_code）`} en="特徵衍生與編碼">
+    <Card title={`特徵清單（${FEATURES.length} 項）`} en="特徵衍生與編碼">
       <ol className="divide-y divide-hairline">
         {FEATURES.map((f, i) => <li key={f.name} className="grid gap-0.5 py-2 sm:grid-cols-[2rem_12rem_6rem_1fr_9rem] sm:gap-3">
           <span className="font-mono-tx text-[10px] text-ink-3">{i + 1}</span>
