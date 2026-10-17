@@ -38,7 +38,7 @@ async def main():
             await page.wait_for_timeout(600)
             state = await page.evaluate(r"""() => ({overflow: document.documentElement.scrollWidth-document.documentElement.clientWidth, bad: location.pathname === '/dev-log' ? false : /(^|[\s:])(NaN|undefined|Invalid Date)([\s,]|$)/m.test(document.body.innerText), title: document.title})""")
             actionable = [e for e in errors if "hydrated but some attributes" not in e and "Failed to load resource" not in e]
-            report.append({"route":route,"width":width,"dir":direction,**state,"consoleErrors":actionable[:5]})
+            report.append({"route":route,"width":width,"dir":direction,**state,"consoleErrors":actionable[:5],"wrongRoute":page.url.split("?")[0].rstrip("/") != (BASE+route).rstrip("/")})
         await context.close()
       # Slow API: representative pages for each product and admin monitor.
       context = await browser.new_context(viewport={"width":390,"height":1800}); page = await context.new_page()
@@ -51,9 +51,11 @@ async def main():
         except Exception as exc: report.append({"route":route,"scenario":"slow-api","error":str(exc)[:200]})
       await context.close(); await browser.close()
     (OUT/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2))
-    failures=[r for r in report if r.get("overflow",0)>2 or r.get("bad") or r.get("consoleErrors") or r.get("blank") or r.get("error")]
+    failures=[r for r in report if r.get("overflow",0)>2 or r.get("bad") or r.get("consoleErrors") or r.get("blank") or r.get("error") or r.get("wrongRoute")]
     print(json.dumps({"checks":len(report),"failures":len(failures),"report":str(OUT/"report.json")},ensure_ascii=False))
-    if failures: (OUT/"failures.json").write_text(json.dumps(failures,ensure_ascii=False,indent=2))
+    if failures:
+      (OUT/"failures.json").write_text(json.dumps(failures,ensure_ascii=False,indent=2))
+      raise SystemExit(1)
 
 async def slow(route):
     await asyncio.sleep(3)

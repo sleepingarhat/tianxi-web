@@ -1,3 +1,5 @@
+import { useServerFn } from "@tanstack/react-start";
+import { getPositionHistory } from "@/lib/racing-reconciliation.functions";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { actualStages, historicalPositions, type PositionForm } from "@/lib/racing-visibility";
@@ -6,6 +8,7 @@ import { Card, Empty, ErrorNote, Loading, Pill, Seg, Silks } from "./ui";
 
 type Runner = { horseId?: string; id?: string; horseNumber: number; nameCh?: string; rank?: number; pWin?: number };
 export function RacePositionMap({ date, raceId, distance, picks, frozen }: { date: string; raceId?: string; distance: number; picks: Runner[]; frozen: boolean }) {
+  const readHistory = useServerFn(getPositionHistory);
   const [scope, setScope] = useState<"picks" | "all">("picks");
   const canonicalId = raceId ? (raceId.startsWith("race_") ? raceId : `race_${raceId}`) : undefined;
   const result = useQuery({ queryKey: ["race-position-result", canonicalId], enabled: Boolean(canonicalId), staleTime: 60_000, refetchInterval: 300_000,
@@ -20,7 +23,8 @@ export function RacePositionMap({ date, raceId, distance, picks, frozen }: { dat
     },
   });
   const actual: { horseNumber: number; runningPosition?: string; finishingPosition?: number }[] = result.data?.horses ?? [];
-  const settled = actual.some(p => Number(p.finishingPosition) > 0);
+  const settled = actual.length > 0 && actual.every(p => Number(p.finishingPosition) > 0);
+  const partialResults = !settled && actual.some(p => Number(p.finishingPosition) > 0);
   const ids = picks.map(p => p.horseId ?? "").join(",");
   const q = useQuery({ queryKey: ["historical-position-map", date, raceId, distance, ids], staleTime: 300_000,
     queryFn: async () => {
@@ -30,8 +34,8 @@ export function RacePositionMap({ date, raceId, distance, picks, frozen }: { dat
       const output = [];
       for (let i = 0; i < runners.length; i += 4) {
         output.push(...await Promise.all(runners.slice(i, i + 4).map(async p => {
-          const form = await txApi.horseForm(p.horseId ?? "", 30).catch(() => null);
-          const history: PositionForm[] = form?.recentForm ?? [];
+          const form = await readHistory({ data: { horseId: p.horseId ?? "", date } }).catch(() => null);
+          const history: PositionForm[] = form ?? [];
           return { ...p, failed: !form, summary: historicalPositions(history, date, distance), pick: picks.find(x => x.horseNumber === p.horseNumber) };
         })));
       }
@@ -40,7 +44,7 @@ export function RacePositionMap({ date, raceId, distance, picks, frozen }: { dat
   });
   const rows = (q.data ?? []).filter(p => scope === "all" || (p.pick?.rank != null && p.pick.rank <= 4));
   const ordered = scope === "picks" ? rows.slice().sort((a, b) => (a.pick?.rank ?? 99) - (b.pick?.rank ?? 99)) : rows;
-  return <Card title="馬匹走位對照" en="Running positions" action={<Pill tone={settled ? "win" : "ink"}>{settled ? "已有賽果" : "賽果待更新"}</Pill>}>
+  return <Card title="馬匹走位對照" en="Running positions" action={<Pill tone={settled ? "win" : "ink"}>{settled ? "已有賽果" : partialResults ? "部分賽果已入帳" : "賽果待更新"}</Pill>}>
     <div className="mb-3"><Seg value={scope} onChange={setScope} options={[{ value: "picks", label: frozen ? "凍結四揀" : "本場四揀" }, { value: "all", label: "全場馬匹" }]} /></div>
     <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1 border-b border-hairline pb-2 text-[10px] leading-relaxed text-ink-2">
       <span><b className="text-gold">前</b> 賽前歷史參考（約）</span><span><b className="text-win">後</b> 今場實際走位</span><span><b className="text-ink">終點</b> 最終名次</span><span className="text-ink-3">數字越細越近領放</span>
@@ -60,7 +64,7 @@ export function RacePositionMap({ date, raceId, distance, picks, frozen }: { dat
           </header>
           <div className="grid grid-cols-3 gap-1.5">
             {[0, 1, 2].map(i => {
-              const h = p.summary.stages[i]?.mid; const a = stages?.[i];
+              const h = p.failed ? null : p.summary.stages[i]?.mid; const a = stages?.[i];
               const d = h != null && a != null ? a - h : null;
               return <div key={i} className="min-w-0 rounded-[6px] border border-hairline bg-paper px-1.5 py-1.5 text-center">
                 <p className="mb-1 text-[10px] font-bold text-ink-3">{["早段", "中段", "末段"][i]}</p>
@@ -71,7 +75,7 @@ export function RacePositionMap({ date, raceId, distance, picks, frozen }: { dat
             })}
           </div>
           <p className="mt-1.5 text-[10px] text-ink-3">{p.failed ? "歷史讀取失敗" : `歷史樣本 ${p.summary.n} 仗 · ${p.summary.sameBand ? "同途程組" : "跨途程"}`}</p>
-          <details className="mt-2 text-[10px] leading-relaxed text-ink-3"><summary className="cursor-pointer">原始走位及歷史範圍</summary><p className="mt-2 break-words">當場完整走位：{runner?.runningPosition || "未有資料"}；最後一個數字為終點，不計入上方走位。</p><p>歷史中間50%範圍：{p.summary.stages.map((s, i) => `${["早段", "中段", "末段"][i]} ${s.low == null ? "無資料" : `${Number(s.low.toFixed(1))}–${Number(s.high?.toFixed(1))}位`}`).join(" · ")}</p></details>
+          <details className="mt-2 text-[10px] leading-relaxed text-ink-3"><summary className="cursor-pointer">原始走位及歷史範圍</summary><p className="mt-2 break-words">當場完整走位：{runner?.runningPosition || "未有資料"}；最後一個數字為終點，不計入上方走位。</p><p>{p.failed ? "歷史範圍未能讀取，唔當成零樣本。" : `歷史中間50%範圍：${p.summary.stages.map((s, i) => `${["早段", "中段", "末段"][i]} ${s.low == null ? "無資料" : `${Number(s.low.toFixed(1))}–${Number(s.high?.toFixed(1))}位`}`).join(" · ")}`}</p></details>
         </article>;
       })}
     </div> : <Empty label={scope === "picks" ? "未有四揀走位資料" : "未有馬匹走位資料"} />}

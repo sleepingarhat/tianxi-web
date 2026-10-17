@@ -13,7 +13,7 @@
 
 ## 首頁產品層規則
 
-- The active homepage and shared navigation expose racing only; archived product paths are gated centrally in product-scope.ts and start.ts to retain history without executing retired features.
+- Homepage/navigation expose racing only; product-scope.ts and start.ts gate retired paths without executing them.
 - 首頁流程只引用已定版或現行資料；理由：產品介紹必須可核對。
 - 全站沿用 PageHead、Card、Stat、Table、Seg 與 AppShell；理由：避免逐頁漂移。
 - Offers share FoundingMemberOffer/freeStage to prevent drift; Card headers use minmax text and fixed actions to avoid mobile badge wrapping.
@@ -44,4 +44,4 @@
 - Football and Mark Six source lives only in the private research repository; the site keeps just the product-scope gate so old URLs redirect or return 410. Why: retired products must not run or ship in the live bundle.
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
 
-- Elo uses v12; backfills are not frozen evidence. Audit cohorts require identity and four picks. Retraining compares hashed inputs without promotion, separates raw scores and served picks, and flags unreconstructed features. Why: reproducibility is not proof of no historical impact.
+- Elo uses v12; backfills are not frozen evidence. Retraining must persist source, inputs, model and row artifacts; console-only results stay unverified. Separate raw ranks from served picks and verify tied labels. Why: temporary output proves neither deployment nor historical impact.

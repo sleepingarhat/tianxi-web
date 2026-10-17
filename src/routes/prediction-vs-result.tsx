@@ -133,7 +133,7 @@ function ComparePage() {
 
   const left: Horse[] = frozenTop4.length
     ? frozenTop4
-    : (picks.data?.picks || []).slice(0, 4);
+    : picks.data?.frozen === true ? (picks.data?.picks || []).slice(0, 4) : [];
   // 首選來源：後端逐匹回傳 scoreSource（lgb = 天喜LGB 融合模型；baseline／elo = 天喜ELO 基準）
   // 同一場可能部分馬匹退回基準，故以整場為準：有任何 lgb 即屬天喜LGB 排序。
   const pickSources = (frozenTop4.length ? frozenTop4 : picks.data?.picks || []).map((p: any) =>

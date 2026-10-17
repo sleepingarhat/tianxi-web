@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CardsRouteImport } from './routes/cards'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DevLogRouteImport } from './routes/dev-log'
+import { Route as EloLogRouteImport } from './routes/elo-log'
 import { Route as EncyclopediaRouteImport } from './routes/encyclopedia'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FreezeLedgerRouteImport } from './routes/freeze-ledger'
@@ -25,6 +26,7 @@ import { Route as MediaCreditsRouteImport } from './routes/media-credits'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as ModelRouteImport } from './routes/model'
 import { Route as PoolOddsRouteImport } from './routes/pool-odds'
+import { Route as PredictionReconciliationRouteImport } from './routes/prediction-reconciliation'
 import { Route as PredictionVsResultRouteImport } from './routes/prediction-vs-result'
 import { Route as PredictorRouteImport } from './routes/predictor'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -105,6 +107,11 @@ const DevLogRoute = DevLogRouteImport.update({
   path: '/dev-log',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EloLogRoute = EloLogRouteImport.update({
+  id: '/elo-log',
+  path: '/elo-log',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EncyclopediaRoute = EncyclopediaRouteImport.update({
   id: '/encyclopedia',
   path: '/encyclopedia',
@@ -155,6 +162,12 @@ const PoolOddsRoute = PoolOddsRouteImport.update({
   path: '/pool-odds',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PredictionReconciliationRoute =
+  PredictionReconciliationRouteImport.update({
+    id: '/prediction-reconciliation',
+    path: '/prediction-reconciliation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PredictionVsResultRoute = PredictionVsResultRouteImport.update({
   id: '/prediction-vs-result',
   path: '/prediction-vs-result',
@@ -428,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/cards': typeof CardsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
+  '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
@@ -438,6 +452,7 @@ export interface FileRoutesByFullPath {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/pool-odds': typeof PoolOddsRoute
+  '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
@@ -495,6 +510,7 @@ export interface FileRoutesByTo {
   '/cards': typeof CardsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
+  '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
@@ -505,6 +521,7 @@ export interface FileRoutesByTo {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/pool-odds': typeof PoolOddsRoute
+  '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
@@ -563,6 +580,7 @@ export interface FileRoutesById {
   '/cards': typeof CardsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
+  '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
@@ -573,6 +591,7 @@ export interface FileRoutesById {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/pool-odds': typeof PoolOddsRoute
+  '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
@@ -632,6 +651,7 @@ export interface FileRouteTypes {
     | '/cards'
     | '/dashboard'
     | '/dev-log'
+    | '/elo-log'
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
@@ -642,6 +662,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/pool-odds'
+    | '/prediction-reconciliation'
     | '/prediction-vs-result'
     | '/predictor'
     | '/pricing'
@@ -699,6 +720,7 @@ export interface FileRouteTypes {
     | '/cards'
     | '/dashboard'
     | '/dev-log'
+    | '/elo-log'
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
@@ -709,6 +731,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/pool-odds'
+    | '/prediction-reconciliation'
     | '/prediction-vs-result'
     | '/predictor'
     | '/pricing'
@@ -766,6 +789,7 @@ export interface FileRouteTypes {
     | '/cards'
     | '/dashboard'
     | '/dev-log'
+    | '/elo-log'
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
@@ -776,6 +800,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/pool-odds'
+    | '/prediction-reconciliation'
     | '/prediction-vs-result'
     | '/predictor'
     | '/pricing'
@@ -835,6 +860,7 @@ export interface RootRouteChildren {
   CardsRoute: typeof CardsRoute
   DashboardRoute: typeof DashboardRoute
   DevLogRoute: typeof DevLogRoute
+  EloLogRoute: typeof EloLogRoute
   EncyclopediaRoute: typeof EncyclopediaRoute
   FeaturesRoute: typeof FeaturesRoute
   FreezeLedgerRoute: typeof FreezeLedgerRoute
@@ -845,6 +871,7 @@ export interface RootRouteChildren {
   MembershipRoute: typeof MembershipRoute
   ModelRoute: typeof ModelRoute
   PoolOddsRoute: typeof PoolOddsRoute
+  PredictionReconciliationRoute: typeof PredictionReconciliationRoute
   PredictionVsResultRoute: typeof PredictionVsResultRoute
   PredictorRoute: typeof PredictorRoute
   PricingRoute: typeof PricingRoute
@@ -928,6 +955,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevLogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/elo-log': {
+      id: '/elo-log'
+      path: '/elo-log'
+      fullPath: '/elo-log'
+      preLoaderRoute: typeof EloLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/encyclopedia': {
       id: '/encyclopedia'
       path: '/encyclopedia'
@@ -996,6 +1030,13 @@ declare module '@tanstack/react-router' {
       path: '/pool-odds'
       fullPath: '/pool-odds'
       preLoaderRoute: typeof PoolOddsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prediction-reconciliation': {
+      id: '/prediction-reconciliation'
+      path: '/prediction-reconciliation'
+      fullPath: '/prediction-reconciliation'
+      preLoaderRoute: typeof PredictionReconciliationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prediction-vs-result': {
@@ -1403,6 +1444,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardsRoute: CardsRoute,
   DashboardRoute: DashboardRoute,
   DevLogRoute: DevLogRoute,
+  EloLogRoute: EloLogRoute,
   EncyclopediaRoute: EncyclopediaRoute,
   FeaturesRoute: FeaturesRoute,
   FreezeLedgerRoute: FreezeLedgerRoute,
@@ -1413,6 +1455,7 @@ const rootRouteChildren: RootRouteChildren = {
   MembershipRoute: MembershipRoute,
   ModelRoute: ModelRoute,
   PoolOddsRoute: PoolOddsRoute,
+  PredictionReconciliationRoute: PredictionReconciliationRoute,
   PredictionVsResultRoute: PredictionVsResultRoute,
   PredictorRoute: PredictorRoute,
   PricingRoute: PricingRoute,

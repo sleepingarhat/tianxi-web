@@ -141,6 +141,20 @@
       "when": 1792151060030,
       "tag": "0019_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792252499328,
+      "tag": "0020_atomic_subscription_reconciliation",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792256934679,
+      "tag": "0021_subscription_reconciliation_null_guards",
+      "breakpoints": true
     }
   ]
 }

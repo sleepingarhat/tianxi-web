@@ -33,6 +33,7 @@ export const getCoverageAudit = createServerFn({ method: "GET" })
         } catch { failed.push(m.date); }
       }));
     }
+    if (failed.length || missingOdds.length) throw new Error("分層對帳未能完整讀取，保留上次資料並暫停更新");
     meetings.sort((a, b) => b.date.localeCompare(a.date));
     rows.sort((a, b) => b.date.localeCompare(a.date) || a.raceNo - b.raceNo);
     return { from: roll.from ?? null, to: meetings[0]?.date ?? null, checkedAt: new Date().toISOString(), meetings, rows, failed, missingOdds, excluded };

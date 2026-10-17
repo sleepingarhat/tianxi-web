@@ -1,87 +1,38 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
-import { type StripeEnv, verifyWebhook } from "@/lib/stripe.server";
+import { createStripeClient, type StripeEnv, verifyWebhook } from "@/lib/stripe.server";
 import { assertDatabaseWrite } from "@/lib/audit-safety";
+import { subscriptionSnapshot, webhookSubscriptionId } from "@/lib/subscription-reconciliation";
 
-let _supabase: ReturnType<typeof createClient> | null = null;
-function db() {
-  if (!_supabase) _supabase = createClient(process.env['SUPABASE_URL']!, process.env['SUPABASE_SERVICE_ROLE_KEY']!);
-  return _supabase as any;
-}
-
-const iso = (s?: number | null) => (s ? new Date(s * 1000).toISOString() : null);
-
-function fields(subscription: any) {
-  const item = subscription.items?.data?.[0];
-  return {
-    price_id: item?.price?.lookup_key || item?.price?.metadata?.lovable_external_id || item?.price?.id,
-    product_id: typeof item?.price?.product === "string" ? item.price.product : item?.price?.product?.id,
-    current_period_start: iso(item?.current_period_start ?? subscription.current_period_start),
-    current_period_end: iso(item?.current_period_end ?? subscription.current_period_end),
-  };
-}
-
-async function upsertSub(subscription: any, env: StripeEnv) {
-  const userId = subscription.metadata?.userId;
-  if (!userId) throw new Error("No userId in subscription metadata");
-  const result = await db().from("subscriptions").upsert({
-    user_id: userId,
-    stripe_subscription_id: subscription.id,
-    stripe_customer_id: typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id,
-    ...fields(subscription),
-    status: subscription.status,
-    cancel_at_period_end: subscription.cancel_at_period_end || false,
-    environment: env,
-    updated_at: new Date().toISOString(),
-  }, { onConflict: "stripe_subscription_id" });
-  assertDatabaseWrite(result);
-}
-
-async function handle(req: Request, env: StripeEnv) {
-  const event = await verifyWebhook(req, env);
-  const obj = event.data.object;
-  switch (event.type) {
-    case "customer.subscription.created":
-    case "customer.subscription.updated":
-      await upsertSub(obj, env);
-      break;
-    case "customer.subscription.deleted": {
-      const result = await db().from("subscriptions").update({ status: "canceled", updated_at: new Date().toISOString() })
-        .eq("stripe_subscription_id", obj.id).eq("environment", env).select("stripe_subscription_id");
-      assertDatabaseWrite(result);
-      if (!result.data?.length) throw new Error("Subscription deletion not persisted");
-      break;
-    }
-    case "invoice.payment_failed": {
-      // 用戶規則：扣款失敗即時停權
-      const subId = obj.parent?.subscription_details?.subscription ?? obj.subscription;
-      if (subId) {
-        const result = await db().from("subscriptions").update({ status: "past_due", updated_at: new Date().toISOString() })
-          .eq("stripe_subscription_id", subId).eq("environment", env).select("stripe_subscription_id");
-        assertDatabaseWrite(result);
-        if (!result.data?.length) throw new Error("Payment failure not persisted");
-      }
-      break;
-    }
-    default:
-      console.log("Unhandled event:", event.type);
+async function handle(req: Request, environment: StripeEnv) {
+  const event = await verifyWebhook(req, environment);
+  if (!event.id || !Number.isInteger(event.created)) throw new Error("Invalid event identity");
+  const subscriptionId = webhookSubscriptionId(event.type, event.data.object);
+  if (!subscriptionId) return;
+  // Verified provider event only; ordinary app reads never use this privileged client.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const stripe = createStripeClient(environment);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const state = await supabaseAdmin.from("subscription_event_state").select("revision").eq("environment", environment).eq("subscription_id", subscriptionId).maybeSingle();
+    assertDatabaseWrite(state);
+    // Read AFTER revision: a competing commit invalidates this snapshot atomically.
+    // Never replay event payload status; delayed events reconcile current provider state.
+    const current = await stripe.subscriptions.retrieve(subscriptionId);
+    const snapshot = subscriptionSnapshot(current as unknown as Record<string, any>);
+    const result = await supabaseAdmin.rpc("reconcile_subscription_event", {
+      _environment: environment, _event_id: event.id, _subscription_id: subscriptionId,
+      _expected_revision: state.data?.revision ?? 0, _snapshot: snapshot,
+    });
+    if (!result.error) return;
+    if (!result.error.message.includes("Concurrent reconciliation")) throw new Error(result.error.message);
   }
+  throw new Error("Concurrent reconciliation; provider will retry");
 }
 
 export const Route = createFileRoute("/api/public/payments/webhook")({
-  server: {
-    handlers: {
-      POST: async ({ request }) => {
-        const rawEnv = new URL(request.url).searchParams.get("env");
-        if (rawEnv !== "sandbox" && rawEnv !== "live") return Response.json({ received: true, ignored: "invalid env" });
-        try {
-          await handle(request, rawEnv);
-          return Response.json({ received: true });
-        } catch (e) {
-          console.error("Webhook error:", e);
-          return new Response("Webhook error", { status: 400 });
-        }
-      },
-    },
-  },
+  server: { handlers: { POST: async ({ request }) => {
+    const environment = new URL(request.url).searchParams.get("env");
+    if (environment !== "sandbox" && environment !== "live") return new Response("Invalid environment", { status: 400 });
+    try { await handle(request, environment); return Response.json({ received: true }); }
+    catch (error) { console.error("Subscription reconciliation failed", error); return new Response("Webhook reconciliation failed", { status: 503, headers: { "Cache-Control": "no-store" } }); }
+  } } },
 });

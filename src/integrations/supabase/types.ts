@@ -410,6 +410,51 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_event_receipts: {
+        Row: {
+          environment: string
+          event_id: string
+          received_at: string
+          subscription_id: string
+        }
+        Insert: {
+          environment: string
+          event_id: string
+          received_at?: string
+          subscription_id: string
+        }
+        Update: {
+          environment?: string
+          event_id?: string
+          received_at?: string
+          subscription_id?: string
+        }
+        Relationships: []
+      }
+      subscription_event_state: {
+        Row: {
+          environment: string
+          last_event_id: string | null
+          reconciled_at: string
+          revision: number
+          subscription_id: string
+        }
+        Insert: {
+          environment: string
+          last_event_id?: string | null
+          reconciled_at?: string
+          revision?: number
+          subscription_id: string
+        }
+        Update: {
+          environment?: string
+          last_event_id?: string | null
+          reconciled_at?: string
+          revision?: number
+          subscription_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
@@ -581,6 +626,16 @@ export type Database = {
       my_membership: { Args: never; Returns: Json }
       public_member_count: { Args: never; Returns: number }
       racing_data_scale: { Args: never; Returns: Json }
+      reconcile_subscription_event: {
+        Args: {
+          _environment: string
+          _event_id: string
+          _expected_revision: number
+          _snapshot: Json
+          _subscription_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "user"

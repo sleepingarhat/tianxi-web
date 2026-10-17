@@ -6,7 +6,7 @@ const PATHS = [
   "/", "/predictor", "/cards", "/results", "/schedule", "/track-record", "/value-trend", "/prediction-vs-result",
   "/strategy-pnl", "/freeze-ledger", "/racing-health", "/explain", "/engine", "/engine/audit",
   "/engine/backtest", "/engine/features", "/engine/monitor", "/engine/residuals", "/pool-odds",
-  "/horse", "/race", "/encyclopedia", "/manual", "/features", "/membership", "/dev-log", "/media-credits", "/model",
+  "/horse", "/race", "/encyclopedia", "/manual", "/features", "/membership", "/dev-log", "/media-credits", "/model", "/prediction-reconciliation", "/elo-log",
 ];
 
 export const Route = createFileRoute("/sitemap.xml")({

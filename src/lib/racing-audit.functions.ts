@@ -14,7 +14,9 @@ async function d1<T>(sql: string): Promise<T[]> {
   });
   const body = (await r.json()) as { success?: boolean; result?: { results?: T[] }[] };
   if (!r.ok || !body.success) throw new Error("資料暫時未能讀取");
-  return body.result?.[0]?.results ?? [];
+  const rows = body.result?.[0]?.results;
+  if (!Array.isArray(rows)) throw new Error("資料回應不完整");
+  return rows;
 }
 
 async function ghJson<T>(path: string): Promise<T> {
@@ -87,10 +89,17 @@ export const getAuditDashboard = createServerFn({ method: "GET" }).handler(async
     ghJson<Health>("backend/reports/ENGINE_HEALTH.json").catch(() => null),
     getRetrainManifests().then((r) => r[0] ?? null).catch(() => null),
   ]);
+  if (!latest || !health || !retrain || !list.length) throw new Error("完整性審計來源未能全部讀取；不以空結果覆蓋舊報告");
+  if (!Array.isArray(list) || list.some(f => typeof f.name !== "string") || !latest.categories || typeof latest.categories !== "object" || !Array.isArray(health.checks) || !health.counts) throw new Error("審計資料格式未能核對");
+  for (const category of Object.values(latest.categories)) {
+    if (!Number.isFinite(category.expected) || !Number.isFinite(category.present) || !Array.isArray(category.missing) || !Array.isArray(category.stale) || !Array.isArray(category.notes)) throw new Error("審計分類資料不完整");
+  }
   const days = list.map((f) => f.name.match(/^integrity_(\d{4}-\d{2}-\d{2})\.json$/)?.[1]).filter(Boolean).sort().slice(-14) as string[];
+  if (!days.length) throw new Error("歷史審計列表未能核對");
   const history = (await Promise.all(days.map((d) => ghJson<Integrity>(`audit_reports/integrity_${d}.json`)
     .then((x) => ({ date: d, status: sev(x.overall_severity), critical: x.critical_gap_count, warn: x.warn_gap_count })).catch(() => null))))
     .filter(Boolean) as AuditDashboard["history"];
+  if (history.length !== days.length) throw new Error("歷史審計未能完整讀取");
   return {
     integrity: latest ? {
       scanDate: latest.scan_date, status: sev(latest.overall_severity), critical: latest.critical_gap_count, warn: latest.warn_gap_count,

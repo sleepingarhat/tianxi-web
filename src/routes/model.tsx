@@ -41,7 +41,11 @@ function ModelPage() {
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>
 
-    <Card title="完整重訓對照 · 2026-10-18" en="只讀研究">
+    <Card title="修復後歷史重訓 · 證據待補齊" en="未完成驗收">
+      <P>本次隔離重建逐匹配對102,252行／8,408場；79場驗證選定796輪。執行摘要顯示：10月19日11場145匹原始LGB分表，5場頭四組合改變、9場頭四次序改變、74匹排名改變；平均絕對log(p)分差0.14855，最大0.54507。</P>
+      <P><b>尚未完成：</b>完整輸入、模型、逐馬CSV／JSON及候選修復未成功保存，暫存不可取回，以上僅為執行觀察，不能獨立重現。網站融合四揀及finalScore未逐場重播；血統先驗及並頭標籤亦有差異，不能把全部變化歸因Elo停更或宣稱準確度改善。未升版、未改正式預測、未發布；前批凍結及發布缺口仍待修復驗收。</P>
+    </Card>
+    <Card title="舊CSV重現對照 · 2026-10-18" en="只讀研究">
       <P>全部102,252行／8,408場／52項特徵；79場驗證選定870輪，再用全部資料重擬合。正式10月19日模型分表11場145匹：四揀改變0／11場、排序改變0／145匹、原始log(p)分數最大差0。序列化模型SHA-256與現行完全相同，未切換模型、權重或正式預測。</P>
       <P><b>限制：</b>用現存完整CSV重訓，並非以修復後v12重新生成全歷史特徵；零差異只證明相同輸入可重現，唔代表停更無影響。公開草稿接口只返回第1場13匹；全分表排序不等於全日公開凍結四揀。網站finalScore不在這次分數比較範圍，亦未有賽果證明改善。</P>
       <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-[12px]"><thead className="text-ink-3"><tr><th>場次</th><th>匹數</th><th>四揀保留</th><th>排序改變</th></tr></thead><tbody className="divide-y divide-hairline">{report.races.map(r => <tr key={r.race}><td className="py-2">第 {r.race} 場</td><td>{r.runners}</td><td>{r.retained}／4</td><td>{r.rankChanges}</td></tr>)}</tbody></table></div>

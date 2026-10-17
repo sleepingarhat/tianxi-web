@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { TX_BASE } from "./tx-api";
 
-type LockedEvidence = { horseElo: number | null; eloComposite: number | null; factorBonus: number | null; finalScore: number | null; generatedAt: string; modelVersion: string | null; rank: number; source: string | null };
+type LockedEvidence = { horseElo: number | null; eloComposite: number | null; factorBonus: number | null; finalScore: number | null; generatedAt: string; modelVersion: string | null; rank: number; source: string | null; provenance: "historical-unverified" | "public-frozen-picks" };
 type VersionEvidence = { version: string; firstDate: string; lastDate: string; source: string | null; rows: number };
 
 // Fixed projections only. No arbitrary SQL or database credentials cross the RPC boundary.
@@ -25,7 +25,9 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     if (!token || !account) throw new Error("凍結資料暫時未能讀取");
     // Historical settled evidence is public. Upcoming data follows the existing public
     // picks gate and is never exposed simply because a draft prediction_log row exists.
-    const settled = await query<{ settled: number }>(`SELECT 1 AS settled FROM race_results WHERE race_id=? AND finishing_position>0 LIMIT 1`, [data.raceId], token, account);
+    const identities = await query<{ count: number }>(`SELECT COUNT(DISTINCT venue) count FROM race_meetings WHERE date=? AND venue IN ('ST','HV')`, [data.raceId.slice(5, 15)], token, account);
+    if (identities[0]?.count !== 1) throw new Error("同日馬場來源不唯一，暫不配對解釋紀錄");
+    const settled = await query<{ settled: number }>(`SELECT 1 AS settled FROM race_results WHERE race_id=? AND finishing_position BETWEEN 1 AND 98 LIMIT 1`, [data.raceId], token, account);
     if (!settled.length) {
       const response = await fetch(`${TX_BASE}/api/analyze/today-picks`, { signal: AbortSignal.timeout(15_000) });
       if (!response.ok) return null;
@@ -35,7 +37,8 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     const rows = await query<LockedEvidence>(`SELECT pl.horse_elo AS horseElo, pl.elo_composite AS eloComposite, pl.factor_bonus AS factorBonus, pl.final_score AS finalScore, pl.generated_at AS generatedAt, pl.lgb_model_version AS modelVersion, pl.predicted_rank AS rank, pl.score_source AS source
       FROM prediction_log pl JOIN races r ON r.race_number=pl.race_number JOIN race_meetings m ON m.id=r.meeting_id AND m.date=pl.date
       WHERE r.id=? AND pl.horse_id=? AND pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL LIMIT 1`, [data.raceId, data.horseId], token, account);
-    return rows[0] ?? null;
+    const row = rows[0];
+    return row ? { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" } : null;
   });
 
 export const getFrozenVersionHistory = createServerFn({ method: "GET" }).handler(async (): Promise<VersionEvidence[]> => {
@@ -43,6 +46,7 @@ export const getFrozenVersionHistory = createServerFn({ method: "GET" }).handler
   if (!token || !account) throw new Error("版本紀錄暫時未能讀取");
   return query<VersionEvidence>(`SELECT pl.lgb_model_version AS version, MIN(pl.date) AS firstDate, MAX(pl.date) AS lastDate, pl.score_source AS source, COUNT(*) AS rows
     FROM prediction_log pl WHERE pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL AND pl.lgb_model_version IS NOT NULL
-    AND EXISTS(SELECT 1 FROM race_meetings m JOIN races r ON r.meeting_id=m.id JOIN race_results rr ON rr.race_id=r.id WHERE m.date=pl.date AND rr.finishing_position>0)
+    AND (SELECT COUNT(DISTINCT m.venue) FROM race_meetings m WHERE m.date=pl.date AND m.venue IN ('ST','HV'))=1
+    AND EXISTS(SELECT 1 FROM race_meetings m JOIN races r ON r.meeting_id=m.id JOIN race_results rr ON rr.race_id=r.id WHERE m.date=pl.date AND r.race_number=pl.race_number AND rr.finishing_position BETWEEN 1 AND 98)
     GROUP BY pl.lgb_model_version,pl.score_source ORDER BY firstDate DESC LIMIT 100`, [], token, account);
 });

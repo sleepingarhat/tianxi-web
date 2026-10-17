@@ -4,18 +4,24 @@ export async function cached<T>(key: string, ttlMs: number, compute: () => Promi
   let stale: T | null = null;
   try {
     admin = (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const { data } = await admin.from("computed_cache").select("payload, computed_at").eq("key", key).maybeSingle();
+    const { data, error } = await admin.from("computed_cache").select("payload, computed_at").eq("key", key).maybeSingle();
+    if (error) throw new Error("暫存未能讀取");
     if (data) {
       stale = data.payload as T;
-      if (Date.now() - new Date(data.computed_at).getTime() < ttlMs) return stale;
+      const age = Date.now() - new Date(data.computed_at).getTime();
+      if (Number.isFinite(age) && age >= 0 && age < ttlMs) return stale;
     }
   } catch { /* 暫存讀取失敗就直接計 */ }
   try {
     const fresh = await compute();
-    if (admin) await admin.from("computed_cache").upsert({ key, payload: fresh as never, computed_at: new Date().toISOString() }).then(() => undefined, () => undefined);
+    if (admin) {
+      const result = await admin.from("computed_cache").upsert({ key, payload: fresh as never, computed_at: new Date().toISOString() });
+      if (result.error) console.error("Public computed cache write failed", result.error.message);
+    }
     return fresh;
   } catch (e) {
-    if (stale !== null) return stale;
+    // Never silently present an expired snapshot as current after a failed refresh.
+    // Old payload remains stored for recovery but the caller shows a read error.
     throw e;
   }
 }
