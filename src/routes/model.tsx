@@ -5,12 +5,16 @@ import { Card, PageHead } from "@/components/tx/ui";
 import { ELO, FACTOR_RULES, FEATURES, LGB } from "@/lib/model-spec";
 import report from "@/lib/retraining-report.json";
 import repair from "@/lib/repair-retraining-report.json";
-import trainingAsset from "../../public/reports/repair-retraining-2026-10-18/training-rebuilt.csv.gz.asset.json";
+import calibration from "@/lib/repair-calibration-summary.json";
+import completeTrainingAsset from "@/assets/reports/training-complete.csv.gz.asset.json";
+import trainingAsset from "@/assets/reports/training-rebuilt.csv.gz.asset.json";
+import { FreezeRecoveryPanel, recoveryQuery } from "@/components/tx/FreezeRecoveryPanel";
 
 const TITLE = "模型說明 · Elo 公式與 LightGBM 特徵 · 天喜賽馬";
 const DESC = "天喜 TX-Oracle v3 公開模型說明：Elo 更新公式、K 值、騎練權重、52 項 LightGBM 特徵衍生及編碼方式。";
 
 export const Route = createFileRoute("/model")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(recoveryQuery),
   head: () => ({ meta: [
     { title: TITLE },
     { name: "description", content: DESC },
@@ -42,12 +46,23 @@ function ModelPage() {
 
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>
+    <FreezeRecoveryPanel />
 
-    <Card title="修復後歷史重訓 · 已保存核對報告" en="研究候選 · 未升版">
+    <Card title="完整重建與逐日校準 · 最新核對報告" en="未通過升版驗收">
+      <P>修復後完整重建 {calibration.rows.toLocaleString()} 行／{calibration.races.toLocaleString()} 場，涵蓋2016年9月3日至2026年10月14日。95欄輸入使用正式52項訓練特徵；134行來源缺配對全部重新納入，場次／馬匹鍵無重複。</P>
+      <P>796輪候選模型先用更早資料訓練，於79場驗證校準，再全資料重擬合。11個賽日107場逐日測試只用更早賽日資料，數值健康閘11/11通過。最新τ_elo={calibration.fullTraining.tau_elo.toFixed(3)}，不再貼近100上限；α接近1按現行健康閘不屬失敗。</P>
+      <div className="mt-3 grid gap-3 text-[13px] sm:grid-cols-3"><div className="text-ink">候選四揀平均<b className="block text-lg">{calibration.candidateMean.toFixed(2)}／4</b></div><div className="text-ink">同批收市頭四熱門<b className="block text-lg">{calibration.marketMean.toFixed(2)}／4</b></div><div className="text-loss">升版狀態<b className="block text-lg">保持現行模型</b></div></div>
+      <P><b>數值健康閘通過不等於升版：</b>候選命中低於同批市場及目標3／4；正式α=0.88融合未重播，近期34行baseline缺值已查明：33匹馬及1位練馬師無嚴格較早快照；導出器要求三軸齊全，與網站可用軸重分配不同，融合對照仍未驗收。以下屬隔離研究預測，收市賠率只作賽後對照，不是正式凍結戰績。</P>
+      <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-[12px]"><thead className="text-ink-3"><tr><th>賽日</th><th>場數</th><th>候選／4</th><th>市場／4</th><th>數值健康閘</th></tr></thead><tbody className="divide-y divide-hairline">{calibration.days.map(d => <tr key={d.date}><td className="py-2 whitespace-nowrap">{d.date}</td><td>{d.races}</td><td>{d.candidateMean.toFixed(2)}</td><td>{d.marketMean.toFixed(2)}</td><td className="text-brand">通過</td></tr>)}</tbody></table></div>
+      <P>10月14日缺可靠原始鎖點副本，未做過正式自動恢復驗收。逐場巡查已部署，沿用5分鐘鎖點；異常事件觸發Telegram通知，通道測試已送達。下一賽日真正捕獲／恢復仍待驗收；任何重訓不改凍結、原始副本或歷史戰績。</P>
+      <details className="mt-3 text-[11px] text-ink-2"><summary className="cursor-pointer text-gold">完整輸入及候選模型指紋</summary><p className="mt-2 break-all font-mono-tx">輸入：{calibration.inputSha256}<br />模型：{calibration.fullTraining.model_sha256}</p></details>
+      <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-gold"><a href="/reports/repair-calibration-2026-10-18/summary.json" download>完整報告及逐日指標</a><a href="/reports/repair-calibration-2026-10-18/cohort-readback.csv" download>134行納入核對</a><a href={completeTrainingAsset.url} download>完整重建輸入 GZIP</a><a href="/reports/repair-calibration-2026-10-18/model.txt" download>最新候選模型</a><a href="/reports/repair-calibration-2026-10-18/feature-importance.json" download>最新特徵重要性</a>{calibration.days.map(d => <a key={d.date} href={`/reports/repair-calibration-2026-10-18/${d.date}-predictions.csv`} download>{d.date}逐馬預測</a>)}</div>
+    </Card>
+    <Card title="前次重訓對照 · 歷史研究報告" en="已由上方完整重建接續">
       <P>重新生成歷史特徵後，匹配{repair.trainingRows.toLocaleString()}行／{repair.trainingRaces.toLocaleString()}場、52項特徵；79場969行驗證選定986輪，再全資料重擬合。原102,252行中134行當時未配對，其後已逐行對返來源賽果CSV核實：110行係雙字母馬匹編號（如CL247）未被舊程式認到、跌咗入名稱後備識別，24行係平頭馬名次被舊解析當無效。兩個根源已修復並加回歸測試；呢批行會喺下一次完整重建時以正確來源重新納入，唔以舊特徵冒充補齊。</P>
       <P>10月19日11場145匹原始模型分表：{repair.top4SetChanges}場頭四組合、{repair.top4OrderChanges}場頭四次序改變，{repair.rankChanges}匹排名改變；平均絕對log(p)分差{repair.meanAbsDelta.toFixed(5)}，最大{repair.maxAbsDelta.toFixed(5)}。不是網站融合四揀；變化亦包含血統先驗、並頭標籤及來源分母，不能全歸因Elo停更。</P>
       <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-[12px]"><thead className="text-ink-3"><tr><th>場次</th><th>匹數</th><th>頭四保留</th><th>排名改變</th></tr></thead><tbody className="divide-y divide-hairline">{repair.races.map(r => <tr key={r.race}><td className="py-2">第{r.race}場</td><td>{r.runners}</td><td>{r.retained}／4</td><td>{r.rankChanges}</td></tr>)}</tbody></table></div>
-      <P><b>未通過升版驗收：</b>訓練內τ_elo接近100上限、α接近1；網站α=0.88融合四揀及finalScore未完整重播，凍結空值／缺行與原子發布保護仍未部署修復。非逐日walk-forward，亦未有10月19日賽果，不能宣稱準確度改善。舊凍結及正式模型不變。</P>
+      <P><b>前次報告不作升版依據：</b>本節是134行重新納入前的歷史研究，當時τ_elo接近100。最新完整重建及逐日校準見上方；舊145匹比較不是最新候選或網站融合四揀，亦不代表凍結分數有被改寫。</P>
       <P>10月14日對帳頁101匹與資料倉賽果逐匹匹配；99匹有名次全部一致，2匹無名次保持未完整。Elo日誌298筆（三軸101／101／96），屬補計快照淨變動，不是當日賽前使用證明；本次非直接向馬會獨立核證。</P>
       <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-gold"><a href="/reports/repair-retraining-2026-10-18/report.json" download>報告及指紋 JSON</a><a href="/reports/repair-retraining-2026-10-18/comparison.csv" download>145匹分數／排名 CSV</a><a href="/reports/repair-retraining-2026-10-18/missing-cohort.csv" download>134行缺配對清單</a><a href="/reports/repair-retraining-2026-10-18/missing-cohort-verified.csv" download>134行逐行核實結論</a><a href={trainingAsset.url} download>訓練輸入 GZIP</a><a href="/reports/repair-retraining-2026-10-18/model.txt" download>候選模型</a><a href="/reports/repair-retraining-2026-10-18/feature-importance.json" download>特徵重要性</a></div>
     </Card>
