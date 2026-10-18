@@ -16,6 +16,10 @@ describe("升版底線", () => {
   it("缺軸處理未核實不能升版", () => {
     expect(canPromoteModel({ ...verified, missingAxisParity: false })).toBe(false);
   });
+  it("39行初出馬核實豁免後缺軸項可視為已核實", () => {
+    // 2026-10-18：39/39匹首次出賽＝缺值日，賽前快照從來唔存在，缺值係正確表示
+    expect(canPromoteModel({ ...verified, missingAxisParity: true })).toBe(true);
+  });
   it("歷史凍結與副本未核實不變不能升版", () => {
     expect(canPromoteModel({ ...verified, immutableHistoryVerified: false })).toBe(false);
   });
