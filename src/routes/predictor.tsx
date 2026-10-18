@@ -10,6 +10,7 @@ import { RacecoursePhoto } from "@/components/tx/RacecoursePhoto";
 import { WeatherPanel } from "@/components/tx/WeatherPanel";
 import { RacePositionMap } from "@/components/tx/RacePositionMap";
 import { LivePickEvidence } from "@/components/tx/LivePickEvidence";
+import { ModelVsMarketDumbbell } from "@/components/tx/ModelVsMarketDumbbell";
 import { HorseExplainChip } from "@/components/tx/HorseExplainChip";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Scroller, Silks, Table, Td } from "@/components/tx/ui";
 import { getFeatureRace, listFeatureRaces } from "@/lib/features.functions";
@@ -70,17 +71,31 @@ function PredictorPage() {
   const start = cleanTime(race?.startTime);
   const venueName = tp.meeting?.venueName || (tp.venue === "HV" ? "跑馬地" : tp.venue === "ST" ? "沙田" : tp.venue || "");
 
+  // 市場參考：獨贏賠率每 20 秒重新拉取（唔固定用某日快照），並顯示盤口更新時間。
   const oddsQ = useQuery({
     queryKey: ["odds", tp.date, tp.venue, race?.raceNumber],
     queryFn: () => txApi.odds(tp.date!, tp.venue!, Number(race.raceNumber)).catch(() => null),
     enabled: !!tp.date && !!tp.venue && !!race?.raceNumber,
-    refetchInterval: 60_000,
+    retry: 2,
+    refetchInterval: 20_000,
+    refetchOnWindowFocus: true,
   });
   const winOddsMap: Record<string, number> = oddsQ.data?.winOdds || {};
   const liveOdds = (n: unknown) => {
     const v = winOddsMap[String(n).padStart(2, "0")];
     return typeof v === "number" ? v : null;
   };
+  // 盤口時效：後端 snapshotAt（UTC）→ 港時間 HH:MM，話畀用家知個盤幾時更新。
+  const oddsClock = (() => {
+    const iso = (oddsQ.data as any)?.snapshotAt;
+    if (!iso) return null;
+    const t = new Date(iso);
+    if (Number.isNaN(t.getTime())) return null;
+    return new Date(t.getTime() + 8 * 3600_000).toISOString().substring(11, 16);
+  })();
+  const oddsNote = oddsClock
+    ? `盤口${(oddsQ.data as any)?.live ? "即時" : "快照"}更新 ${oddsClock}（HKT）· 每 20 秒自動重取`
+    : null;
 
   const dayLockMinutes = meetingLockMinutes(races);
   const scarce = useScarceStarts(races, tp.date);
@@ -367,6 +382,20 @@ function PredictorPage() {
         </div>
       ) : null}
 
+      {race?.picks?.length ? (
+        <Card title={`第 ${race.raceNumber} 場 模型 vs 市場`} en="Model vs Market" className="mx-4 mb-3">
+          <ModelVsMarketDumbbell
+            picks={(race.picks || []).map((p: any) => ({
+              horseNumber: p.horseNumber,
+              nameCh: p.nameCh,
+              pWin: p.pWin,
+              pTop4: p.pTop4,
+              od: liveOdds(p.horseNumber) ?? p.winOdds ?? null,
+            }))}
+            oddsNote={oddsNote}
+          />
+        </Card>
+      ) : null}
 
       {featHorses.length ? (
         <section className="mx-4 mb-3 rounded-[10px] border border-hairline bg-paper-2 px-2.5 py-2.5">

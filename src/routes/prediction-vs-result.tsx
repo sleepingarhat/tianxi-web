@@ -8,6 +8,7 @@ import { AlphaGuard } from "@/components/tx/AlphaGuard";
 import { AppShell } from "@/components/tx/AppShell";
 import { Loading, Pill } from "@/components/tx/ui";
 import { MeterBar } from "@/components/tx/viz";
+import { entryVsActual } from "@/lib/entry-calibration";
 import {
   canonicalHorseId,
   cleanTime,
@@ -458,6 +459,37 @@ function ComparePage() {
             ) : null}
           </>
         ) : null}
+
+        {(() => {
+          const fin: Record<string, number> = {};
+          for (const x of (raceDetail.data?.horses || []) as any[]) {
+            const f = Number(x?.finishingPosition);
+            if (x?.horseNumber != null && Number.isFinite(f) && f >= 1) fin[String(x.horseNumber)] = f;
+          }
+          const cmp = entryVsActual((picks.data?.picks || []) as any[], fin);
+          if (!cmp.rows.length) return null;
+          return (
+            <section aria-label="入場排名對實際成績" className="mx-auto mt-4 max-w-[560px] rounded-[8px] border border-hairline bg-paper px-3 py-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="text-[14px] font-bold text-ink">入場排名 vs 實際成績</h2>
+                <span className="shrink-0 font-mono-tx text-[9px] text-ink-3">{picks.data?.frozen === true ? "賽前鎖定機率" : "即時重算機率，只作參考"}</span>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+                <div className="rounded-[6px] bg-paper-2 py-2"><p className="text-[10px] text-ink-3">入場排名頭 {cmp.topCount} 匹 · 預期入 Q</p><b className="tabnum font-mono-tx text-[15px] text-gold">{cmp.expectedTop.toFixed(2)}</b><span className="mx-1 text-ink-3">對</span><b className="tabnum font-mono-tx text-[15px] text-win">{cmp.actualTop}</b><p className="text-[9px] text-ink-3">實際入 Q</p></div>
+                <div className="rounded-[6px] bg-paper-2 py-2"><p className="text-[10px] text-ink-3">全場 {cmp.rows.length} 匹 · 預期入 Q</p><b className="tabnum font-mono-tx text-[15px] text-gold">{cmp.expectedAll.toFixed(2)}</b><span className="mx-1 text-ink-3">對</span><b className="tabnum font-mono-tx text-[15px] text-win">{cmp.actualAll}</b><p className="text-[9px] text-ink-3">實際入 Q</p></div>
+              </div>
+              <div className="mt-2 divide-y divide-hairline">
+                <div className="grid grid-cols-4 py-1 font-mono-tx text-[9px] text-ink-3"><span>入場排名</span><span>馬號</span><span>入 Q 機率</span><span className="text-right">實際名次</span></div>
+                {cmp.rows.map((r) => (
+                  <div key={r.horseNumber} className={`tabnum grid grid-cols-4 py-1 font-mono-tx text-[11px] ${r.inQ ? "text-win" : "text-ink-2"}`}>
+                    <span>#{r.entryRank}</span><span>{r.horseNumber}</span><span>{(r.pTop4 * 100).toFixed(1)}%</span><span className="text-right font-bold">{r.finish}{r.inQ ? " ✓" : ""}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-[9px] leading-relaxed text-ink-3">單場樣本細，預期同實際有差屬正常；要睇長期係咪一致，需累積多場。只作對照，非投注建議。</p>
+            </section>
+          );
+        })()}
 
         <p className="mx-auto mt-3 max-w-[560px] px-2 text-center text-[11px] leading-[1.55] text-ink-3">
           <span className="mr-1 inline-block h-[10px] w-[14px] rounded-[2px] border border-gold-strong bg-gold-bg align-[-1px]" />

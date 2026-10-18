@@ -162,6 +162,7 @@
   --tx-brown: oklch(0.3823 0.0636 58.68);
   --tx-accent: oklch(0.5120 0.0897 62.20);
   --tx-hairline: oklch(0.1496 0 0 / 8%);
+  --tx-market: oklch(0.6200 0.1100 215.00);
   --tx-compass-blue: oklch(0.394 0.135 255.5);
   --tx-compass-muted: oklch(0.70 0 0);
 }
@@ -184,6 +185,7 @@
   --color-brown: var(--tx-brown);
   --color-tx-accent: var(--tx-accent);
   --color-hairline: var(--tx-hairline);
+  --color-market: var(--tx-market);
   --font-serif-tc: "Noto Serif TC", serif;
   --font-sans-tc: "Noto Sans TC", system-ui, sans-serif;
   --font-mono-tx: "JetBrains Mono", ui-monospace, monospace;
@@ -434,6 +436,7 @@
   --tx-gold-bg: rgba(212, 161, 30, 0.12);
   --tx-tan: #b8912f;
   --tx-win: #00843d;
+  --tx-market: #2fb3d4;
   --tx-lose: #c8102e;
   --tx-deep: #16231f;
   --tx-deep-fg: #fdfbf5;
