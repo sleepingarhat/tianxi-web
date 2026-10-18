@@ -1,0 +1,149 @@
+{
+  "backendSourceCommit": "bf221c00cd0a8d37038a161890581a9a3bf8a127",
+  "scope": "MEETING_SEED_AWARE_DATE_HELD_OUT_CONDITIONAL_REPLAY",
+  "completedAt": "2026-10-18T13:14:45.037Z",
+  "promotion": "BLOCKED",
+  "productionPromoted": false,
+  "productionWrites": 0,
+  "fullFieldRaces": 107,
+  "fullFieldRunners": 1330,
+  "fullFieldScoreParityMax": 0,
+  "meetingVsHistoricalMaxScoreDifference": 57.09999999999991,
+  "meetingVsHistoricalComparedRunners": 1330,
+  "matchedRaces": 92,
+  "matchedRunners": 1147,
+  "excludedRaces": 15,
+  "cohortTop4ChangedRaces": 6,
+  "cohortRankChanges": 217,
+  "cohortMeanAbsScoreDelta": 3.8383609415867492,
+  "cohortMaxAbsScoreDelta": 29.700000000000045,
+  "historicalTop4ChangedRaces": 66,
+  "historicalMeanAbsScoreDelta": 31.182127288578947,
+  "historicalMaxAbsScoreDelta": 179.29999999999995,
+  "includedMeanHits": 1.9673913043478262,
+  "excludedMeanHits": 1.934782608695652,
+  "missingAxisRows": 39,
+  "missingAxisContractTests": 6,
+  "days": [
+    {
+      "date": "2026-09-06",
+      "matchedRaces": 9,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 5,
+      "rankChanges": 30,
+      "includedHits": 15,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-09-09",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 6,
+      "rankChanges": 12,
+      "includedHits": 20,
+      "excludedHits": 19
+    },
+    {
+      "date": "2026-09-13",
+      "matchedRaces": 10,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 8,
+      "rankChanges": 24,
+      "includedHits": 15,
+      "excludedHits": 15
+    },
+    {
+      "date": "2026-09-16",
+      "matchedRaces": 7,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 6,
+      "rankChanges": 19,
+      "includedHits": 15,
+      "excludedHits": 15
+    },
+    {
+      "date": "2026-09-23",
+      "matchedRaces": 7,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 7,
+      "rankChanges": 14,
+      "includedHits": 14,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-09-27",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 5,
+      "rankChanges": 21,
+      "includedHits": 15,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-10-01",
+      "matchedRaces": 11,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 9,
+      "rankChanges": 22,
+      "includedHits": 22,
+      "excludedHits": 23
+    },
+    {
+      "date": "2026-10-04",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 4,
+      "rankChanges": 17,
+      "includedHits": 17,
+      "excludedHits": 17
+    },
+    {
+      "date": "2026-10-07",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 5,
+      "rankChanges": 18,
+      "includedHits": 15,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-10-11",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 5,
+      "rankChanges": 19,
+      "includedHits": 16,
+      "excludedHits": 16
+    },
+    {
+      "date": "2026-10-14",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 6,
+      "rankChanges": 21,
+      "includedHits": 17,
+      "excludedHits": 17
+    }
+  ],
+  "limitations": [
+    "19賽日2,377匹的起始Elo／可信度契約對照通過；未四捨五入誤差6.82e-13、公開綜合Elo完全相同",
+    "11賽日重新校準，只保留全場與訓練輸入相符的驗證場次；52項原始訓練特徵沒有改動",
+    "39行原研究相容契約通過，但39行歷史新馬原始賽前評分／可信度未逐行補證",
+    "92場分差屬固定修復後特徵與輪數的134行有無条件式對照；不能當已發布的歷史分數",
+    "未有新校準完整發布bundle、明確研究閘PASS及原子發布收據；不升版",
+    "歷史原始副本0行，不作歷史恢復驗收；原歷史分差包含其他修復"
+  ],
+  "seedContract": {
+    "runners": 2377,
+    "seeded": 72,
+    "compositeMaxDifference": 6.821210263296962e-13,
+    "previousMeetingScoreMaxDifference": 0,
+    "productionWrites": 0,
+    "researchGate": "UNVERIFIED",
+    "promotion": "BLOCKED"
+  },
+  "seedContractTests": 9,
+  "legacyMissingAxisTests": 6,
+  "researchGate": "UNVERIFIED",
+  "releaseReceipt": null
+}

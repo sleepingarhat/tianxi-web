@@ -25,14 +25,13 @@
 - Subdirectories (src/components/admin/) have their own AGENTS.md; read before changing files there.
 - Public racing P&L supplements the existing four-pool rollup with shared `racingPoolAccounting` cross-race queries, merging daily cost and payout once; missing fifth picks are excluded and post-race substitutes are labelled, so incomplete data cannot masquerade as frozen results.
 - Admin version notes must wrap in desktop tables and use stacked mobile records; cross-race trio reconciliation reuses ExoticTrioPools separately from the single-race strategy aggregate, to prevent truncated explanations and mixed accounting scopes.
-- Blueprint completion audits must distinguish implemented code, verified user flows, missing evidence and superseded decisions in docs/blueprint; route existence and checked roadmap items alone do not prove functional completion.
+- Blueprint audits separate code, verified flows, missing evidence and superseded decisions. Why: routes and checked tasks do not prove completion.
 
 - 全站 break-ui 用 scripts/break-ui-matrix.py 覆蓋 320／390／1280、RTL、慢 API 與千人會員；dev-log 會合法提及 NaN／undefined，掃描器不可將說明文字當資料錯誤。理由：驗收要可重跑亦要避免假陽性。
 - 外部圖片只可用逐張核實自由授權或書面商用權，頁內須署名並保留 /media-credits；API 圖址不等於授權。
 - 藍圖現行版本放 docs/blueprint/；改藍圖要同步更新該文件、roadmap、AGENTS、開發者日誌同 GitHub 鏡像。理由：設計說明同代碼唔可以分家。
 
-- Archive retired sources and journals privately with commits/checksums; detach runtime dependencies before removal to preserve research.
-- The current blueprint is docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; older blueprints are historical so superseded requirements cannot re-enable retired products.
+- Current blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; older versions cannot re-enable retired products. Why: superseded plans are historical.
 - Pro entitlement is decided only by src/lib/entitlement.ts (resolveEntitlement), fed by the my_membership DB function and the webhook-maintained subscriptions table; the gate opens automatically at the 500th signup. Why: one rule source for free stage, founding Pro and paid subscriptions.
 - Racecourse posters rotate weekly from Wikimedia Commons via a managed HTTP schedule into racecourse_photos (commercial-free licences only, auto-deactivate on licence change); tianxi-web GitHub Actions only monitor the public status endpoint. Why: scheduling stays in the app backend, GitHub mirror stays read-only.
 
@@ -41,10 +40,10 @@
 - RacePositionMap pairs historical medians with actual checkpoints, separates finish rank and expands sources; never label historical references frozen estimates.
 - Racing evidence uses fixed read-only prediction_log projections via server functions, with settled-public or existing frozen-public-picks eligibility; version alpha comes from each frozen source, and absent per-version artifacts or component snapshots remain unverified. Why: current settings, mutable as-of tables and today's gates cannot stand in for historical locked evidence.
 
-- Football and Mark Six source lives only in the private research repository; the site keeps just the product-scope gate so old URLs redirect or return 410. Why: retired products must not run or ship in the live bundle.
+- Retired sources/journals live only in private research with commits/checksums; detach runtime dependencies before removal. Keep only product-scope gates (redirect/410). Why: preserve research without shipping retired products.
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
 
-- Saved rebuild journals are not live jobs; release-gate checks research evidence, not runtime promotion. Cohort tests fix features/Elo/rounds and exclude incomplete races. Why: health PASS is not approval.
-- Recovery uses immutable originals in the lock tick; the site reads live audits separately from saved calibration. Why: no historical rewrites or duplicate polling.
+- Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
+- Lock-tick recovery uses immutable originals; separate live audits from saved calibration. Why: no rewrites or duplicate polling.
 
-- Full-field parity replays the production meeting scorer through SELECT-only adapters; keep seed/confidence divergence and missing-axis compatibility separate from release approval. Why: formula equality cannot certify candidate-serving equivalence.
+- Seed-aware replay uses SELECT-only meeting scoring, preserves raw training axes and dated reports, and requires complete-field calibration plus release evidence. Why: seed/formula parity alone cannot certify historical training or promotion.

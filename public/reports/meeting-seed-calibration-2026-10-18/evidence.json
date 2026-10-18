@@ -1,0 +1,58 @@
+{
+  "immutableBefore": {
+    "prediction_log": {
+      "rows": 14021,
+      "sha256": "11ad9975085937037a133bc49d3dbc627d4547056cd787dc5872ef0e50c9cbdd"
+    },
+    "prediction_lock_meta": {
+      "rows": 1,
+      "sha256": "cbdf5db64d9ae43a49fe63d1f9a1219ef97a7cbc436e1e7844fb091b0f809fff"
+    },
+    "prediction_original_snapshots": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "immutableAfter": {
+    "prediction_log": {
+      "rows": 14021,
+      "sha256": "11ad9975085937037a133bc49d3dbc627d4547056cd787dc5872ef0e50c9cbdd"
+    },
+    "prediction_lock_meta": {
+      "rows": 1,
+      "sha256": "cbdf5db64d9ae43a49fe63d1f9a1219ef97a7cbc436e1e7844fb091b0f809fff"
+    },
+    "prediction_original_snapshots": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "productionWrites": 0,
+  "seedContract": {
+    "runners": 2377,
+    "seeded": 72,
+    "compositeMaxDifference": 6.821210263296962e-13,
+    "previousMeetingScoreMaxDifference": 0,
+    "productionWrites": 0,
+    "researchGate": "UNVERIFIED",
+    "promotion": "BLOCKED"
+  },
+  "artifacts": {
+    "summary.json": "46e66c03201c3cf6a0f3e029dbca946b810e5f31189c712a196ae1310250d071",
+    "comparison.csv": "ee7699d5472158fcbe7e2b0fec5c93d6c2046f88a1ef08caaf675a589dd656eb",
+    "excluded-races.json": "b8d1a4174d3e01c478d1a8574f967ff9c9da47b42003d955e039b0ec24f7786e",
+    "calibration.json": "7672cdf9449826b0fd973b3d1f799e8dfa185dd121a83554b13f99c676631ce7",
+    "2026-09-06.json": "5824c69442af03db76490072b70aabd088ff76d352bcb7a30a2921991e98ca94",
+    "2026-09-09.json": "cc0d2c525136757c593273c694e5ac9c72537e74b51ab3fc30ca7415b935856c",
+    "2026-09-13.json": "e24df0507ddf0decd608994062e5ea65680ff6ee114f18629859bce5dd606f13",
+    "2026-09-16.json": "92a4c00f7d4af9113e8a7e4a4c3379676f400e9181c209e82881c5cc29537aae",
+    "2026-09-23.json": "4fdabf0d41b7a9f9dda70082d9fb77fec1d69237c8a107ee2d7065bd6970cd6e",
+    "2026-09-27.json": "f2c89feb09ae9b80c876cda862b48c6baefc5b7db3a30428cae1f76d10418e4c",
+    "2026-10-01.json": "7855c47d6482d0c8277eb9aa7b5f36c3d3e88491d8cc87cc1e15bed0f88b5ff3",
+    "2026-10-04.json": "b8e18d13b05e5ebf5f8cae9ecb83dbf1c97b471144f5f81676037ebd3bb0409a",
+    "2026-10-07.json": "285311fadbcbad63a7cd926c9f2eba0c3ac76e954538af448cc4bfe84b376740",
+    "2026-10-11.json": "e754575880a1f11ac4e4d6f9269484eeaf17568e8b0833c2c02f932be3ed7095",
+    "2026-10-14.json": "6dc2dbdd5685d5db359483b4173ef2c7daa5a08bae6803fea807ef7bf7bb25fd",
+    "execution.log": "8c944694056327dd2e19e78387dce5b2c7bbea4a4c71067202059b1ab1585f41"
+  }
+}

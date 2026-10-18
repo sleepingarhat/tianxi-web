@@ -1,0 +1,272 @@
+{
+  "days": [
+    {
+      "date": "2026-09-06",
+      "train_end": "2026-06-13",
+      "validation_start": "2026-06-21",
+      "validation_end": "2026-07-15",
+      "validationRaces": 74,
+      "excludedValidationRaces": 8,
+      "targetRaces": 9,
+      "rounds": 1376,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.817661142598642,
+          "tau_elo": 1.8253589282690994,
+          "inner_alpha": 0.9429289162906817,
+          "validation_logloss": 2.2710709481179547
+        },
+        "excluded": {
+          "tau_lgb": 0.8184717717692253,
+          "tau_elo": 1.8253589282690994,
+          "inner_alpha": 0.9255947170396924,
+          "validation_logloss": 2.2741265662571477
+        }
+      }
+    },
+    {
+      "date": "2026-09-09",
+      "train_end": "2026-07-08",
+      "validation_start": "2026-07-12",
+      "validation_end": "2026-09-06",
+      "validationRaces": 28,
+      "excludedValidationRaces": 2,
+      "targetRaces": 8,
+      "rounds": 575,
+      "calibration": {
+        "included": {
+          "tau_lgb": 1.0095908906261613,
+          "tau_elo": 1.9442667467834958,
+          "inner_alpha": 0.759336222338814,
+          "validation_logloss": 2.368949728623361
+        },
+        "excluded": {
+          "tau_lgb": 1.010017701191227,
+          "tau_elo": 1.9442667467834958,
+          "inner_alpha": 0.774634552344692,
+          "validation_logloss": 2.369106580886626
+        }
+      }
+    },
+    {
+      "date": "2026-09-13",
+      "train_end": "2026-07-12",
+      "validation_start": "2026-07-15",
+      "validation_end": "2026-09-09",
+      "validationRaces": 26,
+      "excludedValidationRaces": 1,
+      "targetRaces": 10,
+      "rounds": 482,
+      "calibration": {
+        "included": {
+          "tau_lgb": 1.0202208282244083,
+          "tau_elo": 1.9902468395003436,
+          "inner_alpha": 0.700101021889618,
+          "validation_logloss": 2.329339328239118
+        },
+        "excluded": {
+          "tau_lgb": 1.0485960782789265,
+          "tau_elo": 1.9902468395003436,
+          "inner_alpha": 0.6663568299183273,
+          "validation_logloss": 2.331491114784287
+        }
+      }
+    },
+    {
+      "date": "2026-09-16",
+      "train_end": "2026-07-15",
+      "validation_start": "2026-09-06",
+      "validation_end": "2026-09-13",
+      "validationRaces": 27,
+      "excludedValidationRaces": 1,
+      "targetRaces": 7,
+      "rounds": 726,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.8929790391642358,
+          "tau_elo": 1.8687949602767924,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.3160042221739707
+        },
+        "excluded": {
+          "tau_lgb": 0.8836145864833757,
+          "tau_elo": 1.8687949602767924,
+          "inner_alpha": 0.9844560540768099,
+          "validation_logloss": 2.3147955896160455
+        }
+      }
+    },
+    {
+      "date": "2026-09-23",
+      "train_end": "2026-07-15",
+      "validation_start": "2026-09-06",
+      "validation_end": "2026-09-16",
+      "validationRaces": 34,
+      "excludedValidationRaces": 2,
+      "targetRaces": 8,
+      "rounds": 726,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.740943438740783,
+          "tau_elo": 1.5805837126138378,
+          "inner_alpha": 0.9769380610044236,
+          "validation_logloss": 2.2331066765343586
+        },
+        "excluded": {
+          "tau_lgb": 0.7329337512429294,
+          "tau_elo": 1.5805837126138378,
+          "inner_alpha": 0.9637050257240034,
+          "validation_logloss": 2.2301526774650022
+        }
+      }
+    },
+    {
+      "date": "2026-09-27",
+      "train_end": "2026-07-15",
+      "validation_start": "2026-09-06",
+      "validation_end": "2026-09-23",
+      "validationRaces": 42,
+      "excludedValidationRaces": 3,
+      "targetRaces": 11,
+      "rounds": 735,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.7253555750601272,
+          "tau_elo": 1.7008040097808288,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2262219890134203
+        },
+        "excluded": {
+          "tau_lgb": 0.7149705055172638,
+          "tau_elo": 1.7008040097808288,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.221048886691785
+        }
+      }
+    },
+    {
+      "date": "2026-10-01",
+      "train_end": "2026-07-15",
+      "validation_start": "2026-09-06",
+      "validation_end": "2026-09-27",
+      "validationRaces": 53,
+      "excludedValidationRaces": 3,
+      "targetRaces": 11,
+      "rounds": 748,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.7949104767396523,
+          "tau_elo": 1.9394466345846348,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.271724229159303
+        },
+        "excluded": {
+          "tau_lgb": 0.7719808697781405,
+          "tau_elo": 1.9394466345846348,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2634075616912024
+        }
+      }
+    },
+    {
+      "date": "2026-10-04",
+      "train_end": "2026-07-15",
+      "validation_start": "2026-09-06",
+      "validation_end": "2026-10-01",
+      "validationRaces": 64,
+      "excludedValidationRaces": 3,
+      "targetRaces": 10,
+      "rounds": 748,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.8188188114826361,
+          "tau_elo": 2.223799827348432,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2855768260662592
+        },
+        "excluded": {
+          "tau_lgb": 0.7880839000133462,
+          "tau_elo": 2.223799827348432,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.274843863718223
+        }
+      }
+    },
+    {
+      "date": "2026-10-07",
+      "train_end": "2026-07-15",
+      "validation_start": "2026-09-06",
+      "validation_end": "2026-10-04",
+      "validationRaces": 74,
+      "excludedValidationRaces": 4,
+      "targetRaces": 8,
+      "rounds": 909,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.8164855250727088,
+          "tau_elo": 1.9613604440092094,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2742768649295244
+        },
+        "excluded": {
+          "tau_lgb": 0.784966594811432,
+          "tau_elo": 1.9613604440092094,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.259871001864126
+        }
+      }
+    },
+    {
+      "date": "2026-10-11",
+      "train_end": "2026-09-06",
+      "validation_start": "2026-09-09",
+      "validation_end": "2026-10-07",
+      "validationRaces": 73,
+      "excludedValidationRaces": 4,
+      "targetRaces": 10,
+      "rounds": 870,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.7198350511177926,
+          "tau_elo": 2.0040707023729856,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2349391828715213
+        },
+        "excluded": {
+          "tau_lgb": 0.716539709608877,
+          "tau_elo": 2.0040707023729856,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2347923157811604
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "train_end": "2026-09-09",
+      "validation_start": "2026-09-13",
+      "validation_end": "2026-10-11",
+      "validationRaces": 75,
+      "excludedValidationRaces": 5,
+      "targetRaces": 8,
+      "rounds": 770,
+      "calibration": {
+        "included": {
+          "tau_lgb": 0.6821593064872474,
+          "tau_elo": 1.9619328911727214,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2267067833350307
+        },
+        "excluded": {
+          "tau_lgb": 0.6895662602400421,
+          "tau_elo": 1.9619328911727214,
+          "inner_alpha": 0.9999940391390134,
+          "validation_logloss": 2.2365819599802825
+        }
+      }
+    }
+  ],
+  "productionWrites": 0,
+  "researchGate": "UNVERIFIED",
+  "promotion": "BLOCKED",
+  "limitation": "Only complete fields retained; raw 52 training features unchanged, seed contract applied to calibration baseline."
+}
