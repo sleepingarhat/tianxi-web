@@ -1,14 +1,19 @@
 import { Card } from './ui';
-import report from '@/lib/pedigree-ablation-summary.json';
-import evidence from '@/assets/reports/pedigree-ablation-2026-10-19.tar.gz.asset.json';
+import report from '@/lib/pedigree-full-summary.json';
+import evidence from '@/assets/reports/pedigree-full-2026-10-19.tar.gz.asset.json';
 
 export function PedigreeResearchPanel() {
-  return <Card title="初出馬血統 · 逐日有／無對照" en="只讀研究 · 暫不加重">
-    <p className="text-[12px] leading-relaxed text-ink-2">已按馬會官方馬匹頁補齊13匹舊馬父系、母系及外祖父；本次訓練範圍5,812匹馬嘅父系／外祖父缺值為0。102,252行血統特徵重建只用較早賽日後代成績及整體先驗，平滑強度維持40；正式模型與凍結紀錄不變。</p>
-    <div className="mt-3 grid grid-cols-2 gap-3 text-[12px] text-ink"><div>有血統 · 四揀平均<b className="block font-mono-tx text-lg">{report.withMeanHits.toFixed(3)}／4</b></div><div>無血統 · 四揀平均<b className="block font-mono-tx text-lg">{report.withoutMeanHits.toFixed(3)}／4</b></div></div>
-    <p className="mt-2 text-[12px] leading-relaxed text-ink-2">11賽日107場中，26場含33匹本地初出馬；上述平均只計該26場全場四揀，兩分支均命中50匹。全107場為{report.withAllMeanHits.toFixed(3)}對{report.withoutAllMeanHits.toFixed(3)}／4。每分支只選到2匹初出馬，均未命中，<b>樣本及入選數不足，未見穩定改善證據，唔代表血統無用。</b></p>
-    <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-[11px]"><thead className="text-ink-3"><tr><th>賽日</th><th>初出馬場</th><th>有血統／4</th><th>無血統／4</th></tr></thead><tbody className="divide-y divide-hairline">{report.days.map(d => <tr key={d.date}><td className="whitespace-nowrap py-2">{d.date}</td><td>{d.debutRaces}</td><td>{d.debutRaces ? (d.withHits/d.debutRaces).toFixed(2) : '—'}</td><td>{d.debutRaces ? (d.withoutHits/d.debutRaces).toFixed(2) : '—'}</td></tr>)}</tbody></table></div>
-    <p className="mt-2 text-[11px] leading-relaxed text-ink-3">相同訓練行、seed 42及逐日輪數；52對49特徵只移除三項血統。校準只用更早賽日；本地首次出賽不等於海外首次出賽。現存血統身份不是歷史鎖點；本次只重建血統三欄，並非完整正式新馬seed重播，不能當升版驗收。早熟程度尚未有核實評估。</p>
-    <div className="mt-3 flex flex-wrap gap-3 text-[12px] text-gold"><a href="/reports/pedigree-ablation-2026-10-19/summary.json" download>完整研究報告</a><a href="/reports/pedigree-ablation-2026-10-19/races.csv" download>逐場命中對照</a><a href="/reports/pedigree-ablation-2026-10-19/verified-pedigree-supplement.json" download>13匹官方血統來源</a><a href={evidence.url} download>完整模型及重建證據</a></div>
+  const d = report.debut;
+  const s = report.debutScores;
+  return <Card title="初出馬血統 · 完整逐日對照" en="探索性改善 · 維持權重">
+    <p className="text-[12px] leading-relaxed text-ink-2">{report.evaluatedDates}賽日、{report.all.races}場全場配對；{d.races}場含{report.debutHorses}匹本地初出馬。兩分支同樣用新馬種子分、可信度及全場標準化；三項血統先驗只用較早賽日，K=40。以下平均只計含初出馬嘅場次，唔係只計初出馬。</p>
+    <div className="mt-3 grid grid-cols-2 gap-3 text-[12px] text-ink"><div>有血統 · 四揀平均<b className="block font-mono-tx text-lg">{d.withMeanHits.toFixed(3)}／4</b><span className="text-ink-3">{d.withHits}／{d.races * 4}匹 · {(d.withPickHitRate * 100).toFixed(2)}%</span></div><div>無血統 · 四揀平均<b className="block font-mono-tx text-lg">{d.withoutMeanHits.toFixed(3)}／4</b><span className="text-ink-3">{d.withoutHits}／{d.races * 4}匹 · {(d.withoutPickHitRate * 100).toFixed(2)}%</span></div></div>
+    <p className="mt-2 text-[12px] leading-relaxed text-ink-2">多中{d.withHits-d.withoutHits}匹，平均每場＋{d.meanHitChange.toFixed(3)}匹；四揀所選馬命中率＋{d.pickHitRateChangePp.toFixed(2)}百分點。全{report.all.races}場平均{report.all.withMeanHits.toFixed(3)}對{report.all.withoutMeanHits.toFixed(3)}／4。</p>
+    <div className="mt-3 grid grid-cols-2 gap-3 border-y border-hairline py-3 text-[12px] text-ink"><div>初出馬平均絕對分差<b className="block font-mono-tx text-lg">{s.meanAbsDelta.toFixed(3)}</b><span className="text-ink-3">最大{s.maxAbsDelta.toFixed(1)} · {s.rankChanges}匹排名改變</span></div><div>入選初出馬頭四命中<b className="block font-mono-tx text-lg">3／7 對 3／8</b><span className="text-ink-3">42.86% 對 37.50% · 命中數冇增加</span></div></div>
+    <p className="mt-3 text-[12px] leading-relaxed text-ink-2">含初出馬嘅21日：{report.improvedDays}日改善、{report.worseDays}日變差、{report.unchangedDays}日持平；{d.top4ChangedRaces}場四揀組合改變。按賽日配對95%探索區間＋{report.pairedDateBootstrap95[0]?.toFixed(3) ?? '—'}至＋{report.pairedDateBootstrap95[1]?.toFixed(3) ?? '—'}匹／場。<b>本樣本有輕微正方向，但入選初出馬只得7／8匹；有無血統唔等於加重血統有效，維持現行權重。</b></p>
+    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 text-[11px] text-ink-2">{report.periods.map(p => <div key={p.period}>{p.period} · {p.races}場<br /><b className="font-mono-tx">{p.withMeanHits.toFixed(3)} 對 {p.withoutMeanHits.toFixed(3)}／4</b></div>)}</div>
+    <details className="mt-3 text-[11px] text-ink-2"><summary className="cursor-pointer py-2">逐日命中對照 · 27賽日</summary><div className="overflow-x-auto"><table className="w-full text-left"><thead className="text-ink-3"><tr><th>賽日</th><th>初出馬場</th><th>有血統／4</th><th>無血統／4</th></tr></thead><tbody className="divide-y divide-hairline">{report.days.map(day => <tr key={day.date}><td className="whitespace-nowrap py-2">{day.date}</td><td>{day.races}</td><td>{day.withMeanHits?.toFixed(3) ?? '—'}</td><td>{day.withoutMeanHits?.toFixed(3) ?? '—'}</td></tr>)}</tbody></table></div></details>
+    <p className="mt-2 text-[11px] leading-relaxed text-ink-3">30個可用賽日中3日欠20場完整較早驗證資料而排除。本地初出唔等於海外初出；現存血統身份、重建Elo及可能刷新嘅排位來源唔係原始凍結副本。其他因子沿用研究輸入，不能冒稱正式歷史逐項一致。分差採finalScore公式，排序另計因子傾斜；52／49對照並非加重實驗，不作升版驗收。早熟程度未核實；凍結、原始副本及戰績全部不改。</p>
+    <div className="mt-3 flex flex-wrap gap-3 text-[12px] text-gold"><a href="/reports/pedigree-full-2026-10-19/report.md" download>完整中文報告</a><a href="/reports/pedigree-full-2026-10-19/summary.json" download>校準與統計原檔</a><a href="/reports/pedigree-full-2026-10-19/debut-horses.csv" download>107匹初出馬分差</a><a href="/reports/pedigree-full-2026-10-19/races.csv" download>逐場命中對照</a><a href="/reports/pedigree-full-2026-10-19/horses.csv" download>全場逐匹分數</a><a href={evidence.url} download>完整模型及重播證據</a></div>
   </Card>;
 }

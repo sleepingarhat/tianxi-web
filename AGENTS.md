@@ -46,4 +46,4 @@
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
 - Lock-tick recovery uses immutable originals; separate live audits from saved calibration. Why: no rewrites or duplicate polling.
 
-- Seed-aware replay preserves raw axes, requires full-field calibration and release evidence; pedigree ablation uses tested prior-date smoothing and no prediction writes. Why: research parity cannot certify promotion.
+- Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
