@@ -44,5 +44,5 @@
 - Football and Mark Six source lives only in the private research repository; the site keeps just the product-scope gate so old URLs redirect or return 410. Why: retired products must not run or ship in the live bundle.
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
 
-- Persist offline inputs, models, chronology and health-gate diagnostics; distinguish raw research ranks, frozen picks and promotion approval. Why: health PASS is not upgrade acceptance.
+- Save offline evidence; cohort tests fix features/Elo/rounds and exclude incomplete races. Why: health PASS is not promotion; repair differences are not solely cohort impact.
 - Freeze recovery uses immutable originals in the existing lock tick; the site reads audits. Why: never rewrite historical predictions or duplicate polling.

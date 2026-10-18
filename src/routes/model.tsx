@@ -6,6 +6,7 @@ import { ELO, FACTOR_RULES, FEATURES, LGB } from "@/lib/model-spec";
 import report from "@/lib/retraining-report.json";
 import repair from "@/lib/repair-retraining-report.json";
 import calibration from "@/lib/repair-calibration-summary.json";
+import impact from "@/lib/cohort-impact-summary.json";
 import completeTrainingAsset from "@/assets/reports/training-complete.csv.gz.asset.json";
 import trainingAsset from "@/assets/reports/training-rebuilt.csv.gz.asset.json";
 import { FreezeRecoveryPanel, recoveryQuery } from "@/components/tx/FreezeRecoveryPanel";
@@ -47,6 +48,15 @@ function ModelPage() {
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>
     <FreezeRecoveryPanel />
+    <Card title="134行影響對照 · 原始分數敏感度" en="未升版／歷史紀錄未核">
+      <P>11個賽日讀取1,338筆原預測紀錄，只比較馬匹集合完全一致的{impact.matchedRaces}場／{impact.matchedRunners}匹；15場集合不同排除。134行來源日期為2016年9月3日至2023年6月28日，屬訓練歷史，不是近期134匹預測。</P>
+      <P><b>只測134行納入：</b>固定修復後特徵、逐日訓練輪數、原紀錄Elo及因子，對比有／無134行訓練樣本；α固定0.88，以相同標度換算研究分數，但本實驗用原始模型分數，未重播服務使用的校準混合log(p)，所以數字只屬敏感度，不是正式預測影響。亦未重建舊錯誤導入流程。</P>
+      <div className="mt-3 grid gap-3 text-[13px] sm:grid-cols-3"><div className="text-ink">四揀組合改變<b className="block text-lg">{impact.cohortTop4ChangedRaces}／{impact.matchedRaces}場（5.4%）</b></div><div className="text-ink">研究分數平均差<b className="block text-lg">{impact.cohortMeanAbsScoreDelta.toFixed(2)}分</b></div><div className="text-ink">研究分數最大差<b className="block text-lg">{impact.cohortMaxAbsScoreDelta.toFixed(1)}分</b></div></div>
+      <P>{impact.cohortRankChanges}匹排名改變；同批平均四揀命中由{impact.excludedMeanHits.toFixed(3)}升至{impact.includedMeanHits.toFixed(3)}／4，合共增加2匹命中，改善有限，不能當成升版通過。</P>
+      <P><b>另作假設式歷史對照：</b>{impact.historicalTop4ChangedRaces}／{impact.matchedRaces}場四揀組合不同，{impact.historicalRankChanges}匹排名不同；平均絕對分差{impact.historicalMeanAbsScoreDelta.toFixed(2)}、最大{impact.historicalMaxAbsScoreDelta.toFixed(1)}分。差異包含重訓及其他資料修復，<b>不能全歸因134行</b>；原紀錄缺不可變發布收據，不能冒充已核實原始鎖點；這些假設式分差不代表134行納入後正式分數的實際改變。</P>
+      <P>研究閘仍未完成通過：正式修復後Elo融合重播及缺值處理一致性未驗收；保持現行模型，歷史凍結、原始副本及戰績不改。</P>
+      <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-gold"><a href="/reports/cohort-impact-2026-10-18/summary.json" download>條件式研究完整報告</a><a href="/reports/cohort-impact-2026-10-18/comparison.csv" download>1,147匹分數及排名對照</a><a href="/reports/cohort-impact-2026-10-18/source/compare.py" download>可重跑比較程式</a></div>
+    </Card>
 
     <Card title="完整重建與逐日校準 · 最新核對報告" en="未通過升版驗收">
       <P>修復後完整重建 {calibration.rows.toLocaleString()} 行／{calibration.races.toLocaleString()} 場，涵蓋2016年9月3日至2026年10月14日。95欄輸入使用正式52項訓練特徵；134行來源缺配對全部重新納入，場次／馬匹鍵無重複。</P>
