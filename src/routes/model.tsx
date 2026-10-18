@@ -12,6 +12,7 @@ import trainingAsset from "@/assets/reports/training-rebuilt.csv.gz.asset.json";
 import { FreezeRecoveryPanel, recoveryQuery } from "@/components/tx/FreezeRecoveryPanel";
 import { RebuildProgressPanel } from "@/components/tx/RebuildProgressPanel";
 import { CalibratedFusionPanel } from "@/components/tx/CalibratedFusionPanel";
+import { PedigreeResearchPanel } from "@/components/tx/PedigreeResearchPanel";
 
 const TITLE = "模型說明 · Elo 公式與 LightGBM 特徵 · 天喜賽馬";
 const DESC = "天喜賽馬模型公式、52項特徵、自動修復即時狀態、逐場巡查日誌、完整重建及逐日校準報告；清楚區分研究驗收與正式升版。";
@@ -52,6 +53,7 @@ function ModelPage() {
     <FreezeRecoveryPanel />
     <RebuildProgressPanel />
     <CalibratedFusionPanel />
+    <PedigreeResearchPanel />
     <Card title="134行影響對照 · 原始分數敏感度" en="未升版／歷史紀錄未核">
       <P>11個賽日讀取1,338筆原預測紀錄，只比較馬匹集合完全一致的{impact.matchedRaces}場／{impact.matchedRunners}匹；15場集合不同排除。134行來源日期為2016年9月3日至2023年6月28日，屬訓練歷史，不是近期134匹預測。</P>
       <P><b>只測134行納入：</b>固定修復後特徵、逐日訓練輪數、原紀錄Elo及因子，對比有／無134行訓練樣本；α固定0.88，以相同標度換算研究分數，但本實驗用原始模型分數，未重播服務使用的校準混合log(p)，所以數字只屬敏感度，不是正式預測影響。亦未重建舊錯誤導入流程。</P>

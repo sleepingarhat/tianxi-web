@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { TX_BASE } from "./tx-api";
 
-type LockedEvidence = { horseElo: number | null; eloComposite: number | null; factorBonus: number | null; finalScore: number | null; generatedAt: string; modelVersion: string | null; rank: number; source: string | null; provenance: "historical-unverified" | "public-frozen-picks" };
+type LockedEvidence = { horseElo: number | null; jockeyElo: number | null; trainerElo: number | null; factorScores: string | null; eloComposite: number | null; factorBonus: number | null; finalScore: number | null; generatedAt: string; modelVersion: string | null; rank: number; source: string | null; sire: string | null; dam: string | null; damsire: string | null; pedigreeUpdatedAt: string | null; provenance: "historical-unverified" | "public-frozen-picks" };
 type VersionEvidence = { version: string; firstDate: string; lastDate: string; source: string | null; rows: number };
 
 // Fixed projections only. No arbitrary SQL or database credentials cross the RPC boundary.
@@ -34,8 +34,11 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
       const body = await response.json() as { frozen?: boolean; date?: string; races?: { raceId?: string; picks?: { horseId?: string }[] }[] };
       if (!body.frozen || body.date !== data.raceId.slice(5, 15) || !body.races?.some(r => r.raceId === data.raceId && r.picks?.some(p => p.horseId === data.horseId))) return null;
     }
-    const rows = await query<LockedEvidence>(`SELECT pl.horse_elo AS horseElo, pl.elo_composite AS eloComposite, pl.factor_bonus AS factorBonus, pl.final_score AS finalScore, pl.generated_at AS generatedAt, pl.lgb_model_version AS modelVersion, pl.predicted_rank AS rank, pl.score_source AS source
+    // Pedigree identity is a separate current reference, never historical locked evidence.
+    const rows = await query<LockedEvidence>(`SELECT pl.horse_elo AS horseElo, pl.jockey_elo AS jockeyElo, pl.trainer_elo AS trainerElo, pl.factor_scores AS factorScores, pl.elo_composite AS eloComposite, pl.factor_bonus AS factorBonus, pl.final_score AS finalScore, pl.generated_at AS generatedAt, pl.lgb_model_version AS modelVersion, pl.predicted_rank AS rank, pl.score_source AS source,
+      hp.sire AS sire, hp.dam AS dam, hp.dam_sire AS damsire, hp.updated_at AS pedigreeUpdatedAt
       FROM prediction_log pl JOIN races r ON r.race_number=pl.race_number JOIN race_meetings m ON m.id=r.meeting_id AND m.date=pl.date
+      LEFT JOIN horse_pedigree hp ON hp.horse_id=pl.horse_id
       WHERE r.id=? AND pl.horse_id=? AND pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL LIMIT 1`, [data.raceId, data.horseId], token, account);
     const row = rows[0];
     return row ? { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" } : null;

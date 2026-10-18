@@ -38,7 +38,7 @@
 - Homepage data-scale figures come only from racing_results_index, filled by a twice-daily job that counts each tianxi-racing results CSV incrementally (40 files/run). Why: shown numbers stay verifiable and update without manual edits.
 - Racing coverage pages share racing-visibility aggregation over frozen hit-rate rows and full closing-result CSVs; position guides exclude same-day/future form and terminal finish positions. Why: paired denominators and pre-race evidence must remain auditable without prediction writes.
 - RacePositionMap pairs historical medians with actual checkpoints, separates finish rank and expands sources; never label historical references frozen estimates.
-- Racing evidence uses fixed read-only prediction_log projections via server functions, with settled-public or existing frozen-public-picks eligibility; version alpha comes from each frozen source, and absent per-version artifacts or component snapshots remain unverified. Why: current settings, mutable as-of tables and today's gates cannot stand in for historical locked evidence.
+- Racing evidence uses fixed read-only projections with settled/public-frozen eligibility. Separate current pedigree identities from original scores; missing snapshots remain unverified. Why: references cannot replace locked evidence.
 
 - Retired sources/journals live only in private research with commits/checksums; detach runtime dependencies before removal. Keep only product-scope gates (redirect/410). Why: preserve research without shipping retired products.
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
@@ -46,4 +46,4 @@
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
 - Lock-tick recovery uses immutable originals; separate live audits from saved calibration. Why: no rewrites or duplicate polling.
 
-- Seed-aware replay uses SELECT-only meeting scoring, preserves raw training axes and dated reports, and requires complete-field calibration plus release evidence. Why: seed/formula parity alone cannot certify historical training or promotion.
+- Seed-aware replay preserves raw axes, requires full-field calibration and release evidence; pedigree ablation uses tested prior-date smoothing and no prediction writes. Why: research parity cannot certify promotion.
