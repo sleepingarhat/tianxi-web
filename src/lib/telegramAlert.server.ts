@@ -115,6 +115,17 @@ async function checkEngineHealth(): Promise<Check> {
   }
 }
 
+/** Original-only recovery runs in the existing racing lock tick. */
+async function checkFreezeRecovery(): Promise<Check> {
+  try {
+    const res = await fetch(`${WORKER_BASE}/api/analyze/freeze-recovery-status`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8000) });
+    const status = await res.json() as { ok?: boolean; action?: string; date?: string; error?: string };
+    return { key: "freeze-recovery", area: "凍結自動修復", fail: res.ok && status.ok === true ? null : `${status.date ?? "當前賽日"}：${status.error ?? status.action ?? `檢查失敗 ${res.status}`}；只恢復原始副本，未用臨場資料補寫。` };
+  } catch {
+    return { key: "freeze-recovery", area: "凍結自動修復", fail: "自動修復狀態無法核實，請檢查鎖點服務。" };
+  }
+}
+
 /** 3. 收料 workflow：最後一次運行失敗或停滯超過 30 小時 */
 async function checkWorkflow(token: string, repo: string, file: string, label: string, staleHours: number): Promise<Check> {
   const key = `wf:${repo}/${file}`;
@@ -157,6 +168,7 @@ export async function runAlertChecks(trigger = "manual", matches?: Fixture[]): P
     const checks: Check[] = [];
     checks.push(await checkDatabase());
     checks.push(await checkEngineHealth());
+    checks.push(await checkFreezeRecovery());
     if (token) {
       checks.push(await checkWorkflow(token, "tianxi-racing", "capy_race_daily.yml", "賽馬賽果收料（capy_race_daily）", 30));
     }

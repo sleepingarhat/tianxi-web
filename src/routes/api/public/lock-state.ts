@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/public/lock-state")({
             status: res.status,
             headers: {
               "Content-Type": "application/json; charset=utf-8",
-              "Cache-Control": "public, max-age=30, s-maxage=60",
+              "Cache-Control": res.ok ? "public, max-age=30, s-maxage=60" : "no-store",
             },
           });
         } catch (err) {

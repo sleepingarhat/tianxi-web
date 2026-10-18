@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/public/freeze-ledger")({
             status: res.status,
             headers: {
               "Content-Type": "application/json; charset=utf-8",
-              "Cache-Control": "public, max-age=120, s-maxage=300",
+              "Cache-Control": res.ok ? "public, max-age=120, s-maxage=300" : "no-store",
             },
           });
         } catch (err) {

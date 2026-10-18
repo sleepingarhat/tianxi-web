@@ -44,4 +44,5 @@
 - Football and Mark Six source lives only in the private research repository; the site keeps just the product-scope gate so old URLs redirect or return 410. Why: retired products must not run or ship in the live bundle.
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
 
-- Elo uses v12; backfills are not frozen evidence. Retraining persists source, inputs (large files via assets), model and rows; publication is not promotion. Separate raw ranks from served picks and verify tied labels. Why: temporary output proves neither deployment nor historical impact.
+- Elo v12 backfills are not frozen evidence; persist training inputs, models and outputs, separate raw ranks from served picks. Why: publication is not promotion.
+- Freeze recovery runs in the racing lock tick using immutable originals; the website reads status and alerts. Why: never recompute historical predictions or duplicate polling.
