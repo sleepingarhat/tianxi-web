@@ -10,9 +10,11 @@ import impact from "@/lib/cohort-impact-summary.json";
 import completeTrainingAsset from "@/assets/reports/training-complete.csv.gz.asset.json";
 import trainingAsset from "@/assets/reports/training-rebuilt.csv.gz.asset.json";
 import { FreezeRecoveryPanel, recoveryQuery } from "@/components/tx/FreezeRecoveryPanel";
+import { RebuildProgressPanel } from "@/components/tx/RebuildProgressPanel";
+import { CalibratedFusionPanel } from "@/components/tx/CalibratedFusionPanel";
 
 const TITLE = "模型說明 · Elo 公式與 LightGBM 特徵 · 天喜賽馬";
-const DESC = "天喜 TX-Oracle v3 公開模型說明：Elo 更新公式、K 值、騎練權重、52 項 LightGBM 特徵衍生及編碼方式。";
+const DESC = "天喜賽馬模型公式、52項特徵、自動修復即時狀態、逐場巡查日誌、完整重建及逐日校準報告；清楚區分研究驗收與正式升版。";
 
 export const Route = createFileRoute("/model")({
   loader: ({ context }) => context.queryClient.ensureQueryData(recoveryQuery),
@@ -48,6 +50,8 @@ function ModelPage() {
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>
     <FreezeRecoveryPanel />
+    <RebuildProgressPanel />
+    <CalibratedFusionPanel />
     <Card title="134行影響對照 · 原始分數敏感度" en="未升版／歷史紀錄未核">
       <P>11個賽日讀取1,338筆原預測紀錄，只比較馬匹集合完全一致的{impact.matchedRaces}場／{impact.matchedRunners}匹；15場集合不同排除。134行來源日期為2016年9月3日至2023年6月28日，屬訓練歷史，不是近期134匹預測。</P>
       <P><b>只測134行納入：</b>固定修復後特徵、逐日訓練輪數、原紀錄Elo及因子，對比有／無134行訓練樣本；α固定0.88，以相同標度換算研究分數，但本實驗用原始模型分數，未重播服務使用的校準混合log(p)，所以數字只屬敏感度，不是正式預測影響。亦未重建舊錯誤導入流程。</P>
@@ -69,7 +73,7 @@ function ModelPage() {
       <div className="mt-3 flex flex-wrap gap-4 text-[12px] text-gold"><a href="/reports/repair-calibration-2026-10-18/summary.json" download>完整報告及逐日指標</a><a href="/reports/repair-calibration-2026-10-18/cohort-readback.csv" download>134行納入核對</a><a href={completeTrainingAsset.url} download>完整重建輸入 GZIP</a><a href="/reports/repair-calibration-2026-10-18/model.txt" download>最新候選模型</a><a href="/reports/repair-calibration-2026-10-18/feature-importance.json" download>最新特徵重要性</a>{calibration.days.map(d => <a key={d.date} href={`/reports/repair-calibration-2026-10-18/${d.date}-predictions.csv`} download>{d.date}逐馬預測</a>)}</div>
     </Card>
     <Card title="前次重訓對照 · 歷史研究報告" en="已由上方完整重建接續">
-      <P>重新生成歷史特徵後，匹配{repair.trainingRows.toLocaleString()}行／{repair.trainingRaces.toLocaleString()}場、52項特徵；79場969行驗證選定986輪，再全資料重擬合。原102,252行中134行當時未配對，其後已逐行對返來源賽果CSV核實：110行係雙字母馬匹編號（如CL247）未被舊程式認到、跌咗入名稱後備識別，24行係平頭馬名次被舊解析當無效。兩個根源已修復並加回歸測試；呢批行會喺下一次完整重建時以正確來源重新納入，唔以舊特徵冒充補齊。</P>
+      <P>重新生成歷史特徵後，匹配{repair.trainingRows.toLocaleString()}行／{repair.trainingRaces.toLocaleString()}場、52項特徵；79場969行驗證選定986輪，再全資料重擬合。原102,252行中134行當時未配對，其後已逐行對返來源賽果CSV核實：110行係雙字母馬匹編號（如CL247）未被舊程式認到、跌咗入名稱後備識別，24行係平頭馬名次被舊解析當無效。兩個根源已修復並加回歸測試；134行已在上方最新完整重建重新納入，本節只保留前次研究範圍。</P>
       <P>10月19日11場145匹原始模型分表：{repair.top4SetChanges}場頭四組合、{repair.top4OrderChanges}場頭四次序改變，{repair.rankChanges}匹排名改變；平均絕對log(p)分差{repair.meanAbsDelta.toFixed(5)}，最大{repair.maxAbsDelta.toFixed(5)}。不是網站融合四揀；變化亦包含血統先驗、並頭標籤及來源分母，不能全歸因Elo停更。</P>
       <div className="mt-3 overflow-x-auto"><table className="w-full text-left text-[12px]"><thead className="text-ink-3"><tr><th>場次</th><th>匹數</th><th>頭四保留</th><th>排名改變</th></tr></thead><tbody className="divide-y divide-hairline">{repair.races.map(r => <tr key={r.race}><td className="py-2">第{r.race}場</td><td>{r.runners}</td><td>{r.retained}／4</td><td>{r.rankChanges}</td></tr>)}</tbody></table></div>
       <P><b>前次報告不作升版依據：</b>本節是134行重新納入前的歷史研究，當時τ_elo接近100。最新完整重建及逐日校準見上方；舊145匹比較不是最新候選或網站融合四揀，亦不代表凍結分數有被改寫。</P>
