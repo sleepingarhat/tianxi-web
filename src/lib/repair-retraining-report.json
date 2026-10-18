@@ -120,10 +120,10 @@
   "warnings": [
     "τ_elo接近100上限",
     "訓練內α接近1",
-    "134行未配對：107行現有賽果表找不到，27行名次不符有效範圍",
     "未完成網站融合四揀及finalScore重播",
     "凍結讀取與原子发布缺口未部署修復",
-    "非逐日walk-forward、尚無10月19日賽果"
+    "非逐日walk-forward、尚無10月19日賽果",
+    "134行缺配對根源已修復（編號抽取＋平頭馬解析），待下一次完整重建納入"
   ],
   "promoted": false,
   "sha256": {
@@ -140,5 +140,11 @@
     "source/predict_upcoming.py": "4c7dc4c4d13ea46d1ddd25cc1521f282eff5bd9ed84ead650c0fb83cb6dbcc5b",
     "source/feature_importance.py": "fbd2d2c1c0b7422c516d7c47b287632b8e5e9c07cc91c2e514ef228655f9575a"
   },
-  "trainingAsset": "/__l5e/assets-v1/5df41dee-4f31-43e6-b941-f7b72cfade75/tianxi-repair-training-2026-10-18.csv.gz"
+  "trainingAsset": "/__l5e/assets-v1/5df41dee-4f31-43e6-b941-f7b72cfade75/tianxi-repair-training-2026-10-18.csv.gz",
+  "missingRowsVerdict": "134行已逐行對返來源賽果CSV核實：110行係雙字母馬匹編號（如CL247）未被舊抽取程式認到、跌咗入名稱後備識別；24行係平頭馬名次被舊解析當無效。兩個根源已喺導入程式修復並加回歸測試，下一次完整重建會以正確來源重新納入。",
+  "fixes": [
+    "walk-forward訓練集改為嚴格早於測試賽日，堵塞同日泄漏",
+    "凍結null唔俾live補上；重複馬匹／排名／唔完整凍結fail-closed",
+    "模型bundle加特徵語義指紋同原子寫入"
+  ]
 }
