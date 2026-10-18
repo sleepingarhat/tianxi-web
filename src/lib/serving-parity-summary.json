@@ -1,0 +1,135 @@
+{
+  "backendSourceCommit": "bf221c00cd0a8d37038a161890581a9a3bf8a127",
+  "scope": "EXACT_MEETING_SCORER_READONLY_REPLAY",
+  "completedAt": "2026-10-18T12:37:32.243Z",
+  "promotion": "BLOCKED",
+  "productionPromoted": false,
+  "productionWrites": 0,
+  "fullFieldRaces": 107,
+  "fullFieldRunners": 1330,
+  "fullFieldScoreParityMax": 0,
+  "meetingVsHistoricalMaxScoreDifference": 57.09999999999991,
+  "meetingVsHistoricalComparedRunners": 1330,
+  "matchedRaces": 92,
+  "matchedRunners": 1147,
+  "excludedRaces": 15,
+  "cohortTop4ChangedRaces": 3,
+  "cohortRankChanges": 188,
+  "cohortMeanAbsScoreDelta": 3.8791630340017504,
+  "cohortMaxAbsScoreDelta": 29.700000000000045,
+  "historicalTop4ChangedRaces": 63,
+  "historicalMeanAbsScoreDelta": 29.5240627724499,
+  "historicalMaxAbsScoreDelta": 180.20000000000005,
+  "includedMeanHits": 1.9456521739130435,
+  "excludedMeanHits": 1.934782608695652,
+  "missingAxisRows": 39,
+  "missingAxisContractTests": 6,
+  "days": [
+    {
+      "date": "2026-09-06",
+      "matchedRaces": 9,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 5,
+      "rankChanges": 21,
+      "includedHits": 15,
+      "excludedHits": 15
+    },
+    {
+      "date": "2026-09-09",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 6,
+      "rankChanges": 12,
+      "includedHits": 20,
+      "excludedHits": 20
+    },
+    {
+      "date": "2026-09-13",
+      "matchedRaces": 10,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 5,
+      "rankChanges": 10,
+      "includedHits": 13,
+      "excludedHits": 13
+    },
+    {
+      "date": "2026-09-16",
+      "matchedRaces": 7,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 6,
+      "rankChanges": 17,
+      "includedHits": 15,
+      "excludedHits": 15
+    },
+    {
+      "date": "2026-09-23",
+      "matchedRaces": 7,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 7,
+      "rankChanges": 10,
+      "includedHits": 14,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-09-27",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 5,
+      "rankChanges": 21,
+      "includedHits": 15,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-10-01",
+      "matchedRaces": 11,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 9,
+      "rankChanges": 22,
+      "includedHits": 22,
+      "excludedHits": 23
+    },
+    {
+      "date": "2026-10-04",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 4,
+      "rankChanges": 17,
+      "includedHits": 17,
+      "excludedHits": 17
+    },
+    {
+      "date": "2026-10-07",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 1,
+      "historicalTop4Changed": 5,
+      "rankChanges": 18,
+      "includedHits": 15,
+      "excludedHits": 14
+    },
+    {
+      "date": "2026-10-11",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 5,
+      "rankChanges": 19,
+      "includedHits": 16,
+      "excludedHits": 16
+    },
+    {
+      "date": "2026-10-14",
+      "matchedRaces": 8,
+      "cohortTop4Changed": 0,
+      "historicalTop4Changed": 6,
+      "rankChanges": 21,
+      "includedHits": 17,
+      "excludedHits": 17
+    }
+  ],
+  "limitations": [
+    "現行資料庫重播，不是歷史不可變發布收據",
+    "會期新馬seed／可信度權重與歷史重建不同，未擅改生產設計",
+    "39行契約驗證既有研究fillna(0)，不等於新馬seed服務一致性",
+    "研究閘未有PASS發布證據，未升版",
+    "缺可靠原始副本的歷史賽日未做恢復驗收"
+  ]
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "date": "2026-09-06",
+    "raceId": "race_2026-09-06_ST_7",
+    "serving": 9,
+    "candidate": 8,
+    "history": 9,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-09-16",
+    "raceId": "race_2026-09-16_HV_8",
+    "serving": 12,
+    "candidate": 11,
+    "history": 12,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-09-23",
+    "raceId": "race_2026-09-23_HV_3",
+    "serving": 12,
+    "candidate": 12,
+    "history": 13,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-09-23",
+    "raceId": "race_2026-09-23_HV_4",
+    "serving": 12,
+    "candidate": 10,
+    "history": 12,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-09-27",
+    "raceId": "race_2026-09-27_ST_5",
+    "serving": 12,
+    "candidate": 12,
+    "history": 13,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-09-27",
+    "raceId": "race_2026-09-27_ST_7",
+    "serving": 12,
+    "candidate": 12,
+    "history": 13,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-09-27",
+    "raceId": "race_2026-09-27_ST_9",
+    "serving": 14,
+    "candidate": 14,
+    "history": 15,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-04",
+    "raceId": "race_2026-10-04_ST_4",
+    "serving": 14,
+    "candidate": 14,
+    "history": 15,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-04",
+    "raceId": "race_2026-10-04_ST_9",
+    "serving": 12,
+    "candidate": 11,
+    "history": 12,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-04",
+    "raceId": "race_2026-10-04_ST_11",
+    "serving": 14,
+    "candidate": 14,
+    "history": 15,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-07",
+    "raceId": "race_2026-10-07_HV_9",
+    "serving": 12,
+    "candidate": 11,
+    "history": 12,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-11",
+    "raceId": "race_2026-10-11_ST_3",
+    "serving": 12,
+    "candidate": 12,
+    "history": 13,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-11",
+    "raceId": "race_2026-10-11_ST_4",
+    "serving": 10,
+    "candidate": 8,
+    "history": 10,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-11",
+    "raceId": "race_2026-10-11_ST_7",
+    "serving": 14,
+    "candidate": 14,
+    "history": 15,
+    "reason": "runner-set-mismatch"
+  },
+  {
+    "date": "2026-10-14",
+    "raceId": "race_2026-10-14_HV_5",
+    "serving": 12,
+    "candidate": 10,
+    "history": 12,
+    "reason": "runner-set-mismatch"
+  }
+]

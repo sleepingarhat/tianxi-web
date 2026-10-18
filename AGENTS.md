@@ -46,3 +46,5 @@
 
 - Saved rebuild journals are not live jobs; release-gate checks research evidence, not runtime promotion. Cohort tests fix features/Elo/rounds and exclude incomplete races. Why: health PASS is not approval.
 - Recovery uses immutable originals in the lock tick; the site reads live audits separately from saved calibration. Why: no historical rewrites or duplicate polling.
+
+- Full-field parity replays the production meeting scorer through SELECT-only adapters; keep seed/confidence divergence and missing-axis compatibility separate from release approval. Why: formula equality cannot certify candidate-serving equivalence.

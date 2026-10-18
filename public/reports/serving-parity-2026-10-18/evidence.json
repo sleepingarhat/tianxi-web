@@ -1,0 +1,48 @@
+{
+  "immutable-before.json": {
+    "prediction_log": {
+      "rows": 14021,
+      "sha256": "11ad9975085937037a133bc49d3dbc627d4547056cd787dc5872ef0e50c9cbdd"
+    },
+    "prediction_lock_meta": {
+      "rows": 1,
+      "sha256": "cbdf5db64d9ae43a49fe63d1f9a1219ef97a7cbc436e1e7844fb091b0f809fff"
+    },
+    "prediction_original_snapshots": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "immutable-after.json": {
+    "prediction_log": {
+      "rows": 14021,
+      "sha256": "11ad9975085937037a133bc49d3dbc627d4547056cd787dc5872ef0e50c9cbdd"
+    },
+    "prediction_lock_meta": {
+      "rows": 1,
+      "sha256": "cbdf5db64d9ae43a49fe63d1f9a1219ef97a7cbc436e1e7844fb091b0f809fff"
+    },
+    "prediction_original_snapshots": {
+      "rows": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "read-audit.json": {
+    "completedAt": "2026-10-18T12:37:10.081Z",
+    "reads": 3,
+    "rejectedWrites": 30,
+    "productionWrites": 0,
+    "immutableUnchanged": true
+  },
+  "backendCommit": "bf221c00cd0a8d37038a161890581a9a3bf8a127",
+  "scope": "SELECT-only current-data replay; no historical recovery certification",
+  "readAuditLimit": "reads=3 counts final hash queries only; rejectedWrites are blocked schema/helper attempts, not production writes",
+  "completedAt": "2026-10-18T12:37:32.243Z",
+  "artifacts": {
+    "missing-axis-39.csv": "f24e703d8e2720cc4e6120b0199ecf2b084522981002b1012b1e47aa5331f432",
+    "summary.json": "11b1d4b9aa68914f69fd6b818e7032ee023fe2ba2d96543816e3614c14dcffc3",
+    "excluded-races.json": "fccf8bdf1923932b4a5844f285650c9b795a1e9ffd8e060f3e4f655b72bd2442",
+    "comparison.csv": "f0cc341469d4589e51ee767deebc7602e98e616e1ac9a27f65d61241c7569106",
+    "execution.log": "ed0fab473d1b6bf10712b2f8cc53f37f036357f240f77896fe335044922b3b04"
+  }
+}
