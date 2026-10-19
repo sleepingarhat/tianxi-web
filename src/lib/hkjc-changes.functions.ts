@@ -9,6 +9,8 @@ export const getHkjcChanges = createServerFn({ method: "GET" })
     return d;
   })
   .handler(async ({ data }): Promise<HkjcChangesSnapshot> => {
+    const { setResponseHeader } = await import('@tanstack/react-start/server');
+    setResponseHeader('Cache-Control', 'no-store');
     const { readLatestHkjcChanges } = await import("./hkjc-changes.server");
     return (await readLatestHkjcChanges(data.date)) as HkjcChangesSnapshot;
   });

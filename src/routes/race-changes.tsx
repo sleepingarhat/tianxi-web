@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
-import { getHkjcChanges } from "@/lib/hkjc-changes.functions";
+import { useHkjcChanges } from "@/lib/use-hkjc-changes";
 import { useTodayPicks } from "@/lib/use-today-picks";
 
 export const Route = createFileRoute("/race-changes")({
@@ -27,8 +25,7 @@ const hkTime = (iso: string) => new Date(Date.parse(iso) + 8 * 3600_000).toISOSt
 function RaceChangesPage() {
   const tp = useTodayPicks();
   const date = tp.date || hkNow();
-  const fn = useServerFn(getHkjcChanges);
-  const q = useQuery({ queryKey: ["hkjc-changes", date], queryFn: () => fn({ data: { date } }), refetchInterval: 300_000 });
+  const q = useHkjcChanges(date);
 
   const affected = new Map<string, any>();
   for (const r of tp.races as any[]) for (const p of r.picks || []) if (p.officialChange) affected.set(`${r.raceNumber}:${p.horseNumber}`, { rank: p.rank });
@@ -83,7 +80,7 @@ function RaceChangesPage() {
             </Card>
           </>
         )}
-        <Disclaimer extra="時間為馬會公布時間（香港時間，日/月 時:分）。原文每日自動存檔一次，以指紋核對；本頁唔會改寫任何凍結預測或戰績。" />
+        <Disclaimer extra="時間為馬會公布時間（香港時間，日/月 時:分），並非網站收料時間。以官方原文指紋核對；本頁唔會改寫任何凍結預測或戰績。" />
       </div>
     </AppShell>
   );

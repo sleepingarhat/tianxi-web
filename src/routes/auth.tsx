@@ -5,15 +5,16 @@ import { AppShell } from "@/components/tx/AppShell";
 import { Card, PageHead } from "@/components/tx/ui";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { mode?: "signup" } => search["mode"] === "signup" ? { mode: "signup" } : {},
   head: () => ({
     meta: [
       { title: "帳戶登入 · 天喜 TIANXI" },
-      { name: "description", content: "登入天喜帳戶，進入內部監控台與會員功能。" },
+      { name: "description", content: "一般會員可免費註冊天喜，現階段限時免費使用香港賽馬功能；內部監控台只限管理員。" },
       { property: "og:title", content: "帳戶登入 · 天喜 TIANXI" },
-      { property: "og:description", content: "登入天喜帳戶，進入內部監控台與會員功能。" },
+      { property: "og:description", content: "免費建立一般會員帳戶，現階段限時免費使用天喜香港賽馬功能。內部監控台只限管理員。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -103,10 +104,10 @@ function AuthPage() {
   }
 
   return (
-    <AppShell ticker="帳戶登入 · 內部監控台需管理員權限">
-      <PageHead en="Account Sign In" title="帳戶登入" desc="內部監控台需要管理員權限；一般帳戶登入後只會看到會員區。" />
+    <AppShell ticker="一般會員免費註冊 · 現階段全站限時免費">
+      <PageHead en={mode === "signup" ? "Create Account" : "Account Sign In"} title={mode === "signup" ? "免費註冊會員" : "會員登入"} desc="一般會員可免費建立帳戶，現階段限時免費使用天喜香港賽馬功能，毋須付款。" />
 
-      <Card title={mode === "signin" ? "登入" : "註冊"} en="Auth">
+      <Card title={mode === "signin" ? "登入會員帳戶" : "建立免費會員帳戶"} en="Auth">
         <form onSubmit={submit} className="space-y-3">
           <label className="block text-[11px] text-ink-3">
             電郵
@@ -131,24 +132,26 @@ function AuthPage() {
               className="mt-1 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink outline-none focus:border-gold"
             />
           </label>
-          <button
+          <Button
             type="submit"
             disabled={busy}
             className="w-full rounded-[8px] bg-deep px-3 py-2 font-serif-tc text-[13px] text-deep-fg disabled:opacity-50"
           >
-            {busy ? "處理中…" : mode === "signin" ? "登入" : "建立帳戶"}
-          </button>
+            {busy ? "處理中…" : mode === "signin" ? "登入" : "免費建立帳戶"}
+          </Button>
         </form>
 
-        <button
+        <Button
+          variant="outline"
           type="button"
           onClick={google}
           className="mt-3 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink"
         >
           用 Google 繼續
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="link"
           type="button"
           onClick={() => {
             setMode(mode === "signin" ? "signup" : "signin");
@@ -157,8 +160,9 @@ function AuthPage() {
           }}
           className="mt-3 text-[11px] text-ink-3 underline"
         >
-          {mode === "signin" ? "未有帳戶？註冊" : "已有帳戶？登入"}
-        </button>
+          {mode === "signin" ? "未有帳戶？免費註冊" : "已有帳戶？登入"}
+        </Button>
+        <p className="mt-3 text-[10px] text-ink-3">一般會員毋須管理員權限；內部監控台只限獲授權管理員，免費註冊不會取得管理員權限。</p>
 
         {err && <p className="mt-3 text-[12px] text-lose">{err}</p>}
         {msg && <p className="mt-3 text-[12px] text-win">{msg}</p>}

@@ -7,6 +7,8 @@ import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
 import { picksEdition } from "./picks-refresh";
 import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
+import { useHkjcChanges } from './use-hkjc-changes';
+import { liveWithdrawal } from './live-racing-changes';
 
 export type MergedPick = {
   horseNumber: number;
@@ -43,6 +45,8 @@ export function useTodayPicks() {
     enabled: !cancellation,
   });
   const date: string | undefined = picks.data?.date;
+  const changes = useHkjcChanges(date);
+  const changesSnapshot = changes.data?.race_date === date && changes.data?.venue === picks.data?.venue ? changes.data : null;
   const meeting = useQuery({
     queryKey: ["meeting", date],
     queryFn: () => {
@@ -73,6 +77,7 @@ export function useTodayPicks() {
         const e = identityMatchedEntry(p.horseId, candidate) as any ?? {};
         return {
           ...p,
+          officialChange: liveWithdrawal(changesSnapshot?.changes ?? [], Number(r.raceNumber), p, picks.data?.lockAt) ?? p.officialChange ?? null,
           winOdds: p.winOdds ?? e.winOdds ?? null,
           weight: p.weight ?? e.weight ?? null,
           declaredWeight: p.declaredWeight ?? e.declaredWeight ?? null,
@@ -103,5 +108,7 @@ export function useTodayPicks() {
     cancellation,
     isLoading: cancellation ? false : picks.isLoading,
     error: picks.error,
+    changesSnapshot,
+    changesError: changes.isError,
   };
 }

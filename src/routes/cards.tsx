@@ -5,6 +5,8 @@ import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNo
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Scroller, Silks, Table, Td } from "@/components/tx/ui";
 import { cleanTime, fmtMeetingDate, pct } from "@/lib/tx-api";
 import { useTodayPicks } from "@/lib/use-today-picks";
+import { RacingChangesNotice } from "@/components/tx/RacingChangesNotice";
+import { effectiveTop4 } from "@/lib/withdrawal-substitution";
 
 export const Route = createFileRoute("/cards")({
   head: () => ({
@@ -43,6 +45,7 @@ function CardsPage() {
       />
 
       {tp.cancellation ? <MeetingCancellationNotice cancellation={tp.cancellation} /> : null}
+      <RacingChangesNotice snapshot={tp.changesSnapshot} failed={tp.changesError} />
 
       {tp.cancellation ? null : tp.isLoading ? (
         <Loading />
@@ -53,6 +56,7 @@ function CardsPage() {
       ) : races.length ? (
         races.map((r: any) => {
           const start = cleanTime(r.startTime);
+          const sub = effectiveTop4((r.picks ?? []).map((p: any) => ({ horseNumber: p.horseNumber, rank: p.rank, withdrawn: !!p.officialChange, announcedAtIso: p.officialChange?.announcedAtIso })), tp.engine?.lockAt);
           return (
             <Card
               key={r.raceNumber}
@@ -93,7 +97,9 @@ function CardsPage() {
                               <span className="font-serif-tc text-[14px] font-bold">{p.nameCh}</span>
                             )}
                           </div>
-                          <p className="mt-0.5 text-[10px] text-ink-3">
+                           {p.officialChange ? <p className="mt-1 text-[10px] font-bold text-lose">已退出 · {p.officialChange.announcedAt} HKT</p> : null}
+                           {sub.added.includes(p.horseNumber) ? <p className="mt-1 text-[10px] text-win">鎖後順位補位</p> : null}
+                           <p className="mt-0.5 text-[10px] text-ink-3">
                             {p.jockeyCh || "—"} / {p.trainerCh || "—"}
                           </p>
                         </Td>
@@ -102,12 +108,13 @@ function CardsPage() {
                         <Td>{pct(p.pWin)}</Td>
                         <Td>{pct(p.pTop3)}</Td>
                         <Td>{pct(p.pTop4)}</Td>
-                        <Td>{p.winOdds ?? "—"}</Td>
+                         <Td>{p.officialChange ? "已退出" : p.winOdds ?? "—"}</Td>
                       </tr>
                     );
                   })}
                 </Table>
               </Scroller>
+              {sub.substituted ? <p className="mt-2 text-[11px] text-ink">原四揀 {sub.original.join("-")} → 補位四揀 {sub.effective.join("-")}</p> : sub.status !== 'valid' ? <p className="mt-2 text-[11px] text-lose">原凍結僅作事故紀錄；退出時間屬鎖前或未能核實，不提供有效四揀。</p> : null}
               {r.expectedBoxCoverage ? (
                 <p className="tabnum mt-2 font-mono-tx text-[10px] leading-relaxed text-ink-3">
                   期望覆蓋率 · 三重彩 N4 {pct(r.expectedBoxCoverage.trio_n4)} / N6 {pct(r.expectedBoxCoverage.trio_n6)} · 四重彩 N6{" "}

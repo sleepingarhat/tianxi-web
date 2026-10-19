@@ -20,6 +20,7 @@ import { FEATURE_MAP, type FeatureId, type Horse } from "@/lib/race-data";
 import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import { useTodayPicks } from "@/lib/use-today-picks";
 import { effectiveTop4 } from "@/lib/withdrawal-substitution";
+import { RacingChangesNotice } from "@/components/tx/RacingChangesNotice";
 
 
 
@@ -120,11 +121,12 @@ function PredictorPage() {
     const edge = implied != null && p.pWin != null ? p.pWin - implied : null;
     return { ...p, od, implied, edge };
   });
-  const sub = effectiveTop4(withOdds.map((p) => ({ horseNumber: p.horseNumber, rank: p.rank ?? 99, withdrawn: !!p.officialChange })));
+  const sub = effectiveTop4(withOdds.map((p) => ({ horseNumber: p.horseNumber, rank: p.rank ?? 99, withdrawn: !!p.officialChange, announcedAtIso: p.officialChange?.announcedAtIso })), tp.engine?.lockAt);
+  const invalidInput = sub.status !== "valid";
   // 退出馬匹之後多顯示一匹，等順位補上嘅馬睇得到
   const modelCol = withOdds.slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).slice(0, 5 + sub.removed.length);
   const marketCol = withOdds
-    .filter((p) => p.od != null)
+    .filter((p) => p.od != null && !p.officialChange)
     .sort((a, b) => (a.od as number) - (b.od as number))
     .slice(0, 5);
   const cov = race?.expectedBoxCoverage;
@@ -187,6 +189,7 @@ function PredictorPage() {
         desc="先睇四揀結論，再逐層核對同程、檔位、騎練、時間、末段與近況證據；市場賠率只作對照，不會改動引擎排名。"
       />
       {venueName ? <RacecoursePhoto venue={tp.venue || venueName} /> : null}
+      <RacingChangesNotice snapshot={tp.changesSnapshot} failed={tp.changesError} />
 
       {tp.frozen && tp.engine?.probabilityEvidence?.pTop4 === "not-saved-in-original" ? <p className="mx-4 mt-3 text-[11px] text-ink-3">原始凍結副本未保存入頭四機率；入場機率及排名暫列「—」，不以臨場估值補寫。</p> : null}
 
@@ -223,7 +226,7 @@ function PredictorPage() {
                   on ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"
                 }`}
               >
-                <span className="block font-mono-tx text-[11px] font-bold">R{r.raceNumber}</span>
+                <span className="block font-mono-tx text-[11px] font-bold">R{r.raceNumber}{(r.picks ?? []).some((p: any) => p.officialChange) ? <span className="ml-1 text-lose">退出</span> : null}</span>
                 <span className="mt-0.5 block font-mono-tx text-[8px] text-ink-3">{cleanTime(r.startTime) || "—"} · {r.distance || "—"}m</span>
               </button>
             );
@@ -275,7 +278,7 @@ function PredictorPage() {
         </div>
       </div>
 
-      {race && raceLight ? (
+      {race && raceLight && !invalidInput ? (
         <div className="mx-4 mb-3">
           <PredictionStatusLight status={raceLight} />
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -289,7 +292,18 @@ function PredictorPage() {
         </div>
       ) : null}
 
-      {race ? (
+      {race && invalidInput ? (
+        <div role="alert" className="mx-4 mb-3 border border-lose/40 bg-paper px-3 py-3 text-[12px] text-lose">
+          <p className="font-bold">第 {race.raceNumber} 場：{sub.status === 'invalid-prelock-input' ? '凍結前已退出，舊排位預測無效' : '退出公布時間未能核實，暫停提供四揀'}</p>
+          <p className="mt-1">凍結前應更新排位並重新計算，不能按下一順位補位。原凍結只保留作事故證據，不提供有效四揀，也不以賽後重算冒充賽前預測。</p>
+          {(race.picks || []).filter((p: any) => p.officialChange).map((p: any) => <p key={p.horseNumber} className="mt-1">{p.horseNumber} 號 {p.nameCh}：馬會 {p.officialChange.announcedAt} 公布，{p.officialChange.text}</p>)}
+          <Link to="/race-changes" className="mt-2 inline-block font-bold text-gold">查看馬會更改證據 →</Link>
+        </div>
+      ) : null}
+
+      {race && sub.substituted && !invalidInput ? <div role="status" className="mx-4 mb-3 border border-lose/40 bg-paper px-3 py-2 text-[12px] text-ink"><p className="font-bold text-lose">第{race.raceNumber}場：鎖後退出，已按原引擎順位補位</p><p className="mt-1">原四揀 {sub.original.join("-")} → 補位四揀 {sub.effective.join("-")}</p><p className="mt-1 text-[11px] text-ink-3">原凍結排名及分數不改；補位四揀不代表已投注，退出馬退款及彩池結算須另按馬會規則核對。</p></div> : null}
+
+      {race && !invalidInput ? (
         <div className="mx-4 mb-3 grid grid-cols-2 items-stretch gap-2">
           <div
             className={`flex h-full flex-col rounded-[10px] border p-2.5 transition-colors duration-500 ${
@@ -407,7 +421,7 @@ function PredictorPage() {
         </div>
       ) : null}
 
-      {race?.picks?.length ? (
+      {race?.picks?.length && !invalidInput ? (
         <Card title={`第 ${race.raceNumber} 場 模型 vs 市場`} en="Model vs Market" className="mx-4 mb-3">
           <ModelVsMarketDumbbell
             picks={(race.picks || []).map((p: any) => ({
@@ -445,7 +459,7 @@ function PredictorPage() {
         </section>
       ) : null}
 
-      {cov ? (
+      {cov && !invalidInput ? (
         <div className="mx-4 mb-3 rounded-[10px] border border-hairline bg-paper p-2.5">
           <div className="mb-1.5 flex items-center justify-between gap-2">
             <p className="font-serif-tc text-[12px] font-bold text-ink">箱形覆蓋率估算</p>
@@ -478,7 +492,7 @@ function PredictorPage() {
 
 
       <Card
-        title={race ? `第 ${race.raceNumber} 場 引擎首選` : "引擎首選"}
+        title={race ? `第 ${race.raceNumber} 場 ${invalidInput ? "原凍結事故紀錄（非有效預測）" : "引擎首選"}` : "引擎首選"}
         en="Engine Picks"
         action={
           race?.raceId ? (
@@ -524,6 +538,8 @@ function PredictorPage() {
                             <span className="font-serif-tc text-[14px] font-bold">{p.nameCh}</span>
                           )}
                         </div>
+                        {p.officialChange ? <p className="mt-1 text-[10px] font-bold text-lose">已退出 · 馬會 {p.officialChange.announcedAt} 公布</p> : null}
+                        {sub.added.includes(p.horseNumber) ? <p className="mt-1 text-[10px] font-bold text-win">鎖後順位補位</p> : null}
                         <p className="mt-0.5 text-[10px] text-ink-3">
                           {p.jockeyCh || "—"} / {p.trainerCh || "—"}
                         </p>
@@ -533,7 +549,7 @@ function PredictorPage() {
                       <Td>{pct(p.pWin)}</Td>
                       <Td>{pct(p.pTop3)}</Td>
                       <Td>{pct(p.pTop4)}</Td>
-                      <Td>{liveOdds(p.horseNumber) ?? p.winOdds ?? "—"}</Td>
+                      <Td>{p.officialChange ? "已退出" : liveOdds(p.horseNumber) ?? p.winOdds ?? "—"}</Td>
                     </tr>
                   );
                 })}
@@ -551,7 +567,7 @@ function PredictorPage() {
         )}
       </Card>
 
-      {race ? (
+      {race && !invalidInput ? (
         <Card title="本場一句" en="Race Explain">
           <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
             只讀本場四揀同獨贏／位置機率填空。唔改排名、唔用 TreeSHAP、頭馬接近章未校準所以唔出。
@@ -565,11 +581,11 @@ function PredictorPage() {
         </Card>
       ) : null}
 
-      {tp.date && race ? <RacePositionMap date={tp.date} raceId={race.raceId ?? featRaceId ?? undefined} distance={Number(race.distance) || 0} picks={picks} frozen={Boolean(tp.frozen)} /> : null}
+      {tp.date && race && !invalidInput ? <RacePositionMap date={tp.date} raceId={race.raceId ?? featRaceId ?? undefined} distance={Number(race.distance) || 0} picks={picks} frozen={Boolean(tp.frozen)} /> : null}
 
       <Card title="點解揀佢" en="Why These Picks">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">逐匹讀取現有解釋接口；只展示真實已提供的內容。特徵排序研究分數不當成模型內部貢獻或 SHAP。</p>
-        {(race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} />) : <Empty label="未有本場預測" />}
+        {!invalidInput && (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} />) : <Empty label="未有本場預測" />}
       </Card>
 
       <Card title="特徵排序實驗室" en="Feature Lab">
