@@ -43,7 +43,7 @@ function Chart({ rows }: { rows: ValueDay[] }) {
 
 function ValueTrendPage() {
   const q = useQuery({ queryKey: ["value-trend"], queryFn: () => getValueTrend(), staleTime: 600_000 });
-  const rows = q.data ?? [];
+  const rows = q.data?.days ?? [];
   const t = rows.reduce((s, r) => ({ n: s.n + r.pos_n, w: s.w + r.pos_wins, m: s.m + r.pos_exp_mk, e: s.e + r.pos_exp_model, p: s.p + r.pos_pnl }), { n: 0, w: 0, m: 0, e: 0, p: 0 });
   return (
     <AppShell page="engine" ticker="值博長期走勢 · 只作研究參考">
@@ -51,6 +51,7 @@ function ValueTrendPage() {
       <div className="mx-4 mt-3 rounded-[8px] border border-gold-strong/40 bg-gold-bg px-3 py-2 text-[11px] font-semibold leading-relaxed text-gold">
         只作研究參考，唔係投注建議，亦唔代表有長期優勢。收市盤喺凍結之後先出現，模型從未用過呢個數。
       </div>
+      {q.data?.truncated ? <p className="mx-4 mt-2 text-[11px] font-semibold text-gold">讀取上限提示：以下只計最近 400 個賽日，更早賽日未包括喺統計內。</p> : null}
       {q.isLoading ? <Loading label="計算走勢…" /> : q.error ? <div className="mx-4 mt-3"><ErrorNote error={q.error} /></div> : rows.length ? <>
         <div className="mx-4 mt-3">
           <StatGrid cols={3}>

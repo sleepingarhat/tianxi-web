@@ -1,22 +1,14 @@
 import { cached, CACHE_TTL } from "./computed-cache.server";
+import { truncateRecent } from "./history-window";
 // 公開只讀：重訓紀錄、值博長期走勢、完整性審計。固定查詢，唔改任何凍結數值。
 import { createServerFn } from "@tanstack/react-start";
 
-const D1 = "aad1636e-869a-43f5-aa95-4a19e3aa5517";
 const GH = "https://api.github.com/repos/sleepingarhat/tianxi-racing/contents";
 
 async function d1<T>(sql: string): Promise<T[]> {
-  const token = process.env["CLOUDFLARE_API_TOKEN"], account = process.env["CLOUDFLARE_ACCOUNT_ID"];
-  if (!token || !account) throw new Error("資料暫時未能讀取");
-  const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/d1/database/${D1}/query`, {
-    method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ sql }), signal: AbortSignal.timeout(15_000),
-  });
-  const body = (await r.json()) as { success?: boolean; result?: { results?: T[] }[] };
-  if (!r.ok || !body.success) throw new Error("資料暫時未能讀取");
-  const rows = body.result?.[0]?.results;
-  if (!Array.isArray(rows)) throw new Error("資料回應不完整");
-  return rows;
+  // 舊直連 Cloudflare token 已 401；一律經 linked server gateway 讀取（同 publicRacingQuery 一致）。
+  const { publicRacingQuery } = await import("./public-racing-evidence.server");
+  return publicRacingQuery<T>(sql);
 }
 
 async function ghJson<T>(path: string): Promise<T> {
@@ -36,13 +28,14 @@ export type RetrainManifest = {
 };
 
 /** 每個版本取最後一次成功重訓嘅實際輸出（同版本多次重訓會列 runs 數）。 */
-export const getRetrainManifests = createServerFn({ method: "GET" }).handler(async (): Promise<RetrainManifest[]> => { return cached("retrain-manifests", CACHE_TTL, async () => {
-  return d1<RetrainManifest>(`SELECT m.model_version, m.trained_on, m.training_start, m.training_end, m.training_rows,
+export const getRetrainManifests = createServerFn({ method: "GET" }).handler(async (): Promise<{ versions: RetrainManifest[]; truncated: boolean }> => { return cached("retrain-manifests-v2", CACHE_TTL, async () => {
+  const rows = await d1<RetrainManifest>(`SELECT m.model_version, m.trained_on, m.training_start, m.training_end, m.training_rows,
       m.bundle_fingerprint, m.fitted_alpha, m.live_alpha, m.gate_status, m.source,
       (SELECT COUNT(*) FROM model_run_manifest x WHERE x.model_version = m.model_version) AS runs
     FROM model_run_manifest m
     WHERE m.recorded_at = (SELECT MAX(recorded_at) FROM model_run_manifest y WHERE y.model_version = m.model_version)
-    ORDER BY m.model_version DESC LIMIT 100`);
+    ORDER BY m.model_version DESC LIMIT 101`);
+  const win = truncateRecent(rows, 100, (r) => r.model_version);
 });
 });
 
@@ -52,8 +45,8 @@ export type ValueDay = {
 };
 
 /** 凍結獨贏機率 vs 收市隱含機率（兩者每場歸一、去抽水）。研究口徑，非投注建議。 */
-export const getValueTrend = createServerFn({ method: "GET" }).handler(async (): Promise<ValueDay[]> => { return cached("value-trend", CACHE_TTL, async () => {
-  return d1<ValueDay>(`WITH b AS (SELECT date, race_number, p_win, actual_finish AS fin, actual_win_odds AS od, 1.0/actual_win_odds AS imp
+export const getValueTrend = createServerFn({ method: "GET" }).handler(async (): Promise<{ days: ValueDay[]; truncated: boolean }> => { return cached("value-trend-window", CACHE_TTL, async () => {
+  const rows = await d1<ValueDay>(`WITH b AS (SELECT date, race_number, p_win, actual_finish AS fin, actual_win_odds AS od, 1.0/actual_win_odds AS imp
       FROM prediction_log WHERE engine='v12' AND variant='baseline' AND predicted_rank IS NOT NULL
       AND actual_win_odds>1 AND actual_finish IS NOT NULL AND p_win IS NOT NULL),
     s AS (SELECT date, race_number, SUM(imp) AS tot, SUM(p_win) AS ps, COUNT(*) AS n FROM b GROUP BY date, race_number HAVING n>=5),
@@ -63,7 +56,10 @@ export const getValueTrend = createServerFn({ method: "GET" }).handler(async ():
       ROUND(SUM(CASE WHEN pm>mk THEN mk ELSE 0 END),3) pos_exp_mk, ROUND(SUM(CASE WHEN pm>mk THEN pm ELSE 0 END),3) pos_exp_model,
       ROUND(SUM(CASE WHEN pm>mk THEN (CASE WHEN fin=1 THEN od*10 ELSE 0 END)-10 ELSE 0 END),1) pos_pnl,
       ROUND(AVG(ABS(pm-mk)),4) mad
-    FROM x GROUP BY date ORDER BY date ASC LIMIT 400`);
+    FROM x GROUP BY date ORDER BY date DESC LIMIT 401`);
+  // 上限只保留「最新」400 個賽日；截斷就標示，唔可以靜靜雞將新賽日剔走。
+  const win = truncateRecent(rows, 400, (r) => r.date);
+  return { days: [...win.items].sort((a, b) => (a.date < b.date ? -1 : 1)), truncated: win.truncated };
 });
 });
 
@@ -87,7 +83,7 @@ export const getAuditDashboard = createServerFn({ method: "GET" }).handler(async
     fetch(`${GH}/audit_reports`, { headers: { Accept: "application/vnd.github+json", "User-Agent": "tianxi-web", ...(process.env["GITHUB_TOKEN"] ? { Authorization: `Bearer ${process.env["GITHUB_TOKEN"]}` } : {}) }, signal: AbortSignal.timeout(10_000) })
       .then((r) => (r.ok ? (r.json() as Promise<{ name: string }[]>) : [])).catch(() => [] as { name: string }[]),
     ghJson<Health>("backend/reports/ENGINE_HEALTH.json").catch(() => null),
-    getRetrainManifests().then((r) => r[0] ?? null).catch(() => null),
+    getRetrainManifests().then((r) => r.versions[0] ?? null).catch(() => null),
   ]);
   if (!latest || !health || !retrain || !list.length) throw new Error("完整性審計來源未能全部讀取；不以空結果覆蓋舊報告");
   if (!Array.isArray(list) || list.some(f => typeof f.name !== "string") || !latest.categories || typeof latest.categories !== "object" || !Array.isArray(health.checks) || !health.counts) throw new Error("審計資料格式未能核對");

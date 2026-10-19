@@ -1,9 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
+import { truncateRecent } from "./history-window";
 import { validRacingDate, predictionTiming, snapshotChanges, type EloSnapshot } from "./racing-reconciliation";
 
 export const getReconciliationDates = createServerFn({ method: "GET" }).handler(async () => {
   const { publicRacingQuery } = await import("./public-racing-evidence.server");
-  return publicRacingQuery<{ date: string }>("SELECT DISTINCT m.date FROM race_meetings m JOIN races r ON r.meeting_id=m.id JOIN race_results rr ON rr.race_id=r.id WHERE m.venue IN ('ST','HV') AND rr.finishing_position BETWEEN 1 AND 98 ORDER BY m.date DESC LIMIT 400");
+  const rows = await publicRacingQuery<{ date: string }>("SELECT DISTINCT m.date FROM race_meetings m JOIN races r ON r.meeting_id=m.id JOIN race_results rr ON rr.race_id=r.id WHERE m.venue IN ('ST','HV') AND rr.finishing_position BETWEEN 1 AND 98 ORDER BY m.date DESC LIMIT 401");
+  // 上限只保留「最新」400 個賽日；截斷就標示，唔可以靜靜雞剔走任何一端。
+  const win = truncateRecent(rows, 400, (r) => r.date);
+  return { days: win.items, truncated: win.truncated };
 });
 
 export type ReconciliationRow = { raceId: string; raceNumber: number; venue: string; horseId: string; name: string; horseNumber: number; predictionHorseNumber: number | null; startTime: string | null; rank: number | null; horseElo: number | null; jockeyElo: number | null; trainerElo: number | null; composite: number | null; score: number | null; lgb: number | null; finish: number | null; loggedFinish: number | null; generatedAt: string | null; version: string | null; source: string | null };

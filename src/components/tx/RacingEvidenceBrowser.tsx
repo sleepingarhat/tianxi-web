@@ -24,7 +24,7 @@ export function RacingEvidenceBrowser({ mode }: { mode: "prediction" | "elo" }) 
   const dates = useQuery({ queryKey: ["reconciliation-dates"], queryFn: () => readDates(), staleTime: 300_000 });
   const [selected, setSelected] = useState("");
   const [entity, setEntity] = useState<"horse" | "jockey" | "trainer">("horse");
-  const date = selected || dates.data?.[0]?.date || "";
+  const date = selected || dates.data?.days?.[0]?.date || "";
   const predictions = useQuery({ queryKey: ["prediction-reconciliation", date], queryFn: () => readPredictions({ data: { date } }), enabled: mode === "prediction" && Boolean(date), staleTime: 300_000 });
   const elo = useQuery({ queryKey: ["elo-daily-log", date], queryFn: () => readElo({ data: { date } }), enabled: mode === "elo" && Boolean(date), staleTime: 300_000 });
   const q = mode === "prediction" ? predictions : elo;
@@ -34,9 +34,10 @@ export function RacingEvidenceBrowser({ mode }: { mode: "prediction" | "elo" }) 
   return <>
     <div className="mx-4 my-4 flex flex-wrap items-center gap-3">
       <label className="text-[12px] font-bold text-ink">賽馬日</label>
-      <Select value={date} onValueChange={setSelected}><SelectTrigger aria-label="賽馬日" className="w-44"><SelectValue placeholder="讀取賽馬日" /></SelectTrigger><SelectContent>{dates.data?.map(d => <SelectItem value={d.date} key={d.date}>{d.date}</SelectItem>)}</SelectContent></Select>
+      <Select value={date} onValueChange={setSelected}><SelectTrigger aria-label="賽馬日" className="w-44"><SelectValue placeholder="讀取賽馬日" /></SelectTrigger><SelectContent>{dates.data?.days.map(d => <SelectItem value={d.date} key={d.date}>{d.date}</SelectItem>)}</SelectContent></Select>
       <Button variant="outline" size="sm" disabled={!exportRows.length} onClick={() => download(exportRows, `tianxi-${mode}-${date}.csv`)}><Download className="mr-1 size-4" />下載原值 CSV</Button>
     </div>
+    {dates.data?.truncated ? <p className="mx-4 mb-2 text-[11px] font-semibold text-gold">讀取上限提示：賽馬日選單只列最近 400 個有賽果嘅賽日，更早賽日未包括。</p> : null}
     {mode === "prediction" ? <p className="mx-4 mb-4 border-l-2 border-gold pl-3 text-[12px] leading-relaxed text-ink-2">以下係有賽果入帳場次嘅原始預測分與官方賽果；不保證全場已完整入帳；舊紀錄未有完整發布憑證，標示「鎖點待核」，不當作已核實賽前準確度。分數與 Elo 高低不代表必然勝出，主指標仍為四揀命中匹數。</p> : <>
       <p className="mx-4 mb-4 border-l-2 border-gold pl-3 text-[12px] leading-relaxed text-ink-2">真正 v12 評分快照，顯示前後原值及淨變動；來源場次以馬匹往績與官方賽果交叉配對。淨變動可能包含馬季回歸，唔等同純賽事加減分；補計不是原賽前輸入，首個快照無前值就保持未記錄。</p>
       <div className="mx-4 mb-4"><Seg value={entity} onChange={setEntity} options={[{ value: "horse", label: "馬匹" }, { value: "jockey", label: "騎師" }, { value: "trainer", label: "練馬師" }]} /></div>

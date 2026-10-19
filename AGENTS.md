@@ -51,6 +51,6 @@
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Dispatch checks main fail-closed, never duplicates active jobs or certifies delivery. Why: safe retries.
-- Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. Why: one auditable source; hangs must not certify stale picks.
+- Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. History reads keep the newest window and surface truncation. Why: silent cutoffs hide new race days.
 - Parallelize independent frozen reads; bound optional references without bypassing evidence checks. Why: avoid display delays.
 - Preserve official class labels through racingClassLabel. Why: Chinese and Group labels are valid.
