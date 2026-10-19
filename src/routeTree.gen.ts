@@ -79,6 +79,7 @@ import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
 import { Route as ApiPublicJobsRacingDispatchRouteImport } from './routes/api/public/jobs/racing-dispatch'
+import { Route as ApiPublicJobsRacingResultsRouteImport } from './routes/api/public/jobs/racing-results'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -451,6 +452,12 @@ const ApiPublicJobsRacingDispatchRoute =
     path: '/api/public/jobs/racing-dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsRacingResultsRoute =
+  ApiPublicJobsRacingResultsRouteImport.update({
+    id: '/api/public/jobs/racing-results',
+    path: '/api/public/jobs/racing-results',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -538,6 +545,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
+  '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -611,6 +619,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
+  '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -687,6 +696,7 @@ export interface FileRoutesById {
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
+  '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -763,6 +773,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
+    | '/api/public/jobs/racing-results'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -836,6 +847,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
+    | '/api/public/jobs/racing-results'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -911,6 +923,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
+    | '/api/public/jobs/racing-results'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -974,6 +987,7 @@ export interface RootRouteChildren {
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
   ApiPublicJobsRacingDispatchRoute: typeof ApiPublicJobsRacingDispatchRoute
+  ApiPublicJobsRacingResultsRoute: typeof ApiPublicJobsRacingResultsRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1471,6 +1485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsRacingDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/racing-results': {
+      id: '/api/public/jobs/racing-results'
+      path: '/api/public/jobs/racing-results'
+      fullPath: '/api/public/jobs/racing-results'
+      preLoaderRoute: typeof ApiPublicJobsRacingResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1599,6 +1620,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
   ApiPublicJobsRacingDispatchRoute: ApiPublicJobsRacingDispatchRoute,
+  ApiPublicJobsRacingResultsRoute: ApiPublicJobsRacingResultsRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

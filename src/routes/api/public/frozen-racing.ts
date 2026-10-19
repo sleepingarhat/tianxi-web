@@ -11,7 +11,8 @@ export const Route = createFileRoute('/api/public/frozen-racing')({
     try {
       const { readFrozenRacing } = await import('@/lib/frozen-racing.server');
       return Response.json(await readFrozenRacing(valid.data),{headers});
-    } catch {
+    } catch (error) {
+      console.error('frozen-racing verification failed', error instanceof Error ? error.message : 'unknown');
       return Response.json({date,edition:'unavailable',frozen:false,error:'原始凍結證據未能完整核實；沒有使用初版或臨場重算補寫'}, {status:503,headers});
     }
   } } },

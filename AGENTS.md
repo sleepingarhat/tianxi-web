@@ -48,4 +48,4 @@
 
 - Scarce-start counts only advise prediction-status, never switch models or filter accounting. Why: no invented exclusions.
 
-- Gate on card→recompute→freeze→settlement proof; originals feed KPI/P&L. Raw before SHA manifests; test schedules. GitHub stays source/fallback; CLI jobs need independent compatible compute. Why: dispatch≠execution, no rebets.
+- Gate card→recompute→freeze→settlement; originals feed KPI/P&L. GitHub fallback needs compatible compute. Persist official completion/dispatch leases; null-slot results require withdrawn identity/no placing. Why: no guessed times or rebets.

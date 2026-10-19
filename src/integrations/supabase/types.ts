@@ -419,6 +419,36 @@ export type Database = {
         }
         Relationships: []
       }
+      racing_result_collection_state: {
+        Row: {
+          dispatched_at: string | null
+          expected_races: number
+          first_confirmed_at: string
+          last_attempt_at: string | null
+          race_date: string
+          source_sha256: string
+          venue: string
+        }
+        Insert: {
+          dispatched_at?: string | null
+          expected_races: number
+          first_confirmed_at: string
+          last_attempt_at?: string | null
+          race_date: string
+          source_sha256: string
+          venue: string
+        }
+        Update: {
+          dispatched_at?: string | null
+          expected_races?: number
+          first_confirmed_at?: string
+          last_attempt_at?: string | null
+          race_date?: string
+          source_sha256?: string
+          venue?: string
+        }
+        Relationships: []
+      }
       racing_results_index: {
         Row: {
           meeting_date: string

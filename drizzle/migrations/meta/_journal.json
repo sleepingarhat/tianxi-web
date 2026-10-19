@@ -162,6 +162,13 @@
       "when": 1792395074333,
       "tag": "0022_hkjc_changes_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792409168291,
+      "tag": "0023_racing_result_collection_state",
+      "breakpoints": true
     }
   ]
 }

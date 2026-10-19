@@ -36,7 +36,7 @@ export async function readFrozenRacing(date: string) {
   const officialChanges: HkjcChange[] = officialSnap && officialSnap.venue===snapshot.venue ? (officialSnap.changes as unknown as HkjcChange[]) : [];
   const changeFor = (r:FrozenRow) => officialWithdrawal(officialChanges, r.race_number, r.horse_number, nameMap.get(r.horse_id)?.nameCh);
   const withdrawn = new Set(snapshot.rows.filter(r=>changeFor(r)).map(r=>`${r.race_number}:${r.horse_number}`));
-  const identityCheck = verifyRunnerIdentities(snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id})),card,resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId})),withdrawn);
+  const identityCheck = verifyRunnerIdentities(snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id})),card,resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId,finishingPosition:r.finishingPosition})),withdrawn);
   const config = JSON.parse(snapshot.meta.config || '{}');
   const raceNumbers = [...new Set(snapshot.rows.map(r=>r.race_number))].sort((a,b)=>a-b);
   const races = raceNumbers.map(raceNumber => {

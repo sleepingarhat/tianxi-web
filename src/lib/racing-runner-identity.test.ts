@@ -41,4 +41,11 @@ describe('馬匹身份跨来源核對', () => {
     expect(verifyRunnerIdentities(original, swapped, swapped, new Set(['10:3'])).status).toBe('matched-except-official-withdrawals');
     expect(() => verifyRunnerIdentities(original, swapped, [], new Set(['10:4']))).toThrow('身份不一致');
   });
+  it('已證實退出K554可保留無馬號無名次結果行，不能接納未知馬或有名次行', () => {
+    const swapped = [{ raceNumber: 10, horseNumber: 3, horseId: 'horse_L184' }];
+    const archived = { raceNumber: 10, horseNumber: null as unknown as number, horseId: 'horse_K554', finishingPosition: null };
+    expect(verifyRunnerIdentities(original, swapped, [...swapped, archived], new Set(['10:3'])).runners).toBe(1);
+    expect(() => verifyRunnerIdentities(original, swapped, [{ ...archived, horseId: 'horse_UNKNOWN' }], new Set(['10:3']))).toThrow('官方賽果');
+    expect(() => verifyRunnerIdentities(original, swapped, [{ ...archived, finishingPosition: 1 }], new Set(['10:3']))).toThrow('官方賽果');
+  });
 });
