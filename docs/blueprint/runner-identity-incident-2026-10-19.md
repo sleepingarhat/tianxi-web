@@ -7,7 +7,14 @@
 - 採集器 :213–225 用明確 `runner.no/saddleClothNo`，不是 array index；但 `barrierDrawNumber ?? null` 保留空字串，未核對runner狀態，僅用standbyNo決定「正選」。R8 H4原始及現時draw均空字串，不能當合法檔位或猜填。
 - 10/17 run39043168965 15:01:03 UTC抓163 runners、推145 entries；10/19 run39205073504抓162，05:33:45 UTC已成功推entries，雖整體run在meeting chunk失敗。整體FAIL不代表沒有部分寫入。
 
-## 不可斷言
+## 官方源核實（2026-10-19 07:19:53 UTC 擷取）
+- 馬會「更易事項」https://racing.hkjc.com/zh-hk/local/information/changes 原文：第10場「3 號馬 活力拍檔 退出競賽,由後備馬 風將 補上。(18/10 10:03)」，風將由何澤堯策騎、負122磅；第8場「4 號馬 白鷺金剛 退出競賽。(15/10 17:04)」。
+- 兩項均於凍結（19/10 08:48 HKT）**之前**公布：R10 早約22小時45分，R8 早約3日半。根因確定為凍結輸入用了未套用官方更易的舊排位，不是馬名顯示錯誤；R8 H4 空檔位因已退出。
+- 存檔：docs/evidence/hkjc-2026-10-19/changes.html SHA-256 4aea00ac08bee27d48c0054e041ae2084c04e0f8a29a269221b44755b17af131；racecard-R10.html（現排位 L184 風將）SHA-256 16639f4a7a162e8cd50cee77e3b1a481cbd9f95eba2046cd83263cdf8274da49。解析器 src/lib/hkjc-changes.ts，2項測試以原文固定驗證。
+- 原凍結145行不改；R10 H3、R8 H4 屬鎖前已退出馬匹，四揀含退出馬應如實標示，不追改。
+
+## 不可斷言（已更新）
+- 「後備替補」已由官方原文證實，以下舊段落中「仍是假設」一句作廢。
 - 未找到鎖點前帶場次、馬號、runner狀態的原始raw card。10/17 entries清單只有代碼；不能據此證明K554何時及為何變L184。
 - 「後備替補」仍是假設，不是已核實退賽事件；來源抓162/163的差異也不能單獨證明替補。
 - SHA與原行一致只證明未變，不證明輸入正確；修復PASS不等於馬匹身份PASS。
