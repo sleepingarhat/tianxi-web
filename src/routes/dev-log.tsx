@@ -21,6 +21,7 @@ export const Route = createFileRoute("/dev-log")({
 type Tag = "數據" | "技術" | "前端" | "系統";
 
 const ENTRIES: { date: string; title: string; tags: Tag[]; body: string }[] = [
+  { date: "2026-10-19 · 20:30 HKT", title: "付款預警及Telegram測試", tags: ["系統", "技術"], body: "新增付款預警：已讀Cloudflare Workers Paid續期2026-11-02及Paid狀態，原生US$10預算電郵提示已存在；Lovable沒有低餘額規則，需工作區擁有人於用量限制與提示新增通知而非封鎖。每日09:00 HKT核對方案，提前7／3／1日Telegram提醒，送達後才去重，監察失敗另提醒；不認定Paid或CLOSE即付款收妥，不改扣款設定。6測試通過，真實daily200、test已送達、重試未重發及無授權401；Cloud任務20已建，新端點未發布、首個自然週期待驗。新增運算五類資源仍待明確建立／費用確認，不把通知當付款保證。" },
   { date: "2026-10-19 · 20:22 HKT", title: "獨立運算配置及費用提案，未啟用", tags: ["系統", "技術"], body: "用戶只批准先列配置，再確認建立；未新增付費資源或停用GitHub。官方規格更正：2vCPU／4GiB並不支援，建議單個standard-3（2vCPU／8GiB／16GB暫存碟）。假設每月990–2610分鐘、CPU全用及記憶體／磁碟全額、完成後停止，含量前約USD3.63–9.57（約HK$28–75），不是上限，另有控制請求、儲存與傳輸。現有Workers Paid USD5不重複計；包含額度共享、餘額未核，不承諾抵扣。磁碟非持久保存，工作完成須驗證外部存檔；Lovable統籌、Cloudflare執行、GitHub留版本與後備。完整配置及切換條件待確認，不影響現有網站或歷史凍結。" },
   { date: "2026-10-19 · 20:15 HKT", title: "原凍結戰績讀回與官方資料倉同步", tags: ["數據", "技術", "系統"], body: "2026-10-19 20:15：Cloudflare舊直連token回401，改已連接gateway後凍結API200、原SHA不變；戰績頁改讀原凍結metricInput，R8／R10剔除分母，R11原中3、補位另列，全日9場平均2.00／4。25測試過，桌面真實讀回通過。官方更易3份原文同步資料倉、manifest200及逐份SHA一致，Cloud每小時15分同步已建，首次自然週期待驗。未發布；訓練／評分需批准相容付費運算，騎師歷史與跨場結算缺可靠證據仍待核。" },
   { date: "2026-10-19 · 19:57 HKT", title: "Cloud R1真實存檔及預覽API讀回", tags: ["數據", "技術"], body: "Cloud callback直接收R1完整13行並驗身份存檔，預覽frozen-racing HTTP200讀回Cloud complete=true，原凍結388f22b…ce89不變。修正D1 horse_前綴精確比對，不同ID仍阻截，21項測試通過；匿名原文欄位禁讀，公開只留精簡結果。新程式未發布、首次自動週期及戰績UI仍未完成驗收；派彩、資料倉新原文同步、騎師lineage及獨立訓練評分未完成。" },

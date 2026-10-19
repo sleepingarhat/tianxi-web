@@ -74,6 +74,7 @@ import { Route as ApiPublicTelegramAlertRouteImport } from './routes/api/public/
 import { Route as ApiPublicWeatherArchiveRouteImport } from './routes/api/public/weather-archive'
 import { Route as ApiPublicWeatherSyncGithubRouteImport } from './routes/api/public/weather-sync-github'
 import { Route as ApiPublicHooksRaceResultsDispatchRouteImport } from './routes/api/public/hooks/race-results-dispatch'
+import { Route as ApiPublicJobsBillingRemindersRouteImport } from './routes/api/public/jobs/billing-reminders'
 import { Route as ApiPublicJobsHkjcChangesRouteImport } from './routes/api/public/jobs/hkjc-changes'
 import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/public/jobs/hkjc-evidence-sync'
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
@@ -422,6 +423,12 @@ const ApiPublicHooksRaceResultsDispatchRoute =
     path: '/api/public/hooks/race-results-dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsBillingRemindersRoute =
+  ApiPublicJobsBillingRemindersRouteImport.update({
+    id: '/api/public/jobs/billing-reminders',
+    path: '/api/public/jobs/billing-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsHkjcChangesRoute =
   ApiPublicJobsHkjcChangesRouteImport.update({
     id: '/api/public/jobs/hkjc-changes',
@@ -540,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
+  '/api/public/jobs/billing-reminders': typeof ApiPublicJobsBillingRemindersRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
@@ -614,6 +622,7 @@ export interface FileRoutesByTo {
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
+  '/api/public/jobs/billing-reminders': typeof ApiPublicJobsBillingRemindersRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
@@ -691,6 +700,7 @@ export interface FileRoutesById {
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
+  '/api/public/jobs/billing-reminders': typeof ApiPublicJobsBillingRemindersRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
@@ -768,6 +778,7 @@ export interface FileRouteTypes {
     | '/api/public/weather-sync-github'
     | '/admin/'
     | '/api/public/hooks/race-results-dispatch'
+    | '/api/public/jobs/billing-reminders'
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/racecourse-photos'
@@ -842,6 +853,7 @@ export interface FileRouteTypes {
     | '/api/public/weather-sync-github'
     | '/admin'
     | '/api/public/hooks/race-results-dispatch'
+    | '/api/public/jobs/billing-reminders'
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/racecourse-photos'
@@ -918,6 +930,7 @@ export interface FileRouteTypes {
     | '/api/public/weather-sync-github'
     | '/_authenticated/admin/'
     | '/api/public/hooks/race-results-dispatch'
+    | '/api/public/jobs/billing-reminders'
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/racecourse-photos'
@@ -982,6 +995,7 @@ export interface RootRouteChildren {
   ApiPublicWeatherArchiveRoute: typeof ApiPublicWeatherArchiveRoute
   ApiPublicWeatherSyncGithubRoute: typeof ApiPublicWeatherSyncGithubRoute
   ApiPublicHooksRaceResultsDispatchRoute: typeof ApiPublicHooksRaceResultsDispatchRoute
+  ApiPublicJobsBillingRemindersRoute: typeof ApiPublicJobsBillingRemindersRoute
   ApiPublicJobsHkjcChangesRoute: typeof ApiPublicJobsHkjcChangesRoute
   ApiPublicJobsHkjcEvidenceSyncRoute: typeof ApiPublicJobsHkjcEvidenceSyncRoute
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
@@ -1450,6 +1464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRaceResultsDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/billing-reminders': {
+      id: '/api/public/jobs/billing-reminders'
+      path: '/api/public/jobs/billing-reminders'
+      fullPath: '/api/public/jobs/billing-reminders'
+      preLoaderRoute: typeof ApiPublicJobsBillingRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/hkjc-changes': {
       id: '/api/public/jobs/hkjc-changes'
       path: '/api/public/jobs/hkjc-changes'
@@ -1615,6 +1636,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWeatherSyncGithubRoute: ApiPublicWeatherSyncGithubRoute,
   ApiPublicHooksRaceResultsDispatchRoute:
     ApiPublicHooksRaceResultsDispatchRoute,
+  ApiPublicJobsBillingRemindersRoute: ApiPublicJobsBillingRemindersRoute,
   ApiPublicJobsHkjcChangesRoute: ApiPublicJobsHkjcChangesRoute,
   ApiPublicJobsHkjcEvidenceSyncRoute: ApiPublicJobsHkjcEvidenceSyncRoute,
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
