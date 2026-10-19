@@ -63,6 +63,7 @@ import { Route as AuthenticatedAdminUsersMembershipRouteImport } from './routes/
 import { Route as ApiPublicDrawTuneRouteImport } from './routes/api/public/draw-tune'
 import { Route as ApiPublicEngineHealthRouteImport } from './routes/api/public/engine-health'
 import { Route as ApiPublicFreezeLedgerRouteImport } from './routes/api/public/freeze-ledger'
+import { Route as ApiPublicFrozenRacingRouteImport } from './routes/api/public/frozen-racing'
 import { Route as ApiPublicHkjcWeatherRouteImport } from './routes/api/public/hkjc-weather'
 import { Route as ApiPublicHorseHr2RouteImport } from './routes/api/public/horse-hr2'
 import { Route as ApiPublicLockStateRouteImport } from './routes/api/public/lock-state'
@@ -357,6 +358,11 @@ const ApiPublicFreezeLedgerRoute = ApiPublicFreezeLedgerRouteImport.update({
   path: '/api/public/freeze-ledger',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFrozenRacingRoute = ApiPublicFrozenRacingRouteImport.update({
+  id: '/api/public/frozen-racing',
+  path: '/api/public/frozen-racing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHkjcWeatherRoute = ApiPublicHkjcWeatherRouteImport.update({
   id: '/api/public/hkjc-weather',
   path: '/api/public/hkjc-weather',
@@ -488,6 +494,7 @@ export interface FileRoutesByFullPath {
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
+  '/api/public/frozen-racing': typeof ApiPublicFrozenRacingRoute
   '/api/public/hkjc-weather': typeof ApiPublicHkjcWeatherRoute
   '/api/public/horse-hr2': typeof ApiPublicHorseHr2Route
   '/api/public/lock-state': typeof ApiPublicLockStateRoute
@@ -556,6 +563,7 @@ export interface FileRoutesByTo {
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
+  '/api/public/frozen-racing': typeof ApiPublicFrozenRacingRoute
   '/api/public/hkjc-weather': typeof ApiPublicHkjcWeatherRoute
   '/api/public/horse-hr2': typeof ApiPublicHorseHr2Route
   '/api/public/lock-state': typeof ApiPublicLockStateRoute
@@ -627,6 +635,7 @@ export interface FileRoutesById {
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
+  '/api/public/frozen-racing': typeof ApiPublicFrozenRacingRoute
   '/api/public/hkjc-weather': typeof ApiPublicHkjcWeatherRoute
   '/api/public/horse-hr2': typeof ApiPublicHorseHr2Route
   '/api/public/lock-state': typeof ApiPublicLockStateRoute
@@ -698,6 +707,7 @@ export interface FileRouteTypes {
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
+    | '/api/public/frozen-racing'
     | '/api/public/hkjc-weather'
     | '/api/public/horse-hr2'
     | '/api/public/lock-state'
@@ -766,6 +776,7 @@ export interface FileRouteTypes {
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
+    | '/api/public/frozen-racing'
     | '/api/public/hkjc-weather'
     | '/api/public/horse-hr2'
     | '/api/public/lock-state'
@@ -836,6 +847,7 @@ export interface FileRouteTypes {
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
+    | '/api/public/frozen-racing'
     | '/api/public/hkjc-weather'
     | '/api/public/horse-hr2'
     | '/api/public/lock-state'
@@ -895,6 +907,7 @@ export interface RootRouteChildren {
   ApiPublicDrawTuneRoute: typeof ApiPublicDrawTuneRoute
   ApiPublicEngineHealthRoute: typeof ApiPublicEngineHealthRoute
   ApiPublicFreezeLedgerRoute: typeof ApiPublicFreezeLedgerRoute
+  ApiPublicFrozenRacingRoute: typeof ApiPublicFrozenRacingRoute
   ApiPublicHkjcWeatherRoute: typeof ApiPublicHkjcWeatherRoute
   ApiPublicHorseHr2Route: typeof ApiPublicHorseHr2Route
   ApiPublicLockStateRoute: typeof ApiPublicLockStateRoute
@@ -1291,6 +1304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFreezeLedgerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/frozen-racing': {
+      id: '/api/public/frozen-racing'
+      path: '/api/public/frozen-racing'
+      fullPath: '/api/public/frozen-racing'
+      preLoaderRoute: typeof ApiPublicFrozenRacingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hkjc-weather': {
       id: '/api/public/hkjc-weather'
       path: '/api/public/hkjc-weather'
@@ -1479,6 +1499,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDrawTuneRoute: ApiPublicDrawTuneRoute,
   ApiPublicEngineHealthRoute: ApiPublicEngineHealthRoute,
   ApiPublicFreezeLedgerRoute: ApiPublicFreezeLedgerRoute,
+  ApiPublicFrozenRacingRoute: ApiPublicFrozenRacingRoute,
   ApiPublicHkjcWeatherRoute: ApiPublicHkjcWeatherRoute,
   ApiPublicHorseHr2Route: ApiPublicHorseHr2Route,
   ApiPublicLockStateRoute: ApiPublicLockStateRoute,

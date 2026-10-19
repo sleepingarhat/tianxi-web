@@ -3,19 +3,25 @@
 // Token 只存在伺服器端（TIANXI_ADMIN_TOKEN），永不落到瀏覽器。
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { createPicksRefresh } from "./picks-refresh";
 
 const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
-// 暫存：純轉發結果放記憶體，唔改內容。60 秒內直接回；60 秒–15 分鐘先回舊資料、背景更新。
-const FRESH_MS = 60_000;
-const STALE_MS = 15 * 60_000;
-let picksCache: { at: number; data: any } | null = null;
-let picksInflight: Promise<any> | null = null;
+// 不保存完成結果：避免凍結恢復後繼續公開舊初版或吞掉阻截錯誤。
 
 async function fetchTodayPicksUpstream() {
+  const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+  if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
+  const lock = await lockResponse.json() as { date?: string; locked?: boolean; edition?: string };
+  if (lock.locked || lock.edition === 'final' || lock.edition === 'unavailable') {
+    if (!lock.date) throw new Error('凍結賽日未能核實');
+    const { readFrozenRacing } = await import('./frozen-racing.server');
+    return readFrozenRacing(lock.date);
+  }
   const token = process.env["TIANXI_ADMIN_TOKEN"];
   const url = `${WORKER_BASE}/api/analyze/today-picks`;
   const res = await fetch(url, {
+    cache: "no-store",
     headers: {
       "user-agent": "tianxi-web",
       ...(token ? { authorization: `Bearer ${token}` } : {}),
@@ -31,30 +37,17 @@ async function fetchTodayPicksUpstream() {
   if (json?.error && /賽馬日記錄不存在/.test(String(json.error))) {
     // 今日未有賽馬日：屬正常狀態，回空場次而唔係報錯
     const empty = { races: [], noMeeting: true, message: String(json.error) };
-    picksCache = { at: Date.now(), data: empty };
     return empty;
   }
   if (!res.ok || json?.error) throw new Error(json?.error || `預測服務錯誤 ${res.status}`);
-  picksCache = { at: Date.now(), data: json };
   return json;
 }
 
-function refreshPicks() {
-  if (!picksInflight) {
-    picksInflight = fetchTodayPicksUpstream().finally(() => {
-      picksInflight = null;
-    });
-  }
-  return picksInflight;
-}
+const refreshPicks = createPicksRefresh(fetchTodayPicksUpstream);
 
 export const getTodayPicksAll = createServerFn({ method: "GET" }).handler(async () => {
-  const age = picksCache ? Date.now() - picksCache.at : Infinity;
-  if (picksCache && age < FRESH_MS) return picksCache.data as any;
-  if (picksCache && age < STALE_MS) {
-    refreshPicks().catch(() => {});
-    return picksCache.data as any;
-  }
+  const { setResponseHeader } = await import("@tanstack/react-start/server");
+  setResponseHeader("Cache-Control", "no-store");
   return (await refreshPicks()) as any;
 });
 

@@ -44,6 +44,6 @@
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
-- Lock-tick recovery uses immutable originals; distinguish row presence, capture and public readback from saved calibration. Why: row counts do not prove recovery.
+- Frozen API SELECTs originals, validates SHA/rows/meta, pairs official results; missing saved fields stay null. Picks coalesce inflight only; locked reads use this API. Why: cache/time cannot prove final.
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.

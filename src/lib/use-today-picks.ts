@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayPicksAll } from "./picks.functions";
 import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
+import { picksEdition } from "./picks-refresh";
 
 export type MergedPick = {
   horseNumber: number;
@@ -34,12 +35,18 @@ export function useTodayPicks() {
     queryKey: ["todayPicksAll"],
     queryFn: () => fetchAll(),
     staleTime: 60_000,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: "always",
+    refetchOnMount: "always",
     enabled: !cancellation,
   });
   const date: string | undefined = picks.data?.date;
   const meeting = useQuery({
     queryKey: ["meeting", date],
-    queryFn: () => txApi.meeting(date!),
+    queryFn: () => {
+      if (!date) throw new Error("未有賽日日期");
+      return txApi.meeting(date);
+    },
     enabled: !!date && !cancellation,
     refetchInterval: 60_000,
   });
@@ -57,7 +64,7 @@ export function useTodayPicks() {
       ...r,
       raceId: r.raceId || (date ? `race_${date}_${picks.data.venue}_${r.raceNumber}` : ""),
       title: r.title || (info as any)?.title || `第 ${r.raceNumber} 場`,
-      startTime: (info as any)?.startTime ?? null,
+      startTime: (info as any)?.startTime ?? r.startTime ?? null,
       picks: (r.picks || []).map((p: any): MergedPick => {
         const e = entryIndex.get(`${r.raceNumber}-${p.horseNumber}`) || {};
         return {
@@ -77,17 +84,17 @@ export function useTodayPicks() {
     };
   });
 
+  const edition = picks.error ? "unavailable" : picksEdition(picks.data);
   return {
     date: cancellation?.date ?? date,
     venue: picks.data?.venue as string | undefined,
     trackCondition: picks.data?.trackCondition as string | undefined,
     generatedAt: picks.data?.generatedAt as string | undefined,
-    // 版本：後端 edition/frozen；未鎖一律當初版。
-    frozen: picks.data?.frozen === true,
-    edition: (picks.data?.frozen === true ? "final" : "draft") as "final" | "draft",
+    frozen: edition === "final",
+    edition,
 
     engine: (picks.data?.engine ?? picks.data?.meta ?? picks.data) as any,
-    races: cancellation ? [] : races,
+    races: cancellation || edition === "unavailable" ? [] : races,
     meeting: meeting.data,
     cancellation,
     isLoading: cancellation ? false : picks.isLoading,

@@ -87,6 +87,8 @@ export function raceStatus(
     lockMinutes?: number | null;
     /** 本場四揀之中出賽 ≤2 次嘅馬匹數（少仗紅燈） */
     scarceStarts?: number;
+    /** 提供時只承認這份預測狀態，不用時間代證。 */
+    frozen?: boolean;
   } = {},
 ): RaceStatus {
   const picks: any[] = race?.picks || [];
@@ -118,7 +120,7 @@ export function raceStatus(
   const dayIsPast = !!meetingDate && meetingDate < today;
   const dayIsFuture = !!meetingDate && meetingDate > today;
   const lockedByTime =
-    settled || dayIsPast || (!dayIsFuture && lockMin != null && nowMin >= lockMin);
+    opts.frozen ?? (settled || dayIsPast || (!dayIsFuture && lockMin != null && nowMin >= lockMin));
 
   // 上一版模型後備：夜間重訓失敗時，後備流程用最近一次成功嘅模型評分頂住，
   // 唔會退回純 ELO 基準；但要如實標明「用昨日模型」。已封存嘅舊賽日不標。

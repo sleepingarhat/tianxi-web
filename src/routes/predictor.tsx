@@ -104,10 +104,11 @@ function PredictorPage() {
         ...(tp.date ? { date: tp.date } : {}),
         now,
         lockMinutes: dayLockMinutes,
+        frozen: tp.frozen,
         scarceStarts: scarce.scarceByRace[Number(race.raceNumber)] ?? 0,
       })
     : null;
-  const locked = raceLight?.color === "green" || tp.frozen;
+  const locked = tp.frozen;
 
   const picks: any[] = race?.picks || [];
   const withOdds = picks.map((p) => {
@@ -184,6 +185,8 @@ function PredictorPage() {
       />
       {venueName ? <RacecoursePhoto venue={tp.venue || venueName} /> : null}
 
+      {tp.frozen && tp.engine?.probabilityEvidence?.pTop4 === "not-saved-in-original" ? <p className="mx-4 mt-3 text-[11px] text-ink-3">原始凍結副本未保存入頭四機率；入場機率及排名暫列「—」，不以臨場估值補寫。</p> : null}
+
       <div className="mx-4 mt-3">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
@@ -193,10 +196,10 @@ function PredictorPage() {
                 : "border-hairline bg-paper text-ink-3"
             }`}
           >
-            {tp.frozen ? "最終版 · 已鎖" : "初版 · 未鎖"}
+            {tp.isLoading ? "核對預測中…" : tp.edition === "unavailable" ? "最終預測暫未能核實" : tp.frozen ? "最終版 · 已鎖" : "初版 · 未鎖"}
           </span>
           <span className="text-[10px] leading-snug text-ink-3">
-            {tp.frozen
+            {tp.isLoading ? "" : tp.edition === "unavailable" ? "暫停展示預測，正在重新核對；請勿使用舊初版製作海報。" : tp.frozen
               ? "已鎖定四揀，同對賬、賽果頁用同一套，唔會再改。"
               : `未鎖定：刷新有機會改四揀；${
                   lockClock ? `${lockClock}（首場開跑前 90 分鐘）自動鎖死全日` : "首場開跑前 90 分鐘自動鎖死全日"
