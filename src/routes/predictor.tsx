@@ -23,6 +23,7 @@ import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import { useTodayPicks } from "@/lib/use-today-picks";
 import { effectiveTop4 } from "@/lib/withdrawal-substitution";
 import { RacingChangesNotice } from "@/components/tx/RacingChangesNotice";
+import { racingClassLabel } from "@/lib/racing-class";
 
 
 
@@ -293,7 +294,7 @@ function PredictorPage() {
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Pill tone="gold">R{race.raceNumber} · {race.distance || "—"}m</Pill>
             <Pill>{race.going || "地質待公布"}</Pill>
-            <Pill>第 {String(race.class).replace(/[^0-9]/g, "") || "?"} 班</Pill>
+            <Pill>{racingClassLabel(race.class)}</Pill>
             <Pill tone={race.scoreSource === "lgb" ? "win" : "ink"}>{race.scoreSource === "lgb" ? "天喜LGB" : "天喜ELO 基準"}</Pill>
             {typeof race.ensembleAlpha === "number" ? <Pill>α={race.ensembleAlpha.toFixed(2)}</Pill> : null}
             {start ? <Pill>{start} 開跑</Pill> : null}
@@ -527,7 +528,7 @@ function PredictorPage() {
 
               <Pill tone="gold">{race.distance}m</Pill>
               <Pill>{race.going || "—"}</Pill>
-              <Pill>第 {String(race.class).replace(/[^0-9]/g, "") || "?"} 班</Pill>
+              <Pill>{racingClassLabel(race.class)}</Pill>
               <Pill tone={race.scoreSource === "lgb" ? "win" : "ink"}>
                 {race.scoreSource === "lgb" ? "天喜LGB 模型" : "基準模型"}
               </Pill>

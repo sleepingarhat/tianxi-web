@@ -5,22 +5,27 @@ import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
 import { officialRaceMetric } from './racing-official-metrics';
 import { mergeMeetingMetadata, type RacingMeetingMetadata } from './racing-meeting-metadata';
+import { optionalRacingReference } from './optional-racing-reference';
 
 /** SELECT only. Never calls compute, capture or recovery. */
 export async function readFrozenRacing(date: string) {
-  const saved = await query<{ snapshot_json: string; sha256: string; captured_at: string; ok: number | null }>(`SELECT s.snapshot_json,s.sha256,s.captured_at,p.ok FROM prediction_original_snapshots s LEFT JOIN prediction_recovery_status p ON p.date=s.date AND p.engine=s.engine WHERE s.date=? AND s.engine='v12'`,[date]);
-  const original = saved[0];
-  if (!original || original.ok !== 1) throw new Error('未有可核實原始凍結副本，暫停提供最終預測');
-  const [rows, metas] = await Promise.all([
+  // Independent mandatory reads run together; all must still pass validation.
+  const [saved, rows, metas] = await Promise.all([
+    query<{ snapshot_json: string; sha256: string; captured_at: string; ok: number | null }>(`SELECT s.snapshot_json,s.sha256,s.captured_at,p.ok FROM prediction_original_snapshots s LEFT JOIN prediction_recovery_status p ON p.date=s.date AND p.engine=s.engine WHERE s.date=? AND s.engine='v12'`,[date]),
     query<FrozenRow>(`SELECT ${frozenColumns.join(',')} FROM prediction_log WHERE date=? AND engine='v12' AND variant='baseline' ORDER BY race_number,predicted_rank`,[date]),
     query<FrozenRow>("SELECT * FROM prediction_lock_meta WHERE date=? AND engine='v12'",[date]),
   ]);
+  const original = saved[0];
+  if (!original || original.ok !== 1) throw new Error('未有可核實原始凍結副本，暫停提供最終預測');
   const snapshot = await validateFrozenSnapshot(original,date,rows,metas[0] ?? null);
   const [raceInfo, legacyResultRows, names, meeting, card, officialSnap, cardInfo, cloudResults] = await Promise.all([
     query<FrozenRow>(`SELECT r.id raceId,r.race_number raceNumber,r.start_time startTime,r.title,r.class,r.distance,r.going,r.track,r.course FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT r.race_number raceNumber,rr.horse_id horseId,rr.horse_number horseNumber,rr.finishing_position finishingPosition,rr.win_odds winOdds,rr.running_position runningPosition FROM race_results rr JOIN races r ON r.id=rr.race_id JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number,rr.finishing_position`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT DISTINCT h.id horseId,h.name_ch nameCh,h.name_en nameEn FROM horses h JOIN prediction_log p ON p.horse_id=h.id WHERE p.date=? AND p.engine='v12' AND p.variant='baseline'`,[date]),
-    fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/meetings/${date}`,{cache:'no-store',signal:AbortSignal.timeout(15_000)}).then(async r=>r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null).catch(()=>null),
+    optionalRacingReference(async signal => {
+      const r = await fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/meetings/${date}`, { cache: 'no-store', signal });
+      return r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null;
+    }),
     query<RunnerIdentity>(`SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 ORDER BY race_number,horse_number`,[date,snapshot.venue]),
     import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date)).catch(()=>null),
     query<RacingMeetingMetadata>(`SELECT race_number raceNumber,
