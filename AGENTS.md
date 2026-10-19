@@ -44,6 +44,6 @@
 - Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
-- Lock-tick recovery uses immutable originals; separate live audits from saved calibration. Why: no rewrites or duplicate polling.
+- Lock-tick recovery uses immutable originals; distinguish row presence, capture and public readback from saved calibration. Why: row counts do not prove recovery.
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
