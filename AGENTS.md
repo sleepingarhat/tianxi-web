@@ -14,10 +14,10 @@
 ## 首頁產品層規則
 
 - Homepage/navigation expose racing only; product-scope.ts and start.ts gate retired paths without executing them.
-- Homepage cites final/current data only. Why: claims must be verifiable.
-- Reuse PageHead, Card, Stat, Table, Seg and AppShell. Why: consistent pages.
+- Cite final/current homepage data only. Why: verifiable claims.
+- Reuse PageHead, Card, Stat, Table, Seg, AppShell. Why: consistency.
 - Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions. Why: consistent offers, no wrapping.
-- Match desktop width to data density; mobile single column. Why: readable flows.
+- Desktop width follows data density; mobile single column. Why: readability.
 - After publishing run python3 scripts/sync-frontend-repo.py. Why: tianxi-web mirrors source; Lovable hosts production.
 
 ## 監控端規則
@@ -50,4 +50,4 @@
 - Billing reminders read linked subscriptions; dedupe only after delivery. Native balance alerts remain provider-owned. Why: reminders are not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
-- Dispatch reads main runs fail-closed and never duplicates active jobs; dispatch is not delivery. Why: safe retries.
+- Dispatch checks main fail-closed, never duplicates active jobs or certifies delivery. Why: safe retries.
