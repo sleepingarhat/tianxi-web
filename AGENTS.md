@@ -41,9 +41,11 @@
 - Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
-- HKJC changes archive append-only (raw+SHA); they only label frozen withdrawals, never rewrite. Why: evidence-backed labels.
+- HKJC raw+SHA stays append-only. Shared withdrawal timing allows only post-lock substitution; pre-lock/unknown changes withhold effective picks and retain originals as incident evidence. Why: no stale-input certification.
 - Frozen API SELECTs originals, validates SHA/rows/meta and runner IDs against cards/results; missing fields stay null. Picks coalesce inflight; locked reads share API. Why: hashes prove integrity, not identity.
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
 
 - Scarce-start counts are advisory in prediction-status, not model switches or accounting filters. Why: display cannot invent exclusions.
+
+- Backend prelock/accounting candidates stay in an isolated review branch and a reproducible patch until complete official-card → recompute → snapshot → settlement readback succeeds; mock tests and typechecks are not release evidence. Why: never auto-deploy an unverified freeze pipeline through main.
