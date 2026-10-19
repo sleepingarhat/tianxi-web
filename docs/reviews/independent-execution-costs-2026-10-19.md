@@ -43,3 +43,15 @@ Cloudflare Containers官方單價：CPU USD0.000020／vCPU-second，memory USD0.
 19:57 HKT已認證Cloud callback直接抓R1並存13行，SHA d899cd893df37d6b16d02509e5f572a9d1cfff3dfebee701c49776af329b5d45；預覽frozen-racing HTTP200讀回Cloud來源complete=true，原凍結388f22b…ce89不變。D1 horse_前綴作精確正規化，不同馬ID仍阻截，21項測試通過。匿名原文欄位讀取權限已撤回，只開精簡結果欄位。網頁戰績首屏仍載入中，未算完整UI驗收；新程式未發布、首個自動週期未驗收。
 ## 20:15最新驗收
 2026-10-19 20:15：Cloudflare舊直連token回401，改已連接gateway後凍結API200、原SHA不變；戰績頁改讀原凍結metricInput，R8／R10剔除分母，R11原中3、補位另列，全日9場平均2.00／4。25測試過，桌面真實讀回通過。官方更易3份原文同步資料倉、manifest200及逐份SHA一致，Cloud每小時15分同步已建，首次自然週期待驗。未發布；訓練／評分需批准相容付費運算，騎師歷史與跨場結算缺可靠證據仍待核。
+
+## 20:22配置提案（未建立）
+用戶只批准先列配置，再確認建立；未新增付費資源或停用GitHub。官方規格更正：2vCPU／4GiB並不支援，建議單個standard-3（2vCPU／8GiB／16GB暫存碟）。假設每月990–2610分鐘、CPU全用及記憶體／磁碟全額、完成後停止，含量前約USD3.63–9.57（約HK$28–75），不是上限，另有控制請求、儲存與傳輸。現有Workers Paid USD5不重複計；包含額度共享、餘額未核，不承諾抵扣。磁碟非持久保存，工作完成須驗證外部存檔；Lovable統籌、Cloudflare執行、GitHub留版本與後備。完整配置及切換條件待確認，不影響現有網站或歷史凍結。
+
+官方來源：
+- https://developers.cloudflare.com/containers/platform/limits/
+- https://developers.cloudflare.com/containers/pricing/
+- https://developers.cloudflare.com/containers/container-class/
+- https://developers.cloudflare.com/containers/concepts/architecture/
+- https://developers.cloudflare.com/containers/configuration/scheduling-policy/
+
+單價計算（USD）：每分鐘 `(2 × 60 × 0.000020) + (8 × 60 × 0.0000025) + (16 × 60 × 0.00000007)` = 0.0036672；990分鐘3.630528、2610分鐘9.571392。若Workers Paid全部375vCPU分鐘／25GiB小時／200GB小時包含額度仍可用，抵扣後約2.91–8.85；未核餘額，主預算不計抵扣。工作時長未量度，此為假設預算非現有帳單。
