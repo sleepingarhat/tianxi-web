@@ -46,13 +46,22 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   };
   const { officialWithdrawal } = await import('./hkjc-changes');
   const stale = (body: Awaited<ReturnType<typeof read>>) => (body?.races ?? []).flatMap(r => (r.picks ?? []).filter(p => officialWithdrawal(changes, r.raceNumber, p.horseNumber, p.nameCh)).map(p => `R${r.raceNumber} #${p.horseNumber} ${p.nameCh}`));
-  const before = stale(await read(false));
+  const { staleCheckOutcome } = await import('./changes-evidence');
+  const { sendTelegramAlert } = await import('./telegramAlert.server');
+  const firstBody = await read(false).catch(() => null);
+  const before = stale(firstBody);
+  if (staleCheckOutcome(firstBody, before) === 'unknown') {
+    await sendTelegramAlert(`⚠️ 賽前更改：${date} 未能讀取未鎖預測，無法核實是否已剔除退出馬匹；未核實前唔好凍結。`).catch(() => null);
+    return { action: 'blocked' as const, reason: 'picks-unreadable' };
+  }
   if (!before.length) return { action: 'none' as const, reason: 'picks-already-exclude-withdrawals' };
   // Refresh the racecard from HKJC (GitHub workflow) then ask for a fresh compute.
   const gh = process.env['GITHUB_TOKEN'];
   const dispatched = gh ? await fetch('https://api.github.com/repos/sleepingarhat/tianxi-racing/actions/workflows/capy_racecard.yml/dispatches', { method: 'POST', headers: { authorization: `Bearer ${gh}`, accept: 'application/vnd.github+json', 'user-agent': 'tianxi-web' }, body: JSON.stringify({ ref: 'main' }) }).then(r => r.status === 204).catch(() => false) : false;
-  const after = stale(await read(true).catch(() => null));
-  const { sendTelegramAlert } = await import('./telegramAlert.server');
-  await sendTelegramAlert(`⚠️ 賽前更改：${date} 未鎖預測仍含馬會已公布退出馬匹（${before.join('、')}）。已${dispatched ? '觸發排位更新' : '未能觸發排位更新'}並要求重算；重算後${after.length ? `仍含 ${after.join('、')}，排位未更新前唔好凍結` : '已剔除'}。`).catch(() => null);
-  return { action: 'recompute-requested' as const, staleBefore: before, staleAfter: after, racecardDispatched: dispatched };
+  const afterBody = await read(true).catch(() => null);
+  const after = stale(afterBody);
+  const outcome = staleCheckOutcome(afterBody, after);
+  const tail = outcome === 'unknown' ? '重算結果讀取失敗，未能核實已剔除，唔好凍結' : outcome === 'stale' ? `仍含 ${after.join('、')}，排位未更新前唔好凍結` : '已剔除';
+  await sendTelegramAlert(`⚠️ 賽前更改：${date} 未鎖預測仍含馬會已公布退出馬匹（${before.join('、')}）。已${dispatched ? '觸發排位更新' : '未能觸發排位更新'}並要求重算；重算後${tail}。`).catch(() => null);
+  return { action: 'recompute-requested' as const, staleBefore: before, staleAfter: after, afterVerified: outcome !== 'unknown', racecardDispatched: dispatched };
 }

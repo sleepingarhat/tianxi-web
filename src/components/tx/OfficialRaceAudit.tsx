@@ -23,7 +23,7 @@ export function OfficialRaceAudit({ accounting = false }: { accounting?: boolean
     {summary ? <p className="my-3 text-[12px] text-ink-2">正式原四揀平均 {summary.originalAverage?.toFixed(2) ?? '—'}／4 · {summary.races} 場 · 無效／待核 {summary.excluded} 場</p> : null}
     {day?.races.map(r=><article key={r.raceNumber} className="border-b border-hairline py-3 last:border-b-0">
       <div className="flex flex-wrap items-center gap-2 text-[12px]"><b className="text-ink">第 {r.raceNumber} 場</b>
-        {r.effectiveTop4.status==='invalid-prelock-input' ? <Pill tone="lose">鎖前輸入無效 · 不計分</Pill> : r.effectiveTop4.status!=='valid' ? <Pill tone="gold">更改時間待核</Pill> : r.changeClassification.hasWithdrawal ? <Pill tone="gold">鎖後退出</Pill> : null}
+        {r.effectiveTop4.status==='invalid-prelock-input' ? <Pill tone="lose">鎖前輸入無效 · 不計分</Pill> : r.metricInput.status==='unverified-changes-read' ? <Pill tone="lose">馬會更改未能核實 · 不計分</Pill> : r.effectiveTop4.status!=='valid' ? <Pill tone="gold">更改時間待核</Pill> : r.changeClassification.hasWithdrawal ? <Pill tone="gold">鎖後退出</Pill> : null}
         {r.changeClassification.postLockJockeyChange ? <Pill tone="gold">鎖後換騎</Pill> : null}
       </div>
       <p className="mt-2 font-mono-tx text-[12px] text-ink-2">原四揀 {r.effectiveTop4.original.join('–')} · 正式命中 {r.officialMetric.originalHits ?? '—'}／4</p>

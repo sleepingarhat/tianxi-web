@@ -37,11 +37,11 @@
 - RacePositionMap pairs historical medians and actual checkpoints, separates finish rank and cites sources; history is not frozen.
 - Racing evidence uses fixed read-only settled/public-frozen projections; current pedigrees stay separate from original scores, missing snapshots unverified. Why: references cannot certify locks.
 
-- Retired sources/journals live only in private research with commits/checksums; detach runtime dependencies before removal. Keep only product-scope gates (redirect/410). Why: preserve research without shipping retired products.
+- Retired sources/journals live only in private research with commits/checksums; keep only product-scope gates (redirect/410). Why: preserve research, don't ship retired products.
 - Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
-- HKJC raw+SHA stays append-only; live notices share polling and overlay identity-matched withdrawals without changing frozen rows. Only post-lock substitutions are valid. Why: fresh notices cannot certify stale inputs.
+- HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; only post-lock substitutions are valid. Why: fresh notices cannot certify stale inputs.
 - Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
 - Replay preserves raw axes/fields; pedigree tests use prior-date smoothing, seeded confidence, paired denominators and score/context checksums, no prediction writes. Why: research cannot certify locks or approve weights.
@@ -51,6 +51,6 @@
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Dispatch checks main fail-closed, never duplicates active jobs or certifies delivery. Why: safe retries.
-- Picks refresh coalesces only active reads with a bounded deadline; timeout releases retry without accepting late data. Why: hanging upstream reads must not trap every visitor or certify stale picks.
+- Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. Why: one auditable source; hangs must not certify stale picks.
 - Parallelize independent frozen reads; bound optional references without bypassing evidence checks. Why: avoid display delays.
 - Preserve official class labels through racingClassLabel. Why: Chinese and Group labels are valid.

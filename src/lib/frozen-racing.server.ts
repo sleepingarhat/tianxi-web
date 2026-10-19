@@ -5,6 +5,7 @@ import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
 import { officialRaceMetric } from './racing-official-metrics';
 import { mergeMeetingMetadata, type RacingMeetingMetadata } from './racing-meeting-metadata';
+import { readChangesEvidence, changesAwareStatus } from './changes-evidence';
 import { optionalRacingReference } from './optional-racing-reference';
 
 /** SELECT only. Never calls compute, capture or recovery. */
@@ -27,7 +28,7 @@ export async function readFrozenRacing(date: string) {
       return r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null;
     }),
     query<RunnerIdentity>(`SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 ORDER BY race_number,horse_number`,[date,snapshot.venue]),
-    import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date)).catch(()=>null),
+    readChangesEvidence(()=>import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date))),
     query<RacingMeetingMetadata>(`SELECT race_number raceNumber,
       CASE WHEN COUNT(DISTINCT post_time)=1 THEN MIN(post_time) END startTime,
       CASE WHEN COUNT(DISTINCT distance)=1 THEN MIN(distance) END distance,
@@ -41,7 +42,9 @@ export async function readFrozenRacing(date: string) {
   const resultRows: FrozenRow[] = [...legacyResultRows.filter(r=>!cloudRaceNumbers.has(r.raceNumber)),...cloudResults.flatMap(r=>r.results)];
   const nameMap = new Map(names.map(n=>[n.horseId,n]));
   // Official HKJC changes (archived snapshot with SHA) may explain a slot change; the frozen row itself is never rewritten.
-  const officialChanges: HkjcChange[] = officialSnap && officialSnap.venue===snapshot.venue ? (officialSnap.changes as unknown as HkjcChange[]) : [];
+  const changesReadOk = officialSnap.ok;
+  const snap = officialSnap.ok ? officialSnap.snapshot : null;
+  const officialChanges: HkjcChange[] = snap && snap.venue===snapshot.venue ? (snap.changes as unknown as HkjcChange[]) : [];
   const changeFor = (r:FrozenRow) => officialWithdrawal(officialChanges, r.race_number, r.horse_number, nameMap.get(r.horse_id)?.nameCh);
   const withdrawn = new Set(snapshot.rows.filter(r=>changeFor(r)).map(r=>`${r.race_number}:${r.horse_number}`));
   const identityCheck = verifyRunnerIdentities(snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id})),card,resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId,finishingPosition:r.finishingPosition})),withdrawn);
@@ -60,7 +63,7 @@ export async function readFrozenRacing(date: string) {
     const postLockJockeyChange = jockeyChanges.some(c=>c.announcedAtIso && Date.parse(c.announcedAtIso)>Date.parse(snapshot.lockAt));
     const unknownJockeyTiming = jockeyChanges.some(c=>!c.announcedAtIso);
     const actualTop4 = results.filter(r=>Number.isInteger(r.finishingPosition) && r.finishingPosition>0 && r.finishingPosition<99 && !withdrawn.has(`${raceNumber}:${r.horseNumber}`)).sort((a,b)=>a.finishingPosition-b.finishingPosition).slice(0,4).map(r=>r.horseNumber);
-    const metricInput = { original: selection.original, effective: selection.effective, actualTop4, status: unknownJockeyTiming ? 'unverified-change-timing' : selection.status, hasWithdrawal, postLockJockeyChange };
+    const metricInput = { original: selection.original, effective: selection.effective, actualTop4, status: changesAwareStatus(changesReadOk, unknownJockeyTiming ? 'unverified-change-timing' : selection.status), hasWithdrawal, postLockJockeyChange };
     return {
       raceNumber, raceId: info.raceId ?? `race_${date}_${snapshot.venue}_${raceNumber}`,startTime:info.startTime ?? null,title:info.title ?? null,class:info.class ?? null,distance:info.distance ?? null,going:info.going ?? null,track:info.track ?? null,course:info.course ?? null,
       metadataSource: resultInfo ? 'official-results-with-card-fallback' : 'current-official-card-display-only',
@@ -69,11 +72,11 @@ export async function readFrozenRacing(date: string) {
       // Lock-before withdrawals invalidate inputs; original ranking is evidence only.
       effectiveTop4: selection,
       metricInput, officialMetric: officialRaceMetric(metricInput),
-      changeClassification: { hasWithdrawal, postLockJockeyChange, unknownJockeyTiming },
+      changeClassification: { hasWithdrawal, postLockJockeyChange, unknownJockeyTiming, changesReadOk },
       picks: frozen.map(r=>({ horseId:r.horse_id,horseNumber:r.horse_number,nameCh:nameMap.get(r.horse_id)?.nameCh,nameEn:nameMap.get(r.horse_id)?.nameEn,draw:r.draw || null,rank:r.predicted_rank,finalScore:r.final_score,pWin:r.p_win,pTop3:r.p_top3,pTop4:null,horseElo:r.horse_elo,jockeyElo:r.jockey_elo,trainerElo:r.trainer_elo,eloComposite:r.elo_composite,factorBonus:r.factor_bonus,factorScores:r.factor_scores,scoreSource:r.score_source,lgbScore:r.lgb_score,generatedAt:r.generated_at,modelVersion:r.lgb_model_version,officialChange:(()=>{const c=changeFor(r);return c?{kind:c.kind,text:c.text,replacement:c.replacement,announcedAt:c.announcedAt,announcedAtIso:c.announcedAtIso,beforeLock:c.announcedAtIso?Date.parse(c.announcedAtIso)<Date.parse(snapshot.lockAt):null}:null;})() })),
       resultsStatus: results.length ? 'available' : 'pending', results,
       resultsEvidence: cloudResults.find(r=>r.raceNumber===raceNumber) ? {source:'lovable-cloud-official-archive',complete:true,sha256:cloudResults.find(r=>r.raceNumber===raceNumber)?.sha256,dividendsVerified:false} : {source:'legacy-results',complete:null,dividendsVerified:false},
     };
   });
-  return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt:new Date().toISOString(),snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock'},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:officialSnap?{source:officialSnap.source_url,sha256:officialSnap.sha256,fetchedAt:officialSnap.fetched_at,count:officialChanges.length}:null,resultsSource:'official-race-results',races };
+  return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt:new Date().toISOString(),snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock'},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:snap?{source:snap.source_url,sha256:snap.sha256,fetchedAt:snap.fetched_at,count:officialChanges.length,readOk:true}:changesReadOk?null:{readOk:false,count:null},resultsSource:'official-race-results',races };
 }

@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayPicksAll } from "@/lib/picks.functions";
 import { getPublicRacePage } from "@/lib/race-public.functions";
 import { raceMetadata } from "@/lib/race-seo";
-import { sameMeeting } from "@/lib/audit-safety";
+import { racePicksFromDay } from "@/lib/race-picks";
 
 
 import { AppShell } from "@/components/tx/AppShell";
@@ -71,11 +71,6 @@ function RacePage() {
     enabled: !!raceDate && !!venueCode && !!raceNumber,
     refetchInterval: 60_000,
   });
-  const picks = useQuery({
-    queryKey: ["topPicks", raceId],
-    queryFn: () => txApi.topPicks(raceId).catch(() => ({ picks: [] })),
-    enabled: !!raceId,
-  });
   const fetchAllPicks = useServerFn(getTodayPicksAll);
   const dayPicks = useQuery({
     queryKey: ["todayPicksAll"],
@@ -117,11 +112,8 @@ function RacePage() {
   const liveWin = (n: unknown) => winOddsMap[String(n).padStart(2, "0")] ?? null;
   const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
   const horses: any[] = d?.horses || d?.entries || [];
-  // 引擎首選：races 表未建時改由全日預測補上
-  const dayRacePicks =
-    (picks.data?.picks || []).length
-      ? picks.data.picks
-      : (sameMeeting(raceDate, venueCode, dayPicks.data) ? ((dayPicks.data?.races || []).find((r: any) => Number(r.raceNumber) === raceNumber)?.picks || []) : []);
+  // 引擎首選：只用已核實凍結／全日預測（同日同馬場），唔會用舊後端即時預測
+  const dayRacePicks = racePicksFromDay(dayPicks.data, raceDate, venueCode, raceNumber);
   const pickRank = new Map<number, number>();
   dayRacePicks.forEach((p: any) => pickRank.set(Number(p.horseNumber), Number(p.rank)));
   const hasResult = horses.some((h) => h.finishingPosition);
@@ -210,7 +202,7 @@ function RacePage() {
       </Card>
 
       <Card title="引擎首選" en="Engine Picks">
-        {picks.isLoading || dayPicks.isLoading ? (
+        {dayPicks.isLoading ? (
           <Loading />
         ) : dayRacePicks.length ? (
           <div className="divide-y divide-hairline">
