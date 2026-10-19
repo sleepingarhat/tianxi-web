@@ -51,3 +51,4 @@
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Dispatch checks main fail-closed, never duplicates active jobs or certifies delivery. Why: safe retries.
+- Picks refresh coalesces only active reads with a bounded deadline; timeout releases retry without accepting late data. Why: hanging upstream reads must not trap every visitor or certify stale picks.

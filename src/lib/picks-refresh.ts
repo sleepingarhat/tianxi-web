@@ -1,8 +1,17 @@
 /** 合併同時讀取，但不保存已完成結果；每次重取都核對上游。 */
-export function createPicksRefresh<T>(fetchLatest: () => Promise<T>) {
+export function createPicksRefresh<T>(fetchLatest: () => Promise<T>, timeoutMs = 25_000) {
   let inflight: Promise<T> | null = null;
   return () => {
-    if (!inflight) inflight = fetchLatest().finally(() => { inflight = null; });
+    if (!inflight) {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const deadline = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("讀取預測逾時（timeout），請重新核對")), timeoutMs);
+      });
+      inflight = Promise.race([Promise.resolve().then(fetchLatest), deadline]).finally(() => {
+        clearTimeout(timer);
+        inflight = null;
+      });
+    }
     return inflight;
   };
 }

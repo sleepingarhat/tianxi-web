@@ -108,6 +108,8 @@ export function useTodayPicks() {
     cancellation,
     isLoading: cancellation ? false : picks.isLoading,
     error: picks.error,
+    isFetching: picks.isFetching,
+    refetch: picks.refetch,
     changesSnapshot,
     changesError: changes.isError,
   };

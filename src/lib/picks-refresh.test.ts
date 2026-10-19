@@ -3,6 +3,25 @@ import { createPicksRefresh, picksEdition } from "./picks-refresh";
 import { raceStatus } from "./prediction-status";
 
 describe("今日預測最終版讀取", () => {
+  it("掛起讀取25秒後停止，重試不能被舊請求卡住或回填", async () => {
+    vi.useFakeTimers();
+    try {
+      let finishOld: ((value: { edition: string }) => void) | undefined;
+      const upstream = vi.fn()
+        .mockImplementationOnce(() => new Promise<{ edition: string }>(resolve => { finishOld = resolve; }))
+        .mockResolvedValueOnce({ edition: "final" });
+      const refresh = createPicksRefresh(upstream);
+      const failed = expect(refresh()).rejects.toThrow("timeout");
+      await vi.advanceTimersByTimeAsync(25_000);
+      await failed;
+      expect(await refresh()).toEqual({ edition: "final" });
+      finishOld?.({ edition: "draft" });
+      await Promise.resolve();
+      expect(upstream).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   it("重新讀取不沿用初版，全11場讀回最終版", async () => {
     const upstream = vi.fn().mockResolvedValueOnce({ frozen: false, edition: "draft" }).mockResolvedValueOnce({ frozen: true, edition: "final", races: Array.from({ length: 11 }, (_, i) => ({ raceNumber: i + 1 })) });
     const refresh = createPicksRefresh<any>(upstream);

@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNotice";
@@ -76,7 +78,10 @@ function PredictorPage() {
   // 市場參考：獨贏賠率每 20 秒重新拉取（唔固定用某日快照），並顯示盤口更新時間。
   const oddsQ = useQuery({
     queryKey: ["odds", tp.date, tp.venue, race?.raceNumber],
-    queryFn: () => txApi.odds(tp.date!, tp.venue!, Number(race.raceNumber)).catch(() => null),
+    queryFn: () => {
+      if (!tp.date || !tp.venue || !race) return null;
+      return txApi.odds(tp.date, tp.venue, Number(race.raceNumber)).catch(() => null);
+    },
     enabled: !!tp.date && !!tp.venue && !!race?.raceNumber,
     retry: 2,
     refetchInterval: 20_000,
@@ -143,7 +148,10 @@ function PredictorPage() {
     (featList.data?.races ?? []).find((r: any) => Number(r.raceNumber) === Number(race?.raceNumber))?.id ?? null;
   const featRace = useQuery({
     queryKey: ["whyFeatureRace", featRaceId],
-    queryFn: () => raceFn({ data: { raceId: featRaceId! } }),
+    queryFn: () => {
+      if (!featRaceId) throw new Error("未有場次資料");
+      return raceFn({ data: { raceId: featRaceId } });
+    },
     enabled: !!featRaceId,
   });
   const featHorses = featRace.data?.horses ?? [];
@@ -244,11 +252,12 @@ function PredictorPage() {
         <div className="relative">
           <select
             id="tp-race-select"
+            disabled={races.length === 0}
             value={String(race?.raceNumber ?? raceNo)}
             onChange={(e) => setRaceNo(Number(e.target.value))}
             className="w-full appearance-none rounded-[10px] border border-hairline bg-paper-2 py-[11px] pl-3 pr-9 font-sans-tc text-[13px] font-semibold text-ink"
           >
-            {races.length === 0 ? <option>載入中…</option> : null}
+            {races.length === 0 ? <option value={String(raceNo)}>{tp.isLoading ? "核對場次中…" : tp.error ? "場次暫未能讀取" : "暫未有場次"}</option> : null}
             {races.map((r: any) => {
               const cls = r.class ? ` · ${r.class}` : "";
               const dist = r.distance ? ` · ${r.distance}m` : "";
@@ -505,7 +514,13 @@ function PredictorPage() {
         {tp.isLoading ? (
           <Loading />
         ) : tp.error ? (
-          <ErrorNote error={tp.error} />
+          <div role="alert" className="space-y-3">
+            <ErrorNote error={new Error(/timeout|timed out|aborted/i.test(String(tp.error)) ? "讀取預測逾時，暫停展示四揀；請重新核對。" : "預測暫未能核實，暫停展示四揀；請重新核對。")} />
+            <Button variant="outline" onClick={() => void tp.refetch()} disabled={tp.isFetching}>
+              <RefreshCw className={tp.isFetching ? "animate-spin motion-reduce:animate-none" : ""} />
+              {tp.isFetching ? "重新核對中…" : "重新核對"}
+            </Button>
+          </div>
         ) : race ? (
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -584,8 +599,7 @@ function PredictorPage() {
       {tp.date && race && !invalidInput ? <RacePositionMap date={tp.date} raceId={race.raceId ?? featRaceId ?? undefined} distance={Number(race.distance) || 0} picks={picks} frozen={Boolean(tp.frozen)} /> : null}
 
       <Card title="點解揀佢" en="Why These Picks">
-        <p className="mb-2 text-[11px] leading-relaxed text-ink-2">逐匹讀取現有解釋接口；只展示真實已提供的內容。特徵排序研究分數不當成模型內部貢獻或 SHAP。</p>
-        {!invalidInput && (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} />) : <Empty label="未有本場預測" />}
+        {tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} />) : <Empty label="未有本場預測" />}
       </Card>
 
       <Card title="特徵排序實驗室" en="Feature Lab">

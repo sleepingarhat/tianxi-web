@@ -22,6 +22,7 @@ async function fetchTodayPicksUpstream() {
   const url = `${WORKER_BASE}/api/analyze/today-picks`;
   const res = await fetch(url, {
     cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
     headers: {
       "user-agent": "tianxi-web",
       ...(token ? { authorization: `Bearer ${token}` } : {}),
