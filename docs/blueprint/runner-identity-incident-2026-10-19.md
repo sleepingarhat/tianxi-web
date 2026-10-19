@@ -40,3 +40,9 @@
 - `capy_d1_sync_entries.yml` 每日 20:43 HKT 後備排程嘅 job 條件只接受 workflow_dispatch 或上游成功，**排程事件本身永遠 skip**；10/18 16:07 UTC run 39143589459 確認 skipped，連帶 capy_racecard workflow_run 39143593204 skipped。
 - `capy_racecard.yml` 安全網排程 `0 1 * * 1,3,5,6`＝09:00 HKT，本身已晚過 08:48 凍結生成，週日無排程；10/19 實際延遲至 05:32 UTC（13:32 HKT）先跑並失敗。
 - 預測／凍結流程冇「排位需新於最近更易」或「抓馬會更易事項」前置閘，舊排位直接入計算。
+
+## 已修（2026-10-19 15:40 HKT，預覽）
+- 官方更易事項每日 06:30 HKT 自動存檔（hkjc_changes_snapshots，只追加、原文＋SHA）；今日 07:19:53Z 擷取已入庫（原始位元組 SHA 4aea00ac…；另一行為換行正規化版本 b30c86bb…，同一內容，不刪除）。
+- 凍結 API：只有官方存檔點名該凍結馬匹退出／被替補，先豁免該槽身份差異，回傳 officialChange（含公布時間、是否鎖定前）；其他錯配照舊 503。選馬頁四揀標明，/race-changes 列官方原文。
+- tianxi-racing b290ef9：capy_d1_sync_entries 排程事件不再 skip；da3f1b2：capy_racecard 每日 06:15 HKT 凍結前更新。
+- 未完成：「排位擷取時間早過最新更易即阻截凍結」閘；GitHub 排程可延遲數小時（今日延 4.5 小時），排程本身不是保證。

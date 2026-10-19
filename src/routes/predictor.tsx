@@ -324,6 +324,16 @@ function PredictorPage() {
                           <span className="block truncate font-serif-tc text-[12px] font-bold text-ink">{p.nameCh}</span>
                         )}
                         <p className="tabnum mt-0.5 truncate font-mono-tx text-[9px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
+                        {p.officialChange ? (
+                          <Link to="/race-changes" className="mt-1 block">
+                            <Pill tone="lose">
+                              {p.officialChange.kind === "replaced" ? `已退出・由${p.officialChange.replacement}補上` : "已退出"}
+                            </Pill>
+                            <span className="mt-0.5 block font-mono-tx text-[8px] text-lose">
+                              馬會 {p.officialChange.announcedAt} 公布{p.officialChange.beforeLock ? "（鎖定前）" : ""}
+                            </span>
+                          </Link>
+                        ) : null}
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">

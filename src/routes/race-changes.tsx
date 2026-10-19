@@ -1,0 +1,90 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
+import { AppShell } from "@/components/tx/AppShell";
+import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
+import { getHkjcChanges } from "@/lib/hkjc-changes.functions";
+import { useTodayPicks } from "@/lib/use-today-picks";
+
+export const Route = createFileRoute("/race-changes")({
+  head: () => ({
+    meta: [
+      { title: "賽前更改通知 · 天喜 TIANXI" },
+      { name: "description", content: "香港賽馬會官方更易事項：退出、後備補上、換騎及磅重更改，附官方公布時間及存檔指紋。" },
+      { property: "og:title", content: "賽前更改通知 · 天喜 TIANXI" },
+      { property: "og:description", content: "馬會官方賽前更改，逐項列出時間、馬號同原因。" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: RaceChangesPage,
+});
+
+const hkNow = () => new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+const hkTime = (iso: string) => new Date(Date.parse(iso) + 8 * 3600_000).toISOString().replace("T", " ").slice(0, 16);
+
+function RaceChangesPage() {
+  const tp = useTodayPicks();
+  const date = tp.date || hkNow();
+  const fn = useServerFn(getHkjcChanges);
+  const q = useQuery({ queryKey: ["hkjc-changes", date], queryFn: () => fn({ data: { date } }), refetchInterval: 300_000 });
+
+  const affected = new Map<string, any>();
+  for (const r of tp.races as any[]) for (const p of r.picks || []) if (p.officialChange) affected.set(`${r.raceNumber}:${p.horseNumber}`, { rank: p.rank });
+
+  const snap = q.data;
+  const changes = snap?.changes ?? [];
+  const byRace = new Map<number, typeof changes>();
+  for (const c of changes) byRace.set(c.raceNumber, [...(byRace.get(c.raceNumber) ?? []), c]);
+
+  return (
+    <AppShell>
+      <PageHead en="OFFICIAL CHANGES" title="賽前更改通知" desc="只轉載香港賽馬會官方「更易事項」原文。凍結四揀唔會追改；受影響嘅馬匹喺選馬頁照實標明。" />
+      <div className="mx-auto max-w-3xl space-y-3 p-4">
+        {q.isLoading ? <Loading /> : q.error ? <ErrorNote error={q.error} /> : !snap ? (
+          <Empty label={`${date} 未有已存檔嘅官方更改紀錄`} />
+        ) : (
+          <>
+            <Card title="官方來源" en="SOURCE">
+              <dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-2 gap-y-1 text-[11px]">
+                <dt className="text-ink-3">賽日</dt><dd className="font-mono-tx text-ink">{snap.race_date} · {snap.venue === "ST" ? "沙田" : "跑馬地"}</dd>
+                <dt className="text-ink-3">擷取時間</dt><dd className="font-mono-tx text-ink">{hkTime(snap.fetched_at)} HKT</dd>
+                <dt className="text-ink-3">原文指紋</dt><dd className="break-all font-mono-tx text-[10px] text-ink-2">{snap.sha256}</dd>
+                <dt className="text-ink-3">來源</dt><dd><a href={snap.source_url} target="_blank" rel="noreferrer" className="break-all text-gold underline">{snap.source_url}</a></dd>
+              </dl>
+            </Card>
+            <Card title={`更易事項（${changes.length} 項）`} en="CHANGES">
+              {changes.length ? (
+                <ul className="divide-y divide-hairline">
+                  {[...byRace.entries()].sort((a, b) => a[0] - b[0]).map(([race, list]) => (
+                    <li key={race} className="py-2">
+                      <p className="mb-1 font-serif-tc text-[12px] font-bold text-ink">第 {race} 場</p>
+                      {list.map((c, i) => {
+                        const hit = affected.get(`${c.raceNumber}:${c.horseNumber}`);
+                        return (
+                          <div key={i} className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-start gap-2 py-1 text-[11px]">
+                            <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[10px] font-bold text-ink">{c.horseNumber}</span>
+                            <div className="min-w-0">
+                              <p className="text-ink"><b>{c.horseName}</b> {c.text}</p>
+                              <div className="mt-0.5 flex flex-wrap gap-1">
+                                <Pill tone={c.kind === "other" ? "ink" : "lose"}>{c.kind === "replaced" ? "退出・後備補上" : c.kind === "scratched" ? "退出" : "其他更改"}</Pill>
+                                {hit ? <Link to="/predictor"><Pill tone="gold">影響天喜凍結第 {hit.rank} 選</Pill></Link> : null}
+                              </div>
+                            </div>
+                            <span className="tabnum shrink-0 font-mono-tx text-[10px] text-ink-3">{c.announcedAt}</span>
+                          </div>
+                        );
+                      })}
+                    </li>
+                  ))}
+                </ul>
+              ) : <Empty label="今日暫無官方更改" />}
+            </Card>
+          </>
+        )}
+        <Disclaimer extra="時間為馬會公布時間（香港時間，日/月 時:分）。原文每日自動存檔一次，以指紋核對；本頁唔會改寫任何凍結預測或戰績。" />
+      </div>
+    </AppShell>
+  );
+}

@@ -33,7 +33,12 @@ describe('馬匹身份跨来源核對', () => {
     expect(() => verifyRunnerIdentities(original, original, [{ raceNumber: 10, horseNumber: 3, horseId: 'horse_L184' }])).toThrow('官方賽果');
   });
   it('全部身份相同且尚未入帳賽果可以讀回', () => {
-    expect(verifyRunnerIdentities(original, original, [])).toEqual({ status: 'matched-current-card-and-available-results', runners: 1 });
+    expect(verifyRunnerIdentities(original, original, [])).toEqual({ status: 'matched-current-card-and-available-results', runners: 1, officiallyWithdrawn: [] });
     expect(verifyRunnerIdentities(original, original, original).runners).toBe(1);
+  });
+  it('official HKJC withdrawal explains R10 H3 slot change without hiding other mismatches', () => {
+    const swapped = [{ raceNumber: 10, horseNumber: 3, horseId: 'horse_L184' }];
+    expect(verifyRunnerIdentities(original, swapped, swapped, new Set(['10:3'])).status).toBe('matched-except-official-withdrawals');
+    expect(() => verifyRunnerIdentities(original, swapped, [], new Set(['10:4']))).toThrow('身份不一致');
   });
 });

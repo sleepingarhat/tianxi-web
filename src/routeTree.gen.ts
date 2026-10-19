@@ -31,6 +31,7 @@ import { Route as PredictionVsResultRouteImport } from './routes/prediction-vs-r
 import { Route as PredictorRouteImport } from './routes/predictor'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as RaceRouteImport } from './routes/race'
+import { Route as RaceChangesRouteImport } from './routes/race-changes'
 import { Route as RacingHealthRouteImport } from './routes/racing-health'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as ScheduleRouteImport } from './routes/schedule'
@@ -73,6 +74,7 @@ import { Route as ApiPublicTelegramAlertRouteImport } from './routes/api/public/
 import { Route as ApiPublicWeatherArchiveRouteImport } from './routes/api/public/weather-archive'
 import { Route as ApiPublicWeatherSyncGithubRouteImport } from './routes/api/public/weather-sync-github'
 import { Route as ApiPublicHooksRaceResultsDispatchRouteImport } from './routes/api/public/hooks/race-results-dispatch'
+import { Route as ApiPublicJobsHkjcChangesRouteImport } from './routes/api/public/jobs/hkjc-changes'
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -187,6 +189,11 @@ const PricingRoute = PricingRouteImport.update({
 const RaceRoute = RaceRouteImport.update({
   id: '/race',
   path: '/race',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RaceChangesRoute = RaceChangesRouteImport.update({
+  id: '/race-changes',
+  path: '/race-changes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RacingHealthRoute = RacingHealthRouteImport.update({
@@ -412,6 +419,12 @@ const ApiPublicHooksRaceResultsDispatchRoute =
     path: '/api/public/hooks/race-results-dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsHkjcChangesRoute =
+  ApiPublicJobsHkjcChangesRouteImport.update({
+    id: '/api/public/jobs/hkjc-changes',
+    path: '/api/public/jobs/hkjc-changes',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsRacecoursePhotosRoute =
   ApiPublicJobsRacecoursePhotosRouteImport.update({
     id: '/api/public/jobs/racecourse-photos',
@@ -463,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
   '/race': typeof RaceRoute
+  '/race-changes': typeof RaceChangesRoute
   '/racing-health': typeof RacingHealthRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
@@ -505,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
+  '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -533,6 +548,7 @@ export interface FileRoutesByTo {
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
   '/race': typeof RaceRoute
+  '/race-changes': typeof RaceChangesRoute
   '/racing-health': typeof RacingHealthRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
@@ -574,6 +590,7 @@ export interface FileRoutesByTo {
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
+  '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -604,6 +621,7 @@ export interface FileRoutesById {
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
   '/race': typeof RaceRoute
+  '/race-changes': typeof RaceChangesRoute
   '/racing-health': typeof RacingHealthRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
@@ -646,6 +664,7 @@ export interface FileRoutesById {
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
+  '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -676,6 +695,7 @@ export interface FileRouteTypes {
     | '/predictor'
     | '/pricing'
     | '/race'
+    | '/race-changes'
     | '/racing-health'
     | '/results'
     | '/schedule'
@@ -718,6 +738,7 @@ export interface FileRouteTypes {
     | '/api/public/weather-sync-github'
     | '/admin/'
     | '/api/public/hooks/race-results-dispatch'
+    | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/payments/webhook'
@@ -746,6 +767,7 @@ export interface FileRouteTypes {
     | '/predictor'
     | '/pricing'
     | '/race'
+    | '/race-changes'
     | '/racing-health'
     | '/results'
     | '/schedule'
@@ -787,6 +809,7 @@ export interface FileRouteTypes {
     | '/api/public/weather-sync-github'
     | '/admin'
     | '/api/public/hooks/race-results-dispatch'
+    | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/payments/webhook'
@@ -816,6 +839,7 @@ export interface FileRouteTypes {
     | '/predictor'
     | '/pricing'
     | '/race'
+    | '/race-changes'
     | '/racing-health'
     | '/results'
     | '/schedule'
@@ -858,6 +882,7 @@ export interface FileRouteTypes {
     | '/api/public/weather-sync-github'
     | '/_authenticated/admin/'
     | '/api/public/hooks/race-results-dispatch'
+    | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/payments/webhook'
@@ -888,6 +913,7 @@ export interface RootRouteChildren {
   PredictorRoute: typeof PredictorRoute
   PricingRoute: typeof PricingRoute
   RaceRoute: typeof RaceRoute
+  RaceChangesRoute: typeof RaceChangesRoute
   RacingHealthRoute: typeof RacingHealthRoute
   ResultsRoute: typeof ResultsRoute
   ScheduleRoute: typeof ScheduleRoute
@@ -917,6 +943,7 @@ export interface RootRouteChildren {
   ApiPublicWeatherArchiveRoute: typeof ApiPublicWeatherArchiveRoute
   ApiPublicWeatherSyncGithubRoute: typeof ApiPublicWeatherSyncGithubRoute
   ApiPublicHooksRaceResultsDispatchRoute: typeof ApiPublicHooksRaceResultsDispatchRoute
+  ApiPublicJobsHkjcChangesRoute: typeof ApiPublicJobsHkjcChangesRoute
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -1078,6 +1105,13 @@ declare module '@tanstack/react-router' {
       path: '/race'
       fullPath: '/race'
       preLoaderRoute: typeof RaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/race-changes': {
+      id: '/race-changes'
+      path: '/race-changes'
+      fullPath: '/race-changes'
+      preLoaderRoute: typeof RaceChangesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/racing-health': {
@@ -1374,6 +1408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRaceResultsDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/hkjc-changes': {
+      id: '/api/public/jobs/hkjc-changes'
+      path: '/api/public/jobs/hkjc-changes'
+      fullPath: '/api/public/jobs/hkjc-changes'
+      preLoaderRoute: typeof ApiPublicJobsHkjcChangesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/racecourse-photos': {
       id: '/api/public/jobs/racecourse-photos'
       path: '/api/public/jobs/racecourse-photos'
@@ -1480,6 +1521,7 @@ const rootRouteChildren: RootRouteChildren = {
   PredictorRoute: PredictorRoute,
   PricingRoute: PricingRoute,
   RaceRoute: RaceRoute,
+  RaceChangesRoute: RaceChangesRoute,
   RacingHealthRoute: RacingHealthRoute,
   ResultsRoute: ResultsRoute,
   ScheduleRoute: ScheduleRoute,
@@ -1510,6 +1552,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicWeatherSyncGithubRoute: ApiPublicWeatherSyncGithubRoute,
   ApiPublicHooksRaceResultsDispatchRoute:
     ApiPublicHooksRaceResultsDispatchRoute,
+  ApiPublicJobsHkjcChangesRoute: ApiPublicJobsHkjcChangesRoute,
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

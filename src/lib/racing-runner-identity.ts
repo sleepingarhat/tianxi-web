@@ -9,7 +9,8 @@ export function evidenceDraw(frozen: boolean, original: number | null | undefine
 }
 
 /** Read-only cross-check, not a repair or proof of pre-lock provenance. */
-export function verifyRunnerIdentities(frozen: RunnerIdentity[], card: RunnerIdentity[], results: RunnerIdentity[]) {
+export function verifyRunnerIdentities(frozen: RunnerIdentity[], card: RunnerIdentity[], results: RunnerIdentity[], officiallyWithdrawn: ReadonlySet<string> = new Set()) {
+  // officiallyWithdrawn: "race:number" slots where HKJC's archived official changes name the frozen horse as scratched/replaced.
   const key = (r: RunnerIdentity) => `${r.raceNumber}:${r.horseNumber}`;
   const index = new Map<string, string>();
   const horses = new Set<string>();
@@ -21,6 +22,7 @@ export function verifyRunnerIdentities(frozen: RunnerIdentity[], card: RunnerIde
     horses.add(`${r.raceNumber}:${r.horseId}`);
   }
   for (const r of frozen) {
+    if (officiallyWithdrawn.has(key(r))) continue;
     const id = index.get(key(r));
     if (!id) throw new Error(`第${r.raceNumber}場${r.horseNumber}號缺排位身份證據，暫停提供最終預測`);
     if (id !== r.horseId) throw new Error(`第${r.raceNumber}場${r.horseNumber}號凍結馬匹與排位身份不一致，暫停提供最終預測`);
@@ -28,10 +30,11 @@ export function verifyRunnerIdentities(frozen: RunnerIdentity[], card: RunnerIde
   const original = new Map(frozen.map(r => [key(r), r.horseId]));
   const resultNumbers = new Set<string>();
   for (const r of results) {
+    if (officiallyWithdrawn.has(key(r)) && !resultNumbers.has(key(r))) { resultNumbers.add(key(r)); continue; }
     if (!r.horseId || !Number.isInteger(r.horseNumber) || r.horseNumber < 1 || resultNumbers.has(key(r)) || original.get(key(r)) !== r.horseId) {
       throw new Error(`第${r.raceNumber}場官方賽果與凍結身份未能核實，暫停提供最終預測`);
     }
     resultNumbers.add(key(r));
   }
-  return { status: 'matched-current-card-and-available-results' as const, runners: frozen.length };
+  return { status: officiallyWithdrawn.size ? 'matched-except-official-withdrawals' as const : 'matched-current-card-and-available-results' as const, runners: frozen.length, officiallyWithdrawn: [...officiallyWithdrawn] };
 }
