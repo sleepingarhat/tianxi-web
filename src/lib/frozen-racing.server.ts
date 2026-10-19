@@ -16,7 +16,7 @@ export async function readFrozenRacing(date: string) {
     query<FrozenRow>("SELECT * FROM prediction_lock_meta WHERE date=? AND engine='v12'",[date]),
   ]);
   const snapshot = await validateFrozenSnapshot(original,date,rows,metas[0] ?? null);
-  const [raceInfo, resultRows, names, meeting, card, officialSnap, cardInfo] = await Promise.all([
+  const [raceInfo, legacyResultRows, names, meeting, card, officialSnap, cardInfo, cloudResults] = await Promise.all([
     query<FrozenRow>(`SELECT r.id raceId,r.race_number raceNumber,r.start_time startTime,r.title,r.class,r.distance,r.going,r.track,r.course FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT r.race_number raceNumber,rr.horse_id horseId,rr.horse_number horseNumber,rr.finishing_position finishingPosition,rr.win_odds winOdds,rr.running_position runningPosition FROM race_results rr JOIN races r ON r.id=rr.race_id JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number,rr.finishing_position`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT DISTINCT h.id horseId,h.name_ch nameCh,h.name_en nameEn FROM horses h JOIN prediction_log p ON p.horse_id=h.id WHERE p.date=? AND p.engine='v12' AND p.variant='baseline'`,[date]),
@@ -30,7 +30,10 @@ export async function readFrozenRacing(date: string) {
       CASE WHEN COUNT(DISTINCT track)=1 THEN MIN(track) END track,
       CASE WHEN COUNT(DISTINCT course)=1 THEN MIN(course) END course
       FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 GROUP BY race_number`,[date,snapshot.venue]),
+    import('./hkjc-results-collector.server').then(m=>m.readCloudOfficialResults(date,snapshot.venue)),
   ]);
+  const cloudRaceNumbers = new Set(cloudResults.map(r=>r.raceNumber));
+  const resultRows: FrozenRow[] = [...legacyResultRows.filter(r=>!cloudRaceNumbers.has(r.raceNumber)),...cloudResults.flatMap(r=>r.results)];
   const nameMap = new Map(names.map(n=>[n.horseId,n]));
   // Official HKJC changes (archived snapshot with SHA) may explain a slot change; the frozen row itself is never rewritten.
   const officialChanges: HkjcChange[] = officialSnap && officialSnap.venue===snapshot.venue ? (officialSnap.changes as unknown as HkjcChange[]) : [];
@@ -64,6 +67,7 @@ export async function readFrozenRacing(date: string) {
       changeClassification: { hasWithdrawal, postLockJockeyChange, unknownJockeyTiming },
       picks: frozen.map(r=>({ horseId:r.horse_id,horseNumber:r.horse_number,nameCh:nameMap.get(r.horse_id)?.nameCh,nameEn:nameMap.get(r.horse_id)?.nameEn,draw:r.draw || null,rank:r.predicted_rank,finalScore:r.final_score,pWin:r.p_win,pTop3:r.p_top3,pTop4:null,horseElo:r.horse_elo,jockeyElo:r.jockey_elo,trainerElo:r.trainer_elo,eloComposite:r.elo_composite,factorBonus:r.factor_bonus,factorScores:r.factor_scores,scoreSource:r.score_source,lgbScore:r.lgb_score,generatedAt:r.generated_at,modelVersion:r.lgb_model_version,officialChange:(()=>{const c=changeFor(r);return c?{kind:c.kind,text:c.text,replacement:c.replacement,announcedAt:c.announcedAt,announcedAtIso:c.announcedAtIso,beforeLock:c.announcedAtIso?Date.parse(c.announcedAtIso)<Date.parse(snapshot.lockAt):null}:null;})() })),
       resultsStatus: results.length ? 'available' : 'pending', results,
+      resultsEvidence: cloudResults.find(r=>r.raceNumber===raceNumber) ? {source:'lovable-cloud-official-archive',complete:true,sha256:cloudResults.find(r=>r.raceNumber===raceNumber)?.sha256,dividendsVerified:false} : {source:'legacy-results',complete:null,dividendsVerified:false},
     };
   });
   return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt:new Date().toISOString(),snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock'},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:officialSnap?{source:officialSnap.source_url,sha256:officialSnap.sha256,fetchedAt:officialSnap.fetched_at,count:officialChanges.length}:null,resultsSource:'official-race-results',races };

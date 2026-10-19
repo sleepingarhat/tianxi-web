@@ -169,6 +169,20 @@
       "when": 1792409168291,
       "tag": "0023_racing_result_collection_state",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792410651768,
+      "tag": "0024_official_race_result_archive",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792410960990,
+      "tag": "0025_restrict_official_archive_public_columns",
+      "breakpoints": true
     }
   ]
 }

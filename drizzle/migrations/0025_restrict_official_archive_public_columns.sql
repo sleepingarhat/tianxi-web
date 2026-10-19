@@ -1,0 +1,3 @@
+REVOKE SELECT ON public.racing_official_result_snapshots FROM anon, authenticated;
+GRANT SELECT (race_date, venue, race_number, results, source_url, source_sha256, fetched_at, identity_verified) ON public.racing_official_result_snapshots TO anon, authenticated;
+COMMENT ON COLUMN public.racing_official_result_snapshots.raw_html IS 'Private append-only official source evidence; not accessible to public readers.';

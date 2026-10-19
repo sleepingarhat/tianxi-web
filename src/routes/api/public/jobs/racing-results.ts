@@ -19,6 +19,16 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
           const today = new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
           const yesterday = new Date(now.getTime() + 8 * 3600_000 - 86400_000).toISOString().slice(0, 10);
           const { meetings, sha256 } = await readOfficialResultMeetings();
+          const { collectOfficialRace } = await import('@/lib/hkjc-results-collector.server');
+          const candidates = meetings.filter(m => [today, yesterday].includes(m.date) && ['ST','HV'].includes(m.venueCode));
+          let liveResult: { raceNumber: number; action: string; sha256?: string } | null = null;
+          for (const m of candidates) {
+            const archived = await supabaseAdmin.from('racing_official_result_snapshots').select('race_number').eq('race_date',m.date).eq('venue',m.venueCode).eq('identity_verified',true);
+            if (archived.error) throw new Error('official-archive-index-failed');
+            const completed = new Set(archived.data?.map(r=>r.race_number));
+            const next = m.races.filter(r=>r.status==='RESULT' && !completed.has(Number(r.no))).sort((a,b)=>Number(a.no)-Number(b.no))[0];
+            if (next) { liveResult = await collectOfficialRace(m.date,m.venueCode,Number(next.no)); break; }
+          }
           const complete = meetings.filter(m => [today, yesterday].includes(m.date) && isConfirmedComplete(m));
           const outcomes: { date: string; action: string }[] = [];
           for (const m of complete) {
@@ -49,8 +59,9 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
             if (saved.error) throw new Error('dispatch-state-save-failed');
             outcomes.push({ date: m.date, action: 'dispatched-not-delivery-proof' });
           }
-          return Response.json({ ok: true, outcomes, independentExecution: false });
-        } catch {
+          return Response.json({ ok: true, outcomes, liveResult, raceResultCollectionIndependent: true, independentExecution: false });
+        } catch (error) {
+          console.error('official-results-collection', error instanceof Error ? error.message : 'unknown-failure');
           await sendTelegramAlert('⚠️ 全日完場後賽果收料核對／觸發失敗；未確認完成，原凍結不改，請核對後備收料。').catch(() => null);
           return Response.json({ ok: false, error: 'results-collection-check-failed' }, { status: 502 });
         }

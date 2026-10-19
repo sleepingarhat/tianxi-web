@@ -419,6 +419,60 @@ export type Database = {
         }
         Relationships: []
       }
+      racing_official_collection_leases: {
+        Row: {
+          expires_at: string
+          id: string
+        }
+        Insert: {
+          expires_at: string
+          id: string
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      racing_official_result_snapshots: {
+        Row: {
+          fetched_at: string
+          id: string
+          identity_verified: boolean
+          race_date: string
+          race_number: number
+          raw_html: string
+          results: Json
+          source_sha256: string
+          source_url: string
+          venue: string
+        }
+        Insert: {
+          fetched_at?: string
+          id?: string
+          identity_verified?: boolean
+          race_date: string
+          race_number: number
+          raw_html: string
+          results: Json
+          source_sha256: string
+          source_url: string
+          venue: string
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          identity_verified?: boolean
+          race_date?: string
+          race_number?: number
+          raw_html?: string
+          results?: Json
+          source_sha256?: string
+          source_url?: string
+          venue?: string
+        }
+        Relationships: []
+      }
       racing_result_collection_state: {
         Row: {
           dispatched_at: string | null
@@ -677,6 +731,10 @@ export type Database = {
       admin_set_test_account: {
         Args: { _is_test: boolean; _user_id: string }
         Returns: undefined
+      }
+      claim_official_collection_lease: {
+        Args: { lease_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {

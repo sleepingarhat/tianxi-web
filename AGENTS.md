@@ -48,4 +48,4 @@
 
 - Scarce-start counts only advise prediction-status, never switch models or filter accounting. Why: no invented exclusions.
 
-- Gate card→recompute→freeze→settlement; originals feed KPI/P&L. GitHub fallback needs compatible compute. Persist official completion/dispatch leases; null-slot results require withdrawn identity/no placing. Why: no guessed times or rebets.
+- Gate card→recompute→freeze→settlement; originals feed KPI/P&L. Cloud results need full card/withdrawal identity, append-only SHA and leases; dividends stay separate. GitHub stays fallback until compute migrates. Why: no guessed times or lock edits.

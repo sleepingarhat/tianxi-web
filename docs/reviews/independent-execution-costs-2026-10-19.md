@@ -34,6 +34,10 @@ Cloudflare Containers官方單價：CPU USD0.000020／vCPU-second，memory USD0.
 官方來源：https://developers.cloudflare.com/containers/pricing/ （本輪HTTP200核對）。
 
 ## 阻塞
-- 官方完整逐場賽果payload／parser及保存目的地未驗證。
+- 本輪已核實馬會server-rendered results HTML：R1共13行、R11共14行，R11頭四8／13／7／6，2號K585無名次；parser及5項身份／退出測試通過。Cloud append-only原文／SHA表與lease已建立；直接收料接入候選及凍結只讀結果層，尚待完整保存→網站讀回驗收及發布。
+- 每5分鐘單次最多收一場，若已有多場積壓會逐次追上，不能對積壓聲稱0–5分鐘；未知未完成馬匹先阻截、不猜退出。跨場派彩仍沿原來源。
 - 相容獨立運算服務、帳戶存取與新增費用尚未確認。
 - 逐場新流程、騎師lineage、跨場官方結算及首次30分鐘自動驗收仍未完成。
+
+## 本輪真實讀回驗收
+19:57 HKT已認證Cloud callback直接抓R1並存13行，SHA d899cd893df37d6b16d02509e5f572a9d1cfff3dfebee701c49776af329b5d45；預覽frozen-racing HTTP200讀回Cloud來源complete=true，原凍結388f22b…ce89不變。D1 horse_前綴作精確正規化，不同馬ID仍阻截，21項測試通過。匿名原文欄位讀取權限已撤回，只開精簡結果欄位。網頁戰績首屏仍載入中，未算完整UI驗收；新程式未發布、首個自動週期未驗收。
