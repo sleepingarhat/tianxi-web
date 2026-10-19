@@ -49,3 +49,4 @@
 - Preserve official Chinese/Group labels via racingClassLabel.
 
 - Predictor display cards live in tx/Predictor*; routes retain evidence guards. Why: focused files, same rules.
+- Ingestion retains calendar dates/record rows; child failures fail jobs. Why: disappearance is not cancellation evidence.
