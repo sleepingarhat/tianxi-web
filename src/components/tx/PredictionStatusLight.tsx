@@ -42,7 +42,7 @@ export function LightLegend() {
         <LightDot color="amber" size={7} />黃＝初版，未鎖
       </span>
       <span className="inline-flex items-center gap-1">
-        <LightDot color="red" size={7} />紅＝資料未齊／少仗，只作參考、唔入戰績
+        <LightDot color="red" size={7} />紅＝資料未齊，只作參考、唔入戰績
       </span>
     </div>
   );
@@ -62,7 +62,7 @@ function SubBar({ s }: { s: RaceStatus }) {
         </span>
       ) : null}
       {s.scarceStarts > 0 ? (
-        <span className="rounded-[3px] border border-lose/40 bg-lose/[0.06] px-1 py-[1px] text-lose">
+        <span className="rounded-[3px] border border-gold-strong/40 bg-gold-bg px-1 py-[1px] text-gold">
           少仗 {s.scarceStarts} 匹
         </span>
       ) : null}
@@ -130,7 +130,7 @@ export function DayStatusLight({ status }: { status: DayStatus }) {
           <LightLegend />
           <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">
             引擎每日重算：天喜LGB 每日 04:00 重訓、天喜ELO 每日重算，臨場退馬亦會改排位。因此鎖點之前見到嘅四揀屬初版；全日只鎖一次
-            —— 第一場開跑前 90 分鐘做最後一次計算後鎖死全日，之後只准補名次，凍結名單就係最終版，用嚟對帳。少仗場次（第一／二次出賽）標紅燈，只作參考、唔入戰績。
+            —— 第一場開跑前 90 分鐘做最後一次計算後鎖死全日，之後只准補名次，凍結名單就係最終版，用嚟對帳。少仗（第一／二次出賽）只作資料提示，照列正式預測及戰績；不改已鎖分數或四揀。
           </p>
         </div>
       ) : null}

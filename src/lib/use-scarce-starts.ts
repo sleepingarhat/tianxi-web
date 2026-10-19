@@ -1,5 +1,5 @@
-// 天喜 · 少仗紅燈：逐場數出四揀之中第一／二次出賽嘅馬匹
-// 純展示層：只影響燈色同文案，唔改任何預測數值、唔重訓。
+// 天喜 · 少仗提示：逐場數出四揀之中第一／二次出賽嘅馬匹
+// 純展示層：只補資料提示，不影響正式資格、分數或排名，唔重訓。
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 

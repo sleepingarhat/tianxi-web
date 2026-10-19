@@ -19,14 +19,14 @@ export type RaceStatus = {
   carriedOver: boolean;
   /** 該模型嘅訓練日期（YYYY-MM-DD），未知為 null */
   modelTrainedOn: string | null;
-  /** 四揀之中出賽 ≤2 次嘅馬匹數（少仗紅燈） */
+  /** 四揀之中出賽 ≤2 次嘅馬匹數（少仗提示，不影響正式資格） */
   scarceStarts: number;
 };
 
 /** 全日只鎖一次：第一場開跑前 90 分鐘鎖死全日四揀（同後端 lock-window 一致） */
 export const DAY_LOCK_MINUTES_BEFORE_FIRST_POST = 90;
 
-/** 少仗紅燈門檻：出賽次數 ≤ 2（第一、二次出賽）唔用 LGB 葉，改 ELO＋試閘／血統 */
+/** 少仗提示門檻：出賽次數 ≤ 2（第一、二次出賽），不改分數或正式資格 */
 export const SCARCE_START_THRESHOLD = 2;
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -85,7 +85,7 @@ export function raceStatus(
     now?: Date;
     /** 全日鎖點分鐘數（由 meetingLockMinutes 計出），唔傳就以本場開跑推算 */
     lockMinutes?: number | null;
-    /** 本場四揀之中出賽 ≤2 次嘅馬匹數（少仗紅燈） */
+    /** 本場四揀之中出賽 ≤2 次嘅馬匹數（少仗提示，不影響正式資格） */
     scarceStarts?: number;
     /** 提供時只承認這份預測狀態，不用時間代證。 */
     frozen?: boolean;
@@ -132,6 +132,9 @@ export function raceStatus(
     : "";
 
   const scarce = Math.max(0, Number(opts.scarceStarts ?? 0) || 0);
+  const scarceNote = scarce > 0
+    ? `；四揀有 ${scarce} 匹第一／二次出賽少仗馬，照列正式預測，賽後按凍結四揀計戰績`
+    : "";
   const base = {
     raceNumber: race?.raceNumber,
     lgbTotal,
@@ -169,30 +172,15 @@ export function raceStatus(
     };
   }
 
-  // 紅燈：少仗 —— 四揀之中有第一／二次出賽嘅馬，LGB 葉樣本不足，
-  // 該幾匹改用天喜ELO＋試閘／血統，本場只作參考、唔入戰績。
-  if (scarce > 0) {
-    return {
-      ...base,
-      color: "red",
-      label: lockedByTime ? "已鎖 · 少仗參考" : "初版 · 少仗參考",
-      reason: `四揀有 ${scarce} 匹係第一／二次出賽（少仗）：呢幾匹改用天喜ELO＋試閘／血統，唔用 LGB 少樣本葉；本場只作參考，唔入戰績${carryNote}`,
-      lockAt: lockedByTime ? null : lockMin == null ? null : fmtMinutes(lockMin),
-      lgbCovered: covered,
-      lgbFull,
-      carriedOver,
-    };
-  }
-
   if (lockedByTime) {
     return {
       ...base,
       color: "green",
       label: carriedOver ? "最終版 · 已鎖（昨日模型）" : "最終版 · 已鎖",
       reason:
-        settled || dayIsPast
+        (settled || dayIsPast
           ? "賽果已出，凍結四揀已封存"
-          : `已過全日鎖點，四揀不再變動，只准補名次${carryNote}`,
+          : `已過全日鎖點，四揀不再變動，只准補名次${carryNote}`) + scarceNote,
       lockAt: null,
       lgbCovered: covered,
       lgbFull,
@@ -208,7 +196,7 @@ export function raceStatus(
       (lockMin == null
         ? "仍會更新（天喜LGB 每日 04:00 重訓、天喜ELO 每日重算、退馬會改排位）"
         : `仍會更新，${fmtMinutes(lockMin)} 鎖全日（首場開跑前 ${DAY_LOCK_MINUTES_BEFORE_FIRST_POST} 分鐘）`) +
-      carryNote,
+      carryNote + scarceNote,
     lockAt: lockMin == null ? null : fmtMinutes(lockMin),
     lgbCovered: covered,
     lgbFull,
@@ -254,13 +242,10 @@ export function dayStatus(
   if (!total)
     return { color: "red", label: "未有預測", reason: "尚未取得賽日資料", green, amber, red, total };
   if (red > 0) {
-    const scarceRaces = list.filter((s) => s.scarceStarts > 0).length;
     return {
       color: "red",
-      label: scarceRaces ? `${red} 場只作參考（${scarceRaces} 場少仗）` : `${red} 場資料未齊`,
-      reason: `${
-        scarceRaces ? "少仗場次（第一／二次出賽）改用天喜ELO＋試閘／血統，只作參考、唔入戰績；" : ""
-      }其餘未齊場次退回天喜ELO 基準或排位未齊${carryNote}`,
+      label: `${red} 場資料未齊`,
+      reason: `未齊場次退回天喜ELO 基準或排位未齊；少仗本身不影響正式預測及戰績資格${carryNote}`,
       green,
       amber,
       red,

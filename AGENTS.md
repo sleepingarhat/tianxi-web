@@ -47,3 +47,5 @@
 - Frozen API SELECTs originals, validates SHA/rows/meta, pairs official results; missing saved fields stay null. Picks coalesce inflight only; locked reads use this API. Why: cache/time cannot prove final.
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
+
+- Scarce-start counts remain advisory in the shared prediction-status module, not a model switch or an accounting filter. Why: status presentation must not invent prediction changes or exclusions.
