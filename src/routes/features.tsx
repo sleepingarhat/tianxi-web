@@ -66,7 +66,7 @@ function FeaturesPage() {
   const oddsRace = (oddsQ.data?.races ?? []).find(
     (r: any) => Number(r.raceNumber) === Number(race?.raceNumber),
   );
-  for (const h of (oddsRace as any)?.horses ?? []) {
+  for (const h of (oddsRace as { horses?: Array<{ horseNumber?: unknown; winOdds?: unknown }> } | undefined)?.horses ?? []) {
     if (h.winOdds != null) oddsMap.set(Number(h.horseNumber), Number(h.winOdds));
   }
 

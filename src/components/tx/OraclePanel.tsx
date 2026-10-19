@@ -1,3 +1,4 @@
+import type { PickRow } from "@/lib/racing-shapes";
 // 天喜 · 監控台：即日 TX-Oracle v3 預測（沿用舊監控端排版：每場摺疊卡 + 全欄表）
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useState } from "react";
@@ -28,10 +29,10 @@ function lgbApplied(r: any) {
   return Boolean(m && Number(m[1]) > 0);
 }
 
-function FactorCell({ bonus, breakdown }: { bonus?: number | null; breakdown?: any }) {
+function FactorCell({ bonus, breakdown }: { bonus?: number | null; breakdown?: PickRow['factorBreakdown'] }) {
   if (bonus == null) return <span className="text-ink-3">—</span>;
   const tone = bonus > 0 ? "text-win" : bonus < 0 ? "text-lose" : "text-ink-2";
-  const lines = FACTOR_KEYS.map((k) => (breakdown?.[k] ? { k, ...breakdown[k] } : null)).filter(Boolean) as any[];
+  const lines = FACTOR_KEYS.flatMap((k) => { const c = breakdown?.[k]; return c ? [{ k, bonus: Number(c.bonus ?? 0), note: c.note ?? null }] : []; });
   return (
     <div>
       <span className={`tabnum font-semibold ${tone}`}>

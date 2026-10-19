@@ -11,7 +11,7 @@ export function EngineValueCompare() {
   const readHistory = useServerFn(getFrozenVersionHistory);
   const readValue = useServerFn(getValueComparison);
   const hist = useQuery({ queryKey: ["frozen-model-version-history"], queryFn: () => readHistory(), staleTime: 300_000 });
-  const rows = hist.data ?? [];
+  const rows = hist.data?.versions ?? [];
   const current = rows.slice().sort((a, b) => b.lastDate.localeCompare(a.lastDate))[0];
   const from = current ? rows.filter(r => r.version === current.version).map(r => r.firstDate).sort()[0] : undefined;
   const q = useQuery({ queryKey: ["engine-value-v2", from, current?.version], queryFn: () => {

@@ -36,6 +36,7 @@ export const getRetrainManifests = createServerFn({ method: "GET" }).handler(asy
     WHERE m.recorded_at = (SELECT MAX(recorded_at) FROM model_run_manifest y WHERE y.model_version = m.model_version)
     ORDER BY m.model_version DESC LIMIT 101`);
   const win = truncateRecent(rows, 100, (r) => r.model_version);
+  return { versions: win.items, truncated: win.truncated };
 });
 });
 

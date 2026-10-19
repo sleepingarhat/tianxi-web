@@ -43,7 +43,7 @@ function Pnl() {
   const [to, setTo] = useState("");
   const inRange = (d: string) => (!from || d >= from) && (!to || d <= to);
 
-  const allPts = ((rp.data?.points ?? []) as any[]);
+  const allPts = ((rp.data?.points ?? []) as import('@/lib/racing-shapes').StrategyPoint[]);
   const exQ = useQueries({ queries: allPts.map((p) => exoticPoolOptions(String(p.date))) });
   const exKey = exQ.map((q) => q.dataUpdatedAt).join(",");
   const racing = useMemo(() => {

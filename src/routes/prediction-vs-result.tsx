@@ -209,7 +209,7 @@ function ComparePage() {
   const loading = (picks.isLoading && frozen.isLoading) || raceDetail.isLoading;
   // 開跑時最終獨贏賠率：以賽事詳情（賽後）為準，按馬號對應
   const finalOdds: Record<string, number> = {};
-  for (const x of (raceDetail.data?.horses || []) as any[]) {
+  for (const x of (raceDetail.data?.horses || []) as Array<{ horseNumber?: unknown; winOdds?: unknown; finishingPosition?: unknown }>) {
     const o = Number(x?.winOdds);
     if (x?.horseNumber != null && Number.isFinite(o) && o > 0) finalOdds[String(x.horseNumber)] = o;
   }
@@ -462,11 +462,11 @@ function ComparePage() {
 
         {(() => {
           const fin: Record<string, number> = {};
-          for (const x of (raceDetail.data?.horses || []) as any[]) {
+          for (const x of (raceDetail.data?.horses || []) as Array<{ horseNumber?: unknown; winOdds?: unknown; finishingPosition?: unknown }>) {
             const f = Number(x?.finishingPosition);
             if (x?.horseNumber != null && Number.isFinite(f) && f >= 1) fin[String(x.horseNumber)] = f;
           }
-          const cmp = entryVsActual((picks.data?.picks || []) as any[], fin);
+          const cmp = entryVsActual((picks.data?.picks || []) as import('@/lib/entry-rank').EntrySource[], fin);
           if (!cmp.rows.length) return null;
           return (
             <section aria-label="入場排名對實際成績" className="mx-auto mt-4 max-w-[560px] rounded-[8px] border border-hairline bg-paper px-3 py-3">

@@ -55,7 +55,7 @@ const refreshPicks = createPicksRefresh(fetchTodayPicksUpstream);
 export const getTodayPicksAll = createServerFn({ method: "GET" }).handler(async () => {
   const { setResponseHeader } = await import("@tanstack/react-start/server");
   setResponseHeader("Cache-Control", "no-store");
-  return (await refreshPicks()) as any;
+  return (await refreshPicks()) as import('./racing-shapes').DayPicks;
 });
 
 /** 監控台用：可選強制重新運算（fresh=1，忽略快取） */
@@ -81,7 +81,7 @@ export const getOraclePicks = createServerFn({ method: "POST" })
       throw new Error(`預測服務回應異常（${res.status}）`);
     }
     if (!res.ok || json?.error) throw new Error(json?.error || `預測服務錯誤 ${res.status}`);
-    return json as any;
+    return json as import('./racing-shapes').DayPicks;
   });
 
 /** 回測工具：檔位因子倍數掃描（唯讀，唔會寫入生產設定） */
@@ -112,5 +112,5 @@ export const runDrawTune = createServerFn({ method: "POST" })
       throw new Error(`draw-tune 回應異常（${res.status}）`);
     }
     if (!res.ok || json?.error) throw new Error(json?.error || `draw-tune 錯誤 ${res.status}`);
-    return json as any;
+    return json as import('@/integrations/supabase/types').Json;
   });

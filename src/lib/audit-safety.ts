@@ -5,7 +5,7 @@ export function assertDatabaseWrite(result: { error?: { message: string } | null
 export function customerBelongsToUser(metadata: Record<string, string> | null | undefined, userId: string) {
   return metadata?.['userId'] === userId;
 }
-export function sameMeeting(date: string, venue: string, candidate: { date?: string; venue?: string } | null | undefined) {
+export function sameMeeting(date: string, venue: string, candidate: { date?: string | null | undefined; venue?: string | null | undefined } | null | undefined) {
   return Boolean(date && venue && candidate?.date === date && candidate?.venue === venue);
 }
 export function completeRaceIds(count: number, ids: string[]) {

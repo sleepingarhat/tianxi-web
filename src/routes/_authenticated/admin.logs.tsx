@@ -40,7 +40,7 @@ function Logs() {
   for (const x of list) logs.push({ kind: "資料完整性", level: x.severity === "critical" || x.level === "error" ? "fail" : "warn", source: String(x.source ?? x.key ?? "後端"), message: String(x.message ?? x.title ?? JSON.stringify(x)).slice(0, 300), at: x.created_at ?? x.at ?? null });
   for (const w of rh.data?.workflows ?? []) if (w.state === "fail") logs.push({ kind: "定時任務失敗", level: "fail", source: `賽馬 · ${w.label}`, message: `${w.file} 結果 ${w.conclusion}`, at: w.startedAt });
   for (const t of rh.data?.telegram?.failing ?? []) logs.push({ kind: "告警", level: "warn", source: `Telegram · ${t.key}`, message: t.fail, at: t.sentAt });
-  for (const c of (eh.data?.checks ?? []) as any[]) if (String(c.status).toUpperCase() !== "PASS") logs.push({ kind: "模型閘", level: String(c.status).toUpperCase() === "FAIL" ? "fail" : "warn", source: String(c.label ?? c.key), message: String(c.note ?? c.detail ?? ""), at: null });
+  for (const c of (eh.data?.checks ?? []) as import('@/lib/racing-shapes').EngineCheck[]) if (String(c.status).toUpperCase() !== "PASS") logs.push({ kind: "模型閘", level: String(c.status).toUpperCase() === "FAIL" ? "fail" : "warn", source: String(c.label ?? c.key), message: String(c.note ?? c.detail ?? ""), at: null });
   for (const [n, q] of [["賽馬健康", rh], ["引擎健康", eh]] as const) if (q.isError) logs.push({ kind: "API 錯誤", level: "fail", source: n, message: String((q.error as Error)?.message ?? q.error), at: new Date().toISOString() });
   if (showOk) {
     for (const w of rh.data?.workflows ?? []) if (w.state !== "fail") logs.push({ kind: "定時任務成功", level: "ok", source: `賽馬 · ${w.label}`, message: `${w.file} 結果 ${w.conclusion ?? "—"}`, at: w.startedAt });

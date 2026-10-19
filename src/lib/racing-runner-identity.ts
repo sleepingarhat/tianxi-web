@@ -1,6 +1,6 @@
 export type RunnerIdentity = { raceNumber: number; horseNumber: number; horseId: string };
 
-export function identityMatchedEntry(horseId: string | undefined, entry: { horseId?: string; id?: string } | undefined) {
+export function identityMatchedEntry<T extends { horseId?: string; id?: string }>(horseId: string | undefined, entry: T | undefined): T | undefined {
   return horseId && (entry?.horseId ?? entry?.id) === horseId ? entry : undefined;
 }
 

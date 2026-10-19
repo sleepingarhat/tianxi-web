@@ -1,12 +1,5 @@
 <!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
+- Never rewrite published Git history; Lovable sync depends on it. Keep connected branches working.
 <!-- LOVABLE:END -->
 
 
@@ -14,20 +7,20 @@
 ## 首頁產品層規則
 
 - Homepage/navigation expose racing only; product-scope.ts and start.ts gate retired paths without executing them.
-- Cite final/current homepage data only. Why: verifiable claims.
-- Reuse PageHead, Card, Stat, Table, Seg, AppShell. Why: consistency.
-- Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions. Why: consistent offers, no wrapping.
-- Desktop width follows data density; mobile single column. Why: readability.
+- Cite final/current homepage data only for verifiable claims.
+- Reuse PageHead/Card/Stat/Table/Seg/AppShell for consistency.
+- Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions to prevent wrapping.
+- Desktop density; mobile one column.
 - After publishing run python3 scripts/sync-frontend-repo.py. Why: tianxi-web mirrors source; Lovable hosts production.
 
 ## 監控端規則
-- Read src/components/admin/AGENTS.md before changing that directory. Why: scoped rules apply.
+- Read nested src/components/admin/AGENTS.md before edits; scoped rules apply.
 - Public P&L combines four-pool rollups with `racingPoolAccounting` cross-race queries; merge daily cost/payout once, exclude missing fifth picks and label post-race substitutes. Why: incomplete data is not frozen evidence.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
-- Audits separate code, verified flows, missing evidence and old decisions. Why: tasks cannot prove delivery.
+- Separate code, verified flows and missing evidence in audits; tasks are not delivery.
 
 - Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.
-- Images need verified free commercial licences or written rights, attribution and /media-credits. Why: API URLs are not licences.
+- Images require commercial-free licences or written rights, credits and /media-credits; URLs are not licences.
 - Blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; sync blueprint/roadmap/AGENTS/dev-log/GitHub. Old plans cannot revive retired products. Why: docs match code.
 - Pro uses only resolveEntitlement in src/lib/entitlement.ts, fed by my_membership and webhook-maintained subscriptions; auto-open at signup 500. Why: one free/founding/paid rule source.
 - Weekly managed HTTP jobs rotate Commons posters into racecourse_photos; require commercial-free licences and deactivate licence changes. tianxi-web Actions only monitor public status. Why: backend schedules, read-only mirror.
@@ -46,11 +39,13 @@
 
 - Replay preserves raw axes/fields; pedigree tests use prior-date smoothing, seeded confidence, paired denominators and score/context checksums, no prediction writes. Why: research cannot certify locks or approve weights.
 
-- Scarce starts only advise status, never switch models/accounting. Why: no invented exclusions.
-- Billing reminders read linked subscriptions; dedupe only after delivery. Native balance alerts remain provider-owned. Why: reminders are not receipts.
+- Scarce starts advise only; never switch models/accounting.
+- Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Dispatch checks main fail-closed, never duplicates active jobs or certifies delivery. Why: safe retries.
 - Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. History reads keep the newest window and surface truncation. Why: silent cutoffs hide new race days.
-- Parallelize independent frozen reads; bound optional references without bypassing evidence checks. Why: avoid display delays.
-- Preserve official class labels through racingClassLabel. Why: Chinese and Group labels are valid.
+- Parallelize frozen reads; bound optional references, preserve evidence checks to avoid delays.
+- Preserve official Chinese/Group labels via racingClassLabel.
+
+- Predictor display cards live in tx/Predictor*; routes retain evidence guards. Why: focused files, same rules.

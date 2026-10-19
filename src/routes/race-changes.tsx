@@ -28,7 +28,7 @@ function RaceChangesPage() {
   const q = useHkjcChanges(date);
 
   const affected = new Map<string, any>();
-  for (const r of tp.races as any[]) for (const p of r.picks || []) if (p.officialChange) affected.set(`${r.raceNumber}:${p.horseNumber}`, { rank: p.rank });
+  for (const r of (tp.races ?? []) as import('@/lib/racing-shapes').RaceRow[]) for (const p of r.picks || []) if (p.officialChange) affected.set(`${r.raceNumber}:${p.horseNumber}`, { rank: p.rank });
 
   const snap = q.data;
   const changes = snap?.changes ?? [];

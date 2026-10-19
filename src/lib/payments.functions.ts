@@ -28,7 +28,7 @@ async function loadMembership(ctx: Ctx, environment: StripeEnv) {
     gateOpenAt: row.gate_open_at ?? null,
     subscription: (sub as SubRow | null) ?? null,
   });
-  return { rank: row.rank ?? null, total: row.total ?? 0, gateOpenAt: row.gate_open_at ?? null, entitlement, customerId: (sub as any)?.stripe_customer_id ?? null };
+  return { rank: row.rank ?? null, total: row.total ?? 0, gateOpenAt: row.gate_open_at ?? null, entitlement, customerId: (sub as { stripe_customer_id?: string | null } | null)?.stripe_customer_id ?? null };
 }
 
 export const getMyMembership = createServerFn({ method: "POST" })

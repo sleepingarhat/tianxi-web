@@ -25,6 +25,8 @@ import {
   txApi,
 } from "@/lib/tx-api";
 
+import type { HorseResearchPayload } from "@/lib/racing-shapes";
+
 type Search = { id?: string | undefined; raceId?: string | undefined };
 
 export const Route = createFileRoute("/horse")({
@@ -155,13 +157,13 @@ function HorsePage() {
   const horseId = canonicalHorseId(id);
   const rid = canonicalRaceId(raceId);
 
-  const research = useQuery({
+  const research = useQuery<HorseResearchPayload>({
     queryKey: ["horseResearchV2", horseId, rid],
     queryFn: async () => {
       const opts: Record<string, unknown> = { limit: 30, contract: "research-v2" };
       if (rid) opts["raceId"] = rid;
-      const r = await txApi.horseResearch(horseId, opts);
-      return (r && r.data && typeof r.data === "object" ? r.data : r) as any;
+      const r: HorseResearchPayload & { data?: HorseResearchPayload | null } = await txApi.horseResearch(horseId, opts);
+      return r && r.data && typeof r.data === "object" ? r.data : r;
     },
     enabled: !!horseId,
   });
@@ -207,6 +209,10 @@ function HorsePage() {
   const eloHistory: any[] = Array.isArray(elo.history) ? elo.history : [];
   const forms: any[] = Array.isArray(d.recentForm) ? d.recentForm : [];
   const perf = d.performance || {};
+  const performanceRows = (key: string) => {
+    const rows = perf[key];
+    return Array.isArray(rows) ? rows : [];
+  };
   const signals: any[] = Array.isArray(d.researchSignals) ? d.researchSignals : [];
   const training = d.training || {};
   const injuries: any[] = Array.isArray(d.health?.injuries) ? d.health.injuries : [];
@@ -240,6 +246,14 @@ function HorsePage() {
       ) : research.error ? (
         <div className="px-4 py-6">
           <ErrorNote error={research.error} />
+          <button
+            type="button"
+            onClick={() => void research.refetch()}
+            disabled={research.isFetching}
+            className="mt-3 rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[12px] text-ink"
+          >
+            {research.isFetching ? "重新讀取中…" : "重試"}
+          </button>
         </div>
       ) : (
         <>
@@ -367,16 +381,16 @@ function HorsePage() {
           ) : null}
 
           {/* 表現切片 */}
-          {perfGroups.some(([k]) => Array.isArray(perf[k]) && perf[k].length) ? (
+          {perfGroups.some(([k]) => performanceRows(k).length) ? (
             <div id="splits" className="scroll-mt-12"><Card title="表現切片" en="Performance Splits">
               <div className="space-y-2">
                 <div className="no-scrollbar flex gap-1 overflow-x-auto pb-1">
-                  {perfGroups.filter(([k]) => Array.isArray(perf[k]) && perf[k].length).map(([k, label]) => (
+                  {perfGroups.filter(([k]) => performanceRows(k).length).map(([k, label]) => (
                     <button key={k} type="button" onClick={() => setPerfTab(k)} className={`shrink-0 rounded-[4px] border px-2 py-1 text-[10px] font-bold ${perfTab === k ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"}`}>{label}</button>
                   ))}
                 </div>
                 {perfGroups.map(([k, label]) => {
-                  const rows: any[] = Array.isArray(perf[k]) ? perf[k] : [];
+                  const rows: any[] = performanceRows(k);
                   if (!rows.length || k !== perfTab) return null;
                   return (
                     <Metric key={k} title={label}>
@@ -403,7 +417,7 @@ function HorsePage() {
                   );
                 })}
               </div>
-              {has(perf.note) ? <p className="mt-2 text-[10px] leading-relaxed text-ink-3">{perf.note}</p> : null}
+              {has(perf.note) ? <p className="mt-2 text-[10px] leading-relaxed text-ink-3">{String(perf.note)}</p> : null}
             </Card></div>
           ) : null}
 
@@ -572,8 +586,8 @@ function HorsePage() {
               {has(meta.profile?.sourceUrl) ? (
                 <p className="break-all">
                   公開來源：
-                  <a href={meta.profile.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-gold underline">
-                    {meta.profile.sourceUrl}
+                  <a href={meta.profile?.sourceUrl ?? undefined} target="_blank" rel="noopener noreferrer" className="text-gold underline">
+                    {meta.profile?.sourceUrl}
                   </a>
                 </p>
               ) : null}

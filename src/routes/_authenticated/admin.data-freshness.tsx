@@ -15,7 +15,7 @@ type Row = { product: string; label: string; state: Status; conclusion: string; 
 function Freshness() {
   const rh = useRacingHealth();
 
-  const realWf = (rh.data?.workflows ?? []) as any[];
+  const realWf = rh.data?.workflows ?? [];
   const wf = useFixture<any[]>(realWf, { demo: workflowFixture("demo"), worst: workflowFixture("worst") });
   const rows: Row[] = [
     ...wf.map((w) => ({

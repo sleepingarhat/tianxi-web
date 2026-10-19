@@ -105,7 +105,7 @@ function RacePage() {
     );
   }
 
-  const fallbackRace = (meeting.data?.races || []).find((r: any) => Number(r.raceNumber) === raceNumber) as any;
+  const fallbackRace = (meeting.data?.races || []).find((r: any) => Number(r.raceNumber) === raceNumber);
   const d = race.data?.horses?.length || race.data?.entries?.length ? race.data : (fallbackRace ?? initial.race ?? race.data);
   const winOddsMap: Record<string, number> = odds.data?.winOdds || {};
   const plaOddsMap: Record<string, number> = odds.data?.plaOdds || {};

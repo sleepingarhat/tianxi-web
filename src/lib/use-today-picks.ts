@@ -59,7 +59,7 @@ export function useTodayPicks() {
 
   const entryIndex = new Map<string, any>();
   for (const r of meeting.data?.races || []) {
-    for (const h of (r as any).horses || []) {
+    for (const h of (r as { horses?: Array<{ horseNumber?: unknown }> }).horses || []) {
       entryIndex.set(`${r.raceNumber}-${h.horseNumber}`, h);
     }
   }
@@ -68,13 +68,13 @@ export function useTodayPicks() {
     const info = (meeting.data?.races || []).find((x: any) => Number(x.raceNumber) === Number(r.raceNumber));
     return {
       ...r,
-      raceId: r.raceId || (date ? `race_${date}_${picks.data.venue}_${r.raceNumber}` : ""),
-      title: r.title || (info as any)?.title || `第 ${r.raceNumber} 場`,
-      startTime: (info as any)?.startTime ?? r.startTime ?? null,
+      raceId: r.raceId || (date ? `race_${date}_${picks.data?.venue}_${r.raceNumber}` : ""),
+      title: r.title || (info as { title?: string } | undefined)?.title || `第 ${r.raceNumber} 場`,
+      startTime: (info as { startTime?: string } | undefined)?.startTime ?? r.startTime ?? null,
       picks: (r.picks || []).map((p: any): MergedPick => {
         const candidate = entryIndex.get(`${r.raceNumber}-${p.horseNumber}`);
         // Never attach another runner's draw, silks, names or connections by number alone.
-        const e = identityMatchedEntry(p.horseId, candidate) as any ?? {};
+        const e = (identityMatchedEntry(p.horseId, candidate) ?? {}) as { winOdds?: number | null; weight?: number | null; declaredWeight?: number | null; rating?: number | null; code?: string | null; gear?: string | null; nameCh?: string | null; name?: string | null; jockeyCh?: string | null; trainerCh?: string | null; draw?: number | null };
         return {
           ...p,
           officialChange: liveWithdrawal(changesSnapshot?.changes ?? [], Number(r.raceNumber), p, picks.data?.lockAt) ?? p.officialChange ?? null,
@@ -102,7 +102,7 @@ export function useTodayPicks() {
     frozen: edition === "final",
     edition,
 
-    engine: (picks.data?.engine ?? picks.data?.meta ?? picks.data) as any,
+    engine: (picks.data?.engine ?? picks.data?.meta ?? picks.data) as import('./racing-shapes').EngineMeta,
     races: cancellation || edition === "unavailable" ? [] : races,
     meeting: meeting.data,
     cancellation,

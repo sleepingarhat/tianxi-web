@@ -35,7 +35,7 @@ export async function writeOpsEvent(event: OpsEvent) {
         model_version: event.modelVersion?.slice(0, 120) ?? null,
         gate_key: event.gateKey?.slice(0, 160) ?? null,
         gate_status: event.gateStatus ?? null,
-        metadata: (event.metadata ?? {}) as any,
+        metadata: (event.metadata ?? {}) as import('@/integrations/supabase/types').Json,
       },
       { onConflict: "event_key", ignoreDuplicates: true },
     );

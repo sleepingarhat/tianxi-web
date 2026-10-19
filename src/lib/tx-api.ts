@@ -265,7 +265,7 @@ export const txApi = {
     ),
   runningStyles: (horseIds: string[], context: { raceId?: string; beforeDate?: string } = {}) => {
     const ids = Array.from(new Set(horseIds.map(canonicalHorseId).filter(Boolean))).sort();
-    if (!ids.length) return Promise.resolve({ cutoffDate: "", styles: [] as any[] });
+    if (!ids.length) return Promise.resolve({ cutoffDate: "", styles: [] as NonNullable<import('./racing-shapes').RunningStylesResponse['styles']> });
     let qs = "horseIds=" + encodeURIComponent(ids.join(","));
     const raceId = canonicalRaceId(context.raceId);
     if (raceId) qs += "&raceId=" + encodeURIComponent(raceId);

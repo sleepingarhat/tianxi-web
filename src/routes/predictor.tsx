@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { PredictorComparison } from "@/components/tx/PredictorComparison";
+import { PredictorEnginePicks } from "@/components/tx/PredictorEnginePicks";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNotice";
@@ -14,7 +14,7 @@ import { RacePositionMap } from "@/components/tx/RacePositionMap";
 import { LivePickEvidence } from "@/components/tx/LivePickEvidence";
 import { ModelVsMarketDumbbell } from "@/components/tx/ModelVsMarketDumbbell";
 import { HorseExplainChip } from "@/components/tx/HorseExplainChip";
-import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Scroller, Silks, Table, Td } from "@/components/tx/ui";
+import { Card, Disclaimer, Empty, Loading, PageHead, Pill } from "@/components/tx/ui";
 import { getFeatureRace, listFeatureRaces } from "@/lib/features.functions";
 import { meetingLockMinutes, raceStatus } from "@/lib/prediction-status";
 import { useScarceStarts } from "@/lib/use-scarce-starts";
@@ -95,14 +95,14 @@ function PredictorPage() {
   };
   // 盤口時效：後端 snapshotAt（UTC）→ 港時間 HH:MM，話畀用家知個盤幾時更新。
   const oddsClock = (() => {
-    const iso = (oddsQ.data as any)?.snapshotAt;
+    const iso = (oddsQ.data as import('@/lib/racing-shapes').OddsSnapshot | undefined)?.snapshotAt;
     if (!iso) return null;
     const t = new Date(iso);
     if (Number.isNaN(t.getTime())) return null;
     return new Date(t.getTime() + 8 * 3600_000).toISOString().substring(11, 16);
   })();
   const oddsNote = oddsClock
-    ? `盤口${(oddsQ.data as any)?.live ? "即時" : "快照"}更新 ${oddsClock}（HKT）· 每 20 秒自動重取`
+    ? `盤口${(oddsQ.data as import('@/lib/racing-shapes').OddsSnapshot | undefined)?.live ? "即時" : "快照"}更新 ${oddsClock}（HKT）· 每 20 秒自動重取`
     : null;
 
   const dayLockMinutes = meetingLockMinutes(races);
@@ -313,123 +313,7 @@ function PredictorPage() {
 
       {race && sub.substituted && !invalidInput ? <div role="status" className="mx-4 mb-3 border border-lose/40 bg-paper px-3 py-2 text-[12px] text-ink"><p className="font-bold text-lose">第{race.raceNumber}場：鎖後退出，已按原引擎順位補位</p><p className="mt-1">原四揀 {sub.original.join("-")} → 補位四揀 {sub.effective.join("-")}</p><p className="mt-1 text-[11px] text-ink-3">原凍結排名及分數不改；補位四揀不代表已投注，退出馬退款及彩池結算須另按馬會規則核對。</p></div> : null}
 
-      {race && !invalidInput ? (
-        <div className="mx-4 mb-3 grid grid-cols-2 items-stretch gap-2">
-          <div
-            className={`flex h-full flex-col rounded-[10px] border p-2.5 transition-colors duration-500 ${
-              locked ? "tx-beam-card tx-beam-line tx-beam-win border-win/45 bg-win/[0.06]" : "border-hairline bg-paper"
-            }`}
-          >
-            <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
-              天喜預測 <span className="font-mono-tx text-[9px] font-normal text-ink-3">TIANXI</span>
-              {locked ? (
-                <span className="ml-auto shrink-0 rounded-[3px] border border-win/45 bg-win/10 px-1 font-mono-tx text-[8px] font-bold text-win">
-                  已鎖定
-                </span>
-              ) : null}
-            </p>
-            <div className="flex flex-1 flex-col divide-y divide-hairline">
-              {modelCol.length ? (
-                modelCol.map((p: any, i: number) => (
-                  <div
-                    key={p.horseNumber}
-                    className={`min-h-[74px] py-2 ${p.officialChange ? "opacity-60" : ""}`}
-                  >
-                    <div className="grid grid-cols-[16px_24px_minmax(0,1fr)] items-center gap-1.5">
-                      <span className={`tabnum text-center font-mono-tx text-[11px] font-bold ${i === 0 ? "text-gold" : "text-ink-3"}`}>
-                        {i + 1}
-                      </span>
-                      <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[10px] font-bold text-ink">
-                        {p.horseNumber}
-                      </span>
-                      <div className="min-w-0">
-                        {p.horseId ? (
-                          <Link to="/horse" search={{ id: p.horseId }} className="block truncate font-serif-tc text-[12px] font-bold text-ink">
-                            {p.nameCh}
-                          </Link>
-                        ) : (
-                          <span className="block truncate font-serif-tc text-[12px] font-bold text-ink">{p.nameCh}</span>
-                        )}
-                        <p className="tabnum mt-0.5 truncate font-mono-tx text-[9px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
-                        {p.officialChange ? (
-                          <Link to="/race-changes" className="mt-1 block">
-                            <Pill tone="lose">
-                              {p.officialChange.kind === "replaced" ? `已退出・由${p.officialChange.replacement}補上` : "已退出"}
-                            </Pill>
-                            <span className="mt-0.5 block font-mono-tx text-[8px] text-lose">
-                              馬會 {p.officialChange.announcedAt} 公布{p.officialChange.beforeLock ? "（鎖定前）" : ""}
-                            </span>
-                          </Link>
-                        ) : null}
-                        {sub.added.includes(p.horseNumber) ? (
-                          <span className="mt-1 block"><Pill tone="win">按引擎順位補上四揀</Pill></span>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="py-3 text-[10px] text-ink-3">此場整備中</p>
-              )}
-            </div>
-            {sub.substituted ? (
-              <p className="mt-2 rounded-[4px] border border-win/40 bg-win/[0.06] px-1.5 py-1 font-mono-tx text-[9px] text-ink">
-                有效四揀 {sub.effective.join("-")}
-                <span className="block text-ink-3">原凍結 {sub.original.join("-")}，退出馬匹由引擎下一順位補上</span>
-              </p>
-            ) : null}
-          </div>
-
-          <div
-            className={`flex h-full flex-col rounded-[10px] border p-2.5 transition-colors duration-500 ${
-              locked ? "tx-beam-card tx-beam-line tx-beam-gold border-gold-strong/45 bg-gold-bg" : "border-hairline bg-paper"
-            }`}
-          >
-            <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
-              市場穩陣 <span className="font-mono-tx text-[9px] font-normal text-ink-3">MARKET</span>
-              {locked ? (
-                <span className="ml-auto shrink-0 rounded-[3px] border border-gold-strong/45 bg-gold-bg px-1 font-mono-tx text-[8px] font-bold text-gold">
-                  已鎖定
-                </span>
-              ) : null}
-            </p>
-            <div className="flex flex-1 flex-col divide-y divide-hairline">
-              {marketCol.length ? (
-                marketCol.map((p: any, i: number) => (
-                  <div key={p.horseNumber} className="min-h-[74px] py-2">
-                    <div className="grid grid-cols-[16px_24px_minmax(0,1fr)] items-center gap-1.5">
-                      <span className="tabnum text-center font-mono-tx text-[11px] font-bold text-ink-3">{i + 1}</span>
-                      <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[10px] font-bold text-ink">
-                        {p.horseNumber}
-                      </span>
-                      <div className="min-w-0">
-                        {p.horseId ? (
-                          <Link to="/horse" search={{ id: p.horseId }} className="block truncate font-serif-tc text-[12px] font-bold text-ink">
-                            {p.nameCh}
-                          </Link>
-                        ) : (
-                          <span className="block truncate font-serif-tc text-[12px] font-bold text-ink">{p.nameCh}</span>
-                        )}
-                        <p className="tabnum mt-0.5 truncate font-mono-tx text-[9px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
-                      </div>
-                    </div>
-                    <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="py-3 text-[10px] leading-relaxed text-ink-3">等臨場盤口，賽日近開賽前自動更新</p>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {race && !invalidInput ? <PredictorComparison modelCol={modelCol} marketCol={marketCol} locked={locked} sub={sub} /> : null}
 
       {race?.picks?.length && !invalidInput ? (
         <Card title={`第 ${race.raceNumber} 場 模型 vs 市場`} en="Model vs Market" className="mx-4 mb-3">
@@ -501,87 +385,7 @@ function PredictorPage() {
 
 
 
-      <Card
-        title={race ? `第 ${race.raceNumber} 場 ${invalidInput ? "原凍結事故紀錄（非有效預測）" : "引擎首選"}` : "引擎首選"}
-        en="Engine Picks"
-        action={
-          race?.raceId ? (
-            <Link to="/race" search={{ id: race.raceId }} className="text-[11px] font-bold text-gold">
-              排位表 →
-            </Link>
-          ) : null
-        }
-      >
-        {tp.isLoading ? (
-          <Loading />
-        ) : tp.error ? (
-          <div role="alert" className="space-y-3">
-            <ErrorNote error={new Error(/timeout|timed out|aborted/i.test(String(tp.error)) ? "讀取預測逾時，暫停展示四揀；請重新核對。" : "預測暫未能核實，暫停展示四揀；請重新核對。")} />
-            <Button variant="outline" onClick={() => void tp.refetch()} disabled={tp.isFetching}>
-              <RefreshCw className={tp.isFetching ? "animate-spin motion-reduce:animate-none" : ""} />
-              {tp.isFetching ? "重新核對中…" : "重新核對"}
-            </Button>
-          </div>
-        ) : race ? (
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-
-              <Pill tone="gold">{race.distance}m</Pill>
-              <Pill>{race.going || "—"}</Pill>
-              <Pill>{racingClassLabel(race.class)}</Pill>
-              <Pill tone={race.scoreSource === "lgb" ? "win" : "ink"}>
-                {race.scoreSource === "lgb" ? "天喜LGB 模型" : "基準模型"}
-              </Pill>
-              {race.raceQuality?.tier ? <Pill>賽事質素 {race.raceQuality.tier}</Pill> : null}
-              {start ? <Pill>{start}</Pill> : null}
-            </div>
-            <Scroller>
-              <Table head={["馬匹", "檔", "負磅", "勝算", "前三", "前四", "賠率"]}>
-                {(race.picks || []).map((p: any, i: number) => {
-                  return (
-                    <tr key={p.horseNumber} className={`border-b border-hairline ${i === 0 ? "bg-gold-bg/50" : ""}`}>
-                      <Td first>
-                        <div className="flex items-center gap-1.5">
-                          <Silks source={p} size={34} className="shadow-sm" />
-                          <span className="tabnum grid h-7 w-7 shrink-0 place-items-center rounded-[4px] bg-deep font-mono-tx text-[12px] font-bold text-deep-fg">
-                            {p.horseNumber}
-                          </span>
-                          {p.horseId ? (
-                            <Link to="/horse" search={{ id: p.horseId }} className="font-serif-tc text-[14px] font-bold">
-                              {p.nameCh}
-                            </Link>
-                          ) : (
-                            <span className="font-serif-tc text-[14px] font-bold">{p.nameCh}</span>
-                          )}
-                        </div>
-                        {p.officialChange ? <p className="mt-1 text-[10px] font-bold text-lose">已退出 · 馬會 {p.officialChange.announcedAt} 公布</p> : null}
-                        {sub.added.includes(p.horseNumber) ? <p className="mt-1 text-[10px] font-bold text-win">鎖後順位補位</p> : null}
-                        <p className="mt-0.5 text-[10px] text-ink-3">
-                          {p.jockeyCh || "—"} / {p.trainerCh || "—"}
-                        </p>
-                      </Td>
-                      <Td>{p.draw ?? "—"}</Td>
-                      <Td>{p.weight ?? p.declaredWeight ?? "—"}</Td>
-                      <Td>{pct(p.pWin)}</Td>
-                      <Td>{pct(p.pTop3)}</Td>
-                      <Td>{pct(p.pTop4)}</Td>
-                      <Td>{p.officialChange ? "已退出" : liveOdds(p.horseNumber) ?? p.winOdds ?? "—"}</Td>
-                    </tr>
-                  );
-                })}
-              </Table>
-            </Scroller>
-            {race.expectedBoxCoverage ? (
-              <p className="tabnum font-mono-tx text-[10px] leading-relaxed text-ink-3">
-                期望覆蓋率 · 三重彩 N4 {pct(race.expectedBoxCoverage.trio_n4)} / N5 {pct(race.expectedBoxCoverage.trio_n5)} /
-                N6 {pct(race.expectedBoxCoverage.trio_n6)} · 四重彩 N6 {pct(race.expectedBoxCoverage.first4_n6)}
-              </p>
-            ) : null}
-          </div>
-        ) : (
-          <Empty label="今日尚無預測" />
-        )}
-      </Card>
+      <PredictorEnginePicks race={race} invalidInput={invalidInput} tp={tp} start={start} sub={sub} liveOdds={liveOdds} />
 
       {race && !invalidInput ? (
         <Card title="本場一句" en="Race Explain">
