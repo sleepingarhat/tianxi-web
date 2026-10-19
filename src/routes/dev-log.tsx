@@ -21,6 +21,7 @@ export const Route = createFileRoute("/dev-log")({
 type Tag = "數據" | "技術" | "前端" | "系統";
 
 const ENTRIES: { date: string; title: string; tags: Tag[]; body: string }[] = [
+  { date: "2026-10-19 · 20:15 HKT", title: "原凍結戰績讀回與官方資料倉同步", tags: ["數據", "技術", "系統"], body: "2026-10-19 20:15：Cloudflare舊直連token回401，改已連接gateway後凍結API200、原SHA不變；戰績頁改讀原凍結metricInput，R8／R10剔除分母，R11原中3、補位另列，全日9場平均2.00／4。25測試過，桌面真實讀回通過。官方更易3份原文同步資料倉、manifest200及逐份SHA一致，Cloud每小時15分同步已建，首次自然週期待驗。未發布；訓練／評分需批准相容付費運算，騎師歷史與跨場結算缺可靠證據仍待核。" },
   { date: "2026-10-19 · 19:57 HKT", title: "Cloud R1真實存檔及預覽API讀回", tags: ["數據", "技術"], body: "Cloud callback直接收R1完整13行並驗身份存檔，預覽frozen-racing HTTP200讀回Cloud complete=true，原凍結388f22b…ce89不變。修正D1 horse_前綴精確比對，不同ID仍阻截，21項測試通過；匿名原文欄位禁讀，公開只留精簡結果。新程式未發布、首次自動週期及戰績UI仍未完成驗收；派彩、資料倉新原文同步、騎師lineage及獨立訓練評分未完成。" },
   { date: "2026-10-19 · 19:55 HKT", title: "Cloud直接逐場官方賽果收料候選", tags: ["數據", "系統", "技術"], body: "已核實馬會完整HTML賽果，不靠Chrome或GitHub抓取；R1解析13行、R11解析14行及頭四8／13／7／6，2號K585無名次，退出須官方公告身份核對。新增原文／SHA append-only存檔及原子lease，既有5分鐘任務每次最多收一場並驗證完整排位身份，積壓逐次追上；未知未完成馬匹停止、不猜退出。凍結API候選按場優先讀已驗身份Cloud結果，原分數及SHA不改；派彩仍分開。20項規則測試通過，保存到網站讀回及正式發布尚待驗收；訓練／評分獨立服務與新原文資料倉同步未完成，GitHub後備保留。" },
   { date: "2026-10-19 · 19:42 HKT", title: "獨立收料、訓練及評分分工核查", tags: ["系統", "技術"], body: "用戶要求Lovable Cloud安排逐場收料、訓練及評分，GitHub留版本及後備；核查現有Cloud任務仍觸發GitHub，不能當成已遷移。官方狀態查詢不含完整名次／派彩，逐場直接收料須先驗證來源及身份；網站環境不能直接執行Python Chrome、SQLite Elo與LightGBM，獨立運算服務尚未建立，未新增計費資源或停用後備。19:34正式API已讀回19/10全11場及原SHA，首次全日完場30分鐘自動驗收仍待完成。費用核查與阻塞詳見審查文件，未將credits當現金或聲稱零成本。" },

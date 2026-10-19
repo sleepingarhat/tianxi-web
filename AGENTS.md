@@ -48,4 +48,4 @@
 
 - Scarce-start counts only advise prediction-status, never switch models or filter accounting. Why: no invented exclusions.
 
-- Gate card→recompute→freeze→settlement; originals feed KPI/P&L. Cloud results need full card/withdrawal identity, append-only SHA and leases; dividends stay separate. GitHub stays fallback until compute migrates. Why: no guessed times or lock edits.
+- Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.

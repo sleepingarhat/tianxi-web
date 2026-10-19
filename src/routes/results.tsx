@@ -14,7 +14,9 @@ import {
 import { HitStrip, KpiTile, KV } from "@/components/tx/viz";
 import { fmtMeetingDate, num, txApi } from "@/lib/tx-api";
 import { meetingCancellationForDate } from "@/lib/meeting-status";
-import { supabase } from "@/integrations/supabase/client";
+import { resultsAudit } from "@/lib/results-audit";
+import { Button } from "@/components/ui/button";
+import { RotateCw } from "lucide-react";
 
 /** 彩池代號 → 中文（馬會標準簡稱） */
 const POOL_ZH: Record<string, string> = {
@@ -52,8 +54,15 @@ function ResultsPage() {
   const activeDate = date || meetings[1]?.date || meetings[0]?.date;
 
   const hr = useQuery({
-    queryKey: ["hitRate", activeDate],
-    queryFn: () => txApi.hitRate(activeDate!),
+    queryKey: ["verified-results-audit", activeDate],
+    queryFn: async () => {
+      if (!activeDate) throw new Error("未選賽日");
+      const response = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(activeDate)}`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok || !data.frozen) throw new Error(data.error ?? "原凍結未能核實");
+      return resultsAudit(data);
+    },
+    refetchInterval: 60_000,
     enabled: !!activeDate,
   });
 
@@ -63,7 +72,7 @@ function ResultsPage() {
   // 派彩表（由賽馬後端賽後寫入；未有數據嘅賽日唔顯示呢區）
   const divQ = useQuery({
     queryKey: ["race-dividends", activeDate],
-    queryFn: async () => (await import("@/lib/raceDividends")).fetchRaceDividends(activeDate!) as Promise<DividendRow[]>,
+    queryFn: async () => (await import("@/lib/raceDividends")).fetchRaceDividends(activeDate ?? "") as Promise<DividendRow[]>,
     enabled: !!activeDate,
     staleTime: 10 * 60_000,
   });
@@ -111,7 +120,7 @@ function ResultsPage() {
                 unit="／4"
                 ratio={s.top4AvgIntersect != null ? Number(s.top4AvgIntersect) / 4 : null}
                 tone={Number(s.top4AvgIntersect) >= 3 ? "win" : "gold"}
-                sub={`${races.length} 場已評核`}
+                sub={`${s.races} 場已評核 · ${s.excluded} 場未納入`}
                 trend={races.map((r: any) => r.top4IntersectCount)}
               />
               <KpiTile
@@ -143,6 +152,8 @@ function ResultsPage() {
       <Card title="逐場核對" en="Per Race">
         {hr.isLoading ? (
           <Loading />
+        ) : hr.error ? (
+          <div><ErrorNote error={hr.error} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
         ) : races.length ? (
           <div className="divide-y divide-hairline">
             {races.map((r) => (
@@ -150,16 +161,19 @@ function ResultsPage() {
                 <summary className="flex cursor-pointer list-none items-center gap-2">
                   <span className="tabnum w-7 font-mono-tx text-[13px] font-bold text-gold">R{r.raceNumber}</span>
                   <span className="tabnum font-mono-tx text-[10px] text-ink-3">
-                    {r.distance}m · {r.going}
+                    {r.distance == null ? "途程待核" : `${r.distance}m`} · {r.going ?? "場地待核"}
                   </span>
                   <span className="ml-auto flex gap-1">
                     <Pill tone={(r.top4IntersectCount ?? 0) >= 3 ? "win" : "ink"}>
-                      四揀中 {r.top4IntersectCount ?? "—"}
+                      {r.officialMetric.eligible ? `原四揀中 ${r.top4IntersectCount}` : r.metricInput.status === "invalid-prelock-input" ? "鎖前輸入無效" : "待核，不計分"}
                     </Pill>
                     <Pill tone={r.top3AnyHit ? "win" : "ink"}>入頭三 {r.top3IntersectCount}</Pill>
                   </span>
                   <span className="text-[10px] text-ink-3">▼</span>
                 </summary>
+                {r.changeClassification.hasWithdrawal && <p className="mt-2 text-xs text-ink-2">退出場次 · 原凍結保留{r.officialMetric.eligible ? "並計正式戰績" : "，不計命中或場次分母"}</p>}
+                {r.changeClassification.postLockJockeyChange && <p className="mt-2 text-xs text-ink-2">鎖後換騎 · 原四揀照計，不重算、不補位</p>}
+                {r.effectiveTop4.substituted && <p className="mt-2 text-xs text-ink-2">補位四揀：{r.effectiveTop4.effective.join("－")} · 中 {r.officialMetric.alternativeHits ?? "待核"} 匹 · 臨場備選，不入正式戰績或盈虧</p>}
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <div className="rounded-[8px] border border-hairline bg-paper p-2">
                     <p className="mb-1 text-[10px] font-bold text-ink-3">引擎凍結四揀</p>
@@ -194,9 +208,9 @@ function ResultsPage() {
                 </div>
                 {(divByRace.get(Number(r.raceNumber)) ?? []).length ? (
                   <div className="mt-1.5 rounded-[8px] border border-hairline bg-paper px-2 py-1.5">
-                    <p className="mb-1 text-[10px] font-bold text-ink-3">官方派彩（每 ${divByRace.get(Number(r.raceNumber))![0]?.unit ?? 10} 注）</p>
+                    <p className="mb-1 text-[10px] font-bold text-ink-3">官方派彩（每 ${divByRace.get(Number(r.raceNumber))?.[0]?.unit ?? 10} 注）</p>
                     <div className="grid grid-cols-2 gap-x-3 sm:grid-cols-3">
-                      {divByRace.get(Number(r.raceNumber))!.map((d, i) => (
+                      {(divByRace.get(Number(r.raceNumber)) ?? []).map((d, i) => (
                         <p key={i} className="tabnum flex items-baseline justify-between gap-1 font-mono-tx text-[10px] text-ink-2">
                           <span className="truncate">{POOL_ZH[d.pool] ?? d.pool} <span className="text-ink-3">{d.combo}</span></span>
                           <span className="shrink-0 font-bold text-ink">${Number(d.dividend).toLocaleString()}</span>
