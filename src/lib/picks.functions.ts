@@ -40,6 +40,12 @@ async function fetchTodayPicksUpstream() {
     return empty;
   }
   if (!res.ok || json?.error) throw new Error(json?.error || `預測服務錯誤 ${res.status}`);
+  if (json?.races?.length) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(json.date ?? '') || !['ST', 'HV'].includes(json.venue)) throw new Error('預測賽日或馬場身份未能核實');
+    const [{ publicRacingQuery }, { verifyRunnerIdentities }] = await Promise.all([import('./public-racing-evidence.server'), import('./racing-runner-identity')]);
+    const card = await publicRacingQuery<import('./racing-runner-identity').RunnerIdentity>('SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0', [json.date, json.venue]);
+    verifyRunnerIdentities(json.races.flatMap((r: any) => (r.picks ?? []).map((p: any) => ({raceNumber:r.raceNumber,horseNumber:p.horseNumber,horseId:p.horseId}))), card, []);
+  }
   return json;
 }
 

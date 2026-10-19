@@ -6,6 +6,7 @@ import { getTodayPicksAll } from "./picks.functions";
 import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
 import { picksEdition } from "./picks-refresh";
+import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
 
 export type MergedPick = {
   horseNumber: number;
@@ -38,6 +39,7 @@ export function useTodayPicks() {
     refetchInterval: 30_000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
+    retry: false,
     enabled: !cancellation,
   });
   const date: string | undefined = picks.data?.date;
@@ -66,7 +68,9 @@ export function useTodayPicks() {
       title: r.title || (info as any)?.title || `第 ${r.raceNumber} 場`,
       startTime: (info as any)?.startTime ?? r.startTime ?? null,
       picks: (r.picks || []).map((p: any): MergedPick => {
-        const e = entryIndex.get(`${r.raceNumber}-${p.horseNumber}`) || {};
+        const candidate = entryIndex.get(`${r.raceNumber}-${p.horseNumber}`);
+        // Never attach another runner's draw, silks, names or connections by number alone.
+        const e = identityMatchedEntry(p.horseId, candidate) as any ?? {};
         return {
           ...p,
           winOdds: p.winOdds ?? e.winOdds ?? null,
@@ -78,7 +82,7 @@ export function useTodayPicks() {
           nameCh: p.nameCh || e.nameCh || e.name,
           jockeyCh: p.jockeyCh ?? e.jockeyCh ?? null,
           trainerCh: p.trainerCh ?? e.trainerCh ?? null,
-          draw: p.draw ?? e.draw ?? null,
+          draw: evidenceDraw(picksEdition(picks.data) === 'final', p.draw, e.draw),
         };
       }),
     };
