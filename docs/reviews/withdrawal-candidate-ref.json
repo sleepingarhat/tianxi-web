@@ -1,0 +1,7 @@
+{
+  "repository": "sleepingarhat/tianxi-racing",
+  "branch": "fix/hkjc-prelock-accounting-2026-10-19",
+  "base": "9c410bfd0f4ce4c4c4c3f2f1ea7ffb6cbc9e75ae",
+  "candidate": "d577709d49b1f5f3a6e0482817e5357530d128fc",
+  "deployed": false
+}

@@ -38,8 +38,8 @@ export async function readFrozenRacing(date: string) {
       raceNumber, raceId: info.raceId ?? `race_${date}_${snapshot.venue}_${raceNumber}`,startTime:info.startTime ?? null,title:info.title ?? null,class:info.class ?? null,distance:info.distance ?? null,going:info.going ?? null,track:info.track ?? null,course:info.course ?? null,
       scoreSource: frozen.some(r=>r.lgb_score != null) ? 'lgb' : 'elo', ensembleAlpha: config.alpha ?? null,
       predictedTop4: frozen.slice(0,4).map(r=>r.horse_number),
-      // Frozen order minus officially withdrawn runners; predictedTop4 above stays the original lock.
-      effectiveTop4: effectiveTop4(frozen.map(r=>({horseNumber:r.horse_number,rank:r.predicted_rank,withdrawn:!!changeFor(r)}))),
+      // Lock-before withdrawals invalidate inputs; original ranking is evidence only.
+      effectiveTop4: effectiveTop4(frozen.map(r=>({horseNumber:r.horse_number,rank:r.predicted_rank,withdrawn:!!changeFor(r),announcedAtIso:changeFor(r)?.announcedAtIso})), snapshot.lockAt),
       picks: frozen.map(r=>({ horseId:r.horse_id,horseNumber:r.horse_number,nameCh:nameMap.get(r.horse_id)?.nameCh,nameEn:nameMap.get(r.horse_id)?.nameEn,draw:r.draw || null,rank:r.predicted_rank,finalScore:r.final_score,pWin:r.p_win,pTop3:r.p_top3,pTop4:null,horseElo:r.horse_elo,jockeyElo:r.jockey_elo,trainerElo:r.trainer_elo,eloComposite:r.elo_composite,factorBonus:r.factor_bonus,factorScores:r.factor_scores,scoreSource:r.score_source,lgbScore:r.lgb_score,generatedAt:r.generated_at,modelVersion:r.lgb_model_version,officialChange:(()=>{const c=changeFor(r);return c?{kind:c.kind,text:c.text,replacement:c.replacement,announcedAt:c.announcedAt,announcedAtIso:c.announcedAtIso,beforeLock:c.announcedAtIso?Date.parse(c.announcedAtIso)<Date.parse(snapshot.lockAt):null}:null;})() })),
       resultsStatus: results.length ? 'available' : 'pending', results,
     };

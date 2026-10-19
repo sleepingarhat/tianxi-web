@@ -1,0 +1,49 @@
+--- a/backend/src/lib/withdrawal-accounting.ts
++++ b/backend/src/lib/withdrawal-accounting.ts
+@@ -1,5 +1,5 @@
+ /** Read-only HKJC Rule 3.10 accounting. Model replacements are NOT ticket replacements. */
+-export const WITHDRAWAL_ACCOUNTING_POLICY = 'official-withdrawals-v3-split';
++export const WITHDRAWAL_ACCOUNTING_POLICY = 'official-withdrawals-v4-original-only';
+ export const WITHDRAWAL_RULE_SOURCE = 'https://www.hkjc.com/english/betting/template_betting_rule_files/pdf/Horse_Race_Rule_3_Eng_20260330.pdf';
+ export type SinglePool = 'FF' | 'TRIO' | 'TIERCE' | 'QUARTET';
+ export type Dividend = { nums: string[]; div: number };
+@@ -62,6 +62,6 @@
+   return { policy: WITHDRAWAL_ACCOUNTING_POLICY, hasWithdrawal: withdrawals.length > 0, withdrawnHorseNumbers: withdrawals,
+     originalTop4: original, effectiveTop4: eligible ? effective : [], scoringEligible: eligible && effective.length === 4,
+     original: { basis: 'hypothetical-original-at-lock', pools: eligible ? settle(original) : [], status: eligible ? 'available' : 'excluded-invalid-input' },
+-    effective: { basis: 'hypothetical-effective-not-an-actual-bet', pools: eligible && effective.length === 4 ? settle(effective) : [], status: eligible && effective.length === 4 ? 'available' : 'excluded-invalid-input' },
++    effective: { basis: 'display-only-alternative-not-in-official-pnl', includedInOfficialPnl: false, pools: [], status: eligible && effective.length === 4 ? 'display-only' : 'excluded-invalid-input' },
+     crossRace: { pools: ['DT','TT'], rule: 'official-favourite-per-ticket-not-engine-substitute', status: withdrawals.length ? 'requires-official-favourites-and-ticket-legs' : 'no-withdrawal' }, ruleSource: WITHDRAWAL_RULE_SOURCE };
+ }
+--- a/backend/scripts/test-withdrawal-accounting.ts
++++ b/backend/scripts/test-withdrawal-accounting.ts
+@@ -12,7 +12,13 @@
+  const p=settleSingleBox(pool,[8,13,6,2],[2],[]); assert.deepEqual([p.grossCost,p.refund,p.cost],[gross,refund,cost]);
+ }
+ const r=raceAccounting([8,13,6,2],[8,13,6,10],[2],true,{TRI:[{nums:['8','13','6'],div:123.4}]});
+-assert.equal(r.original.pools[1]?.payout,123.4); assert.equal(r.effective.pools[1]?.refund,0); assert.equal(r.effective.pools[1]?.cost,40);
++assert.equal(r.original.pools[1]?.payout,123.4);
++assert.equal(r.effective.includedInOfficialPnl,false);
++assert.deepEqual(r.effective.pools,[]);
++assert.equal(r.original.pools.reduce((n,p)=>n+p.grossCost,0),530);
++assert.equal(r.original.pools.reduce((n,p)=>n+p.refund,0),460);
++assert.equal(r.original.pools.reduce((n,p)=>n+p.cost,0),70);
++assert.ok(Math.abs(r.original.pools.reduce((n,p)=>n+(p.net??0),0)-53.4)<1e-9);
+ assert.equal(settleSingleBox('TRIO',[1,2,3,4],[],[]).net,-40);
+ assert.equal(settleSingleBox('TRIO',[1,2,3,4],[],null).payout,null);
+ assert.equal(settleSingleBox('TRIO',[1,2,3,4],[],null,10,true).refund,40);
+--- a/docs/reviews/withdrawal-accounting-2026-10-19.md
++++ b/docs/reviews/withdrawal-accounting-2026-10-19.md
+@@ -1,9 +1,9 @@
+ # Withdrawal accounting candidate — not deployed
+ 
+-- Policy: official-withdrawals-v3-split. Original frozen ranks/scores and identities remain unchanged.
++- Policy: official-withdrawals-v4-original-only. Original frozen ranks/scores and identities remain unchanged.
+ - Invalid prelock inputs remain in incident metadata, excluded from scoring and strategy costs; a correctly refreshed/recomputed prelock card remains valid.
+-- Original-at-lock hypothetical single-race units and effective strategy units are separate. No actual user bet is inferred.
+-- Rule 3.10(a): only affected combinations refund. Four-pick original with one withdrawn: FF gross/refund/cost 10/10/0; TRIO 40/30/10; TIERCE 240/180/60; QUARTET 240/240/0. Total 530/460/70. Effective four-pick scenario is separately costed at 530 when pools remain open.
++- Official P&L includes only original-at-lock hypothetical units with official refunds/dividends. Effective selections are display-only alternatives, not official costs or payouts. No actual user bet or automatic rebet is inferred.
++- Rule 3.10(a): only affected combinations refund. Four-pick original with one withdrawn: FF gross/refund/cost 10/10/0; TRIO 40/30/10; TIERCE 240/180/60; QUARTET 240/240/0. Total 530/460/70. Effective four-pick alternatives never enter official P&L.
+ - Rule 3.10(b)(iii): DT/TT original tickets use official first/second/third favourites excluding retained selections, never engine substitutes; missing official favourite evidence returns pending/null, not refund or loss. Shared calculator exists; full DT/TT endpoint integration remains pending.
+ - Rule 3.9 pool closures follow actual starter thresholds only after results evidence is complete. Dead-heat dividends retain decimal cents and sum only covered combinations.
+ - Locked jockey changes preserve ranks and scores and produce a separate metric group. Unknown change timing/prelock unapplied jockey changes fail closed.

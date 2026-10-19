@@ -48,4 +48,4 @@
 
 - Scarce-start counts only advise prediction-status, never switch models or filter accounting. Why: no invented exclusions.
 
-- Keep prelock/accounting candidates in a review branch plus reproducible patch until official-card → recompute → snapshot → settlement readback passes. Mocks/typechecks are not release evidence. Why: no unverified main auto-deploy.
+- Keep prelock/accounting isolated with patches until official-card → recompute → freeze → settlement readback passes; P&L uses original-ticket official settlement, alternatives stay display-only. Why: no unverified releases or rebets.
