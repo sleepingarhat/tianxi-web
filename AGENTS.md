@@ -22,7 +22,7 @@
 
 ## 監控端規則
 - Admin engine-health consumers share a display-only language adapter in the admin data hook; preserve response keys and source records so terminology edits cannot change monitoring logic.
-- Subdirectories (src/components/admin/) have their own AGENTS.md; read before changing files there.
+- Read src/components/admin/AGENTS.md before changing that directory. Why: scoped rules apply.
 - Public racing P&L supplements the existing four-pool rollup with shared `racingPoolAccounting` cross-race queries, merging daily cost and payout once; missing fifth picks are excluded and post-race substitutes are labelled, so incomplete data cannot masquerade as frozen results.
 - Admin version notes must wrap in desktop tables and use stacked mobile records; cross-race trio reconciliation reuses ExoticTrioPools separately from the single-race strategy aggregate, to prevent truncated explanations and mixed accounting scopes.
 - Blueprint audits separate code, verified flows, missing evidence and old decisions. Why: routes/tasks do not prove completion.
@@ -39,7 +39,7 @@
 - Racing evidence uses fixed read-only projections with settled/public-frozen eligibility. Separate current pedigree identities from original scores; missing snapshots remain unverified. Why: references cannot replace locked evidence.
 
 - Retired sources/journals live only in private research with commits/checksums; detach runtime dependencies before removal. Keep only product-scope gates (redirect/410). Why: preserve research without shipping retired products.
-- Race SSR and self-canonicals use public entries; sitemap walks offset pages, fails on incomplete reads, omits generated lastmod. Why: auditable discovery.
+- Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
 - Frozen API SELECTs originals, validates SHA/rows/meta, pairs official results; missing saved fields stay null. Picks coalesce inflight only; locked reads use this API. Why: cache/time cannot prove final.
