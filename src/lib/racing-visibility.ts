@@ -1,6 +1,6 @@
 /** Read-only audit and historical position summaries; never writes predictions. */
 export type AuditPick = { horseNumber: number; rank?: number; nameCh?: string; horseId?: string; hit?: boolean };
-export type AuditRace = { raceNumber: number; distance?: number; scoreSource?: string; predictedTop4?: AuditPick[]; actualTop4?: { horseNumber: number; position: number; nameCh?: string; winOdds?: number; horseId?: string }[] };
+export type AuditRace = { raceNumber: number; distance?: number; scoreSource?: string; originalTop4?: number[]; withdrawal?: { status?: string } | null; predictedTop4?: AuditPick[]; actualTop4?: { horseNumber: number; position: number; nameCh?: string; winOdds?: number; horseId?: string }[] };
 export type AuditMeeting = { date: string; venue: string; races: AuditRace[] };
 export type ClosingRunner = { no: number; odds: number | null; place: number | null };
 export type CoverageRow = { date: string; venue: string; raceNo: number; band: string; model: number; market: number | null };
@@ -9,6 +9,8 @@ export function distanceBand(distance: number) {
   return distance <= 1200 ? "短途" : distance <= 1650 ? "一哩" : distance <= 2000 ? "中長" : "長途";
 }
 export function completeAuditRace(r: AuditRace) {
+  if (r.withdrawal?.status && r.withdrawal.status !== "valid") return false;
+  if (r.originalTop4 && (r.originalTop4.length !== 4 || !r.originalTop4.every(n => r.predictedTop4?.some(p => p.horseNumber === n)))) return false;
   const picks = new Set(r.predictedTop4?.slice(0, 4).map(p => p.horseNumber));
   const actual = new Set(r.actualTop4?.filter(p => p.position >= 1 && p.position <= 4).map(p => p.horseNumber));
   return picks.size === 4 && actual.size === 4 && Boolean(r.scoreSource?.includes("frozen"));

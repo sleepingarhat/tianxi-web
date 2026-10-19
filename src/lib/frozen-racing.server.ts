@@ -3,6 +3,7 @@ import { frozenColumns, validateFrozenSnapshot, type FrozenRow } from './frozen-
 import { verifyRunnerIdentities, type RunnerIdentity } from './racing-runner-identity';
 import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
+import { officialRaceMetric } from './racing-official-metrics';
 
 /** SELECT only. Never calls compute, capture or recovery. */
 export async function readFrozenRacing(date: string) {
@@ -34,12 +35,21 @@ export async function readFrozenRacing(date: string) {
     const info: FrozenRow = raceInfo.find(r=>r.raceNumber===raceNumber) ?? (meeting?.venue===snapshot.venue ? meeting.races?.find(r=>r.raceNumber===raceNumber) : undefined) ?? {};
     const frozen = snapshot.rows.filter(r=>r.race_number===raceNumber).sort((a,b)=>a.predicted_rank-b.predicted_rank);
     const results = resultRows.filter(r=>r.raceNumber===raceNumber);
+    const selection = effectiveTop4(frozen.map(r=>({horseNumber:r.horse_number,rank:r.predicted_rank,withdrawn:!!changeFor(r),announcedAtIso:changeFor(r)?.announcedAtIso})), snapshot.lockAt);
+    const hasWithdrawal = frozen.some(r=>!!changeFor(r));
+    const jockeyChanges = officialChanges.filter(c=>c.raceNumber===raceNumber && c.kind==='other' && /騎師|策騎/.test(c.text));
+    const postLockJockeyChange = jockeyChanges.some(c=>c.announcedAtIso && Date.parse(c.announcedAtIso)>Date.parse(snapshot.lockAt));
+    const unknownJockeyTiming = jockeyChanges.some(c=>!c.announcedAtIso);
+    const actualTop4 = results.filter(r=>Number.isInteger(r.finishingPosition) && r.finishingPosition>0 && r.finishingPosition<99 && !withdrawn.has(`${raceNumber}:${r.horseNumber}`)).sort((a,b)=>a.finishingPosition-b.finishingPosition).slice(0,4).map(r=>r.horseNumber);
+    const metricInput = { original: selection.original, effective: selection.effective, actualTop4, status: unknownJockeyTiming ? 'unverified-change-timing' : selection.status, hasWithdrawal, postLockJockeyChange };
     return {
       raceNumber, raceId: info.raceId ?? `race_${date}_${snapshot.venue}_${raceNumber}`,startTime:info.startTime ?? null,title:info.title ?? null,class:info.class ?? null,distance:info.distance ?? null,going:info.going ?? null,track:info.track ?? null,course:info.course ?? null,
       scoreSource: frozen.some(r=>r.lgb_score != null) ? 'lgb' : 'elo', ensembleAlpha: config.alpha ?? null,
       predictedTop4: frozen.slice(0,4).map(r=>r.horse_number),
       // Lock-before withdrawals invalidate inputs; original ranking is evidence only.
-      effectiveTop4: effectiveTop4(frozen.map(r=>({horseNumber:r.horse_number,rank:r.predicted_rank,withdrawn:!!changeFor(r),announcedAtIso:changeFor(r)?.announcedAtIso})), snapshot.lockAt),
+      effectiveTop4: selection,
+      metricInput, officialMetric: officialRaceMetric(metricInput),
+      changeClassification: { hasWithdrawal, postLockJockeyChange, unknownJockeyTiming },
       picks: frozen.map(r=>({ horseId:r.horse_id,horseNumber:r.horse_number,nameCh:nameMap.get(r.horse_id)?.nameCh,nameEn:nameMap.get(r.horse_id)?.nameEn,draw:r.draw || null,rank:r.predicted_rank,finalScore:r.final_score,pWin:r.p_win,pTop3:r.p_top3,pTop4:null,horseElo:r.horse_elo,jockeyElo:r.jockey_elo,trainerElo:r.trainer_elo,eloComposite:r.elo_composite,factorBonus:r.factor_bonus,factorScores:r.factor_scores,scoreSource:r.score_source,lgbScore:r.lgb_score,generatedAt:r.generated_at,modelVersion:r.lgb_model_version,officialChange:(()=>{const c=changeFor(r);return c?{kind:c.kind,text:c.text,replacement:c.replacement,announcedAt:c.announcedAt,announcedAtIso:c.announcedAtIso,beforeLock:c.announcedAtIso?Date.parse(c.announcedAtIso)<Date.parse(snapshot.lockAt):null}:null;})() })),
       resultsStatus: results.length ? 'available' : 'pending', results,
     };

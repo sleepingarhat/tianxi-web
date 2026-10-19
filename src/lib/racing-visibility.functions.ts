@@ -6,7 +6,7 @@ import { sameFourPicks } from "./audit-safety";
 
 export const getCoverageAudit = createServerFn({ method: "GET" })
   .inputValidator((input: { days?: number }) => ({ days: Math.min(365, Math.max(30, Math.round(Number(input.days) || 180))) }))
-  .handler(async ({ data }) => cached(`coverage:${data.days}`, CACHE_TTL, async () => {
+  .handler(async ({ data }) => cached(`coverage:original-v5:${data.days}`, CACHE_TTL, async () => {
     const readJson = async (url: string) => {
       const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
       if (!response.ok) throw new Error("賽果資料暫時未能讀取");
@@ -44,7 +44,7 @@ export const getValueComparison = createServerFn({ method: "GET" })
     if (!/^\d{4}-\d{2}-\d{2}$/.test(input.from) || !/^[\w.-]{1,100}$/.test(input.version)) throw new Error("版本或起計日期無效");
     return { from: input.from, version: input.version };
   })
-  .handler(async ({ data }) => cached(`value-cmp:v2:${data.version}:${data.from}`, CACHE_TTL, async () => {
+  .handler(async ({ data }) => cached(`value-cmp:original-v5:${data.version}:${data.from}`, CACHE_TTL, async () => {
     const { valueRace, summarizeValue } = await import("./racing-visibility");
     const readJson = async (url: string) => {
       const r = await fetch(url, { signal: AbortSignal.timeout(15_000) });

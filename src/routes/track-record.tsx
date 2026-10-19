@@ -6,6 +6,7 @@ import { AppShell } from "@/components/tx/AppShell";
 import { CoverageAudit } from "@/components/tx/CoverageAudit";
 import { ModelVersions } from "@/components/tx/ModelVersions";
 import { EngineValueCompare } from "@/components/tx/EngineValueCompare";
+import { OfficialRaceAudit } from '@/components/tx/OfficialRaceAudit';
 import {
   Card,
   Disclaimer,
@@ -56,6 +57,7 @@ function TrackRecordPage() {
       />
 
       <EngineValueCompare />
+      <OfficialRaceAudit />
       <div className="mx-4">
         <Seg
           value={days}

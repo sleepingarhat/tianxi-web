@@ -75,6 +75,7 @@ import { Route as ApiPublicWeatherArchiveRouteImport } from './routes/api/public
 import { Route as ApiPublicWeatherSyncGithubRouteImport } from './routes/api/public/weather-sync-github'
 import { Route as ApiPublicHooksRaceResultsDispatchRouteImport } from './routes/api/public/hooks/race-results-dispatch'
 import { Route as ApiPublicJobsHkjcChangesRouteImport } from './routes/api/public/jobs/hkjc-changes'
+import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/public/jobs/hkjc-evidence-sync'
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
 import { Route as ApiPublicJobsRacingDispatchRouteImport } from './routes/api/public/jobs/racing-dispatch'
@@ -426,6 +427,12 @@ const ApiPublicJobsHkjcChangesRoute =
     path: '/api/public/jobs/hkjc-changes',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsHkjcEvidenceSyncRoute =
+  ApiPublicJobsHkjcEvidenceSyncRouteImport.update({
+    id: '/api/public/jobs/hkjc-evidence-sync',
+    path: '/api/public/jobs/hkjc-evidence-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsRacecoursePhotosRoute =
   ApiPublicJobsRacecoursePhotosRouteImport.update({
     id: '/api/public/jobs/racecourse-photos',
@@ -527,6 +534,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
+  '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
@@ -599,6 +607,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
+  '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
@@ -674,6 +683,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/race-results-dispatch': typeof ApiPublicHooksRaceResultsDispatchRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
+  '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
@@ -749,6 +759,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/api/public/hooks/race-results-dispatch'
     | '/api/public/jobs/hkjc-changes'
+    | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
@@ -821,6 +832,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/hooks/race-results-dispatch'
     | '/api/public/jobs/hkjc-changes'
+    | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
@@ -895,6 +907,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/api/public/hooks/race-results-dispatch'
     | '/api/public/jobs/hkjc-changes'
+    | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
@@ -957,6 +970,7 @@ export interface RootRouteChildren {
   ApiPublicWeatherSyncGithubRoute: typeof ApiPublicWeatherSyncGithubRoute
   ApiPublicHooksRaceResultsDispatchRoute: typeof ApiPublicHooksRaceResultsDispatchRoute
   ApiPublicJobsHkjcChangesRoute: typeof ApiPublicJobsHkjcChangesRoute
+  ApiPublicJobsHkjcEvidenceSyncRoute: typeof ApiPublicJobsHkjcEvidenceSyncRoute
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
   ApiPublicJobsRacingDispatchRoute: typeof ApiPublicJobsRacingDispatchRoute
@@ -1429,6 +1443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsHkjcChangesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/hkjc-evidence-sync': {
+      id: '/api/public/jobs/hkjc-evidence-sync'
+      path: '/api/public/jobs/hkjc-evidence-sync'
+      fullPath: '/api/public/jobs/hkjc-evidence-sync'
+      preLoaderRoute: typeof ApiPublicJobsHkjcEvidenceSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/racecourse-photos': {
       id: '/api/public/jobs/racecourse-photos'
       path: '/api/public/jobs/racecourse-photos'
@@ -1574,6 +1595,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRaceResultsDispatchRoute:
     ApiPublicHooksRaceResultsDispatchRoute,
   ApiPublicJobsHkjcChangesRoute: ApiPublicJobsHkjcChangesRoute,
+  ApiPublicJobsHkjcEvidenceSyncRoute: ApiPublicJobsHkjcEvidenceSyncRoute,
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
   ApiPublicJobsRacingDispatchRoute: ApiPublicJobsRacingDispatchRoute,

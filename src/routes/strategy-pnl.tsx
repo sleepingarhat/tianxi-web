@@ -6,6 +6,7 @@ import { AppShell } from "@/components/tx/AppShell";
 import { EChart } from "@/components/tx/EChart";
 import { ExoticTrioPools } from "@/components/tx/ExoticTrioPools";
 import { SinglePoolDaily } from "@/components/tx/SinglePoolDaily";
+import { OfficialRaceAudit } from '@/components/tx/OfficialRaceAudit';
 import { exoticPoolOptions } from "@/lib/racingPoolAccounting";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Scroller, Seg, Table, Td } from "@/components/tx/ui";
 import { fmtMeetingDate, txApi } from "@/lib/tx-api";
@@ -198,6 +199,8 @@ function StrategyPnlPage() {
           ]}
         />
       </div>
+
+      <OfficialRaceAudit accounting />
 
       {pnl.isLoading || crossLoading ? (
         <div className="px-4 py-6">

@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { actualStages, coverageRows, distanceBand, historicalPositions, marketCoverage, parseResultsCsv, summarizeCoverage, type AuditRace } from "./racing-visibility";
 const race: AuditRace = { raceNumber: 1, distance: 1650, scoreSource: "oracle (frozen)", predictedTop4: [1, 2, 3, 4].map(horseNumber => ({ horseNumber })), actualTop4: [1, 3, 5, 6].map((horseNumber, i) => ({ horseNumber, position: i + 1 })) };
 describe("read-only coverage rules", () => {
+  it("rejects invalid prelock inputs and alternative selections masquerading as originals", () => {
+    const invalid = { ...race, withdrawal: { status: 'invalid-prelock-input' } };
+    const alternative = { ...race, originalTop4: [1,2,3,5] };
+    expect(coverageRows({ date: '2026-10-19', venue: 'ST', races: [invalid, alternative] }, new Map())).toEqual([]);
+  });
   it("uses the requested 1200, 1650 and 2000 metre boundaries", () => {
     expect([1200, 1201, 1650, 1651, 2000, 2001].map(distanceBand)).toEqual(["短途", "一哩", "一哩", "中長", "中長", "長途"]);
   });

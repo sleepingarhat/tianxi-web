@@ -48,4 +48,4 @@
 
 - Scarce-start counts only advise prediction-status, never switch models or filter accounting. Why: no invented exclusions.
 
-- Keep prelock/accounting isolated with patches until official-card → recompute → freeze → settlement readback passes; P&L uses original-ticket official settlement, alternatives stay display-only. Why: no unverified releases or rebets.
+- Isolate prelock/accounting until card → recompute → freeze → settlement passes. Audits score originals; alternatives exclude KPI/P&L. Sync raw before SHA-conditional manifests; schedule after tests. Why: no invented evidence or rebets.
