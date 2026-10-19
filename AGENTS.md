@@ -29,9 +29,7 @@
 
 - 全站 break-ui 用 scripts/break-ui-matrix.py 覆蓋 320／390／1280、RTL、慢 API 與千人會員；dev-log 會合法提及 NaN／undefined，掃描器不可將說明文字當資料錯誤。理由：驗收要可重跑亦要避免假陽性。
 - 外部圖片只可用逐張核實自由授權或書面商用權，頁內須署名並保留 /media-credits；API 圖址不等於授權。
-- 藍圖現行版本放 docs/blueprint/；改藍圖要同步更新該文件、roadmap、AGENTS、開發者日誌同 GitHub 鏡像。理由：設計說明同代碼唔可以分家。
-
-- Current blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; older versions cannot re-enable retired products. Why: superseded plans are historical.
+- Current blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; changes sync blueprint, roadmap, AGENTS, dev-log and GitHub mirror; older versions cannot revive retired products. Why: docs match code; superseded plans remain historical.
 - Pro entitlement is decided only by src/lib/entitlement.ts (resolveEntitlement), fed by the my_membership DB function and the webhook-maintained subscriptions table; the gate opens automatically at the 500th signup. Why: one rule source for free stage, founding Pro and paid subscriptions.
 - Racecourse posters rotate weekly from Wikimedia Commons via a managed HTTP schedule into racecourse_photos (commercial-free licences only, auto-deactivate on licence change); tianxi-web GitHub Actions only monitor the public status endpoint. Why: scheduling stays in the app backend, GitHub mirror stays read-only.
 
@@ -48,4 +46,4 @@
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
 
-- Scarce-start counts remain advisory in the shared prediction-status module, not a model switch or an accounting filter. Why: status presentation must not invent prediction changes or exclusions.
+- Scarce-start counts are advisory in shared prediction-status, never model switches or accounting filters. Why: display cannot invent changes or exclusions.
