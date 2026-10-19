@@ -16,7 +16,7 @@
 - Homepage/navigation expose racing only; product-scope.ts and start.ts gate retired paths without executing them.
 - 首頁流程只引用已定版或現行資料；理由：產品介紹必須可核對。
 - 全站沿用 PageHead、Card、Stat、Table、Seg 與 AppShell；理由：避免逐頁漂移。
-- Offers share FoundingMemberOffer/freeStage to prevent drift; Card headers use minmax text and fixed actions to avoid mobile badge wrapping.
+- Offers share FoundingMemberOffer/freeStage; Card headers use minmax text and fixed actions. Why: prevent offer drift and mobile badge wrapping.
 - 功能頁桌面寬度按資料量調整，手機單欄；理由：提升密度而不破壞手機流程。
 - 每次發布正式站後執行 python3 scripts/sync-frontend-repo.py，將源碼經 GitHub API 同步入 tianxi-web；理由：倉庫只作鏡像，正式站由 Lovable 發布。
 
@@ -25,7 +25,7 @@
 - Subdirectories (src/components/admin/) have their own AGENTS.md; read before changing files there.
 - Public racing P&L supplements the existing four-pool rollup with shared `racingPoolAccounting` cross-race queries, merging daily cost and payout once; missing fifth picks are excluded and post-race substitutes are labelled, so incomplete data cannot masquerade as frozen results.
 - Admin version notes must wrap in desktop tables and use stacked mobile records; cross-race trio reconciliation reuses ExoticTrioPools separately from the single-race strategy aggregate, to prevent truncated explanations and mixed accounting scopes.
-- Blueprint audits separate code, verified flows, missing evidence and superseded decisions. Why: routes and checked tasks do not prove completion.
+- Blueprint audits separate code, verified flows, missing evidence and old decisions. Why: routes/tasks do not prove completion.
 
 - 全站 break-ui 用 scripts/break-ui-matrix.py 覆蓋 320／390／1280、RTL、慢 API 與千人會員；dev-log 會合法提及 NaN／undefined，掃描器不可將說明文字當資料錯誤。理由：驗收要可重跑亦要避免假陽性。
 - 外部圖片只可用逐張核實自由授權或書面商用權，頁內須署名並保留 /media-credits；API 圖址不等於授權。
@@ -46,4 +46,4 @@
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
 
-- Scarce-start counts are advisory in shared prediction-status, never model switches or accounting filters. Why: display cannot invent changes or exclusions.
+- Scarce-start counts are advisory in prediction-status, not model switches or accounting filters. Why: display cannot invent exclusions.
