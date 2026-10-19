@@ -38,11 +38,11 @@ export function FoundingMemberOffer() {
           <p className="mt-2 text-[12px] leading-relaxed text-deep-fg/80">而家限時全站免費，享有等同 Pro 嘅全站功能；現階段唔收款。</p>
           <MemberCountdown />
         </div>
-        {signedIn ? null : (
+        {signedIn === false ? (
           <Button asChild size="lg" className="h-12 w-full bg-gold-strong font-bold text-ink hover:bg-gold md:w-auto">
             <Link to="/auth" search={{ mode: "signup" }}>現在註冊<ArrowRight aria-hidden /></Link>
           </Button>
-        )}
+        ) : null}
       </div>
     </section>
   );

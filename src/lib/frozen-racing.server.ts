@@ -4,6 +4,7 @@ import { verifyRunnerIdentities, type RunnerIdentity } from './racing-runner-ide
 import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
 import { officialRaceMetric } from './racing-official-metrics';
+import { mergeMeetingMetadata, type RacingMeetingMetadata } from './racing-meeting-metadata';
 
 /** SELECT only. Never calls compute, capture or recovery. */
 export async function readFrozenRacing(date: string) {
@@ -15,13 +16,20 @@ export async function readFrozenRacing(date: string) {
     query<FrozenRow>("SELECT * FROM prediction_lock_meta WHERE date=? AND engine='v12'",[date]),
   ]);
   const snapshot = await validateFrozenSnapshot(original,date,rows,metas[0] ?? null);
-  const [raceInfo, resultRows, names, meeting, card, officialSnap] = await Promise.all([
+  const [raceInfo, resultRows, names, meeting, card, officialSnap, cardInfo] = await Promise.all([
     query<FrozenRow>(`SELECT r.id raceId,r.race_number raceNumber,r.start_time startTime,r.title,r.class,r.distance,r.going,r.track,r.course FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT r.race_number raceNumber,rr.horse_id horseId,rr.horse_number horseNumber,rr.finishing_position finishingPosition,rr.win_odds winOdds,rr.running_position runningPosition FROM race_results rr JOIN races r ON r.id=rr.race_id JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number,rr.finishing_position`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT DISTINCT h.id horseId,h.name_ch nameCh,h.name_en nameEn FROM horses h JOIN prediction_log p ON p.horse_id=h.id WHERE p.date=? AND p.engine='v12' AND p.variant='baseline'`,[date]),
     fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/meetings/${date}`,{cache:'no-store',signal:AbortSignal.timeout(15_000)}).then(async r=>r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null).catch(()=>null),
     query<RunnerIdentity>(`SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 ORDER BY race_number,horse_number`,[date,snapshot.venue]),
     import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date)).catch(()=>null),
+    query<RacingMeetingMetadata>(`SELECT race_number raceNumber,
+      CASE WHEN COUNT(DISTINCT post_time)=1 THEN MIN(post_time) END startTime,
+      CASE WHEN COUNT(DISTINCT distance)=1 THEN MIN(distance) END distance,
+      CASE WHEN COUNT(DISTINCT race_class)=1 THEN MIN(race_class) END class,
+      CASE WHEN COUNT(DISTINCT track)=1 THEN MIN(track) END track,
+      CASE WHEN COUNT(DISTINCT course)=1 THEN MIN(course) END course
+      FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 GROUP BY race_number`,[date,snapshot.venue]),
   ]);
   const nameMap = new Map(names.map(n=>[n.horseId,n]));
   // Official HKJC changes (archived snapshot with SHA) may explain a slot change; the frozen row itself is never rewritten.
@@ -32,7 +40,10 @@ export async function readFrozenRacing(date: string) {
   const config = JSON.parse(snapshot.meta.config || '{}');
   const raceNumbers = [...new Set(snapshot.rows.map(r=>r.race_number))].sort((a,b)=>a-b);
   const races = raceNumbers.map(raceNumber => {
-    const info: FrozenRow = raceInfo.find(r=>r.raceNumber===raceNumber) ?? (meeting?.venue===snapshot.venue ? meeting.races?.find(r=>r.raceNumber===raceNumber) : undefined) ?? {};
+    const resultInfo = raceInfo.find(r=>r.raceNumber===raceNumber);
+    const meetingInfo = meeting?.venue===snapshot.venue ? meeting.races?.find(r=>r.raceNumber===raceNumber) : undefined;
+    const cardReference = cardInfo.find(r=>r.raceNumber===raceNumber);
+    const info = mergeMeetingMetadata(resultInfo, meetingInfo, cardReference);
     const frozen = snapshot.rows.filter(r=>r.race_number===raceNumber).sort((a,b)=>a.predicted_rank-b.predicted_rank);
     const results = resultRows.filter(r=>r.raceNumber===raceNumber);
     const selection = effectiveTop4(frozen.map(r=>({horseNumber:r.horse_number,rank:r.predicted_rank,withdrawn:!!changeFor(r),announcedAtIso:changeFor(r)?.announcedAtIso})), snapshot.lockAt);
@@ -44,6 +55,7 @@ export async function readFrozenRacing(date: string) {
     const metricInput = { original: selection.original, effective: selection.effective, actualTop4, status: unknownJockeyTiming ? 'unverified-change-timing' : selection.status, hasWithdrawal, postLockJockeyChange };
     return {
       raceNumber, raceId: info.raceId ?? `race_${date}_${snapshot.venue}_${raceNumber}`,startTime:info.startTime ?? null,title:info.title ?? null,class:info.class ?? null,distance:info.distance ?? null,going:info.going ?? null,track:info.track ?? null,course:info.course ?? null,
+      metadataSource: resultInfo ? 'official-results-with-card-fallback' : 'current-official-card-display-only',
       scoreSource: frozen.some(r=>r.lgb_score != null) ? 'lgb' : 'elo', ensembleAlpha: config.alpha ?? null,
       predictedTop4: frozen.slice(0,4).map(r=>r.horse_number),
       // Lock-before withdrawals invalidate inputs; original ranking is evidence only.

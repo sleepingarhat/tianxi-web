@@ -25,9 +25,9 @@ export function CoverageAudit({ days = 180, showMeetings = false }: { days?: num
           <Stat label="凍結四揀平均中" value={fmt(summary.model)} sub={`／4 · ${summary.n} 場`} />
           <Stat label="收市市場平均中" value={fmt(summary.market)} sub={`／4 · ${summary.paired} 場可對照`} />
         </StatGrid>
-        <p className="my-3 text-[11px] leading-relaxed text-ink-2">同場配對：引擎 {fmt(summary.pairedModel)}／4、市場 {fmt(summary.market)}／4；{summary.missing} 場缺完整收市盤或第4熱門同賠率，未納市場比較。</p>
+        <p className="my-3 text-[11px] leading-relaxed text-ink-2">同場配對：引擎 {fmt(summary.pairedModel)}／4、市場 {fmt(summary.market)}／4；{summary.missing} 場無法作市場對照：未有完整收市獨贏賠率，或第4及第5熱門同賠率。只排除市場比較，唔代表冇預測或投注輸咗。</p>
         <Seg value={group} onChange={setGroup} options={[{ value: "cross", label: "馬場×途程" }, { value: "venue", label: "馬場" }, { value: "dist", label: "途程" }]} />
-        <Scroller><Table head={["分層", "配對場", "引擎／4", "市場／4", "缺盤"]}>
+        <Scroller><Table head={["分層", "配對場", "引擎／4", "市場／4", "未能對照"]}>
           {groups.map(g => { const s = summarizeCoverage(g.rows); return <tr key={g.label} className="border-b border-hairline"><Td first><span className="text-[10px]">{g.label}</span></Td><Td>{s.paired}</Td><Td className="font-bold text-gold">{fmt(s.pairedModel)}</Td><Td>{fmt(s.market)}</Td><Td>{s.missing}</Td></tr>; })}
         </Table></Scroller>
         <p className="mt-3 text-[10px] leading-relaxed text-ink-3">短途 ≤1200米；一哩 1201–1650米；中長 1651–2000米；長途 &gt;2000米。市場以全場已出賽馬匹收市獨贏由低至高揀4匹（等同隱含機率排序）；不以頭4名的賠率代替全場。不足10場只作記錄；2.31只係歷史參考，唔係本窗市場實數。</p>

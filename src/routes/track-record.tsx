@@ -22,6 +22,8 @@ import {
 } from "@/components/tx/ui";
 import { HitStrip, KpiTile, KV, Spark } from "@/components/tx/viz";
 import { fmtMeetingDate, num, txApi } from "@/lib/tx-api";
+import { useAuthState } from '@/lib/useAuthState';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute("/track-record")({
   head: () => ({
@@ -38,6 +40,7 @@ export const Route = createFileRoute("/track-record")({
 });
 
 function TrackRecordPage() {
+  const { signedIn } = useAuthState();
   const [days, setDays] = useState<30 | 60 | 90 | 180>(90);
   const roll = useQuery({ queryKey: ["hitRateRollup", days], queryFn: () => txApi.hitRateRollup(days) });
   const s = roll.data?.summary || roll.data;
@@ -156,20 +159,17 @@ function TrackRecordPage() {
         )}
       </Card>
 
-      <Card title="睇完成績，免費用全站功能" en="Upgrade">
+      {signedIn === false ? <Card title="睇完成績，免費用全站功能" en="Upgrade">
         <p className="mb-2 text-[12px] text-ink-2">
           免費對賬永久公開。想要賽前全卡預測、模型搏冷 + 市場穩陣雙欄、pWin 信心分？而家限時免費，權益等同 Pro，冇隱藏收費。
         </p>
         <div className="flex items-center gap-2">
-          <Link
-            to="/membership"
-            className="rounded-[6px] border border-gold-strong/60 bg-gold-bg px-3 py-2 text-[12px] font-bold text-gold"
-          >
-            免費註冊 →
-          </Link>
+          <Button asChild variant="outline" className="border-gold-strong/60 bg-gold-bg text-gold">
+            <Link to="/auth" search={{ mode: 'signup' }}>免費註冊 →</Link>
+          </Button>
           <Pill tone="gold">限時免費 · 收費未開放</Pill>
         </div>
-      </Card>
+      </Card> : null}
 
       <Disclaimer extra="戰績只對最終版凍結四揀，「三重彩」＝以模型首三匹打複式，實際頭三名全中即算命中；「四重彩」＝以模型首四匹打複式，實際頭四名全中即算命中。主指標為四揀平均命中匹數。" />
     </AppShell>

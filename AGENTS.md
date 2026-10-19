@@ -42,7 +42,7 @@
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
 - HKJC raw+SHA stays append-only; live notices share polling and overlay identity-matched withdrawals without changing frozen rows. Only post-lock substitutions are valid. Why: fresh notices cannot certify stale inputs.
-- Frozen API SELECTs originals, validates SHA/rows/meta and runner IDs against cards/results; missing fields stay null. Picks coalesce inflight; locked reads share API. Why: hashes prove integrity, not identity.
+- Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
 - Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
 
