@@ -19,6 +19,7 @@ import { useScarceStarts } from "@/lib/use-scarce-starts";
 import { FEATURE_MAP, type FeatureId, type Horse } from "@/lib/race-data";
 import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import { useTodayPicks } from "@/lib/use-today-picks";
+import { effectiveTop4 } from "@/lib/withdrawal-substitution";
 
 
 
@@ -119,7 +120,9 @@ function PredictorPage() {
     const edge = implied != null && p.pWin != null ? p.pWin - implied : null;
     return { ...p, od, implied, edge };
   });
-  const modelCol = withOdds.slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).slice(0, 5);
+  const sub = effectiveTop4(withOdds.map((p) => ({ horseNumber: p.horseNumber, rank: p.rank ?? 99, withdrawn: !!p.officialChange })));
+  // 退出馬匹之後多顯示一匹，等順位補上嘅馬睇得到
+  const modelCol = withOdds.slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).slice(0, 5 + sub.removed.length);
   const marketCol = withOdds
     .filter((p) => p.od != null)
     .sort((a, b) => (a.od as number) - (b.od as number))
@@ -306,7 +309,7 @@ function PredictorPage() {
                 modelCol.map((p: any, i: number) => (
                   <div
                     key={p.horseNumber}
-                    className="min-h-[74px] py-2"
+                    className={`min-h-[74px] py-2 ${p.officialChange ? "opacity-60" : ""}`}
                   >
                     <div className="grid grid-cols-[16px_24px_minmax(0,1fr)] items-center gap-1.5">
                       <span className={`tabnum text-center font-mono-tx text-[11px] font-bold ${i === 0 ? "text-gold" : "text-ink-3"}`}>
@@ -334,6 +337,9 @@ function PredictorPage() {
                             </span>
                           </Link>
                         ) : null}
+                        {sub.added.includes(p.horseNumber) ? (
+                          <span className="mt-1 block"><Pill tone="win">按引擎順位補上四揀</Pill></span>
+                        ) : null}
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
@@ -346,6 +352,12 @@ function PredictorPage() {
                 <p className="py-3 text-[10px] text-ink-3">此場整備中</p>
               )}
             </div>
+            {sub.substituted ? (
+              <p className="mt-2 rounded-[4px] border border-win/40 bg-win/[0.06] px-1.5 py-1 font-mono-tx text-[9px] text-ink">
+                有效四揀 {sub.effective.join("-")}
+                <span className="block text-ink-3">原凍結 {sub.original.join("-")}，退出馬匹由引擎下一順位補上</span>
+              </p>
+            ) : null}
           </div>
 
           <div

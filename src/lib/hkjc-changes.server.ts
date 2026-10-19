@@ -27,3 +27,32 @@ export async function readLatestHkjcChanges(date: string) {
   if (error) throw new Error('馬會更易事項暫時未能讀取');
   return data;
 }
+
+const WORKER = 'https://tianxi-backend.tianxi-entertainment.workers.dev';
+
+/**
+ * Pre-lock only: if current (unlocked) picks still contain an officially withdrawn horse,
+ * refresh the racecard and request a fresh recompute. After lock nothing is recomputed.
+ */
+export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes').HkjcChange[], date: string) {
+  const lock = await fetch(`${WORKER}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) }).then(r => r.ok ? r.json() as Promise<{ date?: string; locked?: boolean; edition?: string }> : null).catch(() => null);
+  if (!lock || lock.date !== date) return { action: 'none' as const, reason: 'not-meeting-day-or-lock-unknown' };
+  if (lock.locked || lock.edition === 'final') return { action: 'none' as const, reason: 'locked-use-frozen-order-substitution' };
+  const token = process.env['TIANXI_ADMIN_TOKEN'];
+  const picksUrl = `${WORKER}/api/analyze/today-picks`;
+  const read = async (fresh: boolean) => {
+    const r = await fetch(picksUrl + (fresh ? '?fresh=1' : ''), { cache: 'no-store', headers: token ? { authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(60_000) });
+    return r.ok ? await r.json() as { races?: { raceNumber: number; picks?: { horseNumber: number; nameCh?: string }[] }[] } : null;
+  };
+  const { officialWithdrawal } = await import('./hkjc-changes');
+  const stale = (body: Awaited<ReturnType<typeof read>>) => (body?.races ?? []).flatMap(r => (r.picks ?? []).filter(p => officialWithdrawal(changes, r.raceNumber, p.horseNumber, p.nameCh)).map(p => `R${r.raceNumber} #${p.horseNumber} ${p.nameCh}`));
+  const before = stale(await read(false));
+  if (!before.length) return { action: 'none' as const, reason: 'picks-already-exclude-withdrawals' };
+  // Refresh the racecard from HKJC (GitHub workflow) then ask for a fresh compute.
+  const gh = process.env['GITHUB_TOKEN'];
+  const dispatched = gh ? await fetch('https://api.github.com/repos/sleepingarhat/tianxi-racing/actions/workflows/capy_racecard.yml/dispatches', { method: 'POST', headers: { authorization: `Bearer ${gh}`, accept: 'application/vnd.github+json', 'user-agent': 'tianxi-web' }, body: JSON.stringify({ ref: 'main' }) }).then(r => r.status === 204).catch(() => false) : false;
+  const after = stale(await read(true).catch(() => null));
+  const { sendTelegramAlert } = await import('./telegramAlert.server');
+  await sendTelegramAlert(`⚠️ 賽前更改：${date} 未鎖預測仍含馬會已公布退出馬匹（${before.join('、')}）。已${dispatched ? '觸發排位更新' : '未能觸發排位更新'}並要求重算；重算後${after.length ? `仍含 ${after.join('、')}，排位未更新前唔好凍結` : '已剔除'}。`).catch(() => null);
+  return { action: 'recompute-requested' as const, staleBefore: before, staleAfter: after, racecardDispatched: dispatched };
+}
