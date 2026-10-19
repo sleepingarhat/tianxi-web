@@ -14,11 +14,11 @@
 ## 首頁產品層規則
 
 - Homepage/navigation expose racing only; product-scope.ts and start.ts gate retired paths without executing them.
-- 首頁流程只引用已定版或現行資料；理由：產品介紹必須可核對。
-- 全站沿用 PageHead、Card、Stat、Table、Seg 與 AppShell；理由：避免逐頁漂移。
-- Offers share FoundingMemberOffer/freeStage; Card headers use minmax text and fixed actions. Why: prevent offer drift and mobile badge wrapping.
-- 功能頁桌面寬度按資料量調整，手機單欄；理由：提升密度而不破壞手機流程。
-- 每次發布正式站後執行 python3 scripts/sync-frontend-repo.py，將源碼經 GitHub API 同步入 tianxi-web；理由：倉庫只作鏡像，正式站由 Lovable 發布。
+- Homepage cites final/current data only. Why: claims must be verifiable.
+- Reuse PageHead, Card, Stat, Table, Seg and AppShell. Why: consistent pages.
+- Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions. Why: consistent offers, no wrapping.
+- Match desktop width to data density; mobile single column. Why: readable flows.
+- After publishing run python3 scripts/sync-frontend-repo.py. Why: tianxi-web mirrors source; Lovable hosts production.
 
 ## 監控端規則
 - Read src/components/admin/AGENTS.md before changing that directory. Why: scoped rules apply.
@@ -26,14 +26,14 @@
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
 - Audits separate code, verified flows, missing evidence and old decisions. Why: tasks cannot prove delivery.
 
-- 全站 break-ui 用 scripts/break-ui-matrix.py 覆蓋 320／390／1280、RTL、慢 API 與千人會員；dev-log 會合法提及 NaN／undefined，掃描器不可將說明文字當資料錯誤。理由：驗收要可重跑亦要避免假陽性。
-- 外部圖片只可用逐張核實自由授權或書面商用權，頁內須署名並保留 /media-credits；API 圖址不等於授權。
+- Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.
+- Images need verified free commercial licences or written rights, attribution and /media-credits. Why: API URLs are not licences.
 - Blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; sync blueprint/roadmap/AGENTS/dev-log/GitHub. Old plans cannot revive retired products. Why: docs match code.
 - Pro uses only resolveEntitlement in src/lib/entitlement.ts, fed by my_membership and webhook-maintained subscriptions; auto-open at signup 500. Why: one free/founding/paid rule source.
 - Weekly managed HTTP jobs rotate Commons posters into racecourse_photos; require commercial-free licences and deactivate licence changes. tianxi-web Actions only monitor public status. Why: backend schedules, read-only mirror.
 
 - Homepage counts use only racing_results_index; twice-daily jobs count tianxi-racing results CSVs, 40 files/run. Why: verifiable automatic figures.
-- Racing coverage pages share racing-visibility aggregation over frozen hit-rate rows and full closing-result CSVs; position guides exclude same-day/future form and terminal finish positions. Why: paired denominators and pre-race evidence must remain auditable without prediction writes.
+- Coverage shares racing-visibility frozen rows/full closing CSVs; guides exclude same-day/future form and finish positions. Why: auditable denominators and pre-race evidence, no prediction writes.
 - RacePositionMap pairs historical medians and actual checkpoints, separates finish rank and cites sources; history is not frozen.
 - Racing evidence uses fixed read-only settled/public-frozen projections; current pedigrees stay separate from original scores, missing snapshots unverified. Why: references cannot certify locks.
 
@@ -44,9 +44,10 @@
 - HKJC raw+SHA stays append-only; live notices share polling and overlay identity-matched withdrawals without changing frozen rows. Only post-lock substitutions are valid. Why: fresh notices cannot certify stale inputs.
 - Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
-- Seed-aware replay preserves raw axes/full fields; pedigree ablation uses prior-date smoothing, seeded confidence, paired hit denominators and archived score/context checksums; no prediction writes. Why: exploratory parity cannot approve weight changes or certify historical locks.
+- Replay preserves raw axes/fields; pedigree tests use prior-date smoothing, seeded confidence, paired denominators and score/context checksums, no prediction writes. Why: research cannot certify locks or approve weights.
 
 - Scarce starts only advise status, never switch models/accounting. Why: no invented exclusions.
 - Billing reminders read linked subscriptions; dedupe only after delivery. Native balance alerts remain provider-owned. Why: reminders are not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
+- Dispatch reads main runs fail-closed and never duplicates active jobs; dispatch is not delivery. Why: safe retries.

@@ -18,6 +18,15 @@ describe('後端準時觸發排程', () => {
   });
   it('只准白名單排程', () => {
     expect(isDispatchWorkflow('capy_racecard.yml')).toBe(true);
+    expect(isDispatchWorkflow('capy_integrity_audit.yml')).toBe(true);
     expect(isDispatchWorkflow('backend_deploy.yml')).toBe(false);
+  });
+  it('訓練或收料超過20分鐘仍在跑時不重複', () => {
+    expect(shouldDispatch({ created_at: at(120), status: 'in_progress', conclusion: null }, now)).toBe(false);
+    expect(shouldDispatch({ created_at: at(120), status: 'queued', conclusion: null }, now)).toBe(false);
+  });
+  it('來源時間無效或晚於目前時間時停止派送', () => {
+    expect(shouldDispatch({ created_at: 'invalid', status: 'completed', conclusion: 'failure' }, now)).toBe(false);
+    expect(shouldDispatch({ created_at: at(-5), status: 'completed', conclusion: 'failure' }, now)).toBe(false);
   });
 });
