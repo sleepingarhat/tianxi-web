@@ -23,6 +23,7 @@
 - 前端和只讀API分類已驗收；上游凍結前更新排位、重算及版本阻截閘、正式戰績處理仍未完成，今次未發布。
 
 ## 後端設計
+2026-10-19 19:42：優先用Lovable Cloud統籌逐場賽果及訓練／評分，GitHub留版本與後備。現有官方status查詢不含完整名次／派彩，先驗證直接HTTP來源與保存目的地；原凍結不改。Python／Chrome／SQLite／LightGBM須獨立相容運算服務，服務及費用未確認，不加dispatch冒稱遷移。分工及費用證據見docs/reviews/independent-execution-costs-2026-10-19.md；正式全11場及原SHA已讀回，首次30分鐘自動驗收仍待完成。
 2026-10-19 19:30：首次確認官方CLOSED及全部RESULT後30分鐘主收料；每5分鐘核對，保存首次觀察／SHA／原子去重，不冒稱實際完場鐘點。Cloud任務18已建、待發布及首次30分鐘驗收；仍dispatch GitHub，原夜間排程留後備。後備skip修6a63786；今日146行11場及D1成功、預覽11場200與原SHA不變、25測試通過。無馬號無名次結果行須身份相符官方退出證據，不作落敗或凍結修復。
 2026-10-19 19:14：用戶要求全自動化與GitHub開源不變，執行鏈脫離GitHub Actions。Python／Chrome採集、Node／SQLite Elo及Python LightGBM依賴不能直接由現有網站執行。Cloudflare現有Workers Paid，但未查到已配置Containers；需新增相容執行環境及打包，包含用量未核實，不能稱免費。待費用選擇後接收料→版本驗證→重算／凍結及賽果→結算→實際騎師Elo→訓練閘。現有Cloud排程只dispatch GitHub，未冒稱已遷移。現有預覽已正式發布並於/dev-log HTTP200及瀏覽器最新19:13條目讀回、零頁面錯誤；未驗收後端候選維持隔離。
 排位及賽前 as-of 資料 → Elo／LightGBM 排序 → 首場前 90 分鐘鎖全日四揀與第五選 → 官方賽果及派彩 → 只重算對帳，不改凍結。
