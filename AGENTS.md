@@ -48,4 +48,4 @@
 
 - Scarce-start counts only advise prediction-status, never switch models or filter accounting. Why: no invented exclusions.
 
-- Isolate prelock/accounting until card → recompute → freeze → settlement passes. Audits score originals; alternatives exclude KPI/P&L. Sync raw before SHA-conditional manifests; schedule after tests. Why: no invented evidence or rebets.
+- Gate on card→recompute→freeze→settlement proof; originals feed KPI/P&L. Raw before SHA manifests; test schedules. GitHub stays source/fallback; CLI jobs need independent compatible compute. Why: dispatch≠execution, no rebets.
