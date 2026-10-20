@@ -11,6 +11,7 @@ import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
 import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
 import { changeRevision, verifiedUpdate } from './racing-change-progress';
 import { liveWithdrawal } from './live-racing-changes';
+import { horseDisplayName } from './horse-name';
 
 export type MergedPick = {
   horseNumber: number;
@@ -110,7 +111,7 @@ export function useTodayPicks() {
           rating: p.rating ?? e.rating ?? null,
           code: e.code ?? null,
           gear: e.gear ?? null,
-          nameCh: p.nameCh || e.nameCh || e.name,
+          nameCh: horseDisplayName(p.nameCh || e.nameCh || e.name, p.horseId),
           jockeyCh: p.jockeyCh ?? e.jockeyCh ?? null,
           trainerCh: p.trainerCh ?? e.trainerCh ?? null,
           draw: evidenceDraw(picksEdition(picks.data) === 'final', p.draw, e.draw),

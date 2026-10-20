@@ -1,10 +1,11 @@
 // 天喜 TIANXI · shared API client (ported from tianxi-site /assets/api.js)
+import { horseDisplayDto } from './horse-name';
 export const TX_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
 async function j<T = any>(path: string): Promise<T> {
   const r = await fetch(TX_BASE + path, { credentials: "omit" });
   if (!r.ok) throw new Error(`API ${r.status} ${path}`);
-  return (await r.json()) as T;
+  return horseDisplayDto((await r.json()) as T);
 }
 
 async function jp<T = any>(path: string, body?: unknown): Promise<T> {

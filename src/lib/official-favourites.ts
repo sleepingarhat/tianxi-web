@@ -70,11 +70,13 @@ export function deriveOfficialFavourites(
     const cur = rankable[i];
     if (!cur) continue;
     if (prev && cur.odds === prev.odds) {
+      // The previous runner is part of the tie too, so neither is certified.
+      favourites.pop();
       return {
         ...base,
         status: 'ambiguous',
         favourites,
-        reason: `第 ${i + 1} 位起有馬匹獨贏賠率相同，官方熱門次序未能核實`,
+        reason: `第 ${i} 位起有馬匹獨贏賠率相同，官方熱門次序未能核實`,
       };
     }
     favourites.push(cur.horseNumber);
@@ -93,6 +95,6 @@ export function deriveOfficialFavourites(
 export const MIN_SUBSTITUTES = 5;
 
 export function favouriteOrderForSettlement(f: OfficialFavourites | null | undefined): number[] | null {
-  if (!f || f.favourites.length < MIN_SUBSTITUTES) return null;
+  if (!f || !['certified', 'ambiguous'].includes(f.status) || f.favourites.length < MIN_SUBSTITUTES) return null;
   return [...f.favourites];
 }

@@ -1,4 +1,5 @@
 /** Parse HKJC official "更易事項" (changes) page. Pure; no network. */
+import { horseDisplayName } from './horse-name';
 export const HKJC_CHANGES_URL = 'https://racing.hkjc.com/zh-hk/local/information/changes';
 
 export type HkjcChange = { raceNumber: number; horseNumber: number; horseName: string; kind: 'scratched' | 'replaced' | 'other'; replacement: string | null; text: string; announcedAt: string; announcedAtIso: string | null };
@@ -46,7 +47,8 @@ export function parseHkjcChanges(htmlOrText: string, meetingDate = ''): HkjcChan
 }
 
 /** Withdrawal-type change for this frozen runner, matched by race, number and the original horse name. */
-export function officialWithdrawal(changes: HkjcChange[], raceNumber: number, horseNumber: number, horseName: string | null | undefined) {
+export function officialWithdrawal(changes: HkjcChange[], raceNumber: number, horseNumber: number, horseName: string | null | undefined, horseId?: string | null) {
   if (!horseName) return undefined;
-  return changes.find(c => c.raceNumber === raceNumber && c.horseNumber === horseNumber && c.horseName === horseName && (c.kind === 'scratched' || c.kind === 'replaced'));
+  const name = horseDisplayName(horseName, horseId);
+  return changes.find(c => c.raceNumber === raceNumber && c.horseNumber === horseNumber && c.horseName === name && (c.kind === 'scratched' || c.kind === 'replaced'));
 }

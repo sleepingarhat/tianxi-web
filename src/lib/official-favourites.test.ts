@@ -14,11 +14,11 @@ describe('官方熱門次序（只用已存證官方賽果賠率）', () => {
   it('按獨贏賠率由低至高排，未起步馬匹唔會排尾', () => {
     const r = deriveOfficialFavourites(8, R8, SRC);
     expect(r.status).toBe('ambiguous');
-    expect(r.favourites).toEqual([10, 2, 7, 8, 3, 5, 6, 11]);
+    expect(r.favourites).toEqual([10, 2, 7, 8, 3, 5, 6]);
     expect(r.favourites).not.toContain(4);
-    expect(r.reason).toContain('第 9 位');
-    // 首 8 位已經認證，足夠替補一注孖T／三T（最多換 5 隻），所以可以用嚟結算
-    expect(favouriteOrderForSettlement(r)).toEqual([10, 2, 7, 8, 3, 5, 6, 11]);
+    expect(r.reason).toContain('第 8 位');
+    // 首7位無同賠率，兩匹31倍馬均不可冒稱已認證。
+    expect(favouriteOrderForSettlement(r)).toEqual([10, 2, 7, 8, 3, 5, 6]);
   });
   it('賠率冇同數時次序可全份認證', () => {
     const rows = R8.filter((x) => x.horseNumber !== 12).map((x) => (x.horseNumber === 11 ? { ...x, winOdds: 30 } : x));
@@ -39,7 +39,7 @@ describe('官方熱門次序（只用已存證官方賽果賠率）', () => {
     const rows = R8.map((x) => (x.horseNumber === 10 ? { ...x, winOdds: 2.8 } : x));
     const r = deriveOfficialFavourites(8, rows, SRC);
     expect(r.status).toBe('ambiguous');
-    expect(r.favourites).toHaveLength(1);
+    expect(r.favourites).toHaveLength(0);
     expect(favouriteOrderForSettlement(r)).toBeNull();
   });
   it('存證來源連同次序一併交回，方便對帳', () => {
@@ -47,5 +47,11 @@ describe('官方熱門次序（只用已存證官方賽果賠率）', () => {
     const r = deriveOfficialFavourites(8, rows, SRC);
     expect(r.source).toEqual(SRC);
     expect(r.source.sha256).toHaveLength(64);
+  });
+  it('第五熱門同賠率不能通過五匹認證門檻', () => {
+    const rows = [1, 2, 3, 4, 5, 6, 7].map((n) => row(n, n === 6 ? 5 : n, n));
+    const r = deriveOfficialFavourites(8, rows, SRC);
+    expect(r.favourites).toEqual([1, 2, 3, 4]);
+    expect(favouriteOrderForSettlement(r)).toBeNull();
   });
 });

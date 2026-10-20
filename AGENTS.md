@@ -44,9 +44,9 @@
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.
-- Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. History reads keep the newest window and surface truncation. Why: silent cutoffs hide new race days.
+- Coalesce picks reads with bounded deadlines; reject late data. Race pages use racePicksFromDay, not live topPicks. History keeps newest rows and reports truncation. Why: preserve evidence and recent dates.
 - Parallelize frozen reads; bound references without weakening checks.
 - Preserve official Chinese/Group labels via racingClassLabel.
 
-- Predictor display cards live in tx/Predictor*; routes retain evidence guards.
+- tx/Predictor* keeps route guards; name-code cleanup requires matching ID and preserves archives. Why: no hidden identity mismatch.
 - Ingestion retains calendar dates/record rows; child failures fail jobs. Why: disappearance ≠ cancellation.
