@@ -18,6 +18,8 @@ export type PrelockDeps = {
   changeRevision?: string;
 };
 
+export const STUCK_RUN_MS = 20 * 60_000;
+
 export async function advancePrelock(date: string, state: PrelockState, deps: PrelockDeps): Promise<PrelockState> {
   state = { ...state, warned: [...(state.warned ?? [])], recovered: [...(state.recovered ?? [])], checkedAt: deps.now() };
   const newRevision = !!deps.changeRevision && state.changeRevision !== deps.changeRevision;
@@ -58,7 +60,9 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
   }
   const runs = await deps.runs();
   if (!runs) { state.phase = 'github-status-unverified'; await persist(); return state; }
-  if (runs.some(r => r.status !== 'completed')) { state.phase = 'waiting-card'; await persist(); return state; }
+  // 排隊／進行超過20分鐘嘅工作視為卡死（GitHub 可能取消唔到），唔再阻住新觸發；只認自己觸發嗰個編號。
+  const nowMs = Date.parse(deps.now());
+  if (runs.some(r => r.status !== 'completed' && r.id !== state.dispatchedRunId && nowMs - Date.parse(r.created_at) < STUCK_RUN_MS)) { state.phase = 'waiting-card'; await persist(); return state; }
   // 上次觸發失敗：清除請求時間，今輪重新觸發，唔好永遠等一個從未開始嘅工作。
   if (state.phase === 'dispatch-failed' || (state.requestedAt && !state.dispatchedRunId)) { state.requestedAt = undefined; state.dispatchedRunId = undefined; }
   if (!state.requestedAt) {

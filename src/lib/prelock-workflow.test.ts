@@ -46,8 +46,12 @@ describe('退出警告與排位更新', () => {
     expect(f.messages.filter(m=>m.includes('重試上限')).length).toBe(1);
   });
   it('已有工作執行中不派送', async () => {
-    const f=fixture(); f.setRuns([{id:1,created_at:'2026-10-20T10:00:00Z',status:'in_progress',conclusion:null}]);
+    const f=fixture(); f.setRuns([{id:1,created_at:'2026-10-20T12:10:00Z',status:'in_progress',conclusion:null}]);
     await advancePrelock('2026-10-21',{},f.deps); expect(f.counts().dispatches).toBe(0);
+  });
+  it('排隊超過20分鐘嘅卡死工作唔阻住新觸發', async () => {
+    const f=fixture(); f.setRuns([{id:1,created_at:'2026-10-20T11:58:00Z',status:'queued',conclusion:null}]);
+    const s=await advancePrelock('2026-10-21',{},f.deps); expect(f.counts().dispatches).toBe(1); expect(s.dispatchedRunId).toBe(21);
   });
 });describe('觸發及通知失敗重試', () => {
   it('觸發失敗下一輪重新觸發，唔會永遠等', async () => {

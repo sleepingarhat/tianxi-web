@@ -62,7 +62,8 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const picksUrl = `${WORKER}/api/analyze/today-picks`;
   const read = async (fresh: boolean) => {
     if (fresh && !token) return null;
-    const r = await fetch(picksUrl + (fresh ? '?fresh=1' : ''), { cache: 'no-store', headers: token ? { authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(15_000) });
+    // 重算讀取實測約19秒，放寬至45秒；一般讀取維持15秒。
+    const r = await fetch(picksUrl + (fresh ? '?fresh=1' : ''), { cache: 'no-store', headers: token ? { authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(fresh ? 45_000 : 15_000) });
     if (!r.ok) return null;
     const body = z.object({ date: z.string(), generatedAt: z.string().optional(), races: z.array(z.object({ raceNumber: z.number().int().positive(), picks: z.array(z.object({ horseNumber: z.number().int().positive(), nameCh: z.string().min(1) })).min(4) })).min(1) }).safeParse(await r.json());
     if (!body.success || body.data.date !== date) return null;
