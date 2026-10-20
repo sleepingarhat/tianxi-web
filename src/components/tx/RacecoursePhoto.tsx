@@ -30,7 +30,7 @@ export function RacecoursePhoto({ venue }: { venue: string }) {
   const title = v === "HV" ? "跑馬地馬場" : "沙田馬場";
   return (
     <figure className="mx-4 mt-3 overflow-hidden rounded-[8px] border border-hairline bg-paper-2">
-      <img src={p.image_url} alt={title} className="aspect-[16/7] w-full object-cover" loading="eager" />
+      <img src={p.image_url} alt={title} className="aspect-[16/7] w-full lg:aspect-[16/4] object-cover" loading="eager" />
       <figcaption className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-[9px] text-ink-3">
         <span>{title} · 每週更新</span>
         <PhotoCredit p={p} />

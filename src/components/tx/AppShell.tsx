@@ -55,11 +55,14 @@ export function AppShell({
   page = "",
   ticker,
   wide = false,
+  columns = true,
   children,
 }: {
   page?: NavKey;
   ticker?: ReactNode;
   wide?: boolean;
+  /** 電腦版卡片兩欄；有自家版面嘅頁設 false */
+  columns?: boolean;
   children: ReactNode;
 }) {
   const { signedIn, isAdmin } = useAuthState();
@@ -82,7 +85,7 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-paper-3 font-sans-tc text-ink">
-      <div className={`relative mx-auto flex min-h-screen w-full flex-col border-x border-hairline bg-paper ${wide ? "max-w-[1040px]" : "max-w-[440px]"}`}>
+      <div className={`relative mx-auto flex min-h-screen w-full flex-col border-x border-hairline bg-paper ${wide ? "max-w-[1040px] xl:max-w-[1200px]" : "max-w-[440px] md:max-w-[880px] lg:max-w-[1040px] xl:max-w-[1200px]"}`}>
         <header className="sticky top-0 z-20 grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2.5 border-b border-tan/10 bg-deep px-4 py-2.5 text-deep-fg">
           <Link to="/" className="inline-flex items-center gap-2.5">
             <img src={tianxiLogo} width="40" height="40" alt="" className="h-10 w-10 shrink-0 rounded-[7px] object-cover" />
@@ -176,9 +179,9 @@ export function AppShell({
           </div>
         ) : null}
 
-        <main className="flex-1 pb-28">{children}</main>
+        <main className={`${columns ? "tx-main " : ""}flex-1 pb-28`}>{children}</main>
 
-        <nav className={`fixed bottom-0 left-1/2 z-40 grid w-full -translate-x-1/2 auto-cols-fr grid-flow-col gap-0.5 border-t border-tan/10 bg-deep px-1 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 ${wide ? "max-w-[1040px]" : "max-w-[440px]"}`}>
+        <nav className={`fixed bottom-0 left-1/2 z-40 grid w-full -translate-x-1/2 auto-cols-fr grid-flow-col gap-0.5 border-t border-tan/10 bg-deep px-1 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 ${wide ? "max-w-[1040px] xl:max-w-[1200px]" : "max-w-[440px] md:max-w-[880px] lg:max-w-[1040px] xl:max-w-[1200px]"}`}>
           {BOTNAV.map((item) => {
             const on = item.key === page || (item.key === "horse" && ["horse", "predictor", "encyclopedia"].includes(page));
             return (

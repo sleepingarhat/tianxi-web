@@ -456,3 +456,23 @@
 @media (prefers-reduced-motion: reduce) {
   .soft-pulse { animation: none; }
 }
+
+/* 電腦版：主體卡片自動排成兩欄；表格、圖表及非卡片內容保持全闊。手機維持單欄。 */
+@media (min-width: 1024px) {
+  .tx-main {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+    align-content: start;
+    align-items: start;
+  }
+  .tx-main > * { grid-column: 1 / -1; }
+  .tx-main > .tx-card:not(:has(table, canvas, .tx-wide)) { grid-column: auto; }
+}
+@media (min-width: 1024px) {
+  /* 前後都唔係卡片嘅單張卡片唔好得半闊 */
+  .tx-main > .tx-card:first-child:has(+ :not(.tx-card)),
+  .tx-main > .tx-card:first-child:last-child,
+  .tx-main > :not(.tx-card) + .tx-card:has(+ :not(.tx-card)),
+  .tx-main > :not(.tx-card) + .tx-card:last-child { grid-column: 1 / -1; }
+}

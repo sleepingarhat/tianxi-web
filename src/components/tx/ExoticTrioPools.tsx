@@ -49,7 +49,7 @@ export function ExoticTrioPools({ date }: { date: string }) {
                   <b className="text-ink">{p.name}</b>
                   <span className="text-ink-3">第 {p.races.join("、")} 場</span>
                   <span className="ml-auto">
-                    {p.missing ? <Pill tone="ink">缺預測</Pill> : p.mainHit ? <Pill tone="win">中正獎</Pill> : p.consUnits ? <Pill tone="gold">中安慰獎</Pill> : <Pill tone="lose">冇中</Pill>}
+                    {p.pendingWithdrawal ? <Pill tone="ink">退出待核</Pill> : p.missing ? <Pill tone="ink">缺預測</Pill> : p.mainHit ? <Pill tone="win">中正獎</Pill> : p.consUnits ? <Pill tone="gold">中安慰獎</Pill> : <Pill tone="lose">冇中</Pill>}
                   </span>
                 </p>
                 <p className="mt-1 flex flex-wrap gap-1 text-[10px]">

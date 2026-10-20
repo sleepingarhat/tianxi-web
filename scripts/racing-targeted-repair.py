@@ -77,7 +77,14 @@ def collect_jockey(code,name):
         seen=set()
         while url:
             if url in seen or len(seen)>30: raise ValueError('Pagination cycle '+code)
-            seen.add(url);soup,_=official(url,name)
+            seen.add(url)
+            try:soup,_=official(url,name)
+            except ValueError as exc:
+                # One season lacking identity must not stop checking the other season.
+                if str(exc)!='Official identity missing: '+name or len(seen)>1: raise
+                print('jockey',code,season,'identity unavailable; checking next season')
+                evidence.append({'code':code,'season':season,'status':'season-identity-unavailable','read_at':STAMP})
+                break
             date=venue=''
             for table in soup.find_all('table'):
                 for tr in table.find_all('tr'):

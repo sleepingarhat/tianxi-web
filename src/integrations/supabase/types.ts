@@ -176,6 +176,39 @@ export type Database = {
         }
         Relationships: []
       }
+      hkjc_cancellation_snapshots: {
+        Row: {
+          fetched_at: string
+          id: string
+          keyword: string
+          race_date: string
+          raw_html: string
+          sentence: string
+          sha256: string
+          source_url: string
+        }
+        Insert: {
+          fetched_at?: string
+          id?: string
+          keyword: string
+          race_date: string
+          raw_html: string
+          sentence: string
+          sha256: string
+          source_url: string
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          keyword?: string
+          race_date?: string
+          raw_html?: string
+          sentence?: string
+          sha256?: string
+          source_url?: string
+        }
+        Relationships: []
+      }
       hkjc_changes_snapshots: {
         Row: {
           changes: Json

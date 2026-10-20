@@ -183,6 +183,13 @@
       "when": 1792410960990,
       "tag": "0025_restrict_official_archive_public_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1792439113759,
+      "tag": "0026_create_hkjc_cancellation_snapshots",
+      "breakpoints": true
     }
   ]
 }

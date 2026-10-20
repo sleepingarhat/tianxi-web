@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchRaceDividends, type DividendRow } from "./raceDividends";
 import { TX_BASE } from "./tx-api";
+import { settleWithdrawnLeg } from "./exotic-withdrawal";
+import { getHkjcChanges } from "./hkjc-changes.functions";
 
 const UNIT = 10;
 
@@ -8,7 +10,7 @@ type Leg = { race: number; bankers: number[]; legs: number[]; fifthFromLive: boo
 export type PoolCalc = {
   name: string; races: number[]; units: number; cost: number;
   mainHit: boolean; payout: number; consUnits: number; consPayout: number;
-  missing: boolean; detail: { race: number; hit: boolean | null }[];
+  missing: boolean; pendingWithdrawal: boolean; detail: { race: number; hit: boolean | null }[];
 };
 
 const parseLeg = (s: string) => s.trim();
@@ -24,7 +26,7 @@ function legHit(leg: Leg | undefined, part: string | undefined): boolean | null 
   return leg.bankers.every((b) => win.has(b)) && leg.legs.some((x) => win.has(x));
 }
 
-export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>): PoolCalc[] {
+export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, withdrawnByRace: Record<number, Set<number>> = {}, favouritesByRace: Record<number, number[] | undefined> = {}): PoolCalc[] {
   const groups = new Map<string, { main?: DividendRow; cons?: DividendRow }>();
   for (const d of divs) {
     if (!/孖T|三T/.test(d.pool)) continue;
@@ -39,8 +41,16 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>):
     if (!ref) continue;
     const n = ref.combo.split("/").length;
     const races = Array.from({ length: n }, (_, i) => ref.race_no - n + 1 + i);
-    const legs: Leg[] = races.map((r) => legsByRace[r] ?? null);
-    const missing = legs.some((l) => !l);
+    let pendingWithdrawal = false;
+    const legs: Leg[] = races.map((r) => {
+      const leg = legsByRace[r] ?? null;
+      if (!leg) return null;
+      const s = settleWithdrawnLeg(leg, withdrawnByRace[r] ?? new Set(), favouritesByRace[r]);
+      if (s.status === "pending") { pendingWithdrawal = true; return leg; }
+      return { ...leg, ...s.leg };
+    });
+    // 原票有退出而缺官方熱門證據：成本、派彩一律待核，唔入合計
+    const missing = pendingWithdrawal || legs.some((l) => !l);
     const units = legs.reduce((a, leg) => a * (leg?.legs.length ?? 0), 1);
     const mainParts = g.main ? g.main.combo.split("/").map(parseLeg) : [];
     const detail = races.map((r, i) => ({ race: r, hit: g.main ? legHit(legs[i], mainParts[i]) : null }));
@@ -63,7 +73,7 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>):
       name, races, units, cost: units * UNIT,
       mainHit, payout: mainHit && g.main ? legs.reduce((a, leg, i) => a * (leg?.legs.filter((x) => setOf(mainParts[i] ?? "").has(x)).length ?? 0), 1) * g.main.dividend : 0,
       consUnits, consPayout: g.cons ? consUnits * g.cons.dividend : 0,
-      missing, detail,
+      missing, pendingWithdrawal, detail,
     });
   }
   return out.sort((a, b) => (a.races[0] ?? 0) - (b.races[0] ?? 0));
@@ -109,8 +119,14 @@ async function loadLegs(date: string): Promise<Record<number, Leg>> {
 export const exoticPoolOptions = (date: string) => queryOptions({
   queryKey: ["exotic-trio", date], enabled: !!date, staleTime: 10 * 60_000,
   queryFn: async () => {
-    const [divs, legs] = await Promise.all([fetchRaceDividends(date), loadLegs(date)]);
-    return { pools: calcPools(divs, legs), legs };
+    const [divs, legs, changes] = await Promise.all([fetchRaceDividends(date), loadLegs(date), getHkjcChanges({ data: { date } })]);
+    const withdrawn: Record<number, Set<number>> = {};
+    for (const c of changes?.changes ?? []) {
+      if (c.kind !== "scratched" && c.kind !== "replaced") continue;
+      (withdrawn[c.raceNumber] ??= new Set()).add(c.horseNumber);
+    }
+    // 現時未有已存證嘅官方第一至三熱門來源，受影響原票全部列待核
+    return { pools: calcPools(divs, legs, withdrawn), legs };
   },
 });
 

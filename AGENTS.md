@@ -34,7 +34,7 @@
 - Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
-- HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; only post-lock substitutions are valid. Why: fresh notices cannot certify stale inputs.
+- HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; only post-lock substitutions are valid. Cancellation keyword hits archive raw+SHA to hkjc_cancellation_snapshots. Why: notices cannot certify stale inputs.
 - Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
 - Replay preserves raw axes/fields; pedigree tests use prior-date smoothing, seeded confidence, paired denominators and score/context checksums, no prediction writes. Why: research cannot certify locks or approve weights.
@@ -48,5 +48,5 @@
 - Parallelize frozen reads; bound optional references, preserve evidence checks to avoid delays.
 - Preserve official Chinese/Group labels via racingClassLabel.
 
-- Predictor display cards live in tx/Predictor*; routes retain evidence guards. Why: focused files, same rules.
-- Ingestion retains calendar dates/record rows; child failures fail jobs. Why: disappearance is not cancellation evidence.
+- Predictor display cards live in tx/Predictor*; routes retain evidence guards.
+- Ingestion retains calendar dates/record rows; child failures fail jobs. Why: disappearance ≠ cancellation.

@@ -397,7 +397,7 @@ function ComparePage() {
       </div>
 
       <div className="px-4 pb-[22px] pt-4">
-        <div className="mx-auto grid max-w-[560px] grid-cols-2 grid-rows-[auto_1fr] overflow-hidden rounded-[8px] border border-hairline bg-paper shadow-sm">
+        <div className="mx-auto grid max-w-[560px] lg:max-w-[900px] grid-cols-2 grid-rows-[auto_1fr] overflow-hidden rounded-[8px] border border-hairline bg-paper shadow-sm">
           <div className="border-b border-r border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-extrabold text-ink">
             預測
             <small className="mt-0.5 block font-mono-tx text-[10px] font-semibold text-ink-3">
@@ -437,12 +437,12 @@ function ComparePage() {
 
         {left.length && right.length ? (
           <>
-            <p className="tabnum mx-auto mt-[11px] max-w-[560px] text-center font-mono-tx text-[12px] tracking-[0.04em] text-ink-2">
+            <p className="tabnum mx-auto mt-[11px] max-w-[560px] lg:max-w-[900px] text-center font-mono-tx text-[12px] tracking-[0.04em] text-ink-2">
               預測首 4 名命中：
               <b className={`font-extrabold ${hits >= 2 ? "text-win" : "text-ink"}`}>{hits} / 4</b>
             </p>
             {wonDividends.length || wonExotic.length ? (
-              <section aria-label="本場命中派彩" className="mx-auto mt-3 max-w-[560px] border-t border-hairline pt-3">
+              <section aria-label="本場命中派彩" className="mx-auto mt-3 max-w-[560px] lg:max-w-[900px] border-t border-hairline pt-3">
                 <h2 className="mb-2 text-[14px] font-bold text-ink">本場命中彩池 <span className="text-[11px] font-normal text-ink-3">每 $10 一注</span></h2>
                 <div className="space-y-2">
                   {wonDividends.map((d, i) => <div key={i} className="flex items-center justify-between gap-3 rounded-[6px] border border-win/25 bg-win/5 px-3 py-2">
@@ -469,7 +469,7 @@ function ComparePage() {
           const cmp = entryVsActual((picks.data?.picks || []) as import('@/lib/entry-rank').EntrySource[], fin);
           if (!cmp.rows.length) return null;
           return (
-            <section aria-label="入場排名對實際成績" className="mx-auto mt-4 max-w-[560px] rounded-[8px] border border-hairline bg-paper px-3 py-3">
+            <section aria-label="入場排名對實際成績" className="mx-auto mt-4 max-w-[560px] lg:max-w-[900px] rounded-[8px] border border-hairline bg-paper px-3 py-3">
               <div className="flex items-baseline justify-between gap-2">
                 <h2 className="text-[14px] font-bold text-ink">入場排名 vs 實際成績</h2>
                 <span className="shrink-0 font-mono-tx text-[9px] text-ink-3">{picks.data?.frozen === true ? "賽前鎖定機率" : "即時重算機率，只作參考"}</span>
@@ -491,7 +491,7 @@ function ComparePage() {
           );
         })()}
 
-        <p className="mx-auto mt-3 max-w-[560px] px-2 text-center text-[11px] leading-[1.55] text-ink-3">
+        <p className="mx-auto mt-3 max-w-[560px] lg:max-w-[900px] px-2 text-center text-[11px] leading-[1.55] text-ink-3">
           <span className="mr-1 inline-block h-[10px] w-[14px] rounded-[2px] border border-gold-strong bg-gold-bg align-[-1px]" />
           同時出現於預測與賽果嘅馬匹
         </p>

@@ -83,7 +83,7 @@ function RacePage() {
 
   if (!raceId) {
     return (
-      <AppShell page="" ticker="請選擇一場賽事">
+      <AppShell columns={false} page="" ticker="請選擇一場賽事">
         <PageHead en="Race Card" title="排位表" desc="從下一個賽馬日選擇場次。" />
         <Card title="下一賽事場次" en="Select Race">
           {next.isLoading ? (
@@ -121,7 +121,7 @@ function RacePage() {
 
 
   return (
-    <AppShell
+    <AppShell columns={false}
       page=""
       ticker={
         d

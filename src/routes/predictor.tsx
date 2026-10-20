@@ -168,7 +168,7 @@ function PredictorPage() {
 
   if (tp.cancellation) {
     return (
-      <AppShell page="predictor" ticker={`${fmtMeetingDate(tp.cancellation.date)} · ${tp.cancellation.label}`}>
+      <AppShell columns={false} page="predictor" ticker={`${fmtMeetingDate(tp.cancellation.date)} · ${tp.cancellation.label}`}>
         <PageHead
           en="Predictor"
           title="選馬神器"
@@ -182,7 +182,7 @@ function PredictorPage() {
 
 
   return (
-    <AppShell
+    <AppShell columns={false}
       page="predictor"
       ticker={
         tp.date

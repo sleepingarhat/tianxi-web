@@ -100,14 +100,32 @@ function matchedSentence(html: string): { hit: string; sentence: string } | null
   return null;
 }
 
-/** 2. 官方公告關鍵字 */
+/** 2. 官方公告關鍵字；命中時即時保存原文＋SHA-256 證據（append-only）。 */
 async function readOfficial(date: string): Promise<MeetingStatus | null> {
   const compact = date.replace(/-/g, "/");
   for (const base of HKJC_PAGES) {
-    const html = await fetchText(`${base}?RaceDate=${encodeURIComponent(compact)}`);
+    const sourceUrl = `${base}?RaceDate=${encodeURIComponent(compact)}`;
+    const html = await fetchText(sourceUrl);
     if (!html) continue;
     const m = matchedSentence(html);
     if (!m) continue;
+    // 證據存檔失敗唔會隱瞞停賽狀態，但會發通知，等稽核可以追查缺口。
+    const { archiveCancellationEvidence } = await import(
+      "@/lib/hkjc-cancellation-evidence.server"
+    );
+    const archived = await archiveCancellationEvidence({
+      date,
+      sourceUrl,
+      keyword: m.hit,
+      sentence: m.sentence,
+      rawHtml: html,
+    }).catch(() => ({ ok: false as const, error: "archive-threw" }));
+    if (!archived.ok) {
+      const { sendTelegramAlert } = await import("@/lib/telegramAlert.server");
+      await sendTelegramAlert(
+        `⚠️ 停賽偵測：${date} 官方公告命中「${m.hit}」，但原文存檔失敗（${archived.error}）；停賽狀態仍生效，證據缺口要人手跟進。`,
+      ).catch(() => null);
+    }
     return {
       date,
       status: "cancelled",
