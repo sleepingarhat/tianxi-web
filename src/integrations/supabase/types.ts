@@ -506,6 +506,30 @@ export type Database = {
         }
         Relationships: []
       }
+      racing_prelock_state: {
+        Row: {
+          lease_token: string | null
+          lease_until: string | null
+          race_date: string
+          state: Json
+          updated_at: string
+        }
+        Insert: {
+          lease_token?: string | null
+          lease_until?: string | null
+          race_date: string
+          state?: Json
+          updated_at?: string
+        }
+        Update: {
+          lease_token?: string | null
+          lease_until?: string | null
+          race_date?: string
+          state?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       racing_result_collection_state: {
         Row: {
           dispatched_at: string | null
@@ -769,6 +793,10 @@ export type Database = {
         Args: { lease_id: string }
         Returns: boolean
       }
+      claim_racing_prelock: {
+        Args: { _date: string; _token: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -789,6 +817,15 @@ export type Database = {
           _subscription_id: string
         }
         Returns: Json
+      }
+      save_racing_prelock: {
+        Args: {
+          _date: string
+          _release?: boolean
+          _state: Json
+          _token: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

@@ -41,6 +41,7 @@ import { Route as StrategyPnlRouteImport } from './routes/strategy-pnl'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackRecordRouteImport } from './routes/track-record'
 import { Route as ValueTrendRouteImport } from './routes/value-trend'
+import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as EngineIndexRouteImport } from './routes/engine.index'
@@ -246,6 +247,11 @@ const TrackRecordRoute = TrackRecordRouteImport.update({
 const ValueTrendRoute = ValueTrendRouteImport.update({
   id: '/value-trend',
   path: '/value-trend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WithdrawalsRoute = WithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -533,6 +539,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/withdrawals': typeof WithdrawalsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -612,6 +619,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/withdrawals': typeof WithdrawalsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
   '/engine/backtest': typeof EngineBacktestRoute
@@ -692,6 +700,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/withdrawals': typeof WithdrawalsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -773,6 +782,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/withdrawals'
     | '/admin'
     | '/checkout/return'
     | '/engine/audit'
@@ -852,6 +862,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/withdrawals'
     | '/checkout/return'
     | '/engine/audit'
     | '/engine/backtest'
@@ -931,6 +942,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/withdrawals'
     | '/_authenticated/admin'
     | '/checkout/return'
     | '/engine/audit'
@@ -1012,6 +1024,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrackRecordRoute: typeof TrackRecordRoute
   ValueTrendRoute: typeof ValueTrendRoute
+  WithdrawalsRoute: typeof WithdrawalsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   EngineAuditRoute: typeof EngineAuditRoute
   EngineBacktestRoute: typeof EngineBacktestRoute
@@ -1271,6 +1284,13 @@ declare module '@tanstack/react-router' {
       path: '/value-trend'
       fullPath: '/value-trend'
       preLoaderRoute: typeof ValueTrendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/withdrawals': {
+      id: '/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/withdrawals'
+      preLoaderRoute: typeof WithdrawalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -1676,6 +1696,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrackRecordRoute: TrackRecordRoute,
   ValueTrendRoute: ValueTrendRoute,
+  WithdrawalsRoute: WithdrawalsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   EngineAuditRoute: EngineAuditRoute,
   EngineBacktestRoute: EngineBacktestRoute,

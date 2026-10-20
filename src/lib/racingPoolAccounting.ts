@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchRaceDividends, type DividendRow } from "./raceDividends";
-import { TX_BASE } from "./tx-api";
+import { frozenPoolLegs, type FrozenPoolRace, type FrozenPoolLeg } from "./frozen-pool-legs";
 import { settleWithdrawnLeg } from "./exotic-withdrawal";
 import { getOfficialFavourites } from "./official-favourites.functions";
 import { favouriteOrderForSettlement, type OfficialFavourites } from "./official-favourites";
@@ -8,7 +8,7 @@ import { getHkjcChanges } from "./hkjc-changes.functions";
 
 const UNIT = 10;
 
-type Leg = { race: number; bankers: number[]; legs: number[]; fifthFromLive: boolean } | null;
+type Leg = FrozenPoolLeg | null;
 export type PoolCalc = {
   name: string; races: number[]; units: number; cost: number;
   mainHit: boolean; payout: number; consUnits: number; consPayout: number;
@@ -55,7 +55,7 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
     const missing = pendingWithdrawal || legs.some((l) => !l);
     const units = legs.reduce((a, leg) => a * (leg?.legs.length ?? 0), 1);
     const mainParts = g.main ? g.main.combo.split("/").map(parseLeg) : [];
-    const detail = races.map((r, i) => ({ race: r, hit: g.main ? legHit(legs[i], mainParts[i]) : null }));
+    const detail = races.map((r, i) => ({ race: r, hit: !missing && g.main ? legHit(legs[i], mainParts[i]) : null }));
     const mainHit = !missing && !!g.main && detail.every((d) => d.hit);
     let consUnits = 0;
     if (g.cons && !missing) {
@@ -81,46 +81,16 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
   return out.sort((a, b) => (a.races[0] ?? 0) - (b.races[0] ?? 0));
 }
 
-async function readAccounting(path: string) {
-  const res = await fetch(TX_BASE + path, { signal: AbortSignal.timeout(15000) });
-  if (!res.ok) throw new Error(`彩池資料讀取失敗 ${res.status}`);
-  return res.json();
-}
-
 async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null }> {
-  const [hr, mt] = await Promise.all([readAccounting(`/api/analyze/hit-rate?date=${date}`), readAccounting(`/api/meetings/${date}`)]);
-  const venue: string | null = typeof mt?.venue === "string" && mt.venue ? mt.venue : null;
-  const ids: Record<number, string> = {};
-  for (const r of mt?.races ?? []) ids[Number(r.raceNumber)] = String(r.id);
-  const out: Record<number, Leg> = {};
-  await Promise.all(
-    (hr?.races ?? []).map(async (r: any) => {
-      const rn = Number(r.raceNumber);
-      const top4 = (r.predictedTop4 ?? []).map((h: any) => Number(h.horseNumber)).filter(Number.isFinite);
-      if (top4.length < 4) { out[rn] = null; return; }
-      let fifth: number | null = null;
-      const frozen5 = Number(r.predictedFifth?.horseNumber);
-      if (r.predictedFifth?.frozen && Number.isFinite(frozen5) && !top4.includes(frozen5)) {
-        out[rn] = { race: rn, bankers: [top4[0], top4[1]], legs: [top4[2], top4[3], frozen5], fifthFromLive: false };
-        return;
-      }
-      if (ids[rn]) {
-        try {
-          const tp = await readAccounting(`/api/analyze/top-picks?raceId=${encodeURIComponent(ids[rn])}`);
-          const cand = (tp?.picks ?? []).map((p: any) => Number(p.horseNumber)).find((n: number) => !top4.includes(n));
-          if (Number.isFinite(cand)) fifth = cand;
-        } catch { /* 冇第五選就當三腳得兩腳 */ }
-      }
-       if (fifth == null) { out[rn] = null; return; }
-       const legs = [top4[2], top4[3], fifth];
-      out[rn] = { race: rn, bankers: [top4[0], top4[1]], legs, fifthFromLive: fifth != null };
-    }),
-  );
-  return { legs: out, venue };
+  const res = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
+  if (!res.ok) throw new Error('原始凍結未能核實，跨場原注暫停結算');
+  const frozen = await res.json() as { date: string; venue: string; source: string; races: FrozenPoolRace[] };
+  if (frozen.date !== date || frozen.source !== 'verified-original-snapshot' || !['ST','HV'].includes(frozen.venue) || !Array.isArray(frozen.races)) throw new Error('跨場原注來源未能核實');
+  return { legs: frozenPoolLegs(frozen.races), venue: frozen.venue };
 }
 
 export const exoticPoolOptions = (date: string) => queryOptions({
-  queryKey: ["exotic-trio", date], enabled: !!date, staleTime: 10 * 60_000,
+  queryKey: ["exotic-trio-verified-original", date], enabled: !!date, staleTime: 30_000,
   queryFn: async () => {
     const [divs, { legs, venue }, changes] = await Promise.all([fetchRaceDividends(date), loadLegs(date), getHkjcChanges({ data: { date } })]);
     const withdrawn: Record<number, Set<number>> = {};

@@ -15,7 +15,7 @@
 
 ## 監控端規則
 - Read nested src/components/admin/AGENTS.md before edits; scoped rules apply.
-- Public P&L combines four-pool rollups with `racingPoolAccounting` cross-race queries; merge daily cost/payout once, exclude missing fifth picks and label post-race substitutes. Why: incomplete data is not frozen evidence.
+- P&L merges daily four-pool/cross-race totals once; cross-race originals use verified frozen ranks 1–5 only. Missing fifth picks or invalid inputs stop settlement. Why: post-race picks cannot certify tickets.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
 - Separate code, verified flows and missing evidence in audits; tasks are not delivery.
 
@@ -43,9 +43,9 @@
 - Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
-- Dispatch checks main fail-closed, never duplicates active jobs or certifies delivery. Why: safe retries.
+- Prelock uses durable leases and per-horse dedupe; wait for main card success before recompute, never authorize freeze.
 - Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. History reads keep the newest window and surface truncation. Why: silent cutoffs hide new race days.
-- Parallelize frozen reads; bound optional references, preserve evidence checks to avoid delays.
+- Parallelize frozen reads; bound references without weakening checks.
 - Preserve official Chinese/Group labels via racingClassLabel.
 
 - Predictor display cards live in tx/Predictor*; routes retain evidence guards.

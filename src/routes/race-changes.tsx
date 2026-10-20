@@ -39,6 +39,7 @@ function RaceChangesPage() {
     <AppShell>
       <PageHead en="OFFICIAL CHANGES" title="賽前更改通知" desc="只轉載香港賽馬會官方「更易事項」原文。凍結四揀唔會追改；受影響嘅馬匹喺選馬頁照實標明。" />
       <div className="mx-auto max-w-3xl space-y-3 p-4 lg:max-w-none">
+        <Link to="/withdrawals" search={{date}} className="inline-block text-sm text-gold underline">退出馬追蹤與存證</Link>
         {q.isLoading ? <Loading /> : q.error ? <ErrorNote error={q.error} /> : !snap ? (
           <Empty label={`${date} 未有已存檔嘅官方更改紀錄`} />
         ) : (

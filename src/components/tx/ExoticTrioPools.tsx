@@ -8,7 +8,7 @@ import { Card, Pill } from "./ui";
  * 孖T／三T 二拖三：每場引擎凍結頭兩匹做膽，拖第 3、4、5 選。
  * 每場 3 組三重彩組合；孖T 3×3＝9 注、三T 3×3×3＝27 注，每注 $10。
  * 跨場分布直接由官方派彩檔推算：派彩行喺第 R 場、組合有 n 段 → 覆蓋第 R−n+1…R 場。
- * 第 1–5 選優先用凍結排序（predictedFifth.frozen）；舊資料缺欄先退回賽後排序（頁面註明）。
+ * 第 1–5 選只用已核實原始副本；缺第五選或鎖前無效輸入不結算。
  */
 const money = (v: number) => `$${v.toLocaleString("en-US", { maximumFractionDigits: 1 })}`;
 
@@ -24,7 +24,7 @@ export function ExoticTrioPools({ date }: { date: string }) {
     <Card title="孖T／三T 二拖三" en="Double Trio · Triple Trio">
       <p className="mb-2 text-[10px] leading-relaxed text-ink-3">
         <b className="text-ink-2">買法：孖T／三T 用引擎凍結預測排序頭 5 隻</b>——每場第 1、2 選做膽，拖第 3、4、5 選，共 3 組；每注 $10。孖T 每口 9 注（$90），兩場都中先算正獎；三T 每口 27 注（$270），三場都中先算正獎，頭兩場中、第三場唔中算安慰獎。
-        跨邊幾場以馬會派彩紀錄為準。第 5 選優先用賽前凍結排序；舊賽日未有呢欄就取自賽後排序（該場標示）。同單場四彩池（只用頭 4 選）唔同，孖T／三T 會用到第 5 選。
+        跨邊幾場以馬會派彩紀錄為準。第 5 選只用已核實原凍結；缺第五選或鎖前無效輸入不入正式合計。孖T／三T 會用到第 5 選。
       </p>
       {q.isLoading ? (
         <p className="py-3 text-center text-[11px] text-ink-3">計算緊…</p>
@@ -59,11 +59,9 @@ export function ExoticTrioPools({ date }: { date: string }) {
                     </span>
                   ))}
                 </p>
-                 {p.races.some((race) => q.data?.legs[race]?.fifthFromLive) ? (
-                   <p className="mt-1 text-[10px] leading-relaxed text-gold">第 {p.races.filter((race) => q.data?.legs[race]?.fifthFromLive).join("、")} 場第 5 選為補選，非賽前凍結；只作試算對照。</p>
-                 ) : null}
+                {p.races.map(race => { const source=q.data?.evidence[race]?.source; return source ? <p key={race} className="mt-1 break-all text-[10px] text-ink-3"><a className="text-gold underline" href={source.sourceUrl} target="_blank" rel="noreferrer">R{race} 官方熱門存檔</a> · SHA {source.sha256}</p> : null; })}
                 <p className="tabnum mt-1 font-mono-tx text-[10px] text-ink-2">
-                  {p.units} 注 · 成本 {money(p.cost)}
+                  {p.missing ? '成本及派彩待核，不入合計' : `${p.units} 注 · 成本 ${money(p.cost)}`}
                   {p.payout ? ` · 正獎 ${money(p.payout)}` : ""}
                   {p.consPayout ? ` · 安慰獎 ${p.consUnits} 注 ${money(p.consPayout)}` : ""}
                 </p>
