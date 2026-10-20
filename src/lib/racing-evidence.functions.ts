@@ -6,14 +6,9 @@ type LockedEvidence = { horseElo: number | null; jockeyElo: number | null; train
 type VersionEvidence = { version: string; firstDate: string; lastDate: string; source: string | null; rows: number };
 
 // Fixed projections only. No arbitrary SQL or database credentials cross the RPC boundary.
-async function query<T>(sql: string, params: unknown[], token: string, account: string): Promise<T[]> {
-  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/d1/database/aad1636e-869a-43f5-aa95-4a19e3aa5517/query`, {
-    method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ sql, params }), signal: AbortSignal.timeout(15_000),
-  });
-  const body = await response.json() as { success?: boolean; result?: { results?: T[] }[] };
-  if (!response.ok || !body.success) throw new Error("凍結資料暫時未能讀取");
-  return body.result?.[0]?.results ?? [];
+async function query<T>(sql: string, params: unknown[]): Promise<T[]> {
+  const { publicRacingQuery } = await import('./public-racing-evidence.server');
+  return publicRacingQuery<T>(sql, params);
 }
 
 export const getLockedEvidence = createServerFn({ method: "GET" })
@@ -22,13 +17,11 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     return input;
   })
   .handler(async ({ data }): Promise<LockedEvidence | null> => {
-    const token = process.env["CLOUDFLARE_API_TOKEN"], account = process.env["CLOUDFLARE_ACCOUNT_ID"];
-    if (!token || !account) throw new Error("凍結資料暫時未能讀取");
     // Historical settled evidence is public. Upcoming data follows the existing public
     // picks gate and is never exposed simply because a draft prediction_log row exists.
-    const identities = await query<{ count: number }>(`SELECT COUNT(DISTINCT venue) count FROM race_meetings WHERE date=? AND venue IN ('ST','HV')`, [data.raceId.slice(5, 15)], token, account);
+    const identities = await query<{ count: number }>(`SELECT COUNT(DISTINCT venue) count FROM race_meetings WHERE date=? AND venue IN ('ST','HV')`, [data.raceId.slice(5, 15)]);
     if (identities[0]?.count !== 1) throw new Error("同日馬場來源不唯一，暫不配對解釋紀錄");
-    const settled = await query<{ settled: number }>(`SELECT 1 AS settled FROM race_results WHERE race_id=? AND finishing_position BETWEEN 1 AND 98 LIMIT 1`, [data.raceId], token, account);
+    const settled = await query<{ settled: number }>(`SELECT 1 AS settled FROM race_results WHERE race_id=? AND finishing_position BETWEEN 1 AND 98 LIMIT 1`, [data.raceId]);
     if (!settled.length) {
       const response = await fetch(`${TX_BASE}/api/analyze/today-picks`, { signal: AbortSignal.timeout(15_000) });
       if (!response.ok) return null;
@@ -40,19 +33,17 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
       hp.sire AS sire, hp.dam AS dam, hp.dam_sire AS damsire, hp.updated_at AS pedigreeUpdatedAt
       FROM prediction_log pl JOIN races r ON r.race_number=pl.race_number JOIN race_meetings m ON m.id=r.meeting_id AND m.date=pl.date
       LEFT JOIN horse_pedigree hp ON hp.horse_id=pl.horse_id
-      WHERE r.id=? AND pl.horse_id=? AND pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL LIMIT 1`, [data.raceId, data.horseId], token, account);
+      WHERE r.id=? AND pl.horse_id=? AND pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL LIMIT 1`, [data.raceId, data.horseId]);
     const row = rows[0];
     return row ? { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" } : null;
   });
 
 export const getFrozenVersionHistory = createServerFn({ method: "GET" }).handler(async (): Promise<{ versions: VersionEvidence[]; truncated: boolean }> => {
-  const token = process.env["CLOUDFLARE_API_TOKEN"], account = process.env["CLOUDFLARE_ACCOUNT_ID"];
-  if (!token || !account) throw new Error("版本紀錄暫時未能讀取");
   const rows = await query<VersionEvidence>(`SELECT pl.lgb_model_version AS version, MIN(pl.date) AS firstDate, MAX(pl.date) AS lastDate, pl.score_source AS source, COUNT(*) AS rows
     FROM prediction_log pl WHERE pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL AND pl.lgb_model_version IS NOT NULL
     AND (SELECT COUNT(DISTINCT m.venue) FROM race_meetings m WHERE m.date=pl.date AND m.venue IN ('ST','HV'))=1
     AND EXISTS(SELECT 1 FROM race_meetings m JOIN races r ON r.meeting_id=m.id JOIN race_results rr ON rr.race_id=r.id WHERE m.date=pl.date AND r.race_number=pl.race_number AND rr.finishing_position BETWEEN 1 AND 98)
-    GROUP BY pl.lgb_model_version,pl.score_source ORDER BY firstDate DESC LIMIT 101`, [], token, account);
+    GROUP BY pl.lgb_model_version,pl.score_source ORDER BY firstDate DESC LIMIT 101`, []);
   const win = truncateRecent(rows, 100, (r) => r.firstDate);
   return { versions: win.items, truncated: win.truncated };
 });

@@ -1,8 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { verifyOfficialResultCoverage, type OfficialRunnerResult } from './hkjc-official-results';
+import { parseOfficialResults, verifyOfficialResultCoverage, type OfficialRunnerResult } from './hkjc-official-results';
 const rows: OfficialRunnerResult[] = [1,2,3,4,5].map(n=>({raceNumber:1,horseNumber:n,horseId:`K00${n}`,finishingPosition:n,winOdds:3,runningPosition:null,jockeyId:'PZ',trainerId:'SCS'}));
 const card = rows.map(r=>({horseNumber:r.horseNumber,horseId:r.horseId}));
 describe('official results do not contaminate training',()=>{
+  const fixture = (extra: string) => `<select><option selected>19/10/2026</option></select><div class="race_tab">RACE 11 (101)</div><div class="performance"><table class="draggable"><thead><tr><th>Win Odds</th></tr></thead><tbody>${[1,2,3,4].map(n=>`<tr><td>${n}</td><td>${n}</td><td><a href="/horse?horseid=HK_2024_K00${n}">馬</a></td>${'<td>1</td>'.repeat(9)}</tr>`).join('')}${extra}</tbody></table></div>`;
+  it('19 October WV-A keeps the numbered withdrawn runner unplaced',()=>{
+    const html = fixture(`<tr><td>WV-A</td><td>5</td><td><a href="/horse?horseid=HK_2024_K585">SALON S</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
+    expect(parseOfficialResults(html,'2026-10-19',11).at(-1)).toMatchObject({horseNumber:5,horseId:'K585',finishingPosition:null,winOdds:null});
+  });
+  it('unnumbered WV preserves raw evidence without inventing a runner number',()=>{
+    const html = fixture(`<tr><td>WV</td><td></td><td><a href="/horse?horseid=HK_2024_K554">AMAZING PARTNERS</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
+    expect(parseOfficialResults(html,'2026-10-19',11).map(r=>r.horseId)).toEqual(['K001','K002','K003','K004']);
+  });
   it('documented D1 prefix preserves exact identity, not fuzzy replacement',()=>{
     expect(()=>verifyOfficialResultCoverage(rows,card.map(r=>({...r,horseId:`horse_${r.horseId}`})),new Set())).not.toThrow();
     expect(()=>verifyOfficialResultCoverage(rows,card.map(r=>({...r,horseId:r.horseNumber===4?'horse_L999':`horse_${r.horseId}`})),new Set())).toThrow('official-result-identity-mismatch');

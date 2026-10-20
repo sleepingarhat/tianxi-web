@@ -37,7 +37,7 @@
 - HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; no post-lock substitution. Cancellation keyword hits archive raw+SHA to hkjc_cancellation_snapshots. Why: notices cannot certify stale inputs.
 - Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
-- Replay preserves raw axes/fields; pedigree tests use prior-date smoothing, seeded confidence, paired denominators and score/context checksums, no prediction writes. Why: research cannot certify locks or approve weights.
+- Replay preserves axes; pedigree tests use prior-date smoothing and paired evidence. Family research saves temporal splits, picks and input SHA; no production writes. Why: reproducible research is not promotion.
 
 - Scarce starts advise only; never switch models/accounting.
 - Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
@@ -49,4 +49,4 @@
 - Preserve official Chinese/Group labels via racingClassLabel.
 
 - tx/Predictor* keeps route guards; name-code cleanup requires matching ID and preserves archives. Why: no hidden identity mismatch.
-- Ingestion retains calendar dates/record rows; child failures fail jobs. Why: disappearance ≠ cancellation.
+- Ingestion retains dates/rows; child failures fail jobs. Backfill alerts name date/race, not today's freeze. Why: absence ≠ cancellation.

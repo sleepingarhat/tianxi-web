@@ -16,7 +16,7 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
   if (!table || !table.querySelector('thead')?.text.includes('Win Odds')) throw new Error('official-result-table-missing');
   const seen = new Set<number>();
   const ids = new Set<string>();
-  const rows = table.querySelectorAll('tbody > tr').map(row => {
+  const rows = table.querySelectorAll('tbody > tr').flatMap(row => {
     const cells = row.querySelectorAll('td');
     if (cells.length !== 12) throw new Error('official-result-columns-incomplete');
     const text = (i: number) => cells[i]?.text.trim() ?? '';
@@ -25,8 +25,11 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
     const fullId = horseUrl ? new URL(horseUrl, 'https://racing.hkjc.com').searchParams.get('horseid') : null;
     const horseId = fullId?.match(/^HK_\d{4}_([A-Z]\d{3})$/)?.[1];
     const place = text(0);
+    // Official replaced-out rows can have no current race number. Keep their
+    // evidence in raw HTML, not a fabricated number or the replacement's ID.
+    if (text(1) === '' && /^WV(?:-A)?$/i.test(place) && horseId) return [];
     // Blank is not a loss. Collector must independently verify official withdrawal.
-    const finishingPosition = place === '' ? null : /^\d+$/.test(place) ? Number(place) : /^(?:DNF|PU|UR|FE|DISQ|WX|WV|VOID)$/i.test(place) ? null : undefined;
+    const finishingPosition = place === '' ? null : /^\d+$/.test(place) ? Number(place) : /^(?:DNF|PU|UR|FE|DISQ|WX|WV(?:-A)?|VOID)$/i.test(place) ? null : undefined;
     if (!Number.isInteger(horseNumber) || horseNumber < 1 || !horseId || seen.has(horseNumber) || ids.has(horseId) || finishingPosition === undefined) throw new Error('official-result-runner-invalid');
     seen.add(horseNumber); ids.add(horseId);
     const profile = (i: number, key: string) => {
@@ -34,10 +37,10 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
       return url ? new URL(url, 'https://racing.hkjc.com').searchParams.get(key) ?? '' : '';
     };
     const odds = Number(text(11));
-    return { raceNumber, horseNumber, horseId, finishingPosition,
+    return [{ raceNumber, horseNumber, horseId, finishingPosition,
       winOdds: Number.isFinite(odds) && odds > 0 ? odds : null,
       runningPosition: text(9).replace(/\s+/g, ' ') || null,
-      jockeyId: profile(3, 'jockeyid'), trainerId: profile(4, 'trainerid') };
+      jockeyId: profile(3, 'jockeyid'), trainerId: profile(4, 'trainerid') }];
   });
   if (rows.length < 4 || !rows.some(r => r.finishingPosition === 1)) throw new Error('official-result-incomplete');
   return rows;

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { authenticateCronRequest } from '@/integrations/supabase/cron-auth';
 import { isConfirmedComplete, resultsDueAt } from '@/lib/racing-results-schedule';
-import { z } from 'zod';
+import { racingResultsJobInput } from '@/lib/racing-results-job-input';
 
 export const Route = createFileRoute('/api/public/jobs/racing-results')({
   server: {
@@ -9,12 +9,20 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
       POST: async ({ request }) => {
         const authFailure = await authenticateCronRequest(request);
         if (authFailure) return authFailure;
-        const body = z.object({ kind: z.literal('completion-check') }).strict().safeParse(await request.json().catch(() => null));
+        const body = racingResultsJobInput.safeParse(await request.json().catch(() => null));
         if (!body.success) return Response.json({ ok: false, error: 'invalid-body' }, { status: 400 });
         const { readOfficialResultMeetings } = await import('@/lib/racing-results-official.server');
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
         const { sendTelegramAlert } = await import('@/lib/telegramAlert.server');
         try {
+          if (body.data.kind === 'archive-backfill') {
+            const { date, venue, raceNumber } = body.data;
+            const todayHkt = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+            if (date > todayHkt) return Response.json({ ok: false, error: 'future-result-date' }, { status: 400 });
+            const { collectOfficialRace } = await import('@/lib/hkjc-results-collector.server');
+            const result = await collectOfficialRace(date, venue, raceNumber);
+            return Response.json({ ok: true, date, venue, result, predictionsChanged: false });
+          }
           const now = new Date();
           const today = new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
           const yesterday = new Date(now.getTime() + 8 * 3600_000 - 86400_000).toISOString().slice(0, 10);
@@ -62,7 +70,10 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
           return Response.json({ ok: true, outcomes, liveResult, raceResultCollectionIndependent: true, independentExecution: false });
         } catch (error) {
           console.error('official-results-collection', error instanceof Error ? error.message : 'unknown-failure');
-          await sendTelegramAlert('⚠️ 全日完場後賽果收料核對／觸發失敗；未確認完成，原凍結不改，請核對後備收料。').catch(() => null);
+          const alert = body.data.kind === 'archive-backfill'
+            ? `⚠️ 歷史賽果補收未完成：${body.data.date} ${body.data.venue} 第${body.data.raceNumber}場；不涉及今日凍結，原預測及戰績不改。`
+            : '⚠️ 全日完場後賽果收料核對／觸發失敗；未確認完成，原凍結不改，請核對後備收料。';
+          await sendTelegramAlert(alert).catch(() => null);
           return Response.json({ ok: false, error: 'results-collection-check-failed' }, { status: 502 });
         }
       },
