@@ -1,7 +1,7 @@
 /** Durable pre-lock workflow. Dispatch acceptance is not completion or permission to freeze. */
 export type PrelockState = {
   warned?: string[] | undefined; recovered?: string[] | undefined; requestedAt?: string | undefined; runId?: number | undefined;
-  phase?: string | undefined; dispatchedRunId?: number | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined;
+  phase?: string | undefined; dispatchedRunId?: number | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined; changeRevision?: string | undefined; recomputedAt?: string | undefined; generatedAt?: string | undefined;
 };
 export type CardRun = { id: number; created_at: string; status: string; conclusion: string | null };
 export type PrelockDeps = {
@@ -14,10 +14,18 @@ export type PrelockDeps = {
   notify: (message: string) => Promise<boolean>;
   save: (state: PrelockState) => Promise<void>;
   now: () => string;
+  pendingChanges?: string[];
+  changeRevision?: string;
 };
 
 export async function advancePrelock(date: string, state: PrelockState, deps: PrelockDeps): Promise<PrelockState> {
   state = { ...state, warned: [...(state.warned ?? [])], recovered: [...(state.recovered ?? [])], checkedAt: deps.now() };
+  const newRevision = !!deps.changeRevision && state.changeRevision !== deps.changeRevision;
+  if (newRevision) {
+    state.changeRevision = deps.changeRevision;
+    state.requestedAt = undefined; state.dispatchedRunId = undefined; state.runId = undefined; state.phase = undefined;
+    state.recomputedAt = undefined; state.generatedAt = undefined;
+  }
   const persist = async () => { await deps.save(state); };
   const alert = async (ids: string[]) => {
     const fresh = ids.filter(id => !state.warned?.includes(id));
@@ -26,13 +34,14 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
     }
   };
   if (!await deps.unlocked()) { state.phase = 'lock-unknown-or-closed'; await persist(); return state; }
-  const before = await deps.read(false);
-  if (before === null) { state.phase = 'picks-unreadable'; await alert(['預測讀取未能核實']); await persist(); return state; }
+  const current = await deps.read(false);
+  const before = newRevision && deps.pendingChanges?.length ? deps.pendingChanges : current ?? deps.pendingChanges ?? [];
+  if (current === null && !before.length) { state.phase = 'picks-unreadable'; await alert(['預測讀取未能核實']); await persist(); return state; }
   state.stale = before;
   await alert(before);
   if (!before.length) {
     const recovered = (state.warned ?? []).filter(id => id !== '預測讀取未能核實' && !state.recovered?.includes(id));
-    if (recovered.length) {
+    if (recovered.length || (state.dispatchedRunId && !state.recomputedAt)) {
       // A cached clean body alone is not repair evidence. Require a completed card job and fresh read.
       // 只認今次觸發嗰個 run id，唔憑時間配對其他工作。
       const own = state.dispatchedRunId ? await deps.run(state.dispatchedRunId) : null;
@@ -41,7 +50,8 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
         state.phase = 'repair-not-verified'; await persist(); return state;
       }
       state.runId = completed.id;
-      if (await deps.notify(`✅ 已核實修復：${date} ${recovered.join('、')}。GitHub 排位更新完成，重新計算已剔除退出馬；凍結仍須獨立來源及鎖點核對。`)) state.recovered = [...(state.recovered ?? []), ...recovered];
+      state.recomputedAt = deps.now();
+      if (recovered.length && await deps.notify(`✅ 已核實修復：${date} ${recovered.join('、')}。GitHub 排位更新完成，重新計算已核對官方更改；凍結仍須獨立來源及鎖點核對。`)) state.recovered = [...(state.recovered ?? []), ...recovered];
     }
     state.phase = 'clean'; await persist(); return state;
   }
@@ -69,10 +79,12 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
   if (!await deps.unlocked()) { state.phase = 'lock-unknown-or-closed'; await persist(); return state; }
   state.phase = 'recompute-intent'; await persist();
   const after = await deps.read(true); state.stale = after ?? before;
+  if (!await deps.unlocked()) { state.phase = 'lock-unknown-or-closed'; await persist(); return state; }
   if (after === null) state.phase = 'recompute-unreadable';
   else if (after.length) state.phase = 'still-stale';
   else {
     state.phase = 'clean';
+    state.recomputedAt = deps.now();
     const ids = (state.warned ?? []).filter(id => id !== '預測讀取未能核實' && !state.recovered?.includes(id));
     if (ids.length && await deps.notify(`✅ 已核實修復：${date} ${ids.join('、')}。GitHub 排位更新完成，重新計算已剔除退出馬；凍結仍須獨立來源及鎖點核對。`)) state.recovered = [...(state.recovered ?? []), ...ids];
   }

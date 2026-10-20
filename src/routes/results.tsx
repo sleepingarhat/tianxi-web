@@ -204,15 +204,14 @@ function ResultsPage() {
                   </span>
                   <span className="ml-auto flex gap-1">
                     <Pill tone={(r.top4IntersectCount ?? 0) >= 3 ? "win" : "ink"}>
-                      {r.officialMetric.eligible ? `原四揀中 ${r.top4IntersectCount}` : r.metricInput.status === "invalid-prelock-input" ? "鎖前輸入無效" : "待核，不計分"}
+                      {r.officialMetric.eligible ? `原四揀中 ${r.top4IntersectCount}/4${r.effectiveTop4?.withdrawn?.length ? `（有效${4 - r.effectiveTop4.withdrawn.length}匹）` : ''}` : r.metricInput.status === "invalid-prelock-input" ? "鎖前輸入無效" : "待核，不計分"}
                     </Pill>
                     <Pill tone={r.top3AnyHit ? "win" : "ink"}>入頭三 {r.top3IntersectCount}</Pill>
                   </span>
                   <span className="text-[10px] text-ink-3">▼</span>
                 </summary>
                 {r.changeClassification.hasWithdrawal && <p className="mt-2 text-xs text-ink-2">退出場次 · 原凍結保留{r.officialMetric.eligible ? "並計正式戰績" : "，不計命中或場次分母"}</p>}
-                {r.changeClassification.postLockJockeyChange && <p className="mt-2 text-xs text-ink-2">鎖後換騎 · 原四揀照計，不重算、不補位</p>}
-                {r.effectiveTop4.substituted && <p className="mt-2 text-xs text-ink-2">補位四揀：{r.effectiveTop4.effective.join("－")} · 中 {r.officialMetric.alternativeHits ?? "待核"} 匹 · 臨場備選，不入正式戰績或盈虧</p>}
+                {r.changeClassification.postLockJockeyChange && <p className="mt-2 text-xs text-ink-2">鎖後換騎 · 原四揀照計，不重算</p>}
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <div className="rounded-[8px] border border-hairline bg-paper p-2">
                     <p className="mb-1 text-[10px] font-bold text-ink-3">引擎凍結四揀</p>

@@ -452,6 +452,36 @@ export type Database = {
         }
         Relationships: []
       }
+      racing_change_updates: {
+        Row: {
+          checked_at: string
+          generated_at: string | null
+          phase: string
+          race_date: string
+          recomputed_at: string | null
+          requested_at: string | null
+          revision: string
+        }
+        Insert: {
+          checked_at?: string
+          generated_at?: string | null
+          phase: string
+          race_date: string
+          recomputed_at?: string | null
+          requested_at?: string | null
+          revision: string
+        }
+        Update: {
+          checked_at?: string
+          generated_at?: string | null
+          phase?: string
+          race_date?: string
+          recomputed_at?: string | null
+          requested_at?: string | null
+          revision?: string
+        }
+        Relationships: []
+      }
       racing_official_collection_leases: {
         Row: {
           expires_at: string

@@ -1,4 +1,9 @@
-/** Post-freeze withdrawals: fill the four from the frozen engine order. Never rewrites the frozen ranks. */
+/**
+ * 賽事更改簡化規則（2026-10-21）：
+ * - 鎖前更改：應先更新排位並重算該場；若凍結仍含鎖前已退出馬（系統未能重算），按鎖後退出方式計：退出馬當冇中，分母照4。
+ * - 鎖後退出／未完賽：保留原四揀，唔補位；退出馬只標無效，命中照計「中幾匹／4」。
+ * - 公布時間未能核實：待核，不計分。
+ */
 export type RankedPick = { horseNumber: number; rank: number; withdrawn?: boolean; announcedAtIso?: string | null | undefined };
 
 export function effectiveTop4<T extends RankedPick>(picks: T[], lockAt?: string | null) {
@@ -6,15 +11,10 @@ export function effectiveTop4<T extends RankedPick>(picks: T[], lockAt?: string 
   const original = ordered.slice(0, 4).map(p => p.horseNumber);
   const withdrawals = ordered.filter(p => p.withdrawn);
   const lockTime = Date.parse(lockAt ?? '');
-  // A stale input anywhere in the race invalidates its ranking. Only proven
-  // after-lock announcements allow substitutions; originals remain untouched.
   const beforeLock = withdrawals.some(p => Number.isFinite(lockTime) && Number.isFinite(Date.parse(p.announcedAtIso ?? '')) && Date.parse(p.announcedAtIso ?? '') <= lockTime);
   const unknown = withdrawals.some(p => !Number.isFinite(lockTime) || !Number.isFinite(Date.parse(p.announcedAtIso ?? '')));
-  if (beforeLock || unknown) {
-    return { original, effective: [] as number[], removed: [] as number[], added: [] as number[], substituted: false, status: beforeLock ? 'invalid-prelock-input' as const : 'unverified-change-timing' as const };
-  }
-  const effective = ordered.filter(p => !p.withdrawn).slice(0, 4).map(p => p.horseNumber);
-  const removed = original.filter(n => !effective.includes(n));
-  const added = effective.filter(n => !original.includes(n));
-  return { original, effective, removed, added, substituted: added.length > 0 || removed.length > 0, status: 'valid' as const };
+  const withdrawn = original.filter(n => withdrawals.some(p => p.horseNumber === n));
+  const valid = original.filter(n => !withdrawn.includes(n));
+  const status = unknown && !beforeLock ? 'unverified-change-timing' as const : 'valid' as const;
+  return { original, valid, withdrawn, status, prelockNotRecomputed: beforeLock };
 }

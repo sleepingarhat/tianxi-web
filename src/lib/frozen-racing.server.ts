@@ -69,13 +69,13 @@ export async function readFrozenRacing(date: string) {
     const postLockJockeyChange = jockeyChanges.some(c=>c.announcedAtIso && Date.parse(c.announcedAtIso)>Date.parse(snapshot.lockAt));
     const unknownJockeyTiming = jockeyChanges.some(c=>!c.announcedAtIso);
     const actualTop4 = results.filter(r=>Number.isInteger(r.finishingPosition) && r.finishingPosition>0 && r.finishingPosition<99 && !withdrawn.has(`${raceNumber}:${r.horseNumber}`)).sort((a,b)=>a.finishingPosition-b.finishingPosition).slice(0,4).map(r=>r.horseNumber);
-    const metricInput = { original: selection.original, effective: selection.effective, actualTop4, status: changesAwareStatus(changesReadOk, unknownJockeyTiming ? 'unverified-change-timing' : selection.status), hasWithdrawal, postLockJockeyChange };
+    const metricInput = { original: selection.original, actualTop4, status: changesAwareStatus(changesReadOk, unknownJockeyTiming ? 'unverified-change-timing' : selection.status), hasWithdrawal, postLockJockeyChange };
     return {
       raceNumber, raceId: info.raceId ?? `race_${date}_${snapshot.venue}_${raceNumber}`,startTime:info.startTime ?? null,title:info.title ?? null,class:info.class ?? null,distance:info.distance ?? null,going:info.going ?? null,track:info.track ?? null,course:info.course ?? null,
       metadataSource: resultInfo ? 'official-results-with-card-fallback' : 'current-official-card-display-only',
       scoreSource: frozen.some(r=>r.lgb_score != null) ? 'lgb' : 'elo', ensembleAlpha: config.alpha ?? null,
       predictedTop4: frozen.slice(0,4).map(r=>r.horse_number),
-      // Lock-before withdrawals invalidate inputs; original ranking is evidence only.
+      // 原四揀不補位；鎖後退出馬只標無效（valid／withdrawn），鎖前未重算則不計分。
       effectiveTop4: selection,
       metricInput, officialMetric: officialRaceMetric(metricInput),
       changeClassification: { hasWithdrawal, postLockJockeyChange, unknownJockeyTiming, changesReadOk },

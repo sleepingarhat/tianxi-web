@@ -1,4 +1,5 @@
 import { HKJC_CHANGES_URL, parseHkjcChangesPage } from './hkjc-changes';
+import { changeKey, changeRevision } from './racing-change-progress';
 
 /** Fetch the official HKJC changes page once and append an immutable snapshot (deduped by SHA). */
 export async function captureHkjcChanges() {
@@ -32,8 +33,8 @@ export async function readLatestHkjcChanges(date: string, venue?: string, sha256
 const WORKER = 'https://tianxi-backend.tianxi-entertainment.workers.dev';
 
 /**
- * Pre-lock only: if current (unlocked) picks still contain an officially withdrawn horse,
- * refresh the racecard and request a fresh recompute. After lock nothing is recomputed.
+ * Pre-lock only: update the racecard for stale withdrawals or other official changes.
+ * Unreadable picks must not prevent dispatch, but never certify a successful recompute.
  */
 export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes').HkjcChange[], date: string) {
   const { z } = await import('zod');
@@ -43,9 +44,11 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const claimed = await sb.rpc('claim_racing_prelock', { _date: date, _token: lease });
   if (claimed.error) throw new Error('退出追蹤狀態未能核實，停止派送');
   if (claimed.data === null) return { action: 'lease-active' as const };
-  const stateSchema = z.object({ warned: z.array(z.string()).optional(), recovered: z.array(z.string()).optional(), requestedAt: z.string().optional(), runId: z.number().optional(), phase: z.string().optional(), checkedAt: z.string().optional(), stale: z.array(z.string()).optional(), dispatchedRunId: z.number().optional(), error: z.string().optional() });
+  const stateSchema = z.object({ warned: z.array(z.string()).optional(), recovered: z.array(z.string()).optional(), requestedAt: z.string().optional(), runId: z.number().optional(), phase: z.string().optional(), checkedAt: z.string().optional(), stale: z.array(z.string()).optional(), dispatchedRunId: z.number().optional(), error: z.string().optional(), changeRevision: z.string().optional(), recomputedAt: z.string().optional(), generatedAt: z.string().optional() });
   let state = stateSchema.parse(claimed.data);
+  let freshGeneratedAt: string | undefined;
   const save = async (next: import('./prelock-workflow').PrelockState, release = false) => {
+    if (next.phase === 'clean' && next.recomputedAt && freshGeneratedAt) next.generatedAt = freshGeneratedAt;
     const result = await sb.rpc('save_racing_prelock', { _date: date, _token: lease, _state: next as import('@/integrations/supabase/types').Json, _release: release });
     if (result.error || !result.data) throw new Error('退出追蹤工作鎖失效，停止派送');
     state = next;
@@ -55,14 +58,23 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
     return lock?.date === date && lock.locked === false && lock.edition !== 'final';
   };
   const token = process.env['TIANXI_ADMIN_TOKEN'];
+  const changeKeys = [...new Set(changes.map(changeKey))].sort();
   const picksUrl = `${WORKER}/api/analyze/today-picks`;
   const read = async (fresh: boolean) => {
     if (fresh && !token) return null;
     const r = await fetch(picksUrl + (fresh ? '?fresh=1' : ''), { cache: 'no-store', headers: token ? { authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(15_000) });
     if (!r.ok) return null;
-    const body = z.object({ date: z.string(), races: z.array(z.object({ raceNumber: z.number().int().positive(), picks: z.array(z.object({ horseNumber: z.number().int().positive(), nameCh: z.string().min(1) })).min(4) })).min(1) }).safeParse(await r.json());
+    const body = z.object({ date: z.string(), generatedAt: z.string().optional(), races: z.array(z.object({ raceNumber: z.number().int().positive(), picks: z.array(z.object({ horseNumber: z.number().int().positive(), nameCh: z.string().min(1) })).min(4) })).min(1) }).safeParse(await r.json());
     if (!body.success || body.data.date !== date) return null;
-    return body.data.races.flatMap(r => r.picks.filter(p => officialWithdrawal(changes,r.raceNumber,p.horseNumber,p.nameCh)).map(p => `R${r.raceNumber} #${p.horseNumber} ${p.nameCh}`));
+    const removed = body.data.races.flatMap(r => r.picks.filter(p => officialWithdrawal(changes,r.raceNumber,p.horseNumber,p.nameCh)).map(p => `R${r.raceNumber} #${p.horseNumber} ${p.nameCh}`));
+    // 換騎／改磅／後備補上都要在公告後重算；缺生成時間不能宣稱更新完成。
+    const generated = Date.parse(body.data.generatedAt ?? '');
+    if (fresh && Number.isFinite(generated)) freshGeneratedAt = new Date(generated).toISOString();
+    const staleChanges = changes.filter(c => {
+      const announced = Date.parse(c.announcedAtIso ?? '');
+      return !Number.isFinite(generated) || !Number.isFinite(announced) || generated <= announced;
+    }).map(changeKey);
+    return [...new Set([...removed, ...staleChanges])];
   };
   const { officialWithdrawal } = await import('./hkjc-changes');
   const { sendTelegramAlert } = await import('./telegramAlert.server');
@@ -74,6 +86,7 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   try {
     state = await advancePrelock(date,state,{
       read: fresh => read(fresh).catch(() => null), unlocked, save,
+      pendingChanges: changeKeys, changeRevision: changeRevision(changes),
       now: () => new Date().toISOString(), notify: async text => (await sendTelegramAlert(text)).sent,
       runs: async () => {
         if (!gh) return null;

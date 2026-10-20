@@ -211,6 +211,13 @@
       "when": 1792501407247,
       "tag": "0029_renew_prelock_lease_heartbeat",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792515682309,
+      "tag": "0030_public_racing_change_updates",
+      "breakpoints": true
     }
   ]
 }

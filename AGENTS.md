@@ -34,7 +34,7 @@
 - Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.
 
 - Saved rebuild journals are not live jobs. Cohort tests fix features/Elo/rounds and exclude incomplete races; release gates require research evidence. Why: health PASS is not promotion approval.
-- HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; only post-lock substitutions are valid. Cancellation keyword hits archive raw+SHA to hkjc_cancellation_snapshots. Why: notices cannot certify stale inputs.
+- HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; no post-lock substitution. Cancellation keyword hits archive raw+SHA to hkjc_cancellation_snapshots. Why: notices cannot certify stale inputs.
 - Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
 - Replay preserves raw axes/fields; pedigree tests use prior-date smoothing, seeded confidence, paired denominators and score/context checksums, no prediction writes. Why: research cannot certify locks or approve weights.
@@ -43,7 +43,7 @@
 - Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
-- Prelock uses durable leases and per-horse dedupe; wait for main card success before recompute, never authorize freeze.
+- Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.
 - Picks refresh coalesces active reads with a bounded deadline; timeouts release retry without accepting late data. Race pages read only verified frozen picks via racePicksFromDay, never legacy live topPicks. History reads keep the newest window and surface truncation. Why: silent cutoffs hide new race days.
 - Parallelize frozen reads; bound references without weakening checks.
 - Preserve official Chinese/Group labels via racingClassLabel.

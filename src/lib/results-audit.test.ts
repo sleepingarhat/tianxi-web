@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { resultsAudit } from './results-audit';
 import { officialRaceMetric } from './racing-official-metrics';
 const race = (status: string) => {
-  const metricInput = { original: [8,13,6,2], effective: [8,13,6,10], actualTop4: [8,13,7,6], status, hasWithdrawal: true, postLockJockeyChange: false };
+  const metricInput = { original: [8,13,6,2], actualTop4: [8,13,7,6], status, hasWithdrawal: true, postLockJockeyChange: false };
   return { metricInput, officialMetric: officialRaceMetric(metricInput), picks: [], results: [] };
 };
 describe('戰績頁原凍結接線', () => {

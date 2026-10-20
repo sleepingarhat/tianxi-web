@@ -1,7 +1,6 @@
-/** Formal engine scoring uses immutable original selections, never display alternatives. */
+/** 正式戰績只計原凍結四揀；鎖後退出馬當冇中，分母固定4，唔補位。 */
 export type OfficialMetricInput = {
   original: number[];
-  effective: number[];
   actualTop4: number[];
   status: string;
   hasWithdrawal: boolean;
@@ -14,9 +13,7 @@ export function officialRaceMetric(input: OfficialMetricInput) {
   return {
     eligible,
     originalHits: eligible ? input.original.filter(n => actual.has(n)).length : null,
-    alternativeHits: eligible && fourUnique(input.effective) ? input.effective.filter(n => actual.has(n)).length : null,
     includedInOfficialMetrics: eligible,
-    alternativeIncludedInOfficialMetrics: false as const,
     hasWithdrawal: input.hasWithdrawal,
     postLockJockeyChange: input.postLockJockeyChange,
   };
@@ -25,8 +22,7 @@ export function summarizeOfficialMetrics(inputs: OfficialMetricInput[]) {
   const rows = inputs.map(officialRaceMetric).filter(r => r.eligible);
   const summarize = (xs: typeof rows) => {
     const hits = xs.reduce((n, r) => n + (r.originalHits ?? 0), 0);
-    return { races: xs.length, originalHits: hits, originalAverage: xs.length ? hits / xs.length : null,
-      alternativeHits: xs.reduce((n, r) => n + (r.alternativeHits ?? 0), 0), alternativeIncludedInOfficialMetrics: false as const };
+    return { races: xs.length, originalHits: hits, originalAverage: xs.length ? hits / xs.length : null };
   };
   return { ...summarize(rows), excluded: inputs.length - rows.length,
     groups: {

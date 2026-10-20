@@ -72,7 +72,6 @@ export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveO
                           )}
                         </div>
                         {p.officialChange ? <p className="mt-1 text-[10px] font-bold text-lose">已退出 · 馬會 {p.officialChange.announcedAt} 公布</p> : null}
-                        {sub.added.includes(p.horseNumber) ? <p className="mt-1 text-[10px] font-bold text-win">鎖後順位補位</p> : null}
                         <p className="mt-0.5 text-[10px] text-ink-3">
                           {p.jockeyCh || "—"} / {p.trainerCh || "—"}
                         </p>

@@ -64,6 +64,38 @@ describe('退出警告與排位更新', () => {
   });
 });
 describe('排位工作只認自己 run id', () => {
+  it('新更改即使舊讀取看似乾淨仍先更新排位，不能略過重算', async () => {
+    const f=fixture(); f.setStale([]); f.deps.changeRevision='new-notice'; f.deps.pendingChanges=['換騎'];
+    const s=await advancePrelock('2026-10-21',{},f.deps);
+    expect(s.phase).toBe('waiting-card'); expect(f.counts()).toEqual({dispatches:1,freshReads:0});
+  });
+  it('完成自己的排位工作與新讀取才記錄重算時間', async () => {
+    const f=fixture(); let s=await advancePrelock('2026-10-21',{},f.deps);
+    expect(s.recomputedAt).toBeUndefined();
+    f.setStale([]); f.setRuns([{id:21,created_at:'2026-10-20T12:20:00Z',status:'completed',conclusion:'success'}]);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(s.recomputedAt).toBe('2026-10-20T12:19:00Z'); expect(s.phase).toBe('clean');
+  });
+  it('收到官方更改但預測逾時，仍啟動排位更新，唔當成功', async () => {
+    const f = fixture(); f.setStale(null);
+    f.deps.pendingChanges = ['R1 #9 創科群英 · 退出']; f.deps.changeRevision = 'notice-1';
+    let s = await advancePrelock('2026-10-21', {}, f.deps);
+    expect(s.phase).toBe('waiting-card'); expect(f.counts().dispatches).toBe(1);
+    f.setRuns([{ id:21, created_at:'2026-10-20T12:20:00Z', status:'completed', conclusion:'success' }]);
+    s = await advancePrelock('2026-10-21', s, f.deps);
+    expect(s.phase).toBe('recompute-unreadable'); expect(s.recovered).toEqual([]);
+  });
+  it('同日新換騎公告會觸發新一輪，唔卡住舊已完成run', async () => {
+    const f = fixture(); f.deps.changeRevision = 'jockey-change-2';
+    const s = await advancePrelock('2026-10-21', { changeRevision:'notice-1', phase:'still-stale', requestedAt:'2026-10-20T10:00:00Z', dispatchedRunId:10 }, f.deps);
+    expect(s.dispatchedRunId).toBe(21); expect(f.counts().dispatches).toBe(1);
+  });
+  it('鎖後即使有新公告或預測逾時都不重算', async () => {
+    const f = fixture(); f.setStale(null); f.deps.unlocked = async () => false;
+    f.deps.pendingChanges = ['換騎']; f.deps.changeRevision = 'new';
+    const s = await advancePrelock('2026-10-21', {}, f.deps);
+    expect(s.phase).toBe('lock-unknown-or-closed'); expect(f.counts()).toEqual({ dispatches:0, freshReads:0 });
+  });
   it('同時段另一個成功 run 唔會被當成今次', async () => {
     const f=fixture(); let s=await advancePrelock('2026-10-21',{},f.deps);
     f.setRuns([{id:99,created_at:'2026-10-20T12:20:00Z',status:'completed',conclusion:'success'}]);

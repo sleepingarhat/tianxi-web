@@ -11,7 +11,7 @@ describe('即時退出公告只讀合併', () => {
       const c = liveWithdrawal([notice], 11, { horseNumber, nameCh: horseNumber === 2 ? '極上紗瓏' : '其他馬' }, lock);
       return { horseNumber, rank: i + 1, withdrawn: !!c, announcedAtIso: c?.announcedAtIso };
     });
-    expect(effectiveTop4(picks, lock)).toMatchObject({ original: [8, 13, 6, 2], effective: [8, 13, 6, 10], removed: [2], added: [10], status: 'valid' });
+    expect(effectiveTop4(picks, lock)).toMatchObject({ original: [8, 13, 6, 2], valid: [8, 13, 6], withdrawn: [2], status: 'valid' });
   });
   it('不同場次或馬名不得按馬號套退出', () => {
     expect(liveWithdrawal([notice], 10, { horseNumber: 2, nameCh: '極上紗瓏' }, lock)).toBeNull();

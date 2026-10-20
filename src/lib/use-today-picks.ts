@@ -1,5 +1,6 @@
 // 天喜 · 全日預測 hook：合併引擎預測（全部場次）與排位表資料（賠率、負磅、綵衣代碼）
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from 'react';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { getTodayPicksAll } from "./picks.functions";
@@ -7,7 +8,8 @@ import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
 import { picksEdition } from "./picks-refresh";
 import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
-import { useHkjcChanges } from './use-hkjc-changes';
+import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
+import { changeRevision, verifiedUpdate } from './racing-change-progress';
 import { liveWithdrawal } from './live-racing-changes';
 
 export type MergedPick = {
@@ -31,6 +33,8 @@ export type MergedPick = {
 };
 
 export function useTodayPicks() {
+  const queryClient = useQueryClient();
+  const lastRevision = useRef<string | null>(null);
   // 引擎自動偵測停賽（人手覆寫 → 馬會公告 → 賽日結構）
   const { cancellation } = useMeetingCancellation();
   const fetchAll = useServerFn(getTodayPicksAll);
@@ -47,6 +51,26 @@ export function useTodayPicks() {
   const date: string | undefined = picks.data?.date;
   const changes = useHkjcChanges(date);
   const changesSnapshot = changes.data?.race_date === date && changes.data?.venue === picks.data?.venue ? changes.data : null;
+  const updates = useChangeProgress(date);
+  const currentUpdate = updates.data?.find(row => row.revision === changeRevision(changesSnapshot?.changes ?? []));
+  const completedAt = verifiedUpdate(currentUpdate ?? null) ? currentUpdate?.recomputed_at : null;
+  useEffect(() => {
+    if (!date || !completedAt) return;
+    void queryClient.invalidateQueries({ queryKey:['todayPicksAll'], exact:true });
+    void queryClient.invalidateQueries({ queryKey:['meeting',date], exact:true });
+  }, [date,completedAt,queryClient]);
+  const revision = changesSnapshot ? `${date}:${changesSnapshot.sha256}` : null;
+  useEffect(() => {
+    if (!date || !revision || lastRevision.current === revision) return;
+    lastRevision.current = revision;
+    void queryClient.invalidateQueries({ queryKey: ['meeting', date], exact: true });
+    // 只刷新讀取；瀏覽器唔觸發運算，鎖後仍走原副本驗證。
+    void queryClient.invalidateQueries({ queryKey: ['todayPicksAll'], exact: true });
+  }, [date, revision, queryClient]);
+  const generatedAt = picks.data?.generatedAt;
+  useEffect(() => {
+    if (date && generatedAt) void queryClient.invalidateQueries({ queryKey: ['meeting', date], exact: true });
+  }, [date, generatedAt, queryClient]);
   const meeting = useQuery({
     queryKey: ["meeting", date],
     queryFn: () => {

@@ -129,8 +129,7 @@ function PredictorPage() {
   });
   const sub = effectiveTop4(withOdds.map((p) => ({ horseNumber: p.horseNumber, rank: p.rank ?? 99, withdrawn: !!p.officialChange, announcedAtIso: p.officialChange?.announcedAtIso })), tp.engine?.lockAt);
   const invalidInput = sub.status !== "valid";
-  // 退出馬匹之後多顯示一匹，等順位補上嘅馬睇得到
-  const modelCol = withOdds.slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).slice(0, 5 + sub.removed.length);
+  const modelCol = withOdds.slice().sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).slice(0, 5);
   const marketCol = withOdds
     .filter((p) => p.od != null && !p.officialChange)
     .sort((a, b) => (a.od as number) - (b.od as number))
@@ -304,14 +303,14 @@ function PredictorPage() {
 
       {race && invalidInput ? (
         <div role="alert" className="mx-4 mb-3 border border-lose/40 bg-paper px-3 py-3 text-[12px] text-lose">
-          <p className="font-bold">第 {race.raceNumber} 場：{sub.status === 'invalid-prelock-input' ? '凍結前已退出，舊排位預測無效' : '退出公布時間未能核實，暫停提供四揀'}</p>
-          <p className="mt-1">凍結前應更新排位並重新計算，不能按下一順位補位。原凍結只保留作事故證據，不提供有效四揀，也不以賽後重算冒充賽前預測。</p>
+          <p className="font-bold">第 {race.raceNumber} 場：{'退出公布時間未能核實，暫停提供四揀'}</p>
+          <p className="mt-1">鎖前更改應即時更新排位並重算該場；今場未能及時重算，原凍結只保留作紀錄，不計分，亦不以賽後重算冒充賽前預測。</p>
           {(race.picks || []).filter((p: any) => p.officialChange).map((p: any) => <p key={p.horseNumber} className="mt-1">{p.horseNumber} 號 {p.nameCh}：馬會 {p.officialChange.announcedAt} 公布，{p.officialChange.text}</p>)}
           <Link to="/race-changes" className="mt-2 inline-block font-bold text-gold">查看馬會更改證據 →</Link>
         </div>
       ) : null}
 
-      {race && sub.substituted && !invalidInput ? <div role="status" className="mx-4 mb-3 border border-lose/40 bg-paper px-3 py-2 text-[12px] text-ink"><p className="font-bold text-lose">第{race.raceNumber}場：鎖後退出，已按原引擎順位補位</p><p className="mt-1">原四揀 {sub.original.join("-")} → 補位四揀 {sub.effective.join("-")}</p><p className="mt-1 text-[11px] text-ink-3">原凍結排名及分數不改；補位四揀不代表已投注，退出馬退款及彩池結算須另按馬會規則核對。</p></div> : null}
+      {race && sub.withdrawn.length > 0 && !invalidInput ? <div role="status" className="mx-4 mb-3 border border-lose/40 bg-paper px-3 py-2 text-[12px] text-ink"><p className="font-bold text-lose">第{race.raceNumber}場：{sub.prelockNotRecomputed ? '鎖前退出未及重算，按鎖後方式計' : '鎖後退出'}，原四揀不變</p><p className="mt-1">原四揀 {sub.original.join("-")}，{sub.withdrawn.join("、")}號當無效、唔補位；命中照計「中幾匹／4」，盈虧按馬會退款及派彩規則。</p></div> : null}
 
       {race && !invalidInput ? <PredictorComparison modelCol={modelCol} marketCol={marketCol} locked={locked} sub={sub} /> : null}
 

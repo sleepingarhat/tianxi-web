@@ -65,9 +65,6 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                             </span>
                           </Link>
                         ) : null}
-                        {sub.added.includes(p.horseNumber) ? (
-                          <span className="mt-1 block"><Pill tone="win">按引擎順位補上四揀</Pill></span>
-                        ) : null}
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
@@ -80,12 +77,6 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                 <p className="py-3 text-[10px] text-ink-3">此場整備中</p>
               )}
             </div>
-            {sub.substituted ? (
-              <p className="mt-2 rounded-[4px] border border-win/40 bg-win/[0.06] px-1.5 py-1 font-mono-tx text-[9px] text-ink">
-                有效四揀 {sub.effective.join("-")}
-                <span className="block text-ink-3">原凍結 {sub.original.join("-")}，退出馬匹由引擎下一順位補上</span>
-              </p>
-            ) : null}
           </div>
 
           <div
