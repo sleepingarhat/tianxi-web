@@ -1,3 +1,4 @@
+import { lovable } from "@/integrations/lovable";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -96,11 +97,17 @@ function AuthPage() {
   async function google() {
     setErr(null);
     sessionStorage.setItem("tx_oauth_pending", "google");
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth` },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/auth`,
     });
-    if (error) setErr(error.message);
+    if (result.error) {
+      sessionStorage.removeItem("tx_oauth_pending");
+      setErr(result.error instanceof Error ? result.error.message : String(result.error));
+      return;
+    }
+    if (result.redirected) return;
+    track("login", { method: "google" });
+    await goAfterSignIn();
   }
 
   return (
