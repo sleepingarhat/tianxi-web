@@ -96,7 +96,16 @@ export function AppShell({
               </small>
             </span>
           </Link>
-          <div />
+          <nav aria-label="主選單" className="hidden items-center justify-center gap-6 lg:flex">
+            {BOTNAV.map((item) => {
+              const on = item.key === page || (item.key === "horse" && ["horse", "predictor", "encyclopedia"].includes(page));
+              return (
+                <Link key={item.key} to={item.to} aria-current={on ? "page" : undefined} className={`font-serif-tc text-[14px] font-bold transition-colors hover:text-gold-strong ${on ? "text-gold-strong" : "text-deep-fg/75"}`}>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
           <div className="flex items-center gap-3">
             {isAdmin ? (
               <Link
@@ -179,9 +188,9 @@ export function AppShell({
           </div>
         ) : null}
 
-        <main className={`${columns ? "tx-main " : ""}flex-1 pb-28`}>{children}</main>
+        <main className={`${columns ? "tx-main " : ""}flex-1 pb-28 lg:pb-10`}>{children}</main>
 
-        <nav className={`fixed bottom-0 left-1/2 z-40 grid w-full -translate-x-1/2 auto-cols-fr grid-flow-col gap-0.5 border-t border-tan/10 bg-deep px-1 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 ${wide ? "max-w-[1040px] xl:max-w-[1200px]" : "max-w-[440px] md:max-w-[880px] lg:max-w-[1040px] xl:max-w-[1200px]"}`}>
+        <nav className={`lg:hidden fixed bottom-0 left-1/2 z-40 grid w-full -translate-x-1/2 auto-cols-fr grid-flow-col gap-0.5 border-t border-tan/10 bg-deep px-1 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 ${wide ? "max-w-[1040px] xl:max-w-[1200px]" : "max-w-[440px] md:max-w-[880px] lg:max-w-[1040px] xl:max-w-[1200px]"}`}>
           {BOTNAV.map((item) => {
             const on = item.key === page || (item.key === "horse" && ["horse", "predictor", "encyclopedia"].includes(page));
             return (

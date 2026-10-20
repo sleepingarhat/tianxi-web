@@ -476,3 +476,14 @@
   .tx-main > :not(.tx-card) + .tx-card:has(+ :not(.tx-card)),
   .tx-main > :not(.tx-card) + .tx-card:last-child { grid-column: 1 / -1; }
 }
+@media (min-width: 1024px) {
+  /* 卡片包喺一層容器入面時，相鄰卡片同樣左右排 */
+  .tx-main > :not(.tx-card):has(> .tx-card ~ .tx-card) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+    align-items: start;
+  }
+  .tx-main > :not(.tx-card):has(> .tx-card ~ .tx-card) > * { grid-column: 1 / -1; margin-top: 0; margin-bottom: 0.75rem; }
+  .tx-main > :not(.tx-card):has(> .tx-card ~ .tx-card) > .tx-card:is(:has(+ .tx-card), .tx-card + .tx-card):not(:has(table, canvas, .tx-wide)) { grid-column: auto; }
+}
