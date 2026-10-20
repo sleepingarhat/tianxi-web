@@ -17,6 +17,7 @@ import { meetingCancellationForDate } from "@/lib/meeting-status";
 import { resultsAudit } from "@/lib/results-audit";
 import { FrozenEvidenceError, frozenEvidenceCodeOf, type FrozenEvidenceCode } from "@/lib/frozen-racing";
 import { Button } from "@/components/ui/button";
+import { isLegacyEvidenceDate } from "@/lib/evidence-cutoff";
 import { RotateCw } from "lucide-react";
 
 /** 彩池代號 → 中文（馬會標準簡稱） */
@@ -47,7 +48,7 @@ export const Route = createFileRoute("/results")({
 });
 
 /** 缺證據唔係「載入失敗」：無副本／未核實要如實講明，等會員知唔使重試。 */
-function EvidenceNote({ error }: { error: unknown }) {
+function EvidenceNote({ error, date }: { error: unknown; date?: string | undefined }) {
   const code: FrozenEvidenceCode = frozenEvidenceCodeOf(error);
   const message = error instanceof Error ? error.message : "未知錯誤";
   if (code === "no-archive" || code === "not-verified") {
@@ -56,6 +57,7 @@ function EvidenceNote({ error }: { error: unknown }) {
         <p className="text-[11px] font-bold text-gold">{code === "no-archive" ? "呢個賽日未有原始凍結副本" : "呢個賽日嘅凍結副本未通過核實"}</p>
         <p className="mt-1 text-[10.5px] leading-relaxed text-ink-2">{message}</p>
         <p className="mt-1 text-[10px] leading-relaxed text-ink-3">天喜只展示有不可變原始副本嘅賽日，缺副本嘅賽日唔會用初版或臨場重算補寫；請揀選冇劃線嘅賽日核對。</p>
+        {date && isLegacyEvidenceDate(date) ? <p className="mt-1 text-[10px] leading-relaxed text-ink-2">呢個係 2026-10-21 前嘅舊賽日：舊紀錄照列喺<Link to="/prediction-vs-result" className="text-gold underline">預測與賽果</Link>，標明「舊紀錄，未經原始副本核實」，唔計入已核實戰績。</p> : null}
       </div>
     );
   }
@@ -146,7 +148,7 @@ function ResultsPage() {
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (
-          <EvidenceNote error={hr.error} />
+          <EvidenceNote error={hr.error} date={activeDate} />
         ) : s ? (
           <div className="space-y-2.5">
             <div className="grid grid-cols-2 gap-2">
@@ -190,7 +192,7 @@ function ResultsPage() {
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (
-          <div><EvidenceNote error={hr.error} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
+          <div><EvidenceNote error={hr.error} date={activeDate} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
         ) : races.length ? (
           <div className="divide-y divide-hairline">
             {races.map((r) => (

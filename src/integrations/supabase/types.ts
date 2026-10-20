@@ -818,6 +818,10 @@ export type Database = {
         }
         Returns: Json
       }
+      renew_racing_prelock: {
+        Args: { _date: string; _token: string }
+        Returns: boolean
+      }
       save_racing_prelock: {
         Args: {
           _date: string

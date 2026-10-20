@@ -1,13 +1,15 @@
 /** Durable pre-lock workflow. Dispatch acceptance is not completion or permission to freeze. */
 export type PrelockState = {
   warned?: string[] | undefined; recovered?: string[] | undefined; requestedAt?: string | undefined; runId?: number | undefined;
-  phase?: string | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined;
+  phase?: string | undefined; dispatchedRunId?: number | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined;
 };
 export type CardRun = { id: number; created_at: string; status: string; conclusion: string | null };
 export type PrelockDeps = {
   read: (fresh: boolean) => Promise<string[] | null>;
   runs: () => Promise<CardRun[] | null>;
-  dispatch: () => Promise<boolean>;
+  /** 回傳 GitHub 今次觸發嘅 run id；失敗或冇 id 回 null。 */
+  dispatch: () => Promise<number | null>;
+  run: (id: number) => Promise<CardRun | null>;
   unlocked: () => Promise<boolean>;
   notify: (message: string) => Promise<boolean>;
   save: (state: PrelockState) => Promise<void>;
@@ -32,8 +34,9 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
     const recovered = (state.warned ?? []).filter(id => id !== '預測讀取未能核實' && !state.recovered?.includes(id));
     if (recovered.length) {
       // A cached clean body alone is not repair evidence. Require a completed card job and fresh read.
-      const runs = await deps.runs();
-      const completed = runs?.find(r => state.requestedAt && Date.parse(r.created_at) >= Date.parse(state.requestedAt) && r.status === 'completed' && r.conclusion === 'success');
+      // 只認今次觸發嗰個 run id，唔憑時間配對其他工作。
+      const own = state.dispatchedRunId ? await deps.run(state.dispatchedRunId) : null;
+      const completed = own && own.id === state.dispatchedRunId && own.status === 'completed' && own.conclusion === 'success' ? own : null;
       if (!completed || !await deps.unlocked() || (await deps.read(true))?.length !== 0) {
         state.phase = 'repair-not-verified'; await persist(); return state;
       }
@@ -45,14 +48,20 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
   const runs = await deps.runs();
   if (!runs) { state.phase = 'github-status-unverified'; await persist(); return state; }
   if (runs.some(r => r.status !== 'completed')) { state.phase = 'waiting-card'; await persist(); return state; }
+  // 上次觸發失敗：清除請求時間，今輪重新觸發，唔好永遠等一個從未開始嘅工作。
+  if (state.phase === 'dispatch-failed' || (state.requestedAt && !state.dispatchedRunId)) { state.requestedAt = undefined; state.dispatchedRunId = undefined; }
   if (!state.requestedAt) {
     if (!await deps.unlocked()) { state.phase = 'lock-unknown-or-closed'; await persist(); return state; }
     // Persist intent BEFORE the external write: interrupted dispatches must never be replayed blindly.
     state.requestedAt = deps.now(); state.phase = 'dispatch-intent'; await persist();
-    state.phase = await deps.dispatch() ? 'waiting-card' : 'dispatch-failed'; await persist(); return state;
+    const id = await deps.dispatch();
+    if (id) { state.dispatchedRunId = id; state.phase = 'waiting-card'; } else state.phase = 'dispatch-failed';
+    await persist(); return state;
   }
-  const completed = runs.find(r => Date.parse(r.created_at) >= Date.parse(state.requestedAt ?? '') && r.status === 'completed');
-  if (!completed) { state.phase = 'waiting-card'; await persist(); return state; }
+  const own = state.dispatchedRunId ? await deps.run(state.dispatchedRunId) : null;
+  if (own === null) { state.phase = 'github-status-unverified'; await persist(); return state; }
+  if (own.id !== state.dispatchedRunId || own.status !== 'completed') { state.phase = 'waiting-card'; await persist(); return state; }
+  const completed = own;
   state.runId = completed.id;
   if (completed.conclusion !== 'success') { state.phase = 'card-failed'; await persist(); return state; }
   // At most one recompute per successful card run, even if the same stale body persists.

@@ -16,14 +16,15 @@ export async function captureHkjcChanges() {
 }
 
 /** Latest stored snapshot for a meeting (read-only, publishable client). */
-export async function readLatestHkjcChanges(date: string) {
+/** venue/sha 限定：唔會將另一馬場或舊副本當成今次收料。 */
+export async function readLatestHkjcChanges(date: string, venue?: string, sha256?: string) {
   const { createClient } = await import('@supabase/supabase-js');
   const key = process.env['SUPABASE_PUBLISHABLE_KEY']!;
   const sb = createClient(process.env['SUPABASE_URL']!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { fetch: (input, init) => { const h = new Headers(init?.headers); if (key.startsWith('sb_') && h.get('Authorization') === `Bearer ${key}`) h.delete('Authorization'); h.set('apikey', key); return fetch(input, { ...init, headers: h }); } },
   });
-  const { data, error } = await sb.from('hkjc_changes_snapshots').select('race_date,venue,fetched_at,source_url,sha256,changes').eq('race_date', date).order('fetched_at', { ascending: false }).limit(1).maybeSingle();
+  const { data, error } = await sb.from('hkjc_changes_snapshots').select('race_date,venue,fetched_at,source_url,sha256,changes').eq('race_date', date).match({ ...(venue ? { venue } : {}), ...(sha256 ? { sha256 } : {}) }).order('fetched_at', { ascending: false }).limit(1).maybeSingle();
   if (error) throw new Error('馬會更易事項暫時未能讀取');
   return data;
 }
@@ -42,7 +43,7 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const claimed = await sb.rpc('claim_racing_prelock', { _date: date, _token: lease });
   if (claimed.error) throw new Error('退出追蹤狀態未能核實，停止派送');
   if (claimed.data === null) return { action: 'lease-active' as const };
-  const stateSchema = z.object({ warned: z.array(z.string()).optional(), recovered: z.array(z.string()).optional(), requestedAt: z.string().optional(), runId: z.number().optional(), phase: z.string().optional(), checkedAt: z.string().optional(), stale: z.array(z.string()).optional(), error: z.string().optional() });
+  const stateSchema = z.object({ warned: z.array(z.string()).optional(), recovered: z.array(z.string()).optional(), requestedAt: z.string().optional(), runId: z.number().optional(), phase: z.string().optional(), checkedAt: z.string().optional(), stale: z.array(z.string()).optional(), dispatchedRunId: z.number().optional(), error: z.string().optional() });
   let state = stateSchema.parse(claimed.data);
   const save = async (next: import('./prelock-workflow').PrelockState, release = false) => {
     const result = await sb.rpc('save_racing_prelock', { _date: date, _token: lease, _state: next as import('@/integrations/supabase/types').Json, _release: release });
@@ -68,6 +69,8 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const gh = process.env['GITHUB_TOKEN'];
   const headers = { authorization: `Bearer ${gh ?? ''}`, accept: 'application/vnd.github+json', 'user-agent': 'tianxi-web' };
   const workflow = 'https://api.github.com/repos/sleepingarhat/tianxi-racing/actions/workflows/capy_racecard.yml';
+  // 工作鎖心跳：每30秒延長，外部步驟超過120秒都唔會失鎖。
+  const beat = setInterval(() => { void sb.rpc('renew_racing_prelock', { _date: date, _token: lease }); }, 30_000);
   try {
     state = await advancePrelock(date,state,{
       read: fresh => read(fresh).catch(() => null), unlocked, save,
@@ -79,8 +82,22 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
         const parsed = z.object({workflow_runs:z.array(z.object({id:z.number(),created_at:z.string().datetime(),status:z.string(),conclusion:z.string().nullable()}))}).safeParse(await r.json());
         return parsed.success ? parsed.data.workflow_runs : null;
       },
-      dispatch: async () => gh ? await fetch(`${workflow}/dispatches`,{method:'POST',headers,body:JSON.stringify({ref:'main'}),signal:AbortSignal.timeout(8_000)}).then(r=>r.status===204).catch(()=>false) : false,
+      run: async id => {
+        if (!gh) return null;
+        const r = await fetch(`https://api.github.com/repos/sleepingarhat/tianxi-racing/actions/runs/${id}`, {headers,signal:AbortSignal.timeout(8_000)}).catch(()=>null);
+        if (!r?.ok) return null;
+        const p = z.object({id:z.number(),created_at:z.string().datetime(),status:z.string(),conclusion:z.string().nullable(),path:z.string().optional()}).safeParse(await r.json());
+        return p.success && (!p.data.path || p.data.path.endsWith('capy_racecard.yml')) ? p.data : null;
+      },
+      // return_run_details：GitHub 直接回傳今次 run id，唔再憑時間估。
+      dispatch: async () => {
+        if (!gh) return null;
+        const r = await fetch(`${workflow}/dispatches`,{method:'POST',headers,body:JSON.stringify({ref:'main',return_run_details:true}),signal:AbortSignal.timeout(8_000)}).catch(()=>null);
+        if (!r || r.status !== 200) return null;
+        const p = z.object({workflow_run_id:z.number().int().positive()}).safeParse(await r.json().catch(()=>null));
+        return p.success ? p.data.workflow_run_id : null;
+      },
     });
     return { action: state.phase, stale: state.stale ?? [], runId: state.runId ?? null, freezeAuthorized: false };
-  } finally { await save(state,true); }
+  } finally { clearInterval(beat); await save(state,true); }
 }

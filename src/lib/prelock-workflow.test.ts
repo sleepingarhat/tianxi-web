@@ -9,7 +9,7 @@ function fixture() {
   let saved: PrelockState = {};
   const deps: PrelockDeps = {
     read: async fresh => { if (fresh) freshReads++; return stale; }, runs: async () => runs,
-    dispatch: async () => { dispatches++; return true; }, unlocked: async () => true,
+    dispatch: async () => { dispatches++; return 21; }, run: async id => (runs ?? []).find(r=>r.id===id) ?? {id,created_at:'2026-10-20T12:20:00Z',status:'in_progress',conclusion:null}, unlocked: async () => true,
     notify: async m => { messages.push(m); return true; }, save: async s => { saved = structuredClone(s); },
     now: () => '2026-10-20T12:19:00Z',
   };
@@ -46,5 +46,32 @@ describe('退出警告與排位更新', () => {
   it('已有工作執行中不派送', async () => {
     const f=fixture(); f.setRuns([{id:1,created_at:'2026-10-20T10:00:00Z',status:'in_progress',conclusion:null}]);
     await advancePrelock('2026-10-21',{},f.deps); expect(f.counts().dispatches).toBe(0);
+  });
+});describe('觸發及通知失敗重試', () => {
+  it('觸發失敗下一輪重新觸發，唔會永遠等', async () => {
+    const f=fixture(); let ok=false; let n=0;
+    f.deps.dispatch=async()=>{n++; return ok ? 21 : null;};
+    let s=await advancePrelock('2026-10-21',{},f.deps); expect(s.phase).toBe('dispatch-failed');
+    ok=true; s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(n).toBe(2); expect(s.phase).toBe('waiting-card');
+  });
+  it('通知發送失敗唔記為已通知，下一輪再發', async () => {
+    const f=fixture(); let ok=false; let sent=0;
+    f.deps.notify=async()=>{ if(ok) sent++; return ok; };
+    let s=await advancePrelock('2026-10-21',{},f.deps); expect(s.warned).toEqual([]);
+    ok=true; s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(sent).toBe(1); expect(s.warned).toEqual(['R1 #9 創科群英']);
+  });
+});
+describe('排位工作只認自己 run id', () => {
+  it('同時段另一個成功 run 唔會被當成今次', async () => {
+    const f=fixture(); let s=await advancePrelock('2026-10-21',{},f.deps);
+    f.setRuns([{id:99,created_at:'2026-10-20T12:20:00Z',status:'completed',conclusion:'success'}]);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(s.phase).toBe('waiting-card'); expect(f.counts().freshReads).toBe(0);
+  });
+  it('冇 run id 嘅舊狀態會重新觸發', async () => {
+    const f=fixture(); const s=await advancePrelock('2026-10-21',{requestedAt:'2026-10-20T10:00:00Z',phase:'waiting-card'},f.deps);
+    expect(s.dispatchedRunId).toBe(21); expect(f.counts().dispatches).toBe(1);
   });
 });

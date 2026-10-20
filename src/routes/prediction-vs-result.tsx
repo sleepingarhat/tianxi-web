@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ShareButton } from "@/components/tx/ShareCard";
 import { exoticPoolOptions, winningSingleDividends } from "@/lib/racingPoolAccounting";
 import { useEffect, useState } from "react";
+import { isLegacyEvidenceDate } from "@/lib/evidence-cutoff";
 
 import { AlphaGuard } from "@/components/tx/AlphaGuard";
 import { AppShell } from "@/components/tx/AppShell";
@@ -110,9 +111,17 @@ function ComparePage() {
   });
   // 存檔預測（賽前鎖定版）：已有賽果嘅賽日一律以後端凍結紀錄為準，
   // 避免顯示事後重算版本，並可標明當日實際採用嘅集成比重 α。
+  // 2026-10-21 起同「賽果核對」一樣，只用已核實原始凍結副本；之前嘅賽日照列舊紀錄並標明未核實。
+  const legacy = isLegacyEvidenceDate(date);
   const frozen = useQuery({
-    queryKey: ["hitRate", date],
-    queryFn: () => txApi.hitRate(date),
+    queryKey: ["pvr-frozen", date, legacy],
+    queryFn: async (): Promise<any> => {
+      if (legacy) return txApi.hitRate(date);
+      const r = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { cache: "no-store" });
+      const d: any = await r.json().catch(() => null);
+      if (!r.ok || !d?.frozen) return { races: [], summary: null };
+      return { races: (d.races || []).map((x: any) => ({ ...x, predictedTop4: (x.picks || []).slice(0, 4) })), summary: null };
+    },
     enabled: !!date,
   });
   const selectedRaceNumber = races.find((r: any) => String(r.id) === raceId)?.raceNumber;
@@ -134,7 +143,7 @@ function ComparePage() {
 
   const left: Horse[] = frozenTop4.length
     ? frozenTop4
-    : picks.data?.frozen === true ? (picks.data?.picks || []).slice(0, 4) : [];
+    : legacy && picks.data?.frozen === true ? (picks.data?.picks || []).slice(0, 4) : [];
   // 首選來源：後端逐匹回傳 scoreSource（lgb = 天喜LGB 融合模型；baseline／elo = 天喜ELO 基準）
   // 同一場可能部分馬匹退回基準，故以整場為準：有任何 lgb 即屬天喜LGB 排序。
   const pickSources = (frozenTop4.length ? frozenTop4 : picks.data?.picks || []).map((p: any) =>
@@ -404,7 +413,7 @@ function ComparePage() {
               {picksSourceLabel}
               {frozenAlpha != null ? ` · α=${frozenAlpha.toFixed(2)}` : ""} · TOP 4
               <span className="mt-0.5 block font-sans-tc text-[9px] font-bold tracking-normal text-ink-3">
-                {frozenTop4.length ? "賽前鎖定存檔版" : "即時重算版"}
+                {frozenTop4.length ? (legacy ? "舊紀錄，未經原始副本核實" : "已核實原始凍結副本") : "即時重算版"}
               </span>
 
             </small>

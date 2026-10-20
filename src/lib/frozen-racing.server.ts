@@ -34,7 +34,7 @@ export async function readFrozenRacing(date: string) {
       return r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null;
     }),
     query<RunnerIdentity>(`SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 ORDER BY race_number,horse_number`,[date,snapshot.venue]),
-    readChangesEvidence(()=>import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date))),
+    readChangesEvidence(()=>import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date,snapshot.venue))),
     query<RacingMeetingMetadata>(`SELECT race_number raceNumber,
       CASE WHEN COUNT(DISTINCT post_time)=1 THEN MIN(post_time) END startTime,
       CASE WHEN COUNT(DISTINCT distance)=1 THEN MIN(distance) END distance,
