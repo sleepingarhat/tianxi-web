@@ -13,6 +13,8 @@ import { FreezeRecoveryPanel, recoveryQuery } from "@/components/tx/FreezeRecove
 import { RebuildProgressPanel } from "@/components/tx/RebuildProgressPanel";
 import { CalibratedFusionPanel } from "@/components/tx/CalibratedFusionPanel";
 import { PedigreeResearchPanel } from "@/components/tx/PedigreeResearchPanel";
+import { ModelFamilyResearchPanel } from '@/components/tx/ModelFamilyResearchPanel';
+import modelFamilyReport from '@/lib/model-family-summary.json';
 
 const TITLE = "模型說明 · Elo 公式與 LightGBM 特徵 · 天喜賽馬";
 const DESC = "天喜賽馬模型公式、52項特徵、自動修復即時狀態、逐場巡查日誌、完整重建及逐日校準報告；清楚區分研究驗收與正式升版。";
@@ -50,6 +52,7 @@ function ModelPage() {
 
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>
+    <ModelFamilyResearchPanel report={modelFamilyReport} />
     <FreezeRecoveryPanel />
     <RebuildProgressPanel />
     <CalibratedFusionPanel />

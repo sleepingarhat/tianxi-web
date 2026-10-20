@@ -1,0 +1,474 @@
+{
+  "date": "2026-10-14",
+  "trainingStart": "2016-09-03",
+  "trainingEnd": "2026-10-11",
+  "trainingRows": 100828,
+  "trainingRaces": 8288,
+  "races": [
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_1",
+      "runners": 12,
+      "actualTop4": [
+        "horse_L045",
+        "horse_K216",
+        "horse_H419",
+        "horse_G292"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_L045",
+            "horse_K028",
+            "horse_H419",
+            "horse_K402"
+          ],
+          "hits": 2
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_H419",
+            "horse_K028",
+            "horse_L045",
+            "horse_K402"
+          ],
+          "hits": 2
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_L045",
+            "horse_K028",
+            "horse_K402",
+            "horse_H419"
+          ],
+          "hits": 2
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_2",
+      "runners": 10,
+      "actualTop4": [
+        "horse_L031",
+        "horse_K253",
+        "horse_G125",
+        "horse_L093"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_L031",
+            "horse_J494",
+            "horse_G125",
+            "horse_K253"
+          ],
+          "hits": 3
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_L031",
+            "horse_J494",
+            "horse_G125",
+            "horse_K253"
+          ],
+          "hits": 3
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_L031",
+            "horse_J494",
+            "horse_G125",
+            "horse_K253"
+          ],
+          "hits": 3
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_3",
+      "runners": 10,
+      "actualTop4": [
+        "horse_L039",
+        "horse_K009",
+        "horse_L267",
+        "horse_K580"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_L039",
+            "horse_K009",
+            "horse_K416",
+            "horse_K580"
+          ],
+          "hits": 3
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_L039",
+            "horse_K416",
+            "horse_K580",
+            "horse_K009"
+          ],
+          "hits": 3
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_L039",
+            "horse_K580",
+            "horse_K009",
+            "horse_K416"
+          ],
+          "hits": 3
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_4",
+      "runners": 12,
+      "actualTop4": [
+        "horse_J366",
+        "horse_H057",
+        "horse_L325",
+        "horse_J253"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_G465",
+            "horse_J253",
+            "horse_L325",
+            "horse_H057"
+          ],
+          "hits": 3
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_G465",
+            "horse_J253",
+            "horse_L325",
+            "horse_L083"
+          ],
+          "hits": 2
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_G465",
+            "horse_L325",
+            "horse_J253",
+            "horse_H057"
+          ],
+          "hits": 3
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_5",
+      "runners": 10,
+      "actualTop4": [
+        "horse_J513",
+        "horse_H317",
+        "horse_K202",
+        "horse_K325"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_K325",
+            "horse_H317",
+            "horse_K347",
+            "horse_K202"
+          ],
+          "hits": 3
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_K325",
+            "horse_H317",
+            "horse_K347",
+            "horse_K202"
+          ],
+          "hits": 3
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_K325",
+            "horse_K347",
+            "horse_H317",
+            "horse_K202"
+          ],
+          "hits": 3
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_6",
+      "runners": 9,
+      "actualTop4": [
+        "horse_J208",
+        "horse_H215",
+        "horse_H380",
+        "horse_K385"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_L110",
+            "horse_K057",
+            "horse_J208",
+            "horse_J136"
+          ],
+          "hits": 1
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_L110",
+            "horse_K057",
+            "horse_J208",
+            "horse_H380"
+          ],
+          "hits": 2
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_L110",
+            "horse_K057",
+            "horse_J136",
+            "horse_H380"
+          ],
+          "hits": 1
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_7",
+      "runners": 12,
+      "actualTop4": [
+        "horse_L281",
+        "horse_L050",
+        "horse_K271",
+        "horse_H108"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_L050",
+            "horse_H356",
+            "horse_J362",
+            "horse_H108"
+          ],
+          "hits": 2
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_L050",
+            "horse_H108",
+            "horse_J362",
+            "horse_H356"
+          ],
+          "hits": 2
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_L050",
+            "horse_H356",
+            "horse_H108",
+            "horse_J362"
+          ],
+          "hits": 2
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_8",
+      "runners": 12,
+      "actualTop4": [
+        "horse_K395",
+        "horse_L108",
+        "horse_L149",
+        "horse_K381"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_K395",
+            "horse_J446",
+            "horse_K381",
+            "horse_L108"
+          ],
+          "hits": 3
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_K395",
+            "horse_J446",
+            "horse_K381",
+            "horse_L108"
+          ],
+          "hits": 3
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_K395",
+            "horse_J446",
+            "horse_K381",
+            "horse_G463"
+          ],
+          "hits": 2
+        }
+      }
+    },
+    {
+      "date": "2026-10-14",
+      "raceId": "race_2026-10-14_HV_9",
+      "runners": 12,
+      "actualTop4": [
+        "horse_K379",
+        "horse_L193",
+        "horse_L481",
+        "horse_K352"
+      ],
+      "models": {
+        "LightGBM": {
+          "selected": [
+            "horse_K485",
+            "horse_K314",
+            "horse_L135",
+            "horse_L481"
+          ],
+          "hits": 1
+        },
+        "XGBoost": {
+          "selected": [
+            "horse_K485",
+            "horse_K314",
+            "horse_L135",
+            "horse_L481"
+          ],
+          "hits": 1
+        },
+        "Random Forest": {
+          "selected": [
+            "horse_K485",
+            "horse_K314",
+            "horse_K097",
+            "horse_L481"
+          ],
+          "hits": 1
+        }
+      }
+    }
+  ],
+  "models": {
+    "LightGBM": {
+      "parameters": {
+        "boosting_type": "gbdt",
+        "class_weight": null,
+        "colsample_bytree": 1.0,
+        "importance_type": "split",
+        "learning_rate": 0.05,
+        "max_depth": 6,
+        "min_child_samples": 20,
+        "min_child_weight": 0.001,
+        "min_split_gain": 0.0,
+        "n_estimators": 200,
+        "n_jobs": 2,
+        "num_leaves": 15,
+        "objective": "lambdarank",
+        "random_state": 42,
+        "reg_alpha": 0.0,
+        "reg_lambda": 0.0,
+        "subsample": 1.0,
+        "subsample_for_bin": 200000,
+        "subsample_freq": 0,
+        "label_gain": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "lambdarank_truncation_level": 4,
+        "verbosity": -1,
+        "deterministic": true,
+        "force_col_wise": true
+      },
+      "seconds": 3.73
+    },
+    "XGBoost": {
+      "parameters": {
+        "objective": "rank:pairwise",
+        "base_score": null,
+        "booster": null,
+        "callbacks": null,
+        "colsample_bylevel": null,
+        "colsample_bynode": null,
+        "colsample_bytree": 1,
+        "device": null,
+        "early_stopping_rounds": null,
+        "enable_categorical": true,
+        "eval_metric": null,
+        "feature_types": null,
+        "feature_weights": null,
+        "gamma": null,
+        "grow_policy": null,
+        "importance_type": null,
+        "interaction_constraints": null,
+        "learning_rate": 0.05,
+        "max_bin": null,
+        "max_cat_threshold": null,
+        "max_cat_to_onehot": null,
+        "max_delta_step": null,
+        "max_depth": 6,
+        "max_leaves": null,
+        "min_child_weight": 20,
+        "missing": null,
+        "monotone_constraints": null,
+        "multi_strategy": null,
+        "n_estimators": 200,
+        "n_jobs": 2,
+        "num_parallel_tree": null,
+        "random_state": 42,
+        "reg_alpha": null,
+        "reg_lambda": null,
+        "sampling_method": null,
+        "scale_pos_weight": null,
+        "subsample": 1,
+        "tree_method": "hist",
+        "validate_parameters": null,
+        "verbosity": null
+      },
+      "seconds": 4.65
+    },
+    "Random Forest": {
+      "parameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "criterion": "squared_error",
+        "max_depth": 6,
+        "max_features": 0.5,
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 20,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 200,
+        "n_jobs": 2,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "seconds": 56.03
+    }
+  }
+}
