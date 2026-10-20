@@ -10,6 +10,7 @@ import { OfficialRaceAudit } from '@/components/tx/OfficialRaceAudit';
 import { exoticPoolOptions } from "@/lib/racingPoolAccounting";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Scroller, Seg, Table, Td } from "@/components/tx/ui";
 import { fmtMeetingDate, txApi } from "@/lib/tx-api";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/strategy-pnl")({
   head: () => ({
@@ -200,7 +201,7 @@ function StrategyPnlPage() {
         />
       </div>
 
-      <OfficialRaceAudit accounting />
+      <OfficialRaceAudit accounting meetings={rawPoints} />
 
       {pnl.isLoading || crossLoading ? (
         <div className="px-4 py-6">
@@ -258,7 +259,7 @@ function StrategyPnlPage() {
 
           {supplemented || missing ? <p className="mx-4 mt-3 text-[11px] leading-relaxed text-gold">跨場紀錄含 {supplemented} 口賽後補第五選試算；{missing} 口缺預測未計成本／派彩。並非全期賽前凍結實績。</p> : null}
 
-          <Card title="逐個彩池" en="By Pool">
+          <Card title="逐個彩池" en="By Pool" action={<Button variant="outline" size="sm" asChild><Link to="/cross-race-pools">跨場明細</Link></Button>}>
             {filtered ? <p className="mb-2 text-[11px] leading-relaxed text-ink-3">後端只提供四個單場彩池嘅全期分池數字，所選時段唔夠全期時暫唔顯示，避免同上面累計對唔上；孖T／三T 按所選時段計。</p> : null}
             <div className="grid grid-cols-2 gap-2">
               {POOLS.map((p) => {
@@ -325,6 +326,7 @@ function StrategyPnlPage() {
           </div>
           <SinglePoolDaily date={dayPick || sortedDesc[0].date} />
           <ExoticTrioPools date={dayPick || sortedDesc[0].date} />
+          <Button variant="outline" size="sm" asChild><Link to="/cross-race-pools" search={{ date: dayPick || sortedDesc[0].date }}>查看當日跨場明細</Link></Button>
         </section>
       ) : null}
 

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 import { exoticPoolOptions } from "@/lib/racingPoolAccounting";
 
@@ -12,7 +13,7 @@ import { Card, Pill } from "./ui";
  */
 const money = (v: number) => `$${v.toLocaleString("en-US", { maximumFractionDigits: 1 })}`;
 
-export function ExoticTrioPools({ date }: { date: string }) {
+export function ExoticTrioPools({ date, detailed = false }: { date: string; detailed?: boolean }) {
   const q = useQuery(exoticPoolOptions(date));
   if (!date) return null;
   const pools = q.data?.pools ?? [];
@@ -29,7 +30,9 @@ export function ExoticTrioPools({ date }: { date: string }) {
       {q.isLoading ? (
         <p className="py-3 text-center text-[11px] text-ink-3">計算緊…</p>
       ) : q.isError ? (
-        <p className="py-3 text-center text-[11px] text-lose">讀取失敗，稍後再試</p>
+        <div className="py-3 text-center text-[11px] text-lose"><p>讀取失敗，稍後再試</p><Button variant="outline" size="sm" className="mt-2" onClick={() => q.refetch()}>重新核對</Button></div>
+      ) : q.data?.noArchive ? (
+        <p className="py-3 text-center text-[11px] leading-relaxed text-ink-3">呢個賽日未建立原始凍結存證，孖T／三T 唔作結算，亦唔計入累計盈虧。</p>
       ) : !pools.length ? (
         <p className="py-3 text-center text-[11px] text-ink-3">呢個賽日未有孖T／三T 派彩紀錄</p>
       ) : (
@@ -52,13 +55,21 @@ export function ExoticTrioPools({ date }: { date: string }) {
                     {p.pendingWithdrawal ? <Pill tone="ink">退出待核</Pill> : p.missing ? <Pill tone="ink">缺預測</Pill> : p.mainHit ? <Pill tone="win">中正獎</Pill> : p.consUnits ? <Pill tone="gold">中安慰獎</Pill> : <Pill tone="lose">冇中</Pill>}
                   </span>
                 </p>
-                <p className="mt-1 flex flex-wrap gap-1 text-[10px]">
+                {detailed ? <div className="mt-3 grid gap-3 md:grid-cols-3">
+                  {p.detail.map(d => <div key={d.race} className="min-w-0 border-l-2 border-hairline pl-3 text-[11px] leading-relaxed">
+                    <p className="flex items-center gap-2"><b>第 {d.race} 場</b><Pill tone={d.hit === true ? "win" : "ink"}>{d.hit === true ? "命中" : d.hit === false ? "未中" : "待核"}</Pill></p>
+                    <p className="mt-1 text-ink-2">原凍結：膽 {d.original?.bankers.join("、") ?? "—"} ／ 拖 {d.original?.legs.join("、") ?? "—"}</p>
+                    <p className="text-ink-2">結算注項：膽 {d.settled?.bankers.join("、") ?? "—"} ／ 拖 {d.settled?.legs.join("、") ?? "—"}</p>
+                    <p className="text-ink-3">官方正獎組合：{d.winningCombination ?? "未有紀錄"}</p>
+                  </div>)}
+                </div> : <p className="mt-1 flex flex-wrap gap-1 text-[10px]">
                   {p.detail.map((d) => (
                     <span key={d.race} className={`rounded-[4px] border px-1.5 ${d.hit ? "border-win/40 text-win" : d.hit === false ? "border-hairline text-ink-3" : "border-hairline text-ink-3"}`}>
                       R{d.race} {d.hit ? "✓" : d.hit === false ? "✗" : "—"}
                     </span>
                   ))}
-                </p>
+                </p>}
+                {detailed ? <p className="mt-3 text-[11px] leading-relaxed text-ink-3">第 {p.races.at(-1)} 場結算 · 官方每 $10 正獎派彩 {p.mainDividend == null ? "—" : money(p.mainDividend)}{p.consolationDividend == null ? "" : ` · 安慰獎 ${money(p.consolationDividend)}`} · 派彩屬整口跨場投注，唔拆成單場收益。</p> : null}
                 {p.races.map(race => { const source=q.data?.evidence[race]?.source; return source ? <p key={race} className="mt-1 break-all text-[10px] text-ink-3"><a className="text-gold underline" href={source.sourceUrl} target="_blank" rel="noreferrer">R{race} 官方熱門存檔</a> · SHA {source.sha256}</p> : null; })}
                 <p className="tabnum mt-1 font-mono-tx text-[10px] text-ink-2">
                   {p.missing ? '成本及派彩待核，不入合計' : `${p.units} 注 · 成本 ${money(p.cost)}`}

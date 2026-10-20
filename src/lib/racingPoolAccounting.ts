@@ -12,7 +12,8 @@ type Leg = FrozenPoolLeg | null;
 export type PoolCalc = {
   name: string; races: number[]; units: number; cost: number;
   mainHit: boolean; payout: number; consUnits: number; consPayout: number;
-  missing: boolean; pendingWithdrawal: boolean; detail: { race: number; hit: boolean | null }[];
+  mainDividend: number | null; consolationDividend: number | null;
+  missing: boolean; pendingWithdrawal: boolean; detail: { race: number; hit: boolean | null; original: Leg; settled: Leg; winningCombination: string | null }[];
 };
 
 const parseLeg = (s: string) => s.trim();
@@ -55,7 +56,8 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
     const missing = pendingWithdrawal || legs.some((l) => !l);
     const units = legs.reduce((a, leg) => a * (leg?.legs.length ?? 0), 1);
     const mainParts = g.main ? g.main.combo.split("/").map(parseLeg) : [];
-    const detail = races.map((r, i) => ({ race: r, hit: !missing && g.main ? legHit(legs[i], mainParts[i]) : null }));
+    const detail = races.map((r, i) => ({ race: r, hit: !missing && g.main ? legHit(legs[i], mainParts[i]) : null,
+      original: legsByRace[r] ?? null, settled: pendingWithdrawal ? null : legs[i] ?? null, winningCombination: mainParts[i] ?? null }));
     const mainHit = !missing && !!g.main && detail.every((d) => d.hit);
     let consUnits = 0;
     if (g.cons && !missing) {
@@ -75,14 +77,20 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
       name, races, units, cost: units * UNIT,
       mainHit, payout: mainHit && g.main ? legs.reduce((a, leg, i) => a * (leg?.legs.filter((x) => setOf(mainParts[i] ?? "").has(x)).length ?? 0), 1) * g.main.dividend : 0,
       consUnits, consPayout: g.cons ? consUnits * g.cons.dividend : 0,
+      mainDividend: g.main?.dividend ?? null, consolationDividend: g.cons?.dividend ?? null,
       missing, pendingWithdrawal, detail,
     });
   }
   return out.sort((a, b) => (a.races[0] ?? 0) - (b.races[0] ?? 0));
 }
 
-async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null }> {
+async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null; noArchive?: boolean }> {
   const res = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
+  // 該日從未建立原始凍結存證：唔係讀取失敗，跨場一律列「缺預測」、不入正式合計
+  if (res.status === 503) {
+    const body = await res.clone().json().catch(() => null) as { reason?: string } | null;
+    if (body?.reason === 'no-archive') return { legs: {}, venue: null, noArchive: true };
+  }
   if (!res.ok) throw new Error('原始凍結未能核實，跨場原注暫停結算');
   const frozen = await res.json() as { date: string; venue: string; source: string; races: FrozenPoolRace[] };
   if (frozen.date !== date || frozen.source !== 'verified-original-snapshot' || !['ST','HV'].includes(frozen.venue) || !Array.isArray(frozen.races)) throw new Error('跨場原注來源未能核實');
@@ -92,7 +100,10 @@ async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venu
 export const exoticPoolOptions = (date: string) => queryOptions({
   queryKey: ["exotic-trio-verified-original", date], enabled: !!date, staleTime: 30_000,
   queryFn: async () => {
-    const [divs, { legs, venue }, changes] = await Promise.all([fetchRaceDividends(date), loadLegs(date), getHkjcChanges({ data: { date } })]);
+    const { legs, venue, noArchive } = await loadLegs(date);
+    // 無原注可核對就唔再讀其他來源，避免無關網絡失敗蓋過「無存證」。
+    if (noArchive) return { pools: [] as PoolCalc[], legs, favourites: {} as Record<number, number[] | undefined>, evidence: {} as Record<number, OfficialFavourites>, venue, noArchive: true };
+    const [divs, changes] = await Promise.all([fetchRaceDividends(date), getHkjcChanges({ data: { date } })]);
     const withdrawn: Record<number, Set<number>> = {};
     for (const c of changes?.changes ?? []) {
       if (c.kind !== "scratched" && c.kind !== "replaced") continue;
@@ -108,7 +119,7 @@ export const exoticPoolOptions = (date: string) => queryOptions({
         favourites[r.raceNumber] = favouriteOrderForSettlement(r) ?? undefined;
       }
     }
-    return { pools: calcPools(divs, legs, withdrawn, favourites), legs, favourites, evidence, venue };
+    return { pools: calcPools(divs, legs, withdrawn, favourites), legs, favourites, evidence, venue, noArchive: !!noArchive };
   },
 });
 

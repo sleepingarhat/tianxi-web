@@ -2,11 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Card, Pill } from './ui';
 import { summarizeOfficialMetrics, type OfficialMetricInput } from '@/lib/racing-official-metrics';
+import { meetingOptions } from '@/lib/meeting-options';
 
 type AuditRace = { raceNumber: number; effectiveTop4: { original: number[]; effective: number[]; status: string; substituted: boolean }; metricInput: OfficialMetricInput; officialMetric: { eligible: boolean; originalHits: number | null; alternativeHits: number | null }; changeClassification: { hasWithdrawal: boolean; postLockJockeyChange: boolean } };
 type AuditDay = { snapshot: { sha256: string }; races: AuditRace[]; officialChanges: { source: string } | null };
-export function OfficialRaceAudit({ accounting = false }: { accounting?: boolean }) {
-  const [date, setDate] = useState('');
+export function OfficialRaceAudit({ accounting = false, meetings = [] }: { accounting?: boolean; meetings?: { date: string; venue?: string | undefined }[] }) {
+  const [pickedDate, setDate] = useState('');
+  const options = meetingOptions(meetings);
+  const date = options.some(row => row.date === pickedDate) ? pickedDate : options[0]?.date ?? '';
   const query = useQuery({ queryKey: ['original-race-audit', date], enabled: !!date, queryFn: async (): Promise<AuditDay> => {
     const response = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`);
     const body = await response.json();
@@ -17,7 +20,9 @@ export function OfficialRaceAudit({ accounting = false }: { accounting?: boolean
   const summary = day ? summarizeOfficialMetrics(day.races.map(r=>r.metricInput)) : null;
   return <Card title={accounting ? '原注與補位逐場核對' : '原四揀正式命中 · 逐場核對'} en="Original Frozen Selections">
     <label className="flex flex-wrap items-center gap-2 text-[12px] text-ink">賽日
-      <input aria-label="原四揀核對賽日" type="date" value={date} onChange={e=>setDate(e.target.value)} className="min-w-0 rounded-[6px] border border-hairline bg-paper px-2 py-1 text-ink" />
+      <select aria-label="原四揀核對賽事" value={date} disabled={!options.length} onChange={e=>setDate(e.target.value)} className="min-w-0 max-w-full rounded-[6px] border border-hairline bg-paper px-2 py-1 text-ink">
+        {!options.length ? <option value="">未有賽事</option> : options.map(row => <option key={row.date} value={row.date}>{row.date}{row.venue === 'ST' ? ' · 沙田' : row.venue === 'HV' ? ' · 跑馬地' : ''}</option>)}
+      </select>
     </label>
     {query.isFetching ? <p className="mt-3 text-[12px] text-ink-3">核對原凍結中…</p> : query.error ? <p role="alert" className="mt-3 text-[12px] text-lose">{query.error.message}</p> : null}
     {summary ? <p className="my-3 text-[12px] text-ink-2">正式原四揀平均 {summary.originalAverage?.toFixed(2) ?? '—'}／4 · {summary.races} 場 · 無效／待核 {summary.excluded} 場</p> : null}

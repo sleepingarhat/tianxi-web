@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CardsRouteImport } from './routes/cards'
+import { Route as CrossRacePoolsRouteImport } from './routes/cross-race-pools'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DevLogRouteImport } from './routes/dev-log'
 import { Route as EloLogRouteImport } from './routes/elo-log'
@@ -106,6 +107,11 @@ const AuthRoute = AuthRouteImport.update({
 const CardsRoute = CardsRouteImport.update({
   id: '/cards',
   path: '/cards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CrossRacePoolsRoute = CrossRacePoolsRouteImport.update({
+  id: '/cross-race-pools',
+  path: '/cross-race-pools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -511,6 +517,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cards': typeof CardsRoute
+  '/cross-race-pools': typeof CrossRacePoolsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
   '/elo-log': typeof EloLogRoute
@@ -591,6 +598,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cards': typeof CardsRoute
+  '/cross-race-pools': typeof CrossRacePoolsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
   '/elo-log': typeof EloLogRoute
@@ -672,6 +680,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/cards': typeof CardsRoute
+  '/cross-race-pools': typeof CrossRacePoolsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
   '/elo-log': typeof EloLogRoute
@@ -754,6 +763,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cards'
+    | '/cross-race-pools'
     | '/dashboard'
     | '/dev-log'
     | '/elo-log'
@@ -834,6 +844,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cards'
+    | '/cross-race-pools'
     | '/dashboard'
     | '/dev-log'
     | '/elo-log'
@@ -914,6 +925,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/cards'
+    | '/cross-race-pools'
     | '/dashboard'
     | '/dev-log'
     | '/elo-log'
@@ -996,6 +1008,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CardsRoute: typeof CardsRoute
+  CrossRacePoolsRoute: typeof CrossRacePoolsRoute
   DashboardRoute: typeof DashboardRoute
   DevLogRoute: typeof DevLogRoute
   EloLogRoute: typeof EloLogRoute
@@ -1088,6 +1101,13 @@ declare module '@tanstack/react-router' {
       path: '/cards'
       fullPath: '/cards'
       preLoaderRoute: typeof CardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cross-race-pools': {
+      id: '/cross-race-pools'
+      path: '/cross-race-pools'
+      fullPath: '/cross-race-pools'
+      preLoaderRoute: typeof CrossRacePoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -1668,6 +1688,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CardsRoute: CardsRoute,
+  CrossRacePoolsRoute: CrossRacePoolsRoute,
   DashboardRoute: DashboardRoute,
   DevLogRoute: DevLogRoute,
   EloLogRoute: EloLogRoute,

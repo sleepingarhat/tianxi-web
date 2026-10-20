@@ -15,7 +15,7 @@
 
 ## 監控端規則
 - Read nested src/components/admin/AGENTS.md before edits; scoped rules apply.
-- P&L merges daily four-pool/cross-race totals once; cross-race originals use verified frozen ranks 1–5 only. Missing fifth picks or invalid inputs stop settlement. Why: post-race picks cannot certify tickets.
+- P&L/detail share exoticPoolOptions/ExoticTrioPools; merge once, separate original/settled legs, pay per ticket. Verified ranks 1–5; missing fifth/invalid input stops settlement. Why: no double count or post-race picks.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
 - Separate code, verified flows and missing evidence in audits; tasks are not delivery.
 
