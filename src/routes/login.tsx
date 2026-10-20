@@ -72,6 +72,14 @@ function LoginPage() {
         </div>
       </Card>
 
+      <p className="text-center text-[11px] text-ink-3">
+        登入即代表你同意
+        <Link to="/terms" className="mx-1 text-gold underline">服務條款</Link>
+        及
+        <Link to="/privacy" className="mx-1 text-gold underline">私隱政策</Link>
+        。
+      </p>
+
       <Disclaimer />
     </AppShell>
   );

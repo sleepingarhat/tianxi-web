@@ -30,6 +30,7 @@ import { Route as PredictionReconciliationRouteImport } from './routes/predictio
 import { Route as PredictionVsResultRouteImport } from './routes/prediction-vs-result'
 import { Route as PredictorRouteImport } from './routes/predictor'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RaceRouteImport } from './routes/race'
 import { Route as RaceChangesRouteImport } from './routes/race-changes'
 import { Route as RacingHealthRouteImport } from './routes/racing-health'
@@ -37,6 +38,7 @@ import { Route as ResultsRouteImport } from './routes/results'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StrategyPnlRouteImport } from './routes/strategy-pnl'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackRecordRouteImport } from './routes/track-record'
 import { Route as ValueTrendRouteImport } from './routes/value-trend'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -190,6 +192,11 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RaceRoute = RaceRouteImport.update({
   id: '/race',
   path: '/race',
@@ -223,6 +230,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const StrategyPnlRoute = StrategyPnlRouteImport.update({
   id: '/strategy-pnl',
   path: '/strategy-pnl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackRecordRoute = TrackRecordRouteImport.update({
@@ -503,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/prediction-vs-result': typeof PredictionVsResultRoute
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/race': typeof RaceRoute
   '/race-changes': typeof RaceChangesRoute
   '/racing-health': typeof RacingHealthRoute
@@ -510,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/schedule': typeof ScheduleRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/strategy-pnl': typeof StrategyPnlRoute
+  '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -579,6 +593,7 @@ export interface FileRoutesByTo {
   '/prediction-vs-result': typeof PredictionVsResultRoute
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/race': typeof RaceRoute
   '/race-changes': typeof RaceChangesRoute
   '/racing-health': typeof RacingHealthRoute
@@ -586,6 +601,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof ScheduleRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/strategy-pnl': typeof StrategyPnlRoute
+  '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
   '/checkout/return': typeof CheckoutReturnRoute
@@ -656,6 +672,7 @@ export interface FileRoutesById {
   '/prediction-vs-result': typeof PredictionVsResultRoute
   '/predictor': typeof PredictorRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/race': typeof RaceRoute
   '/race-changes': typeof RaceChangesRoute
   '/racing-health': typeof RacingHealthRoute
@@ -663,6 +680,7 @@ export interface FileRoutesById {
   '/schedule': typeof ScheduleRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/strategy-pnl': typeof StrategyPnlRoute
+  '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -734,6 +752,7 @@ export interface FileRouteTypes {
     | '/prediction-vs-result'
     | '/predictor'
     | '/pricing'
+    | '/privacy'
     | '/race'
     | '/race-changes'
     | '/racing-health'
@@ -741,6 +760,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/sitemap.xml'
     | '/strategy-pnl'
+    | '/terms'
     | '/track-record'
     | '/value-trend'
     | '/admin'
@@ -810,6 +830,7 @@ export interface FileRouteTypes {
     | '/prediction-vs-result'
     | '/predictor'
     | '/pricing'
+    | '/privacy'
     | '/race'
     | '/race-changes'
     | '/racing-health'
@@ -817,6 +838,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/sitemap.xml'
     | '/strategy-pnl'
+    | '/terms'
     | '/track-record'
     | '/value-trend'
     | '/checkout/return'
@@ -886,6 +908,7 @@ export interface FileRouteTypes {
     | '/prediction-vs-result'
     | '/predictor'
     | '/pricing'
+    | '/privacy'
     | '/race'
     | '/race-changes'
     | '/racing-health'
@@ -893,6 +916,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/sitemap.xml'
     | '/strategy-pnl'
+    | '/terms'
     | '/track-record'
     | '/value-trend'
     | '/_authenticated/admin'
@@ -964,6 +988,7 @@ export interface RootRouteChildren {
   PredictionVsResultRoute: typeof PredictionVsResultRoute
   PredictorRoute: typeof PredictorRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   RaceRoute: typeof RaceRoute
   RaceChangesRoute: typeof RaceChangesRoute
   RacingHealthRoute: typeof RacingHealthRoute
@@ -971,6 +996,7 @@ export interface RootRouteChildren {
   ScheduleRoute: typeof ScheduleRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StrategyPnlRoute: typeof StrategyPnlRoute
+  TermsRoute: typeof TermsRoute
   TrackRecordRoute: typeof TrackRecordRoute
   ValueTrendRoute: typeof ValueTrendRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
@@ -1156,6 +1182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/race': {
       id: '/race'
       path: '/race'
@@ -1203,6 +1236,13 @@ declare module '@tanstack/react-router' {
       path: '/strategy-pnl'
       fullPath: '/strategy-pnl'
       preLoaderRoute: typeof StrategyPnlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/track-record': {
@@ -1604,6 +1644,7 @@ const rootRouteChildren: RootRouteChildren = {
   PredictionVsResultRoute: PredictionVsResultRoute,
   PredictorRoute: PredictorRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   RaceRoute: RaceRoute,
   RaceChangesRoute: RaceChangesRoute,
   RacingHealthRoute: RacingHealthRoute,
@@ -1611,6 +1652,7 @@ const rootRouteChildren: RootRouteChildren = {
   ScheduleRoute: ScheduleRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StrategyPnlRoute: StrategyPnlRoute,
+  TermsRoute: TermsRoute,
   TrackRecordRoute: TrackRecordRoute,
   ValueTrendRoute: ValueTrendRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
