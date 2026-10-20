@@ -105,7 +105,7 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
       // return_run_details：GitHub 直接回傳今次 run id，唔再憑時間估。
       dispatch: async () => {
         if (!gh) return null;
-        const r = await fetch(`${workflow}/dispatches`,{method:'POST',headers,body:JSON.stringify({ref:'main',return_run_details:true}),signal:AbortSignal.timeout(8_000)}).catch(()=>null);
+        const r = await fetch(`${workflow}/dispatches`,{method:'POST',headers,body:JSON.stringify({ref:'main',return_run_details:true}),signal:AbortSignal.timeout(30_000)}).catch(()=>null);
         if (!r || r.status !== 200) return null;
         const p = z.object({workflow_run_id:z.number().int().positive()}).safeParse(await r.json().catch(()=>null));
         return p.success ? p.data.workflow_run_id : null;
