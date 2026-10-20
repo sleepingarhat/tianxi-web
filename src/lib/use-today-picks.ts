@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayPicksAll } from "./picks.functions";
 import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
-import { picksEdition } from "./picks-refresh";
+import { picksEdition, editionAfterError } from "./picks-refresh";
 import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
 import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
 import { changeRevision, verifiedUpdate } from './racing-change-progress';
@@ -45,7 +45,9 @@ export function useTodayPicks() {
     refetchInterval: 30_000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
-    retry: false,
+    // 冷啟動偶爾超時：自動再試一次，唔使會員撳掣。
+    retry: 1,
+    retryDelay: 3_000,
     enabled: !cancellation,
   });
   const date: string | undefined = picks.data?.date;
@@ -117,7 +119,7 @@ export function useTodayPicks() {
     };
   });
 
-  const edition = picks.error ? "unavailable" : picksEdition(picks.data);
+  const edition = editionAfterError(picks.data, Boolean(picks.error));
   return {
     date: cancellation?.date ?? date,
     venue: picks.data?.venue as string | undefined,
@@ -131,7 +133,7 @@ export function useTodayPicks() {
     meeting: meeting.data,
     cancellation,
     isLoading: cancellation ? false : picks.isLoading,
-    error: picks.error,
+    error: edition === "unavailable" ? picks.error : null,
     isFetching: picks.isFetching,
     refetch: picks.refetch,
     changesSnapshot,

@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPicksRefresh, picksEdition } from "./picks-refresh";
+import { createPicksRefresh, picksEdition, editionAfterError } from "./picks-refresh";
 import { raceStatus } from "./prediction-status";
 
 describe("今日預測最終版讀取", () => {
-  it("掛起讀取25秒後停止，重試不能被舊請求卡住或回填", async () => {
+  it("掛起讀取55秒後停止，重試不能被舊請求卡住或回填", async () => {
     vi.useFakeTimers();
     try {
       let finishOld: ((value: { edition: string }) => void) | undefined;
@@ -12,7 +12,7 @@ describe("今日預測最終版讀取", () => {
         .mockResolvedValueOnce({ edition: "final" });
       const refresh = createPicksRefresh(upstream);
       const failed = expect(refresh()).rejects.toThrow("timeout");
-      await vi.advanceTimersByTimeAsync(25_000);
+      await vi.advanceTimersByTimeAsync(55_000);
       await failed;
       expect(await refresh()).toEqual({ edition: "final" });
       finishOld?.({ edition: "draft" });
@@ -57,5 +57,15 @@ describe("今日預測最終版讀取", () => {
     const now = new Date("2026-10-19T05:36:00Z");
     expect(raceStatus(race, { date: "2026-10-19", now, frozen: true }).color).toBe("green");
     expect(raceStatus({ ...race, startTime: "12:30" }, { date: "2026-10-19", now, frozen: false }).color).toBe("amber");
+  });
+  it("背景重讀失敗：鎖前保留上一份初版，鎖後或最終版一律不可用", () => {
+    const lockAt = "2026-10-21T09:10:00.000Z";
+    const before = Date.parse("2026-10-21T08:00:00Z");
+    const after = Date.parse("2026-10-21T09:11:00Z");
+    expect(editionAfterError({ edition: "draft", lockAt }, true, before)).toBe("draft");
+    expect(editionAfterError({ edition: "draft", lockAt }, true, after)).toBe("unavailable");
+    expect(editionAfterError({ edition: "final", lockAt }, true, before)).toBe("unavailable");
+    expect(editionAfterError(undefined, true, before)).toBe("unavailable");
+    expect(editionAfterError({ edition: "draft" }, true, before)).toBe("unavailable");
   });
 });

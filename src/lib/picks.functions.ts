@@ -10,7 +10,7 @@ const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 // 不保存完成結果：避免凍結恢復後繼續公開舊初版或吞掉阻截錯誤。
 
 async function fetchTodayPicksUpstream() {
-  const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+  const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
   const lock = await lockResponse.json() as { date?: string; locked?: boolean; edition?: string };
   if (lock.locked || lock.edition === 'final' || lock.edition === 'unavailable') {
@@ -22,7 +22,7 @@ async function fetchTodayPicksUpstream() {
   const url = `${WORKER_BASE}/api/analyze/today-picks`;
   const res = await fetch(url, {
     cache: "no-store",
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(40_000),
     headers: {
       "user-agent": "tianxi-web",
       ...(token ? { authorization: `Bearer ${token}` } : {}),
