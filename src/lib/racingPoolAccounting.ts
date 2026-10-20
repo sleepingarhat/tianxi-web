@@ -2,6 +2,8 @@ import { queryOptions } from "@tanstack/react-query";
 import { fetchRaceDividends, type DividendRow } from "./raceDividends";
 import { TX_BASE } from "./tx-api";
 import { settleWithdrawnLeg } from "./exotic-withdrawal";
+import { getOfficialFavourites } from "./official-favourites.functions";
+import { favouriteOrderForSettlement, type OfficialFavourites } from "./official-favourites";
 import { getHkjcChanges } from "./hkjc-changes.functions";
 
 const UNIT = 10;
@@ -85,8 +87,9 @@ async function readAccounting(path: string) {
   return res.json();
 }
 
-async function loadLegs(date: string): Promise<Record<number, Leg>> {
+async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null }> {
   const [hr, mt] = await Promise.all([readAccounting(`/api/analyze/hit-rate?date=${date}`), readAccounting(`/api/meetings/${date}`)]);
+  const venue: string | null = typeof mt?.venue === "string" && mt.venue ? mt.venue : null;
   const ids: Record<number, string> = {};
   for (const r of mt?.races ?? []) ids[Number(r.raceNumber)] = String(r.id);
   const out: Record<number, Leg> = {};
@@ -113,20 +116,29 @@ async function loadLegs(date: string): Promise<Record<number, Leg>> {
       out[rn] = { race: rn, bankers: [top4[0], top4[1]], legs, fifthFromLive: fifth != null };
     }),
   );
-  return out;
+  return { legs: out, venue };
 }
 
 export const exoticPoolOptions = (date: string) => queryOptions({
   queryKey: ["exotic-trio", date], enabled: !!date, staleTime: 10 * 60_000,
   queryFn: async () => {
-    const [divs, legs, changes] = await Promise.all([fetchRaceDividends(date), loadLegs(date), getHkjcChanges({ data: { date } })]);
+    const [divs, { legs, venue }, changes] = await Promise.all([fetchRaceDividends(date), loadLegs(date), getHkjcChanges({ data: { date } })]);
     const withdrawn: Record<number, Set<number>> = {};
     for (const c of changes?.changes ?? []) {
       if (c.kind !== "scratched" && c.kind !== "replaced") continue;
       (withdrawn[c.raceNumber] ??= new Set()).add(c.horseNumber);
     }
-    // 現時未有已存證嘅官方第一至三熱門來源，受影響原票全部列待核
-    return { pools: calcPools(divs, legs, withdrawn), legs };
+    // 官方熱門只可以用已存證嘅官方賽果賠率；讀唔到或缺存證嘅場次一律列待核
+    const favourites: Record<number, number[] | undefined> = {};
+    const evidence: Record<number, OfficialFavourites> = {};
+    if (venue) {
+      const fav = await getOfficialFavourites({ data: { date, venue } }).catch(() => null);
+      for (const r of fav?.races ?? []) {
+        evidence[r.raceNumber] = r;
+        favourites[r.raceNumber] = favouriteOrderForSettlement(r) ?? undefined;
+      }
+    }
+    return { pools: calcPools(divs, legs, withdrawn, favourites), legs, favourites, evidence, venue };
   },
 });
 

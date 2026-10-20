@@ -28,3 +28,25 @@ export async function validateFrozenSnapshot(saved: { snapshot_json: string; sha
   }
   return s as { schema: number; date: string; engine: string; venue: string; lockAt: string; rows: FrozenRow[]; meta: FrozenRow };
 }
+
+/** 凍結存證狀態：缺副本同核實失敗係兩件事，不可混為「載入失敗」。 */
+export type FrozenEvidenceCode = 'available' | 'no-archive' | 'not-verified' | 'verification-failed';
+export type FrozenEvidenceStatus = Exclude<FrozenEvidenceCode, 'verification-failed'>;
+
+export function frozenEvidenceStatus(saved: { ok: number | null } | undefined | null): FrozenEvidenceStatus {
+  if (!saved) return 'no-archive';
+  return saved.ok === 1 ? 'available' : 'not-verified';
+}
+
+export class FrozenEvidenceError extends Error {
+  readonly code: FrozenEvidenceCode;
+  constructor(code: FrozenEvidenceCode, message: string) {
+    super(message);
+    this.name = 'FrozenEvidenceError';
+    this.code = code;
+  }
+}
+
+export function frozenEvidenceCodeOf(error: unknown): FrozenEvidenceCode {
+  return error instanceof FrozenEvidenceError ? error.code : 'verification-failed';
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateFrozenSnapshot } from './frozen-racing';
+import { validateFrozenSnapshot, frozenEvidenceStatus, frozenEvidenceCodeOf, FrozenEvidenceError } from './frozen-racing';
 async function fixture() {
   const rows = Array.from({length:4},(_,i)=>({date:'2026-10-19',engine:'v12',variant:'baseline',race_number:1,horse_id:`horse_${i}`,horse_number:i+1,predicted_rank:i+1,final_score:1600-i,p_win:0.2,p_top3:null,factor_bonus:1,generated_at:'2026-10-19T00:48:21.522Z'}));
   const meta={date:'2026-10-19',config:'{}'};
@@ -28,5 +28,21 @@ describe('專用原始凍結只讀API驗證',()=>{
   it('描述不一致拒絕，同欄位不同JSON鍵序可以讀',async()=>{
     const f=await fixture();await expect(validateFrozenSnapshot(f.saved,'2026-10-19',f.rows,{config:'{}',date:'2026-10-19'})).resolves.toBeTruthy();
     await expect(validateFrozenSnapshot(f.saved,'2026-10-19',f.rows,{...f.meta,config:'changed'})).rejects.toThrow('描述');
+  });
+});
+describe('凍結存證狀態分類（缺副本唔等於載入失敗）',()=>{
+  it('無副本行係 no-archive，唔係核實失敗',()=>{
+    expect(frozenEvidenceStatus(undefined)).toBe('no-archive');
+    expect(frozenEvidenceStatus(null)).toBe('no-archive');
+  });
+  it('副本存在但 ok=0／ok=NULL 係 not-verified',()=>{
+    expect(frozenEvidenceStatus({ok:0})).toBe('not-verified');
+    expect(frozenEvidenceStatus({ok:null})).toBe('not-verified');
+    expect(frozenEvidenceStatus({ok:1})).toBe('available');
+  });
+  it('只有明確抛出嘅存證錯誤先帶到原因碼，其他錯誤一律 verification-failed',()=>{
+    expect(frozenEvidenceCodeOf(new FrozenEvidenceError('no-archive','呢個賽日未有已核實嘅原始凍結副本'))).toBe('no-archive');
+    expect(frozenEvidenceCodeOf(new Error('fetch failed'))).toBe('verification-failed');
+    expect(frozenEvidenceCodeOf(undefined)).toBe('verification-failed');
   });
 });

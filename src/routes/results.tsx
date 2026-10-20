@@ -15,6 +15,7 @@ import { HitStrip, KpiTile, KV } from "@/components/tx/viz";
 import { fmtMeetingDate, num, txApi } from "@/lib/tx-api";
 import { meetingCancellationForDate } from "@/lib/meeting-status";
 import { resultsAudit } from "@/lib/results-audit";
+import { FrozenEvidenceError, frozenEvidenceCodeOf, type FrozenEvidenceCode } from "@/lib/frozen-racing";
 import { Button } from "@/components/ui/button";
 import { RotateCw } from "lucide-react";
 
@@ -45,6 +46,22 @@ export const Route = createFileRoute("/results")({
   component: ResultsPage,
 });
 
+/** 缺證據唔係「載入失敗」：無副本／未核實要如實講明，等會員知唔使重試。 */
+function EvidenceNote({ error }: { error: unknown }) {
+  const code: FrozenEvidenceCode = frozenEvidenceCodeOf(error);
+  const message = error instanceof Error ? error.message : "未知錯誤";
+  if (code === "no-archive" || code === "not-verified") {
+    return (
+      <div className="rounded-[8px] border border-gold-strong/40 bg-gold-bg px-3 py-2.5">
+        <p className="text-[11px] font-bold text-gold">{code === "no-archive" ? "呢個賽日未有原始凍結副本" : "呢個賽日嘅凍結副本未通過核實"}</p>
+        <p className="mt-1 text-[10.5px] leading-relaxed text-ink-2">{message}</p>
+        <p className="mt-1 text-[10px] leading-relaxed text-ink-3">天喜只展示有不可變原始副本嘅賽日，缺副本嘅賽日唔會用初版或臨場重算補寫；請揀選冇劃線嘅賽日核對。</p>
+      </div>
+    );
+  }
+  return <ErrorNote error={error} />;
+}
+
 function ResultsPage() {
   const { date } = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -53,13 +70,25 @@ function ResultsPage() {
   const meetings = (list.data?.meetings || []).filter((meeting) => !meetingCancellationForDate(meeting.date));
   const activeDate = date || meetings[1]?.date || meetings[0]?.date;
 
+  // 存證目錄：只有建立咗不可變原始凍結副本嘅賽日先可以核對；呢份清單只講有無副本，唔代表戰績已驗收。
+  const archive = useQuery({
+    queryKey: ["frozen-archive-dates"],
+    queryFn: async () => {
+      const response = await fetch("/api/public/frozen-archive-dates", { cache: "no-store" });
+      const data = await response.json().catch(() => null);
+      return new Set<string>(Array.isArray(data?.dates) ? data.dates : []);
+    },
+    staleTime: 10 * 60_000,
+  });
+  const archived = archive.data;
+
   const hr = useQuery({
     queryKey: ["verified-results-audit", activeDate],
     queryFn: async () => {
       if (!activeDate) throw new Error("未選賽日");
       const response = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(activeDate)}`, { cache: "no-store" });
       const data = await response.json();
-      if (!response.ok || !data.frozen) throw new Error(data.error ?? "原凍結未能核實");
+      if (!response.ok || !data.frozen) throw new FrozenEvidenceError(data?.reason ?? "verification-failed", data?.error ?? "原凍結未能核實");
       return resultsAudit(data);
     },
     refetchInterval: 60_000,
@@ -90,26 +119,34 @@ function ResultsPage() {
       <div className="no-scrollbar mx-4 flex gap-1 overflow-x-auto">
         {meetings.map((m) => {
           const on = m.date === activeDate;
+          const hasArchive = archived ? archived.has(m.date) : true;
           return (
             <button
               key={m.id}
               type="button"
+              title={hasArchive ? "有已核實嘅原始凍結副本" : "呢個賽日未有原始凍結副本，不能核對"}
               onClick={() => navigate({ search: { date: m.date } })}
               className={`tabnum shrink-0 rounded-[4px] border px-2 py-1 font-mono-tx text-[10px] font-bold ${
                 on ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"
-              }`}
+              } ${hasArchive ? "" : "opacity-50 line-through"}`}
             >
               {m.date.slice(5)} {m.venue}
             </button>
           );
         })}
       </div>
+      {archived && archived.size < meetings.length ? (
+        <p className="mx-4 mt-1.5 text-[10px] leading-relaxed text-ink-3">
+          劃線嘅賽日未有已核實嘅原始凍結副本，故唔會展示該日最終預測（唔會以初版或臨場重算補寫）。目前可核對嘅賽日：
+          {[...archived].sort().reverse().slice(0, 6).join("、") || "暫無"}。
+        </p>
+      ) : null}
 
       <Card title="當日命中率" en="Hit Rate">
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (
-          <ErrorNote error={hr.error} />
+          <EvidenceNote error={hr.error} />
         ) : s ? (
           <div className="space-y-2.5">
             <div className="grid grid-cols-2 gap-2">
@@ -153,7 +190,7 @@ function ResultsPage() {
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (
-          <div><ErrorNote error={hr.error} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
+          <div><EvidenceNote error={hr.error} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
         ) : races.length ? (
           <div className="divide-y divide-hairline">
             {races.map((r) => (

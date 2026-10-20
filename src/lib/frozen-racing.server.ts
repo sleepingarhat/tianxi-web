@@ -1,5 +1,5 @@
 import { publicRacingQuery as query } from './public-racing-evidence.server';
-import { frozenColumns, validateFrozenSnapshot, type FrozenRow } from './frozen-racing';
+import { frozenColumns, validateFrozenSnapshot, FrozenEvidenceError, frozenEvidenceStatus, type FrozenRow } from './frozen-racing';
 import { verifyRunnerIdentities, type RunnerIdentity } from './racing-runner-identity';
 import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
@@ -17,8 +17,14 @@ export async function readFrozenRacing(date: string) {
     query<FrozenRow>("SELECT * FROM prediction_lock_meta WHERE date=? AND engine='v12'",[date]),
   ]);
   const original = saved[0];
-  if (!original || original.ok !== 1) throw new Error('未有可核實原始凍結副本，暫停提供最終預測');
-  const snapshot = await validateFrozenSnapshot(original,date,rows,metas[0] ?? null);
+  const evidence = frozenEvidenceStatus(original);
+  if (!original || evidence !== 'available') {
+    throw new FrozenEvidenceError(evidence, evidence === 'no-archive'
+      ? '呢個賽日未有已核實嘅原始凍結副本（凍結存證未建立），故唔會展示該日最終預測'
+      : '原始凍結副本嘅核實狀態未確認，暫停提供最終預測');
+  }
+  let snapshot; try { snapshot = await validateFrozenSnapshot(original,date,rows,metas[0] ?? null); }
+  catch (error) { throw new FrozenEvidenceError('verification-failed', error instanceof Error ? error.message : '凍結副本核實失敗'); }
   const [raceInfo, legacyResultRows, names, meeting, card, officialSnap, cardInfo, cloudResults] = await Promise.all([
     query<FrozenRow>(`SELECT r.id raceId,r.race_number raceNumber,r.start_time startTime,r.title,r.class,r.distance,r.going,r.track,r.course FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT r.race_number raceNumber,rr.horse_id horseId,rr.horse_number horseNumber,rr.finishing_position finishingPosition,rr.win_odds winOdds,rr.running_position runningPosition FROM race_results rr JOIN races r ON r.id=rr.race_id JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number,rr.finishing_position`,[date,snapshot.venue]),

@@ -24,6 +24,21 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+/** 將 Google 授權錯誤譯做會員睇得明嘅提示，附點樣繼續。 */
+function describeGoogleError(raw: string): string {
+  const s = raw.toLowerCase();
+  if (s.includes("access_denied") || s.includes("popup_closed") || s.includes("popup closed") || s.includes("cancel")) {
+    return "你已取消 Google 授權，今次未有登入。想繼續嘅話，請再撳一次「用 Google 繼續」。";
+  }
+  if (s.includes("network") || s.includes("fetch") || s.includes("timeout")) {
+    return "網絡連線唔穩定，未能接通 Google。請檢查網絡後再試一次。";
+  }
+  if (s.includes("unsupported provider") || s.includes("provider")) {
+    return "Google 登入服務暫時未能使用，請稍後再試，或改用電郵登入。";
+  }
+  return `Google 登入未能完成（${raw}）。請再試一次；若持續失敗，可改用電郵登入。`;
+}
+
 function AuthPage() {
   const router = useRouter();
   const search = Route.useSearch();
@@ -31,6 +46,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -47,8 +63,28 @@ function AuthPage() {
     const h = window.location.hash + window.location.search;
     const fromLink = /access_token=|code=|type=signup/.test(h);
     const viaGoogle = sessionStorage.getItem("tx_oauth_pending") === "google";
+
+    // Google 授權被拒／出錯時，回跳網址會帶 error 參數；讀完即清走，避免刷新後重複顯示。
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const oauthError = params.get("error") ?? hashParams.get("error");
+    const oauthErrorDesc = params.get("error_description") ?? hashParams.get("error_description");
+    if (oauthError) {
+      sessionStorage.removeItem("tx_oauth_pending");
+      setErr(describeGoogleError(oauthErrorDesc ?? oauthError));
+      window.history.replaceState(null, "", window.location.pathname);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) return;
+      if (!data.session) {
+        // 上次撳過 Google 但冇 session 返嚟：多數係中途關咗授權視窗，提示會員可以重試。
+        if (viaGoogle) {
+          sessionStorage.removeItem("tx_oauth_pending");
+          setMsg("上次 Google 登入未完成（可能關閉咗授權畫面）。想繼續嘅話，請再撳一次「用 Google 繼續」。");
+        }
+        return;
+      }
       if (viaGoogle) {
         sessionStorage.removeItem("tx_oauth_pending");
         const u = data.session.user;
@@ -96,18 +132,27 @@ function AuthPage() {
 
   async function google() {
     setErr(null);
+    setMsg(null);
+    setGoogleBusy(true);
     sessionStorage.setItem("tx_oauth_pending", "google");
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`,
-    });
-    if (result.error) {
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth`,
+      });
+      if (result.error) {
+        sessionStorage.removeItem("tx_oauth_pending");
+        setErr(describeGoogleError(result.error instanceof Error ? result.error.message : String(result.error)));
+        return;
+      }
+      if (result.redirected) return; // 整頁跳轉去 Google，返嚟時由 useEffect 接手
+      track("login", { method: "google" });
+      await goAfterSignIn();
+    } catch (e2) {
       sessionStorage.removeItem("tx_oauth_pending");
-      setErr(result.error instanceof Error ? result.error.message : String(result.error));
-      return;
+      setErr(describeGoogleError(e2 instanceof Error ? e2.message : String(e2)));
+    } finally {
+      setGoogleBusy(false);
     }
-    if (result.redirected) return;
-    track("login", { method: "google" });
-    await goAfterSignIn();
   }
 
   return (
@@ -152,10 +197,16 @@ function AuthPage() {
           variant="outline"
           type="button"
           onClick={google}
-          className="mt-3 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink"
+          disabled={googleBusy || busy}
+          className="mt-3 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink disabled:opacity-50"
         >
-          用 Google 繼續
+          {googleBusy ? "正在連接 Google…請稍候" : "用 Google 繼續"}
         </Button>
+        {googleBusy && (
+          <p className="mt-2 text-[11px] text-ink-3">
+            即將跳轉去 Google 授權畫面；完成授權後會自動帶你返嚟天喜。
+          </p>
+        )}
 
         <Button
           variant="link"

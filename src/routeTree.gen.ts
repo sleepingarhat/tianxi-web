@@ -66,6 +66,7 @@ import { Route as AuthenticatedAdminUsersMembershipRouteImport } from './routes/
 import { Route as ApiPublicDrawTuneRouteImport } from './routes/api/public/draw-tune'
 import { Route as ApiPublicEngineHealthRouteImport } from './routes/api/public/engine-health'
 import { Route as ApiPublicFreezeLedgerRouteImport } from './routes/api/public/freeze-ledger'
+import { Route as ApiPublicFrozenArchiveDatesRouteImport } from './routes/api/public/frozen-archive-dates'
 import { Route as ApiPublicFrozenRacingRouteImport } from './routes/api/public/frozen-racing'
 import { Route as ApiPublicHkjcWeatherRouteImport } from './routes/api/public/hkjc-weather'
 import { Route as ApiPublicHorseHr2RouteImport } from './routes/api/public/horse-hr2'
@@ -381,6 +382,12 @@ const ApiPublicFreezeLedgerRoute = ApiPublicFreezeLedgerRouteImport.update({
   path: '/api/public/freeze-ledger',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFrozenArchiveDatesRoute =
+  ApiPublicFrozenArchiveDatesRouteImport.update({
+    id: '/api/public/frozen-archive-dates',
+    path: '/api/public/frozen-archive-dates',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicFrozenRacingRoute = ApiPublicFrozenRacingRouteImport.update({
   id: '/api/public/frozen-racing',
   path: '/api/public/frozen-racing',
@@ -550,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
+  '/api/public/frozen-archive-dates': typeof ApiPublicFrozenArchiveDatesRoute
   '/api/public/frozen-racing': typeof ApiPublicFrozenRacingRoute
   '/api/public/hkjc-weather': typeof ApiPublicHkjcWeatherRoute
   '/api/public/horse-hr2': typeof ApiPublicHorseHr2Route
@@ -627,6 +635,7 @@ export interface FileRoutesByTo {
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
+  '/api/public/frozen-archive-dates': typeof ApiPublicFrozenArchiveDatesRoute
   '/api/public/frozen-racing': typeof ApiPublicFrozenRacingRoute
   '/api/public/hkjc-weather': typeof ApiPublicHkjcWeatherRoute
   '/api/public/horse-hr2': typeof ApiPublicHorseHr2Route
@@ -707,6 +716,7 @@ export interface FileRoutesById {
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
+  '/api/public/frozen-archive-dates': typeof ApiPublicFrozenArchiveDatesRoute
   '/api/public/frozen-racing': typeof ApiPublicFrozenRacingRoute
   '/api/public/hkjc-weather': typeof ApiPublicHkjcWeatherRoute
   '/api/public/horse-hr2': typeof ApiPublicHorseHr2Route
@@ -787,6 +797,7 @@ export interface FileRouteTypes {
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
+    | '/api/public/frozen-archive-dates'
     | '/api/public/frozen-racing'
     | '/api/public/hkjc-weather'
     | '/api/public/horse-hr2'
@@ -864,6 +875,7 @@ export interface FileRouteTypes {
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
+    | '/api/public/frozen-archive-dates'
     | '/api/public/frozen-racing'
     | '/api/public/hkjc-weather'
     | '/api/public/horse-hr2'
@@ -943,6 +955,7 @@ export interface FileRouteTypes {
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
+    | '/api/public/frozen-archive-dates'
     | '/api/public/frozen-racing'
     | '/api/public/hkjc-weather'
     | '/api/public/horse-hr2'
@@ -1011,6 +1024,7 @@ export interface RootRouteChildren {
   ApiPublicDrawTuneRoute: typeof ApiPublicDrawTuneRoute
   ApiPublicEngineHealthRoute: typeof ApiPublicEngineHealthRoute
   ApiPublicFreezeLedgerRoute: typeof ApiPublicFreezeLedgerRoute
+  ApiPublicFrozenArchiveDatesRoute: typeof ApiPublicFrozenArchiveDatesRoute
   ApiPublicFrozenRacingRoute: typeof ApiPublicFrozenRacingRoute
   ApiPublicHkjcWeatherRoute: typeof ApiPublicHkjcWeatherRoute
   ApiPublicHorseHr2Route: typeof ApiPublicHorseHr2Route
@@ -1434,6 +1448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicFreezeLedgerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/frozen-archive-dates': {
+      id: '/api/public/frozen-archive-dates'
+      path: '/api/public/frozen-archive-dates'
+      fullPath: '/api/public/frozen-archive-dates'
+      preLoaderRoute: typeof ApiPublicFrozenArchiveDatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/frozen-racing': {
       id: '/api/public/frozen-racing'
       path: '/api/public/frozen-racing'
@@ -1667,6 +1688,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDrawTuneRoute: ApiPublicDrawTuneRoute,
   ApiPublicEngineHealthRoute: ApiPublicEngineHealthRoute,
   ApiPublicFreezeLedgerRoute: ApiPublicFreezeLedgerRoute,
+  ApiPublicFrozenArchiveDatesRoute: ApiPublicFrozenArchiveDatesRoute,
   ApiPublicFrozenRacingRoute: ApiPublicFrozenRacingRoute,
   ApiPublicHkjcWeatherRoute: ApiPublicHkjcWeatherRoute,
   ApiPublicHorseHr2Route: ApiPublicHorseHr2Route,
