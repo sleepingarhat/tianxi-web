@@ -37,11 +37,13 @@ describe('退出警告與排位更新', () => {
     const f=fixture(); f.setStale(null); const s=await advancePrelock('2026-10-21',{},f.deps);
     expect(s.phase).toBe('picks-unreadable'); expect(s.recovered ?? []).toEqual([]);
   });
-  it('GitHub失敗不重算或重複派送', async () => {
-    const f=fixture(); const s=await advancePrelock('2026-10-21',{},f.deps);
-    f.setRuns([{id:21,created_at:'2026-10-20T12:20:00Z',status:'completed',conclusion:'failure'}]);
-    expect((await advancePrelock('2026-10-21',s,f.deps)).phase).toBe('card-failed');
-    expect(f.counts()).toEqual({dispatches:1,freshReads:0});
+  it('GitHub失敗限次重試，達上限3次後停止並通知一次', async () => {
+    const f=fixture(); f.setRuns([{id:21,created_at:'2026-10-20T12:20:00Z',status:'completed',conclusion:'failure'}]);
+    let s=await advancePrelock('2026-10-21',{},f.deps);
+    for(let n=0;n<6;n++) s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.counts().dispatches).toBe(3); expect(s.phase).toBe('card-failed');
+    expect(s.cardFailureNotified).toBe(true);
+    expect(f.messages.filter(m=>m.includes('重試上限')).length).toBe(1);
   });
   it('已有工作執行中不派送', async () => {
     const f=fixture(); f.setRuns([{id:1,created_at:'2026-10-20T10:00:00Z',status:'in_progress',conclusion:null}]);

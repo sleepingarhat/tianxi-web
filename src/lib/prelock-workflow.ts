@@ -1,7 +1,7 @@
 /** Durable pre-lock workflow. Dispatch acceptance is not completion or permission to freeze. */
 export type PrelockState = {
   warned?: string[] | undefined; recovered?: string[] | undefined; requestedAt?: string | undefined; runId?: number | undefined;
-  phase?: string | undefined; dispatchedRunId?: number | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined; changeRevision?: string | undefined; recomputedAt?: string | undefined; generatedAt?: string | undefined;
+  phase?: string | undefined; dispatchedRunId?: number | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined; changeRevision?: string | undefined; recomputedAt?: string | undefined; generatedAt?: string | undefined; cardFailures?: number | undefined; cardFailureNotified?: boolean | undefined;
 };
 export type CardRun = { id: number; created_at: string; status: string; conclusion: string | null };
 export type PrelockDeps = {
@@ -25,6 +25,7 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
     state.changeRevision = deps.changeRevision;
     state.requestedAt = undefined; state.dispatchedRunId = undefined; state.runId = undefined; state.phase = undefined;
     state.recomputedAt = undefined; state.generatedAt = undefined;
+    state.cardFailures = undefined; state.cardFailureNotified = undefined;
   }
   const persist = async () => { await deps.save(state); };
   const alert = async (ids: string[]) => {
@@ -73,7 +74,15 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
   if (own.id !== state.dispatchedRunId || own.status !== 'completed') { state.phase = 'waiting-card'; await persist(); return state; }
   const completed = own;
   state.runId = completed.id;
-  if (completed.conclusion !== 'success') { state.phase = 'card-failed'; await persist(); return state; }
+  if (completed.conclusion !== 'success') {
+    // 工作行完但失敗：限次重新觸發；達上限就停，唔會無限重複派送，鎖點前維持 fail-closed。
+    state.cardFailures = (state.cardFailures ?? 0) + 1;
+    state.phase = 'card-failed';
+    if (state.cardFailures < 3) { state.requestedAt = undefined; state.dispatchedRunId = undefined; await persist(); return state; }
+    if (!state.cardFailureNotified && await deps.notify(`❌ 排位更新工作失敗已達重試上限：${date}。未核實更新前唔會凍結，唔會冒稱已更新。`)) state.cardFailureNotified = true;
+    await persist(); return state;
+  }
+  state.cardFailures = 0;
   // At most one recompute per successful card run, even if the same stale body persists.
   if (state.phase === 'still-stale' || state.phase === 'recompute-unreadable' || state.phase === 'recompute-intent') { await persist(); return state; }
   if (!await deps.unlocked()) { state.phase = 'lock-unknown-or-closed'; await persist(); return state; }
