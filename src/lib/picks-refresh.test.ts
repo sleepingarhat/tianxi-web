@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPicksRefresh, picksEdition, editionAfterError } from "./picks-refresh";
+import { createPicksRefresh, picksEdition, editionAfterError, assertPicksResponse } from "./picks-refresh";
 import { raceStatus } from "./prediction-status";
 
 describe("今日預測最終版讀取", () => {
+  it('空白或錯誤回應不能冒充無預測，只有明示無賽日或副本等待可空場次', () => {
+    for (const response of [undefined, {}, { ok: false }, { races: [] }]) expect(() => assertPicksResponse(response)).toThrow();
+    expect(() => assertPicksResponse({ races: [], noMeeting: true })).not.toThrow();
+    expect(() => assertPicksResponse({ races: [], edition: 'pending' })).not.toThrow();
+  });
   it("掛起讀取55秒後停止，重試不能被舊請求卡住或回填", async () => {
     vi.useFakeTimers();
     try {

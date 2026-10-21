@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayPicksAll } from "./picks.functions";
 import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
-import { picksEdition, editionAfterError } from "./picks-refresh";
+import { picksEdition, editionAfterError, assertPicksResponse } from "./picks-refresh";
 import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
 import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
 import { changeRevision, verifiedUpdate } from './racing-change-progress';
@@ -48,7 +48,11 @@ export function useTodayPicks() {
   const fetchAll = useServerFn(getTodayPicksAll);
   const picks = useQuery({
     queryKey: ["todayPicksAll"],
-    queryFn: () => fetchAll(),
+    queryFn: async () => {
+      const data = await fetchAll();
+      assertPicksResponse(data);
+      return data;
+    },
     staleTime: 60_000,
     refetchInterval: 30_000,
     refetchOnWindowFocus: "always",

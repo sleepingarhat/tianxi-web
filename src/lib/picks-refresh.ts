@@ -17,6 +17,11 @@ export function createPicksRefresh<T>(fetchLatest: () => Promise<T>, timeoutMs =
 }
 
 /** 最終版必須由這份預測確認，另一次lock-state不能代證。 */
+export function assertPicksResponse(data: unknown): asserts data is import('./racing-shapes').DayPicks {
+  if (!data || typeof data !== 'object' || !('races' in data) || !Array.isArray(data.races)) throw new Error('預測回應未完整，正在重新讀取');
+  if (!data.races.length && !('noMeeting' in data && data.noMeeting === true) && !('edition' in data && data.edition === 'pending')) throw new Error('預測場次未完整，正在重新讀取');
+}
+
 export function picksEdition(data: { frozen?: unknown; edition?: unknown } | null | undefined): "final" | "draft" | "unavailable" {
   if (!data || data.edition === "unavailable" || data.edition === "pending") return "unavailable";
   if (data.edition === "draft" || data.frozen === false) return "draft";
