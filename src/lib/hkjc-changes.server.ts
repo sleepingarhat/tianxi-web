@@ -83,7 +83,12 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const headers = { authorization: `Bearer ${gh ?? ''}`, accept: 'application/vnd.github+json', 'user-agent': 'tianxi-web' };
   const workflow = 'https://api.github.com/repos/sleepingarhat/tianxi-racing/actions/workflows/capy_racecard.yml';
   // 工作鎖心跳：每30秒延長，外部步驟超過120秒都唔會失鎖。
-  const beat = setInterval(() => { void sb.rpc('renew_racing_prelock', { _date: date, _token: lease }); }, 30_000);
+  let heartbeatFailed = false;
+  const beat = setInterval(() => {
+    void Promise.resolve(sb.rpc('renew_racing_prelock', { _date: date, _token: lease }))
+      .then(result => { if (result.error || !result.data) heartbeatFailed = true; })
+      .catch(() => { heartbeatFailed = true; });
+  }, 30_000);
   try {
     state = await advancePrelock(date,state,{
       read: fresh => read(fresh).catch(() => null), unlocked, save,
@@ -112,6 +117,7 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
         return p.success ? p.data.workflow_run_id : null;
       },
     });
+    if (heartbeatFailed) throw new Error('退出追蹤工作鎖心跳未能核實');
     return { action: state.phase, stale: state.stale ?? [], runId: state.runId ?? null, freezeAuthorized: false };
   } finally { clearInterval(beat); await save(state,true); }
 }

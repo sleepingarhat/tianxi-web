@@ -48,7 +48,11 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
             if (stateRead.error || !stateRead.data) throw new Error('state-read-failed');
             const state = stateRead.data;
             if (now.getTime() < resultsDueAt(state.first_confirmed_at)) { outcomes.push({ date: m.date, action: 'waiting-30-minutes' }); continue; }
-            if (state.dispatched_at) { outcomes.push({ date: m.date, action: 'already-dispatched-not-delivery-proof' }); continue; }
+            if (state.dispatched_at) {
+              const { checkResultsDelivery } = await import('@/lib/results-delivery.server');
+              const delivery = await checkResultsDelivery(m.date, m.venueCode, state.expected_races);
+              outcomes.push({ date: m.date, action: delivery.action }); continue;
+            }
             // Atomic lease prevents parallel callbacks dispatching the same meeting.
             const cutoff = new Date(now.getTime() - 10 * 60_000).toISOString();
             const claim = await supabaseAdmin.from('racing_result_collection_state').update({ last_attempt_at: now.toISOString() })
@@ -60,12 +64,16 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
             if (!token) throw new Error('missing-dispatch-token');
             const response = await fetch('https://api.github.com/repos/sleepingarhat/tianxi-racing/actions/workflows/capy_race_daily.yml/dispatches', {
               method: 'POST', headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'user-agent': 'tianxi-web', 'content-type': 'application/json' },
-              body: JSON.stringify({ ref: 'main', inputs: { date: m.date, force: 'n' } }), signal: AbortSignal.timeout(4000),
+              body: JSON.stringify({ ref: 'main', inputs: { date: m.date, force: 'n' }, return_run_details: true }), signal: AbortSignal.timeout(30_000),
             });
-            if (response.status !== 204) throw new Error(`dispatch-${response.status}`);
+            if (response.status !== 200 && response.status !== 204) throw new Error(`dispatch-${response.status}`);
+            const details = response.status === 200 ? await response.json() as { workflow_run_id?: unknown } : null;
+            const runId = details?.workflow_run_id;
+            const tracked = await supabaseAdmin.from('telegram_alert_state').upsert({ key: `results-delivery:${m.date}:${m.venueCode}`, value: { dispatchedAt: now.toISOString(), ...(typeof runId === 'number' && Number.isInteger(runId) && runId > 0 ? { runId } : {}) } });
+            if (tracked.error) throw new Error('dispatch-run-state-save-failed');
             const saved = await supabaseAdmin.from('racing_result_collection_state').update({ dispatched_at: now.toISOString() }).eq('race_date', m.date).eq('venue', m.venueCode);
             if (saved.error) throw new Error('dispatch-state-save-failed');
-            outcomes.push({ date: m.date, action: 'dispatched-not-delivery-proof' });
+            outcomes.push({ date: m.date, action: typeof runId === 'number' ? 'own-run-accepted-not-delivery-proof' : 'dispatched-run-id-unverified' });
           }
           return Response.json({ ok: true, outcomes, liveResult, raceResultCollectionIndependent: true, independentExecution: false });
         } catch (error) {

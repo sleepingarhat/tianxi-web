@@ -179,6 +179,13 @@ function PredictorPage() {
     );
   }
 
+  if (!tp.date && races.length === 0) {
+    return <AppShell columns={false} page="predictor" ticker="核對賽日資料中…">
+      <PageHead en="Predictor" title="選馬神器" />
+      {tp.error ? <Empty label="預測暫未能核實，正在重新讀取" /> : <Loading label="核對預測中…" />}
+      <Disclaimer />
+    </AppShell>;
+  }
 
   return (
     <AppShell columns={false}

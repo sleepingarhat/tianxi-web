@@ -42,7 +42,7 @@
 - Scarce starts never switch models.
 - Billing reminders read subscriptions, dedupe after delivery; native alerts stay provider-owned. Not receipts.
 
-- Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
+- Gate card→recompute→freeze→settlement; KPI uses frozen metricInput. Results need identity/SHA/leases; dividends separate. Existing callback verifies own run plus all official races. D1 uses linked gateway; GitHub fallback stays. Why: dispatch is not delivery.
 - Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.
 - Coalesce picks reads with bounded deadlines; reject late data. Race pages use racePicksFromDay, not live topPicks. History keeps newest rows and reports truncation. Why: preserve evidence and recent dates.
 - Parallel frozen reads block unknown timing; freeze-publication-window returns empty pending only for no-archive during T90→T60, never delays locks or hides verification errors. Why: waiting is not certification.

@@ -114,13 +114,10 @@ export function countdown(startTime?: string | null, refDate?: Date, meetingDate
   const mm = parts[1] ?? 0;
   const now = refDate || new Date();
   const md = meetingDate ? String(meetingDate).match(/^(\d{4})-(\d{2})-(\d{2})/) : null;
-  const tgt = md
-    ? new Date(+md[1]!, +md[2]! - 1, +md[3]!, hh, mm, 0, 0)
-    : (() => {
-        const d = new Date(now);
-        d.setHours(hh, mm, 0, 0);
-        return d;
-      })();
+  // Official race times are Hong Kong wall-clock times, never browser-local.
+  const hkDate = md?.[0] ?? new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+  const tgt = new Date(`${hkDate}T${p2(hh)}:${p2(mm)}:00+08:00`);
+  if (!Number.isFinite(tgt.getTime()) || hh > 23 || mm > 59) return "";
   const diff = Math.floor((tgt.getTime() - now.getTime()) / 1000);
   if (diff < 0) return "已開跑";
   if (diff >= 86400) {

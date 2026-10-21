@@ -148,7 +148,7 @@ export function useTodayPicks() {
     races: cancellation || edition === "unavailable" ? [] : races,
     meeting: meeting.data,
     cancellation,
-    isLoading: cancellation ? false : picks.isLoading,
+    isLoading: cancellation ? false : picks.isPending,
     error: edition === "unavailable" ? picks.error ?? (publicationExpired ? new Error('凍結副本未能在首場前60分鐘完成核實') : null) : null,
     isFetching: picks.isFetching,
     refetch: picks.refetch,

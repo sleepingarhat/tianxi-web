@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/public/jobs/hkjc-changes")({
         if (!result.ok) return Response.json(result, { status: 502 });
         const snap = await readLatestHkjcChanges(result.date, result.venue, result.sha256);
         const precheck = await recomputeIfStaleBeforeLock((snap?.changes ?? []) as never, result.date).catch((e) => ({ action: "error", reason: String(e) }));
-        return Response.json({ ...result, precheck });
+        return Response.json({ ...result, precheck }, { status: precheck.action === 'error' ? 502 : 200 });
       },
     },
   },

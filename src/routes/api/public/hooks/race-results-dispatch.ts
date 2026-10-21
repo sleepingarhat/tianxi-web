@@ -30,11 +30,13 @@ export const Route = createFileRoute("/api/public/hooks/race-results-dispatch")(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ref: "main", inputs: { date: "", force: "n" } }),
-        });
+          signal: AbortSignal.timeout(30_000),
+        }).catch(() => null);
+        if (!res) return Response.json({ ok: false, error: "賽果收料派送暫時未能確認" }, { status: 502 });
         if (!res.ok) {
           const body = await res.text();
           console.error(`race-results-dispatch failed [${res.status}]: ${body}`);
-          return Response.json({ ok: false, status: res.status, error: body }, { status: 502 });
+          return Response.json({ ok: false, status: res.status, error: "賽果收料派送未獲接納" }, { status: 502 });
         }
         return Response.json({ ok: true, workflow: WORKFLOW, dispatched_at: new Date().toISOString() });
       },

@@ -3,6 +3,10 @@ import { createPicksRefresh, picksEdition, editionAfterError, assertPicksRespons
 import { raceStatus } from "./prediction-status";
 
 describe("今日預測最終版讀取", () => {
+  it('尚未取得預測不能當初版或無賽事', () => {
+    expect(picksEdition(undefined)).toBe('unavailable');
+    expect(picksEdition(null)).toBe('unavailable');
+  });
   it('空白或錯誤回應不能冒充無預測，只有明示無賽日或副本等待可空場次', () => {
     for (const response of [undefined, {}, { ok: false }, { races: [] }]) expect(() => assertPicksResponse(response)).toThrow();
     expect(() => assertPicksResponse({ races: [], noMeeting: true })).not.toThrow();
