@@ -35,9 +35,9 @@
 
 - Rebuild journals ≠ live jobs. Cohort tests fix features/Elo/rounds, exclude incomplete races; release requires research evidence, not health PASS.
 - HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; no post-lock substitution. Cancellation keyword hits archive raw+SHA to hkjc_cancellation_snapshots. Why: notices cannot certify stale inputs.
-- Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
+- Frozen reads verify SHA/meta/IDs; unnumbered nonfinishers need unique dated prelock notices. Match pool withdrawals by frozen name/ID, not slot. Metadata only; never merge scores. Why: replacements are not scratches.
 
-- Replay preserves axes; pedigree uses prior-date smoothing. Family grids checkpoint input/script/versions/splits, finish before evaluation, save picks and paired corrected intervals; no production writes. Why: reproducibility is not promotion.
+- Replay preserves axes; pedigree uses prior-date smoothing. Grids checkpoint inputs/versions/splits, finish before evaluation; save picks/paired intervals, no production writes. Why: reproducibility ≠ promotion.
 
 - Scarce starts never switch models.
 - Billing reads subscriptions; alerts dedupe after delivery, use private verified targets, never public fallback.

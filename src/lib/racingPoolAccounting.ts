@@ -5,10 +5,12 @@ import { settleWithdrawnLeg } from "./exotic-withdrawal";
 import { getOfficialFavourites } from "./official-favourites.functions";
 import { favouriteOrderForSettlement, type OfficialFavourites } from "./official-favourites";
 import { getHkjcChanges } from "./hkjc-changes.functions";
+import { officialWithdrawal } from './hkjc-changes';
 
 const UNIT = 10;
 
 type Leg = FrozenPoolLeg | null;
+type PoolEvidenceRace = Omit<FrozenPoolRace, 'picks'> & {picks: Array<{horseNumber:number;rank:number;nameCh?:string;horseId?:string}>};
 export type PoolCalc = {
   name: string; races: number[]; units: number; cost: number;
   mainHit: boolean; payout: number; consUnits: number; consPayout: number;
@@ -87,7 +89,7 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
   return out.sort((a, b) => (a.races[0] ?? 0) - (b.races[0] ?? 0));
 }
 
-async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null; noArchive?: boolean }> {
+async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null; races?: PoolEvidenceRace[]; noArchive?: boolean }> {
   const res = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
   // 該日從未建立原始凍結存證：唔係讀取失敗，跨場一律列「缺預測」、不入正式合計
   if (res.status === 503) {
@@ -95,21 +97,23 @@ async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venu
     if (body?.reason === 'no-archive') return { legs: {}, venue: null, noArchive: true };
   }
   if (!res.ok) throw new Error('原始凍結未能核實，跨場原注暫停結算');
-  const frozen = await res.json() as { date: string; venue: string; source: string; races: FrozenPoolRace[] };
+  const frozen = await res.json() as { date: string; venue: string; source: string; races: PoolEvidenceRace[] };
   if (frozen.date !== date || frozen.source !== 'verified-original-snapshot' || !['ST','HV'].includes(frozen.venue) || !Array.isArray(frozen.races)) throw new Error('跨場原注來源未能核實');
-  return { legs: frozenPoolLegs(frozen.races), venue: frozen.venue };
+  return { legs: frozenPoolLegs(frozen.races), venue: frozen.venue, races: frozen.races };
 }
 
 export const exoticPoolOptions = (date: string) => queryOptions({
   queryKey: ["exotic-trio-verified-original", date], enabled: !!date, staleTime: 30_000,
   queryFn: async () => {
-    const { legs, venue, noArchive } = await loadLegs(date);
+    const { legs, venue, noArchive, races } = await loadLegs(date);
     // 無原注可核對就唔再讀其他來源，避免無關網絡失敗蓋過「無存證」。
     if (noArchive) return { pools: [] as PoolCalc[], legs, favourites: {} as Record<number, number[] | undefined>, evidence: {} as Record<number, OfficialFavourites>, venue, noArchive: true };
     const [divs, changes] = await Promise.all([fetchRaceDividends(date), getHkjcChanges({ data: { date } })]);
     const withdrawn: Record<number, Set<number>> = {};
     for (const c of changes?.changes ?? []) {
       if (c.kind !== "scratched" && c.kind !== "replaced") continue;
+      const pick = races?.find(r=>r.raceNumber===c.raceNumber)?.picks.find(p=>p.horseNumber===c.horseNumber);
+      if (!pick || !officialWithdrawal([c],c.raceNumber,c.horseNumber,pick.nameCh,pick.horseId)) continue;
       (withdrawn[c.raceNumber] ??= new Set()).add(c.horseNumber);
     }
     // 官方熱門只可以用已存證嘅官方賽果賠率；讀唔到或缺存證嘅場次一律列待核

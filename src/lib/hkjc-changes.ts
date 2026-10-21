@@ -52,3 +52,12 @@ export function officialWithdrawal(changes: HkjcChange[], raceNumber: number, ho
   const name = horseDisplayName(horseName, horseId);
   return changes.find(c => c.raceNumber === raceNumber && c.horseNumber === horseNumber && c.horseName === name && (c.kind === 'scratched' || c.kind === 'replaced'));
 }
+
+/** Removed runners may have no number in results; require one exact, dated pre-lock notice. */
+export function unnumberedPrelockWithdrawal(changes: HkjcChange[], runner: { raceNumber?: number; horseNumber?: number | null; horseId?: string; finishingPosition?: number | null }, name: string | undefined, lockAt: string) {
+  if (!runner.raceNumber || !runner.horseId || runner.horseNumber != null || runner.finishingPosition != null || !/^horse_[A-Z]\d{3}$/.test(runner.horseId)) return undefined;
+  const raceNumber = runner.raceNumber;
+  const matches = changes.filter(c => officialWithdrawal([c], raceNumber, c.horseNumber, name, runner.horseId));
+  const c = matches.length === 1 ? matches[0] : undefined;
+  return c?.announcedAtIso && Date.parse(c.announcedAtIso) < Date.parse(lockAt) ? c : undefined;
+}

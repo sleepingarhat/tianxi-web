@@ -9,7 +9,13 @@ type AuditRace = { raceNumber: number; effectiveTop4: { original: number[]; vali
 type AuditDay = { snapshot: { sha256: string }; races: AuditRace[]; officialChanges: { source: string } | null };
 export function OfficialRaceAudit({ accounting = false, meetings = [] }: { accounting?: boolean; meetings?: { date: string; venue?: string | undefined }[] }) {
   const [pickedDate, setDate] = useState('');
-  const options = meetingOptions(meetings);
+  const archive = useQuery({queryKey:['audit-archive-dates'],staleTime:60_000,queryFn:async()=>{
+    const response=await fetch('/api/public/frozen-archive-dates',{signal:AbortSignal.timeout(15_000)});
+    if(!response.ok) throw new Error('存證賽日目錄暫未能讀取');
+    const body=await response.json() as {dates:string[]};
+    return body.dates;
+  }});
+  const options = meetingOptions([...meetings,...(archive.data ?? []).filter(date=>!meetings.some(m=>m.date===date)).map(date=>({date}))]);
   const date = options.some(row => row.date === pickedDate) ? pickedDate : options[0]?.date ?? '';
   const query = useQuery({ queryKey: ['original-race-audit', date], enabled: !!date, queryFn: async (): Promise<AuditDay> => {
     const response = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(15_000) });

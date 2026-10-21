@@ -19,6 +19,8 @@ import {
   type RunningStyle,
 } from "@/lib/tx-api";
 import { supabase } from "@/integrations/supabase/client";
+import { frozenComparison } from '@/lib/frozen-comparison';
+import { Button } from '@/components/ui/button';
 
 /** 彩池代號 → 中文（馬會標準簡稱） */
 const POOL_ZH: Record<string, string> = {
@@ -119,8 +121,8 @@ function ComparePage() {
       if (legacy) return txApi.hitRate(date);
       const r = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { cache: "no-store" });
       const d: any = await r.json().catch(() => null);
-      if (!r.ok || !d?.frozen) return { races: [], summary: null };
-      return { races: (d.races || []).map((x: any) => ({ ...x, predictedTop4: (x.picks || []).slice(0, 4) })), summary: null };
+      if (!r.ok) throw new Error('原凍結預測暫未能核實；紀錄不變，請稍後重新讀取。');
+      return frozenComparison(d);
     },
     enabled: !!date,
   });
@@ -215,7 +217,7 @@ function ComparePage() {
         .filter(Boolean)
         .join(" · ");
 
-  const loading = (picks.isLoading && frozen.isLoading) || raceDetail.isLoading;
+  const loading = frozen.isLoading || raceDetail.isLoading;
   // 開跑時最終獨贏賠率：以賽事詳情（賽後）為準，按馬號對應
   const finalOdds: Record<string, number> = {};
   for (const x of (raceDetail.data?.horses || []) as Array<{ horseNumber?: unknown; winOdds?: unknown; finishingPosition?: unknown }>) {
@@ -377,10 +379,10 @@ function ComparePage() {
           <div className="no-scrollbar -mx-0.5 mt-2.5 flex gap-1 overflow-x-auto px-0.5">
             {frozenRaces.map((fr: any) => {
               const rid = races.find((r: any) => Number(r.raceNumber) === Number(fr.raceNumber))?.id;
-              const n = Number(fr.top4IntersectCount ?? 0);
+              const n = fr.top4IntersectCount == null ? null : Number(fr.top4IntersectCount);
               const on = Number(selectedRaceNumber) === Number(fr.raceNumber);
               const tone =
-                n >= 3 ? "border-win bg-win/10 text-win" : n >= 2 ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-3";
+                n != null && n >= 3 ? "border-win bg-win/10 text-win" : n != null && n >= 2 ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-3";
               return (
                 <button
                   key={fr.raceNumber}
@@ -392,7 +394,7 @@ function ComparePage() {
                   }`}
                 >
                   <span className="block font-mono-tx text-[9px] font-bold leading-none">R{fr.raceNumber}</span>
-                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-extrabold leading-none">{n}/4</span>
+                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-extrabold leading-none">{n == null ? '待核' : `${n}/4`}</span>
                 </button>
               );
             })}
@@ -413,7 +415,7 @@ function ComparePage() {
               {picksSourceLabel}
               {frozenAlpha != null ? ` · α=${frozenAlpha.toFixed(2)}` : ""} · TOP 4
               <span className="mt-0.5 block font-sans-tc text-[9px] font-bold tracking-normal text-ink-3">
-                {frozenTop4.length ? (legacy ? "舊紀錄，未經原始副本核實" : "已核實原始凍結副本") : "即時重算版"}
+                {frozenTop4.length ? (legacy ? "舊紀錄，未經原始副本核實" : "已核實原始凍結副本") : "原凍結核對中"}
               </span>
 
             </small>
@@ -430,7 +432,7 @@ function ComparePage() {
             ) : left.length ? (
               left.map((h, i) => <Cell key={keyOf(h) || i} h={h} rank={i + 1} matched={isMatch(h, rightKeys)} />)
             ) : (
-              <EmptySide title="未有預測" />
+              <><EmptySide title={frozen.isError ? '原凍結暫未能核實，紀錄不變' : '未有可核實預測'} />{frozen.isError ? <Button variant="outline" className="mx-2 mb-3" onClick={()=>void frozen.refetch()}>重新讀取</Button> : null}</>
             )}
           </div>
           <div className="flex min-w-0 flex-col" aria-label="賽果首四名">

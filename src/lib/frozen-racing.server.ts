@@ -1,7 +1,7 @@
 import { publicRacingQuery as query } from './public-racing-evidence.server';
 import { frozenColumns, validateFrozenSnapshot, FrozenEvidenceError, frozenEvidenceStatus, type FrozenRow } from './frozen-racing';
 import { verifyRunnerIdentities, resultsForFrozenIdentity, type RunnerIdentity } from './racing-runner-identity';
-import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
+import { officialWithdrawal, unnumberedPrelockWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
 import { officialRaceMetric } from './racing-official-metrics';
 import { mergeMeetingMetadata, type RacingMeetingMetadata } from './racing-meeting-metadata';
@@ -55,7 +55,7 @@ export async function readFrozenRacing(date: string) {
   if (extraIds.length > 400) throw new Error('官方賽果身份行數超出核對範圍');
   const extraNames = extraIds.length ? await query<FrozenRow>(`SELECT id horseId,name_ch nameCh,name_en nameEn FROM horses WHERE id IN (${extraIds.map(() => '?').join(',')})`, extraIds) : [];
   for (const row of extraNames) nameMap.set(row.horseId, row);
-  const verifiedWithdrawnIds = new Set(resultRows.filter(r => r.finishingPosition == null && officialWithdrawal(officialChanges, r.raceNumber, r.horseNumber, nameMap.get(r.horseId)?.nameCh, r.horseId)).map(r => `${r.raceNumber}:${r.horseId}`));
+  const verifiedWithdrawnIds = new Set(resultRows.filter(r => r.finishingPosition == null && (officialWithdrawal(officialChanges, r.raceNumber, r.horseNumber, nameMap.get(r.horseId)?.nameCh, r.horseId) || unnumberedPrelockWithdrawal(officialChanges, r, nameMap.get(r.horseId)?.nameCh, snapshot.lockAt))).map(r => `${r.raceNumber}:${r.horseId}`));
   const changeFor = (r:FrozenRow) => officialWithdrawal(officialChanges, r.race_number, r.horse_number, nameMap.get(r.horse_id)?.nameCh);
   const withdrawn = new Set(snapshot.rows.filter(r=>changeFor(r)).map(r=>`${r.race_number}:${r.horse_number}`));
   const frozenIdentities = snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id}));
