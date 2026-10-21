@@ -40,7 +40,7 @@
 - Replay preserves axes; pedigree uses prior-date smoothing. Family grids checkpoint input/script/versions/splits, finish before evaluation, save picks and paired corrected intervals; no production writes. Why: reproducibility is not promotion.
 
 - Scarce starts never switch models.
-- Billing reminders read subscriptions, dedupe after delivery; native alerts stay provider-owned. Not receipts.
+- Billing reads subscriptions; alerts dedupe after delivery, use private verified targets, never public fallback.
 
 - Gate card→recompute→freeze→settlement; KPI uses frozen metricInput. Results need identity/SHA/leases; dividends separate. Existing callback verifies own run plus all official races. D1 uses linked gateway; GitHub fallback stays. Why: dispatch is not delivery.
 - Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.

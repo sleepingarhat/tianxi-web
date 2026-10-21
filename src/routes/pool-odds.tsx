@@ -26,7 +26,10 @@ function PoolOddsPage() {
   const date = smart.data?.date;
   const meeting = useQuery({
     queryKey: ["meeting", date],
-    queryFn: () => txApi.meeting(date!),
+    queryFn: () => {
+      if (!date) throw new Error('未有賽日日期');
+      return txApi.meeting(date);
+    },
     enabled: !!date,
     refetchInterval: 60_000,
   });
@@ -101,7 +104,7 @@ function PoolOddsPage() {
         )}
       </Card>
 
-      <Disclaimer extra="即時獨贏賠率每分鐘更新，最終賠率以馬會為準。" />
+      <Disclaimer extra="網站每分鐘重新讀取已保存盤口，並非保證馬會賠率每分鐘更新；最終賠率以馬會為準。" />
     </AppShell>
   );
 }
