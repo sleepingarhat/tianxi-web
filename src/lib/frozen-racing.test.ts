@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateFrozenSnapshot, frozenEvidenceStatus, frozenEvidenceCodeOf, FrozenEvidenceError } from './frozen-racing';
+import { validateFrozenSnapshot, frozenEvidenceStatus, frozenEvidenceCodeOf, frozenEvidenceHttpStatus, FrozenEvidenceError } from './frozen-racing';
 async function fixture() {
   const rows = Array.from({length:4},(_,i)=>({date:'2026-10-19',engine:'v12',variant:'baseline',race_number:1,horse_id:`horse_${i}`,horse_number:i+1,predicted_rank:i+1,final_score:1600-i,p_win:0.2,p_top3:null,factor_bonus:1,generated_at:'2026-10-19T00:48:21.522Z'}));
   const meta={date:'2026-10-19',config:'{}'};
@@ -40,9 +40,18 @@ describe('凍結存證狀態分類（缺副本唔等於載入失敗）',()=>{
     expect(frozenEvidenceStatus({ok:null})).toBe('not-verified');
     expect(frozenEvidenceStatus({ok:1})).toBe('available');
   });
-  it('只有明確抛出嘅存證錯誤先帶到原因碼，其他錯誤一律 verification-failed',()=>{
+  it('只有明確抛出嘅存證錯誤先帶到原因碼，其他錯誤（網絡／逾時／5xx）一律 read-failed',()=>{
     expect(frozenEvidenceCodeOf(new FrozenEvidenceError('no-archive','呢個賽日未有已核實嘅原始凍結副本'))).toBe('no-archive');
-    expect(frozenEvidenceCodeOf(new Error('fetch failed'))).toBe('verification-failed');
-    expect(frozenEvidenceCodeOf(undefined)).toBe('verification-failed');
+    expect(frozenEvidenceCodeOf(new FrozenEvidenceError('verification-failed','原始副本指紋不一致'))).toBe('verification-failed');
+    expect(frozenEvidenceCodeOf(new Error('fetch failed'))).toBe('read-failed');
+    expect(frozenEvidenceCodeOf(undefined)).toBe('read-failed');
+  });
+  it('狀態碼：無副本 404、讀取失敗 502／逾時 504、核實問題 503',()=>{
+    expect(frozenEvidenceHttpStatus('no-archive')).toBe(404);
+    expect(frozenEvidenceHttpStatus('read-failed',new Error('賽馬核對資料讀取失敗 [429]'))).toBe(502);
+    const timeout=new Error('The operation timed out'); timeout.name='TimeoutError';
+    expect(frozenEvidenceHttpStatus('read-failed',timeout)).toBe(504);
+    expect(frozenEvidenceHttpStatus('verification-failed')).toBe(503);
+    expect(frozenEvidenceHttpStatus('not-verified')).toBe(503);
   });
 });

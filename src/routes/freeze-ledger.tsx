@@ -16,6 +16,7 @@ import {
 } from "@/components/tx/ui";
 import { KV } from "@/components/tx/viz";
 import { fmtMeetingDate, num } from "@/lib/tx-api";
+import { isTimeoutError, timeoutSignal } from "@/lib/fetch-timeout";
 
 type LedgerRace = {
   raceNumber: number;
@@ -53,6 +54,8 @@ type LedgerMeeting = {
   /** 鎖後先寫入嘅場次：只作對帳參考，唔入任何凍結指標 */
   postLockRaces?: number[];
   postLockNote?: string | null;
+  /** source=blocked／read-error 時嘅原因（只影響呢一日） */
+  blockedReason?: string | null;
 };
 
 type Ledger = {
@@ -67,7 +70,35 @@ const SOURCE_LABEL: Record<string, string> = {
   "not-locked": "未鎖（唔入表）",
   "missing-log": "凍結底未齊",
   "no-results": "未有賽果",
+  blocked: "凍結證據阻截（唔入表）",
+  "read-error": "暫時讀唔到（唔入表）",
 };
+
+const LEDGER_TIMEOUT_MS = 15_000;
+
+function LedgerError({
+  error,
+  onRetry,
+  busy,
+}: {
+  error: unknown;
+  onRetry: () => void;
+  busy: boolean;
+}) {
+  return (
+    <div className="space-y-2">
+      <ErrorNote error={error} />
+      <button
+        type="button"
+        onClick={onRetry}
+        disabled={busy}
+        className="rounded-[8px] border border-hairline bg-paper px-3 py-1.5 font-mono-tx text-[10px] font-bold text-gold disabled:opacity-50"
+      >
+        {busy ? "重新讀取中…" : "重新讀取"}
+      </button>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/freeze-ledger")({
   head: () => ({
@@ -90,11 +121,23 @@ function FreezeLedgerPage() {
   const q = useQuery<Ledger>({
     queryKey: ["freezeLedger"],
     queryFn: async () => {
-      const res = await fetch("/api/public/freeze-ledger?since=2026-09-01");
+      let res: Response;
+      try {
+        res = await fetch("/api/public/freeze-ledger?since=2026-09-01", {
+          signal: timeoutSignal(LEDGER_TIMEOUT_MS),
+        });
+      } catch (err) {
+        throw new Error(
+          isTimeoutError(err)
+            ? "對帳表讀取逾時（15 秒），請重新讀取"
+            : "對帳表暫時讀唔到（網絡錯誤）",
+        );
+      }
       if (!res.ok) throw new Error(`對帳表暫時讀唔到（${res.status}）`);
       return (await res.json()) as Ledger;
     },
     staleTime: 120_000,
+    retry: 1,
   });
 
   const meetings = q.data?.meetings ?? [];
@@ -113,7 +156,7 @@ function FreezeLedgerPage() {
         {q.isLoading ? (
           <Loading />
         ) : q.error ? (
-          <ErrorNote error={q.error} />
+          <LedgerError error={q.error} onRetry={() => void q.refetch()} busy={q.isFetching} />
         ) : !graded.length ? (
           <Empty label="暫未有已鎖並完場嘅賽日 —— 表殼已起好，數等賽果入庫後自動填" />
         ) : (
@@ -149,6 +192,8 @@ function FreezeLedgerPage() {
       <Card title="逐賽日" en="By Meeting">
         {q.isLoading ? (
           <Loading />
+        ) : q.error && !meetings.length ? (
+          <LedgerError error={q.error} onRetry={() => void q.refetch()} busy={q.isFetching} />
         ) : meetings.length ? (
           <Scroller>
             <Table head={["賽日", "狀態", "場", "平均相交", "頭四覆蓋", "全中", "Top3", "位置", "頭馬", "模型LL", "市場LL", "EV"]}>
@@ -163,7 +208,12 @@ function FreezeLedgerPage() {
                     </span>
                   </Td>
                   <Td>
-                    <span className="font-mono-tx text-[9px] text-ink-3">{SOURCE_LABEL[m.source] ?? m.source}</span>
+                    <span
+                      className="font-mono-tx text-[9px] text-ink-3"
+                      title={m.blockedReason ?? undefined}
+                    >
+                      {SOURCE_LABEL[m.source] ?? m.source}
+                    </span>
                   </Td>
                   <Td>
                     {m.racesEvaluated || "—"}

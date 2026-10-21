@@ -1,3 +1,4 @@
+import { isTimeoutError } from './fetch-timeout';
 export const frozenColumns = ['date','race_number','horse_id','engine','variant','horse_number','draw','horse_elo','elo_source','elo_confidence','elo_composite','factor_bonus','final_score','p_win','p_top3','predicted_rank','generated_at','lgb_score','lgb_model_version','score_source','jockey_elo','trainer_elo','factor_scores','pace_estimate'] as const;
 export type FrozenRow = { [K in typeof frozenColumns[number] | 'raceId' | 'raceNumber' | 'startTime' | 'title' | 'class' | 'distance' | 'going' | 'track' | 'course' | 'horseId' | 'horseNumber' | 'finishingPosition' | 'winOdds' | 'runningPosition' | 'nameCh' | 'nameEn' | 'config']?: any };
 function canonical(value: any): string {
@@ -30,8 +31,8 @@ export async function validateFrozenSnapshot(saved: { snapshot_json: string; sha
 }
 
 /** 凍結存證狀態：缺副本同核實失敗係兩件事，不可混為「載入失敗」。 */
-export type FrozenEvidenceCode = 'available' | 'no-archive' | 'not-verified' | 'verification-failed';
-export type FrozenEvidenceStatus = Exclude<FrozenEvidenceCode, 'verification-failed'>;
+export type FrozenEvidenceCode = 'available' | 'no-archive' | 'not-verified' | 'verification-failed' | 'read-failed';
+export type FrozenEvidenceStatus = Exclude<FrozenEvidenceCode, 'verification-failed' | 'read-failed'>;
 
 export function frozenEvidenceStatus(saved: { ok: number | null } | undefined | null): FrozenEvidenceStatus {
   if (!saved) return 'no-archive';
@@ -47,6 +48,18 @@ export class FrozenEvidenceError extends Error {
   }
 }
 
+/**
+ * 只有明確拋出嘅存證錯誤先帶原因碼；其他錯誤（網絡、逾時、429／5xx、資料服務讀唔齊）
+ * 一律係「讀取失敗」read-failed，唔可以冒稱「核實未通過」。兩者都 fail-closed，唔展示預測。
+ */
 export function frozenEvidenceCodeOf(error: unknown): FrozenEvidenceCode {
-  return error instanceof FrozenEvidenceError ? error.code : 'verification-failed';
+  return error instanceof FrozenEvidenceError ? error.code : 'read-failed';
+}
+
+/** 公開 API 狀態碼：無副本 404；讀取失敗 502／504；未核實或核實失敗 503。 */
+export function frozenEvidenceHttpStatus(code: FrozenEvidenceCode, error?: unknown): number {
+  if (code === 'no-archive') return 404;
+  if (code === 'read-failed') return isTimeoutError(error) ? 504 : 502;
+  if (code === 'available') return 200;
+  return 503;
 }

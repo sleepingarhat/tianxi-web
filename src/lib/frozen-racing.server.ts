@@ -52,7 +52,7 @@ export async function readFrozenRacing(date: string) {
   const snap = officialSnap.ok ? officialSnap.snapshot : null;
   const officialChanges: HkjcChange[] = snap && snap.venue===snapshot.venue ? (snap.changes as unknown as HkjcChange[]) : [];
   const extraIds = [...new Set(resultRows.map(r => r.horseId).filter((id): id is string => typeof id === 'string' && /^horse_[A-Za-z0-9]+$/.test(id) && !nameMap.has(id)))];
-  if (extraIds.length > 400) throw new Error('官方賽果身份行數超出核對範圍');
+  if (extraIds.length > 400) throw new FrozenEvidenceError('verification-failed', '官方賽果身份行數超出核對範圍');
   const extraNames = extraIds.length ? await query<FrozenRow>(`SELECT id horseId,name_ch nameCh,name_en nameEn FROM horses WHERE id IN (${extraIds.map(() => '?').join(',')})`, extraIds) : [];
   for (const row of extraNames) nameMap.set(row.horseId, row);
   const verifiedWithdrawnIds = new Set(resultRows.filter(r => r.finishingPosition == null && (officialWithdrawal(officialChanges, r.raceNumber, r.horseNumber, nameMap.get(r.horseId)?.nameCh, r.horseId) || unnumberedPrelockWithdrawal(officialChanges, r, nameMap.get(r.horseId)?.nameCh, snapshot.lockAt))).map(r => `${r.raceNumber}:${r.horseId}`));
@@ -60,7 +60,10 @@ export async function readFrozenRacing(date: string) {
   const withdrawn = new Set(snapshot.rows.filter(r=>changeFor(r)).map(r=>`${r.race_number}:${r.horse_number}`));
   const frozenIdentities = snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id}));
   const identityResults = resultsForFrozenIdentity(frozenIdentities, resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId,finishingPosition:r.finishingPosition})), verifiedWithdrawnIds);
-  const identityCheck = verifyRunnerIdentities(frozenIdentities,card,identityResults,withdrawn);
+  // 身份核對失敗係「核實未通過」，唔係讀取失敗。
+  let identityCheck: ReturnType<typeof verifyRunnerIdentities>;
+  try { identityCheck = verifyRunnerIdentities(frozenIdentities,card,identityResults,withdrawn); }
+  catch (error) { throw new FrozenEvidenceError('verification-failed', error instanceof Error ? error.message : '排位身份未能核實'); }
   const config = JSON.parse(snapshot.meta.config || '{}');
   const raceNumbers = [...new Set(snapshot.rows.map(r=>r.race_number))].sort((a,b)=>a-b);
   const races = raceNumbers.map(raceNumber => {
