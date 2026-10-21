@@ -4,7 +4,7 @@
 
 ## 今次單一產品改版
 - [x] 2026-10-21賠率救急：工作39582325441成功，新WIN快照18:08:35 HKT；修正「每分鐘更新」文案。既有Cloudflare五分鐘程式已上傳，健康新增賽日20分鐘檢查；WIN/PLA與模型、凍結分離，其他池依每池最新快照讀取，GitHub保留後備。
-- [ ] 盤口遷移驗收：部署39583408466所有回歸通過及程式上傳成功，但最後accounts/.../workers/scripts/tianxi-backend/routes步驟權限拒絕。2026-10-21本輪兩個Cloudflare連接均可讀現有十條路由，新連接亦可讀同一account routes資源；GitHub部署實際用CF_API_TOKEN（最後更新2026-05-02），不是新連接。須由擁有人在GitHub更新該secret為涵蓋此account及zone、具Workers Scripts Edit／Workers Routes Edit嘅有效金鑰，再完整重跑；不繞過拒絕、不稱權限已修。現行版本100%啟用、正式盤口健康PASS，但連續自然五分鐘仍另驗。
+- [x] 2026-10-21 18:57 盤口遷移驗收：用戶提供新Cloudflare金鑰，已加密寫入GitHub CF_API_TOKEN（204）；重跑backend_deploy.yml工作39588192039全部步驟success，包括Deploy to Cloudflare Workers及路由設定。正式站健康17項PASS，display_odds_freshness PASS（未開跑場次盤口均在20分鐘內、五分鐘自動收料）。連續自然五分鐘快照仍按原安排觀察。
 - [x] 2026-10-21私人Telegram重驗：正式/api/public/telegram-alert?test=1受認證呼叫HTTP200，test.sent=true；此為現有私人告警通道成功送訊，不代表GitHub賽前／賽後公開頻道通知已修，亦不代表會員已讀。沒有修改收件人或轉公開。
 - [x] 2026-10-21 17:53：香港倒數修正；副本等待／空回應守門準備發布；更易例外502及續期結果核對；主收料直接保存自己runId，既有五分鐘排程核對自己run成功及全場官方存檔。測試及發布讀回另核，不改原副本／模型。
 - [ ] 本輪阻塞：Telegram引擎機器人未加入現行公開頻道（之前送訊403）；私人告警本輪已test.sent=true，不再列私人通道失效。GitHub通知仍須獨立驗收，未送達不記成功。鎖點來源revision及17:10持久證據仍缺；退款／並頭／鎖後換騎案例與退出／DNF訓練產物未驗；本人監控登入mint無匹配帳戶；白畫面未重現。詳見本輪驗收清單。
@@ -342,3 +342,5 @@
 - [ ] LGB／XGBoost／Random Forest 凍結對照研究：核查倉庫未找到先前聲稱程式；原副本缺52項輸入特徵，重建CSV不可冒充，待可靠原始特徵存證。
 - [ ] 2026-10-21：原注逐場核對「無存證」提示改中性註釋（註明19/10/26起自動重算及凍結方式），不用紅色警告式文字；待發布。
 - [ ] 三模型逐個調參60日比較：最早30賽日網格調參、最後30賽日鎖定評估；LGB/XGB背景執行中，RF隨後；結果先俾用戶拍板，未上研究頁。
+
+- [x] 2026-10-21 18:57 更新 GitHub CF_API_TOKEN 並重跑 backend_deploy.yml：工作39588192039全部success，路由設定通過，健康17項PASS。
