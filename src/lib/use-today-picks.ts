@@ -57,9 +57,8 @@ export function useTodayPicks() {
     refetchInterval: 30_000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
-    // 冷啟動偶爾超時：自動再試一次，唔使會員撳掣。
-    retry: 1,
-    retryDelay: 3_000,
+    // 定期背景重新讀取已提供自動恢復；不在初次讀取再串接55秒等待。
+    retry: false,
     enabled: !cancellation,
   });
   const date: string | undefined = picks.data?.date;

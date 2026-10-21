@@ -1,34 +1,9 @@
 // 特徵排序表：直接由 D1（tianxi-backend 資料庫）唯讀計算，全部在伺服器端執行。
 import type { FeatureId, FeatureStat, Horse } from "./race-data";
 
-const D1_DB = "aad1636e-869a-43f5-aa95-4a19e3aa5517";
-
 export async function d1<T = any>(sql: string, params: unknown[] = []): Promise<T[]> {
-  const token = process.env["CLOUDFLARE_API_TOKEN"];
-  const account = process.env["CLOUDFLARE_ACCOUNT_ID"];
-  if (!token || !account) throw new Error("伺服器未設定 Cloudflare 憑證");
-  let lastErr: Error | null = null;
-  // 上游偶發 5xx／"Upstream service unavailable"：最多重試 3 次
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const r = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${account}/d1/database/${D1_DB}/query`,
-        {
-          method: "POST",
-          headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
-          body: JSON.stringify({ sql, params }),
-        },
-      );
-      const data: any = await r.json().catch(() => null);
-      if (r.ok && data?.success) return (data.result?.[0]?.results ?? []) as T[];
-      lastErr = new Error(data?.errors?.[0]?.message || `D1 查詢失敗 (${r.status})`);
-      if (r.status > 0 && r.status < 500 && data?.errors?.length && !/unavailable/i.test(lastErr.message)) break;
-    } catch (e) {
-      lastErr = e instanceof Error ? e : new Error(String(e));
-    }
-    await new Promise((res) => setTimeout(res, 300 * (attempt + 1)));
-  }
-  throw new Error(`賽事資料庫暫時未能連線：${lastErr?.message ?? "未知錯誤"}`);
+  const { publicRacingQuery } = await import('./public-racing-evidence.server');
+  return publicRacingQuery<T>(sql, params);
 }
 
 const ph = (n: number) => Array.from({ length: n }, () => "?").join(",");

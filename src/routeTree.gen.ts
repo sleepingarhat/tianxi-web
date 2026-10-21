@@ -76,6 +76,7 @@ import { Route as ApiPublicLockStateRouteImport } from './routes/api/public/lock
 import { Route as ApiPublicMeetingCancellationRouteImport } from './routes/api/public/meeting-cancellation'
 import { Route as ApiPublicRacecoursePhotosStatusRouteImport } from './routes/api/public/racecourse-photos-status'
 import { Route as ApiPublicTelegramAlertRouteImport } from './routes/api/public/telegram-alert'
+import { Route as ApiPublicTrackRecordSummaryRouteImport } from './routes/api/public/track-record-summary'
 import { Route as ApiPublicWeatherArchiveRouteImport } from './routes/api/public/weather-archive'
 import { Route as ApiPublicWeatherSyncGithubRouteImport } from './routes/api/public/weather-sync-github'
 import { Route as ApiPublicHooksRaceResultsDispatchRouteImport } from './routes/api/public/hooks/race-results-dispatch'
@@ -86,6 +87,7 @@ import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
 import { Route as ApiPublicJobsRacingDispatchRouteImport } from './routes/api/public/jobs/racing-dispatch'
 import { Route as ApiPublicJobsRacingResultsRouteImport } from './routes/api/public/jobs/racing-results'
+import { Route as ApiPublicJobsTrackRecordSummaryRouteImport } from './routes/api/public/jobs/track-record-summary'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -437,6 +439,12 @@ const ApiPublicTelegramAlertRoute = ApiPublicTelegramAlertRouteImport.update({
   path: '/api/public/telegram-alert',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTrackRecordSummaryRoute =
+  ApiPublicTrackRecordSummaryRouteImport.update({
+    id: '/api/public/track-record-summary',
+    path: '/api/public/track-record-summary',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWeatherArchiveRoute = ApiPublicWeatherArchiveRouteImport.update({
   id: '/api/public/weather-archive',
   path: '/api/public/weather-archive',
@@ -494,6 +502,12 @@ const ApiPublicJobsRacingResultsRoute =
   ApiPublicJobsRacingResultsRouteImport.update({
     id: '/api/public/jobs/racing-results',
     path: '/api/public/jobs/racing-results',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsTrackRecordSummaryRoute =
+  ApiPublicJobsTrackRecordSummaryRouteImport.update({
+    id: '/api/public/jobs/track-record-summary',
+    path: '/api/public/jobs/track-record-summary',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicPaymentsWebhookRoute =
@@ -579,6 +593,7 @@ export interface FileRoutesByFullPath {
   '/api/public/meeting-cancellation': typeof ApiPublicMeetingCancellationRoute
   '/api/public/racecourse-photos-status': typeof ApiPublicRacecoursePhotosStatusRoute
   '/api/public/telegram-alert': typeof ApiPublicTelegramAlertRoute
+  '/api/public/track-record-summary': typeof ApiPublicTrackRecordSummaryRoute
   '/api/public/weather-archive': typeof ApiPublicWeatherArchiveRoute
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -590,6 +605,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
+  '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -659,6 +675,7 @@ export interface FileRoutesByTo {
   '/api/public/meeting-cancellation': typeof ApiPublicMeetingCancellationRoute
   '/api/public/racecourse-photos-status': typeof ApiPublicRacecoursePhotosStatusRoute
   '/api/public/telegram-alert': typeof ApiPublicTelegramAlertRoute
+  '/api/public/track-record-summary': typeof ApiPublicTrackRecordSummaryRoute
   '/api/public/weather-archive': typeof ApiPublicWeatherArchiveRoute
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -670,6 +687,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
+  '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -742,6 +760,7 @@ export interface FileRoutesById {
   '/api/public/meeting-cancellation': typeof ApiPublicMeetingCancellationRoute
   '/api/public/racecourse-photos-status': typeof ApiPublicRacecoursePhotosStatusRoute
   '/api/public/telegram-alert': typeof ApiPublicTelegramAlertRoute
+  '/api/public/track-record-summary': typeof ApiPublicTrackRecordSummaryRoute
   '/api/public/weather-archive': typeof ApiPublicWeatherArchiveRoute
   '/api/public/weather-sync-github': typeof ApiPublicWeatherSyncGithubRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -753,6 +772,7 @@ export interface FileRoutesById {
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
+  '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -825,6 +845,7 @@ export interface FileRouteTypes {
     | '/api/public/meeting-cancellation'
     | '/api/public/racecourse-photos-status'
     | '/api/public/telegram-alert'
+    | '/api/public/track-record-summary'
     | '/api/public/weather-archive'
     | '/api/public/weather-sync-github'
     | '/admin/'
@@ -836,6 +857,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
     | '/api/public/jobs/racing-results'
+    | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -905,6 +927,7 @@ export interface FileRouteTypes {
     | '/api/public/meeting-cancellation'
     | '/api/public/racecourse-photos-status'
     | '/api/public/telegram-alert'
+    | '/api/public/track-record-summary'
     | '/api/public/weather-archive'
     | '/api/public/weather-sync-github'
     | '/admin'
@@ -916,6 +939,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
     | '/api/public/jobs/racing-results'
+    | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -987,6 +1011,7 @@ export interface FileRouteTypes {
     | '/api/public/meeting-cancellation'
     | '/api/public/racecourse-photos-status'
     | '/api/public/telegram-alert'
+    | '/api/public/track-record-summary'
     | '/api/public/weather-archive'
     | '/api/public/weather-sync-github'
     | '/_authenticated/admin/'
@@ -998,6 +1023,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
     | '/api/public/jobs/racing-results'
+    | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1058,6 +1084,7 @@ export interface RootRouteChildren {
   ApiPublicMeetingCancellationRoute: typeof ApiPublicMeetingCancellationRoute
   ApiPublicRacecoursePhotosStatusRoute: typeof ApiPublicRacecoursePhotosStatusRoute
   ApiPublicTelegramAlertRoute: typeof ApiPublicTelegramAlertRoute
+  ApiPublicTrackRecordSummaryRoute: typeof ApiPublicTrackRecordSummaryRoute
   ApiPublicWeatherArchiveRoute: typeof ApiPublicWeatherArchiveRoute
   ApiPublicWeatherSyncGithubRoute: typeof ApiPublicWeatherSyncGithubRoute
   ApiPublicHooksRaceResultsDispatchRoute: typeof ApiPublicHooksRaceResultsDispatchRoute
@@ -1068,6 +1095,7 @@ export interface RootRouteChildren {
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
   ApiPublicJobsRacingDispatchRoute: typeof ApiPublicJobsRacingDispatchRoute
   ApiPublicJobsRacingResultsRoute: typeof ApiPublicJobsRacingResultsRoute
+  ApiPublicJobsTrackRecordSummaryRoute: typeof ApiPublicJobsTrackRecordSummaryRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1544,6 +1572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramAlertRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/track-record-summary': {
+      id: '/api/public/track-record-summary'
+      path: '/api/public/track-record-summary'
+      fullPath: '/api/public/track-record-summary'
+      preLoaderRoute: typeof ApiPublicTrackRecordSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/weather-archive': {
       id: '/api/public/weather-archive'
       path: '/api/public/weather-archive'
@@ -1612,6 +1647,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/jobs/racing-results'
       fullPath: '/api/public/jobs/racing-results'
       preLoaderRoute: typeof ApiPublicJobsRacingResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/track-record-summary': {
+      id: '/api/public/jobs/track-record-summary'
+      path: '/api/public/jobs/track-record-summary'
+      fullPath: '/api/public/jobs/track-record-summary'
+      preLoaderRoute: typeof ApiPublicJobsTrackRecordSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/payments/webhook': {
@@ -1738,6 +1780,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicMeetingCancellationRoute: ApiPublicMeetingCancellationRoute,
   ApiPublicRacecoursePhotosStatusRoute: ApiPublicRacecoursePhotosStatusRoute,
   ApiPublicTelegramAlertRoute: ApiPublicTelegramAlertRoute,
+  ApiPublicTrackRecordSummaryRoute: ApiPublicTrackRecordSummaryRoute,
   ApiPublicWeatherArchiveRoute: ApiPublicWeatherArchiveRoute,
   ApiPublicWeatherSyncGithubRoute: ApiPublicWeatherSyncGithubRoute,
   ApiPublicHooksRaceResultsDispatchRoute:
@@ -1749,6 +1792,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
   ApiPublicJobsRacingDispatchRoute: ApiPublicJobsRacingDispatchRoute,
   ApiPublicJobsRacingResultsRoute: ApiPublicJobsRacingResultsRoute,
+  ApiPublicJobsTrackRecordSummaryRoute: ApiPublicJobsTrackRecordSummaryRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

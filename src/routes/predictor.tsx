@@ -24,6 +24,7 @@ import { useTodayPicks } from "@/lib/use-today-picks";
 import { effectiveTop4 } from "@/lib/withdrawal-substitution";
 import { RacingChangesNotice } from "@/components/tx/RacingChangesNotice";
 import { racingClassLabel } from "@/lib/racing-class";
+import { Button } from '@/components/ui/button';
 
 
 
@@ -182,7 +183,7 @@ function PredictorPage() {
   if (!tp.date && races.length === 0) {
     return <AppShell columns={false} page="predictor" ticker="核對賽日資料中…">
       <PageHead en="Predictor" title="選馬神器" />
-      {tp.error ? <Empty label="預測暫未能核實，正在重新讀取" /> : <Loading label="核對預測中…" />}
+      {tp.error ? <div className="mx-4 my-4 space-y-3"><p role="alert" className="text-[12px] text-ink-2">預測暫未能核實；原凍結紀錄不變，稍後會自動重新核對。</p><Button variant="outline" disabled={tp.isFetching} onClick={() => void tp.refetch()}>{tp.isFetching ? '正在重新核對…' : '重新核對'}</Button></div> : <Loading label="核對預測中…" />}
       <Disclaimer />
     </AppShell>;
   }

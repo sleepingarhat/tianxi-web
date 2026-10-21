@@ -1,6 +1,6 @@
 import { publicRacingQuery as query } from './public-racing-evidence.server';
 import { frozenColumns, validateFrozenSnapshot, FrozenEvidenceError, frozenEvidenceStatus, type FrozenRow } from './frozen-racing';
-import { verifyRunnerIdentities, type RunnerIdentity } from './racing-runner-identity';
+import { verifyRunnerIdentities, resultsForFrozenIdentity, type RunnerIdentity } from './racing-runner-identity';
 import { officialWithdrawal, type HkjcChange } from './hkjc-changes';
 import { effectiveTop4 } from './withdrawal-substitution';
 import { officialRaceMetric } from './racing-official-metrics';
@@ -51,9 +51,16 @@ export async function readFrozenRacing(date: string) {
   const changesReadOk = officialSnap.ok;
   const snap = officialSnap.ok ? officialSnap.snapshot : null;
   const officialChanges: HkjcChange[] = snap && snap.venue===snapshot.venue ? (snap.changes as unknown as HkjcChange[]) : [];
+  const extraIds = [...new Set(resultRows.map(r => r.horseId).filter((id): id is string => typeof id === 'string' && /^horse_[A-Za-z0-9]+$/.test(id) && !nameMap.has(id)))];
+  if (extraIds.length > 400) throw new Error('官方賽果身份行數超出核對範圍');
+  const extraNames = extraIds.length ? await query<FrozenRow>(`SELECT id horseId,name_ch nameCh,name_en nameEn FROM horses WHERE id IN (${extraIds.map(() => '?').join(',')})`, extraIds) : [];
+  for (const row of extraNames) nameMap.set(row.horseId, row);
+  const verifiedWithdrawnIds = new Set(resultRows.filter(r => r.finishingPosition == null && officialWithdrawal(officialChanges, r.raceNumber, r.horseNumber, nameMap.get(r.horseId)?.nameCh, r.horseId)).map(r => `${r.raceNumber}:${r.horseId}`));
   const changeFor = (r:FrozenRow) => officialWithdrawal(officialChanges, r.race_number, r.horse_number, nameMap.get(r.horse_id)?.nameCh);
   const withdrawn = new Set(snapshot.rows.filter(r=>changeFor(r)).map(r=>`${r.race_number}:${r.horse_number}`));
-  const identityCheck = verifyRunnerIdentities(snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id})),card,resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId,finishingPosition:r.finishingPosition})),withdrawn);
+  const frozenIdentities = snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id}));
+  const identityResults = resultsForFrozenIdentity(frozenIdentities, resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId,finishingPosition:r.finishingPosition})), verifiedWithdrawnIds);
+  const identityCheck = verifyRunnerIdentities(frozenIdentities,card,identityResults,withdrawn);
   const config = JSON.parse(snapshot.meta.config || '{}');
   const raceNumbers = [...new Set(snapshot.rows.map(r=>r.race_number))].sort((a,b)=>a-b);
   const races = raceNumbers.map(raceNumber => {

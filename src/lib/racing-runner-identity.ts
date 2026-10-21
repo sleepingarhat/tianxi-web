@@ -1,5 +1,13 @@
 export type RunnerIdentity = { raceNumber: number; horseNumber: number; horseId: string };
 
+/** A pre-lock scratched runner can remain in official results without ever entering the lock. */
+export function resultsForFrozenIdentity<T extends RunnerIdentity & { finishingPosition?: number | null }>(
+  frozen: RunnerIdentity[], results: T[], verifiedWithdrawnIds: ReadonlySet<string>,
+): T[] {
+  const originals = new Set(frozen.map(r => `${r.raceNumber}:${r.horseId}`));
+  return results.filter(r => originals.has(`${r.raceNumber}:${r.horseId}`) || r.finishingPosition != null || !verifiedWithdrawnIds.has(`${r.raceNumber}:${r.horseId}`));
+}
+
 export function identityMatchedEntry<T extends { horseId?: string; id?: string }>(horseId: string | undefined, entry: T | undefined): T | undefined {
   return horseId && (entry?.horseId ?? entry?.id) === horseId ? entry : undefined;
 }

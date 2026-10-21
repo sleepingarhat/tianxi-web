@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { verifyRunnerIdentities, identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
+import { verifyRunnerIdentities, identityMatchedEntry, evidenceDraw, resultsForFrozenIdentity } from './racing-runner-identity';
 
 const original = [{ raceNumber: 10, horseNumber: 3, horseId: 'horse_K554' }];
 describe('馬匹身份跨来源核對', () => {
+  it('10月21日第1場9號K319鎖前退出、未入凍結；官方無名次行不阻截原凍結', () => {
+    const frozen = [{ raceNumber: 1, horseNumber: 6, horseId: 'horse_K307' }];
+    const scratched = { raceNumber: 1, horseNumber: 9, horseId: 'horse_K319', finishingPosition: null };
+    const results = resultsForFrozenIdentity(frozen, [...frozen, scratched], new Set(['1:horse_K319']));
+    expect(results).toEqual(frozen);
+    expect(verifyRunnerIdentities(frozen, frozen, results).runners).toBe(1);
+  });
+  it('缺退出身份證據、未知馬或有名次仍不能略過', () => {
+    const r = { raceNumber: 1, horseNumber: 9, horseId: 'horse_K319', finishingPosition: null };
+    expect(resultsForFrozenIdentity([], [r], new Set())).toEqual([r]);
+    expect(resultsForFrozenIdentity([], [{ ...r, horseId: 'horse_UNKNOWN' }], new Set(['1:horse_K319']))).toHaveLength(1);
+    expect(resultsForFrozenIdentity([], [{ ...r, finishingPosition: 1 }], new Set(['1:horse_K319']))).toHaveLength(1);
+  });
   it('補充馬名綵衣檔位必須同horseId，缺身份也不補', () => {
     expect(identityMatchedEntry('horse_K554', {horseId:'horse_L184'})).toBeUndefined();
     expect(identityMatchedEntry('horse_K554', {})).toBeUndefined();
