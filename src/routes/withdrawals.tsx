@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AppShell } from '@/components/tx/AppShell';
 import { Card, PageHead, Pill, Stat, ErrorNote } from '@/components/tx/ui';
 import { getWithdrawalTracker } from '@/lib/withdrawal-tracker.functions';
+import { withdrawalTimingLabel } from '@/lib/withdrawal-substitution';
 const options=(date:string)=>queryOptions({queryKey:['withdrawal-tracker',date],queryFn:()=>getWithdrawalTracker({data:{date}}),retry:false,staleTime:30_000});
 export const Route=createFileRoute('/withdrawals')({
   validateSearch:z.object({date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).catch('2026-10-21')}),
@@ -37,7 +38,7 @@ function WithdrawalPage(){
         <dl className="grid grid-cols-[84px_minmax(0,1fr)] gap-2 text-xs leading-relaxed">
           <dt className="text-ink-3">官方公布</dt><dd>{c.announcedAtIso ?? c.announcedAt}</dd>
           <dt className="text-ink-3">退出原因</dt><dd>{c.text}</dd>
-          <dt className="text-ink-3">鎖點分類</dt><dd>{c.beforeLock===null?'時間／副本未核實':c.beforeLock?'鎖前退出，舊輸入不計分':'鎖後退出，原四揀保留'}</dd>
+          <dt className="text-ink-3">鎖點分類</dt><dd>{withdrawalTimingLabel(c.beforeLock,c.originalRank,c.metricEligible)}</dd>
           <dt className="text-ink-3">原選排名</dt><dd>{c.originalRank ?? '未有匹配原副本'}</dd>
           <dt className="text-ink-3">本場原四揀</dt><dd>{c.metricEligible?`中 ${c.originalHits}／4`:'未核實／不入分母'}</dd>
           <dt className="text-ink-3">訓練資料</dt><dd className="text-gold">待驗收：未有逐匹訓練產物及來源指紋證據</dd>

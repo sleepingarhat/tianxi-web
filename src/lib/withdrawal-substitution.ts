@@ -15,6 +15,14 @@ export function effectiveTop4<T extends RankedPick>(picks: T[], lockAt?: string 
   const unknown = withdrawals.some(p => !Number.isFinite(lockTime) || !Number.isFinite(Date.parse(p.announcedAtIso ?? '')));
   const withdrawn = original.filter(n => withdrawals.some(p => p.horseNumber === n));
   const valid = original.filter(n => !withdrawn.includes(n));
-  const status = unknown && !beforeLock ? 'unverified-change-timing' as const : 'valid' as const;
+  const status = unknown ? 'unverified-change-timing' as const : 'valid' as const;
   return { original, valid, withdrawn, status, prelockNotRecomputed: beforeLock };
+}
+
+/** Display classification follows the same counted original-ticket rule. */
+export function withdrawalTimingLabel(beforeLock: boolean | null, originalRank: number | null, metricEligible: boolean) {
+  if (beforeLock === null) return '時間／副本未核實';
+  if (!beforeLock) return '鎖後退出，原四揀保留';
+  if (originalRank !== null && metricEligible) return '鎖前退出未及重算，按鎖後方式計';
+  return '鎖前退出，是否已重算須核對';
 }

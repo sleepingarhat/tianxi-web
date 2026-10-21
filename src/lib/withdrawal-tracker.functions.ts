@@ -7,6 +7,7 @@ export const getWithdrawalTracker = createServerFn({method:'GET'})
     const { readFrozenRacing } = await import('./frozen-racing.server');
     const { frozenEvidenceCodeOf } = await import('./frozen-racing');
     const { summarizeOfficialMetrics } = await import('./racing-official-metrics');
+    const { horseDisplayName } = await import('./horse-name');
     const snap = await readLatestHkjcChanges(data.date);
     let frozen: Awaited<ReturnType<typeof readFrozenRacing>> | null = null;
     let evidence = 'available';
@@ -18,7 +19,7 @@ export const getWithdrawalTracker = createServerFn({method:'GET'})
       summary:frozen ? summarizeOfficialMetrics(frozen.races.map(r=>r.metricInput)) : null,
       withdrawals:withdrawals.map(c=>{
         const race=frozen?.races.find(r=>r.raceNumber===c.raceNumber);
-        const pick=race?.picks.find(p=>p.horseNumber===c.horseNumber&&p.nameCh===c.horseName);
+        const pick=race?.picks.find(p=>p.horseNumber===c.horseNumber&&horseDisplayName(p.nameCh,p.horseId)===c.horseName);
         return {...c, originalRank:pick?.rank ?? null,
           beforeLock:frozen && c.announcedAtIso ? Date.parse(c.announcedAtIso)<=Date.parse(frozen.lockAt) : null,
           originalHits:race?.officialMetric.originalHits ?? null, metricEligible:race?.officialMetric.eligible ?? false,

@@ -15,9 +15,9 @@
 
 ## 監控端規則
 - Read nested src/components/admin/AGENTS.md before edits; scoped rules apply.
-- P&L/detail share exoticPoolOptions/ExoticTrioPools; merge once, separate original/settled legs, pay per ticket. Verified ranks 1–5; missing fifth/invalid input stops settlement. Why: no double count or post-race picks.
+- P&L/detail share exoticPoolOptions/ExoticTrioPools; separate original/settled legs; all-combination legs pay every ticket. Require verified ranks 1–5 and valid input. Why: no double count or post-race picks.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
-- Separate code, verified flows and missing evidence in audits; tasks are not delivery.
+- Audits separate code, verified flows and gaps; tasks are not delivery.
 
 - Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.
 - Images require commercial-free licences or written rights, credits and /media-credits; URLs are not licences.
@@ -37,7 +37,7 @@
 - HKJC raw+SHA stays append-only; live notices overlay identity-matched withdrawals without changing frozen rows; no post-lock substitution. Cancellation keyword hits archive raw+SHA to hkjc_cancellation_snapshots. Why: notices cannot certify stale inputs.
 - Frozen reads verify originals/SHA/meta/runner IDs. Fill only display metadata from meeting-matched cards; unknowns stay null, never merge scores. Locked picks coalesce. Why: references are not lock evidence.
 
-- Replay preserves axes; pedigree tests use prior-date smoothing and paired evidence. Family research saves temporal splits, picks and input SHA; no production writes. Why: reproducible research is not promotion.
+- Replay preserves axes; pedigree uses prior-date smoothing. Family grids checkpoint input/script/versions/splits, finish before evaluation, save picks and paired corrected intervals; no production writes. Why: reproducibility is not promotion.
 
 - Scarce starts advise only; never switch models/accounting.
 - Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
@@ -45,7 +45,7 @@
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.
 - Coalesce picks reads with bounded deadlines; reject late data. Race pages use racePicksFromDay, not live topPicks. History keeps newest rows and reports truncation. Why: preserve evidence and recent dates.
-- Parallelize frozen reads; bound references without weakening checks.
+- Parallelize frozen reads; unknown change timing stays blocked. Why: no masked missing evidence.
 - Preserve official Chinese/Group labels via racingClassLabel.
 
 - tx/Predictor* keeps route guards; name-code cleanup requires matching ID and preserves archives. Why: no hidden identity mismatch.

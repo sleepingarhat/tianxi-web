@@ -25,4 +25,14 @@ describe('跨場共用明細及無存證', () => {
     expect(pools[0]?.detail.map(d => d.hit)).toEqual([true, true]);
     expect(pools[0]?.detail[1]?.winningCombination).toBe('1,2,4');
   });
+  it('官方任何組合段每張原票都派彩，不能命中卻計零元', () => {
+    const leg = (race: number) => ({ race, bankers: [1, 2], legs: [3, 4, 5], fifthFromLive: false as const });
+    const pools = calcPools([{ race_no: 3, pool: '第一口孖T', combo: '1,2,3/F', dividend: 13641, unit: 10 }], { 2: leg(2), 3: leg(3) });
+    expect(pools[0]).toMatchObject({ mainHit: true, units: 9, cost: 90, payout: 40923 });
+  });
+  it('缺官方熱門的退出票不會成為已結算命中或派彩', () => {
+    const leg = (race: number) => ({ race, bankers: [1, 2], legs: [3, 4, 5], fifthFromLive: false as const });
+    const pools = calcPools([{ race_no: 2, pool: '孖T', combo: '1,2,3/1,2,4', dividend: 1000, unit: 10 }], { 1: leg(1), 2: leg(2) }, { 1: new Set([3]) });
+    expect(pools[0]).toMatchObject({ missing: true, pendingWithdrawal: true, mainHit: false, payout: 0 });
+  });
 });

@@ -75,7 +75,7 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
     }
     out.push({
       name, races, units, cost: units * UNIT,
-      mainHit, payout: mainHit && g.main ? legs.reduce((a, leg, i) => a * (leg?.legs.filter((x) => setOf(mainParts[i] ?? "").has(x)).length ?? 0), 1) * g.main.dividend : 0,
+      mainHit, payout: mainHit && g.main ? legs.reduce((a, leg, i) => a * (isAny(mainParts[i] ?? "") ? leg?.legs.length ?? 0 : leg?.legs.filter((x) => setOf(mainParts[i] ?? "").has(x)).length ?? 0), 1) * g.main.dividend : 0,
       consUnits, consPayout: g.cons ? consUnits * g.cons.dividend : 0,
       mainDividend: g.main?.dividend ?? null, consolationDividend: g.cons?.dividend ?? null,
       missing, pendingWithdrawal, detail,
