@@ -28,17 +28,17 @@ export async function syncHkjcEvidenceToRepository() {
     return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
   };
 
-  type SnapshotRow = { race_date: string; source_url: string; sha256: string; raw_html: string; venue?: string };
+  type SnapshotRow = { race_date: string; source_url: string; sha256: string; source_sha256?:string; raw_html: string; venue?: string };
   type ManifestEntry = { path: string; sha256: string; sourceUrl: string; date: string; kind: string; venue?: string };
   type Manifest = { snapshots: ManifestEntry[] };
 
-  type EvidenceTable = 'hkjc_changes_snapshots' | 'hkjc_cancellation_snapshots';
+  type EvidenceTable = 'hkjc_changes_snapshots' | 'hkjc_cancellation_snapshots' | 'racing_dividend_snapshots';
   /** Sync one evidence table into one repo folder; one write per run, later runs resume from the manifest. */
   const syncTable = async (opts: { table: EvidenceTable; folder: string; select: string; name: (row: SnapshotRow) => string }) => {
     const { data, error } = await supabaseAdmin.from(opts.table)
       .select(opts.select).order('fetched_at').limit(2001);
     if (error || !data || data.length > 2000) throw new Error('官方事件未能完整讀取，停止同步');
-    const rows = data as unknown as SnapshotRow[];
+    const rows = (data as unknown as SnapshotRow[]).map(r=>({...r,sha256:r.sha256 ?? r.source_sha256 ?? ''}));
     const manifestPath = `data/${opts.folder}/manifest.json`;
     const current = await read(manifestPath);
     const manifest = current ? JSON.parse(decode(current.content)) as Manifest : { snapshots: [] };
@@ -71,5 +71,10 @@ export async function syncHkjcEvidenceToRepository() {
     select: 'race_date,source_url,sha256,raw_html,fetched_at',
     name: (row) => `cancellation-${row.sha256}.html`,
   });
-  return { ok: true, added: changes.added + cancellations.added, changes, cancellations };
+  const dividends = await syncTable({
+    table:'racing_dividend_snapshots',folder:'racing-dividends',
+    select:'race_date,venue,source_url,source_sha256,raw_html,fetched_at',
+    name:row=>`${row.venue}-${row.sha256}.html`,
+  });
+  return { ok: true, added: changes.added + cancellations.added + dividends.added, changes, cancellations, dividends };
 }

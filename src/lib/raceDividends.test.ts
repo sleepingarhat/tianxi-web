@@ -1,6 +1,12 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { fetchRaceDividends } from './raceDividends';
+import { fetchRaceDividends, fetchRaceDividendEvidence } from './raceDividends';
 afterEach(() => vi.unstubAllGlobals());
+it('錯賽日存證不能退回CSV掩蓋身份問題',async()=>{
+  const fetchMock=vi.fn().mockResolvedValue(new Response(JSON.stringify({evidence:{race_date:'2026-10-19'}})));
+  vi.stubGlobal('fetch',fetchMock);
+  await expect(fetchRaceDividendEvidence('2026-10-21','HV')).rejects.toThrow('格式不符');
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+});
 it('空白派彩不可當成零元已結算', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('race_no,pool,combination,dividend_hkd\n2,孖T,"1,2,3/1,2,4",\n')));
   await expect(fetchRaceDividends('2026-10-19')).rejects.toThrow('未核實金額');

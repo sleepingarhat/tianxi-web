@@ -75,6 +75,7 @@ import { Route as ApiPublicHorseHr2RouteImport } from './routes/api/public/horse
 import { Route as ApiPublicLockStateRouteImport } from './routes/api/public/lock-state'
 import { Route as ApiPublicMeetingCancellationRouteImport } from './routes/api/public/meeting-cancellation'
 import { Route as ApiPublicRacecoursePhotosStatusRouteImport } from './routes/api/public/racecourse-photos-status'
+import { Route as ApiPublicRacingDividendsRouteImport } from './routes/api/public/racing-dividends'
 import { Route as ApiPublicTelegramAlertRouteImport } from './routes/api/public/telegram-alert'
 import { Route as ApiPublicTrackRecordSummaryRouteImport } from './routes/api/public/track-record-summary'
 import { Route as ApiPublicWeatherArchiveRouteImport } from './routes/api/public/weather-archive'
@@ -86,6 +87,7 @@ import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
 import { Route as ApiPublicJobsRacingDispatchRouteImport } from './routes/api/public/jobs/racing-dispatch'
+import { Route as ApiPublicJobsRacingDividendsRouteImport } from './routes/api/public/jobs/racing-dividends'
 import { Route as ApiPublicJobsRacingResultsRouteImport } from './routes/api/public/jobs/racing-results'
 import { Route as ApiPublicJobsTrackRecordSummaryRouteImport } from './routes/api/public/jobs/track-record-summary'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -434,6 +436,12 @@ const ApiPublicRacecoursePhotosStatusRoute =
     path: '/api/public/racecourse-photos-status',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicRacingDividendsRoute =
+  ApiPublicRacingDividendsRouteImport.update({
+    id: '/api/public/racing-dividends',
+    path: '/api/public/racing-dividends',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTelegramAlertRoute = ApiPublicTelegramAlertRouteImport.update({
   id: '/api/public/telegram-alert',
   path: '/api/public/telegram-alert',
@@ -496,6 +504,12 @@ const ApiPublicJobsRacingDispatchRoute =
   ApiPublicJobsRacingDispatchRouteImport.update({
     id: '/api/public/jobs/racing-dispatch',
     path: '/api/public/jobs/racing-dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsRacingDividendsRoute =
+  ApiPublicJobsRacingDividendsRouteImport.update({
+    id: '/api/public/jobs/racing-dividends',
+    path: '/api/public/jobs/racing-dividends',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicJobsRacingResultsRoute =
@@ -592,6 +606,7 @@ export interface FileRoutesByFullPath {
   '/api/public/lock-state': typeof ApiPublicLockStateRoute
   '/api/public/meeting-cancellation': typeof ApiPublicMeetingCancellationRoute
   '/api/public/racecourse-photos-status': typeof ApiPublicRacecoursePhotosStatusRoute
+  '/api/public/racing-dividends': typeof ApiPublicRacingDividendsRoute
   '/api/public/telegram-alert': typeof ApiPublicTelegramAlertRoute
   '/api/public/track-record-summary': typeof ApiPublicTrackRecordSummaryRoute
   '/api/public/weather-archive': typeof ApiPublicWeatherArchiveRoute
@@ -604,6 +619,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
+  '/api/public/jobs/racing-dividends': typeof ApiPublicJobsRacingDividendsRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -674,6 +690,7 @@ export interface FileRoutesByTo {
   '/api/public/lock-state': typeof ApiPublicLockStateRoute
   '/api/public/meeting-cancellation': typeof ApiPublicMeetingCancellationRoute
   '/api/public/racecourse-photos-status': typeof ApiPublicRacecoursePhotosStatusRoute
+  '/api/public/racing-dividends': typeof ApiPublicRacingDividendsRoute
   '/api/public/telegram-alert': typeof ApiPublicTelegramAlertRoute
   '/api/public/track-record-summary': typeof ApiPublicTrackRecordSummaryRoute
   '/api/public/weather-archive': typeof ApiPublicWeatherArchiveRoute
@@ -686,6 +703,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
+  '/api/public/jobs/racing-dividends': typeof ApiPublicJobsRacingDividendsRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -759,6 +777,7 @@ export interface FileRoutesById {
   '/api/public/lock-state': typeof ApiPublicLockStateRoute
   '/api/public/meeting-cancellation': typeof ApiPublicMeetingCancellationRoute
   '/api/public/racecourse-photos-status': typeof ApiPublicRacecoursePhotosStatusRoute
+  '/api/public/racing-dividends': typeof ApiPublicRacingDividendsRoute
   '/api/public/telegram-alert': typeof ApiPublicTelegramAlertRoute
   '/api/public/track-record-summary': typeof ApiPublicTrackRecordSummaryRoute
   '/api/public/weather-archive': typeof ApiPublicWeatherArchiveRoute
@@ -771,6 +790,7 @@ export interface FileRoutesById {
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
+  '/api/public/jobs/racing-dividends': typeof ApiPublicJobsRacingDividendsRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -844,6 +864,7 @@ export interface FileRouteTypes {
     | '/api/public/lock-state'
     | '/api/public/meeting-cancellation'
     | '/api/public/racecourse-photos-status'
+    | '/api/public/racing-dividends'
     | '/api/public/telegram-alert'
     | '/api/public/track-record-summary'
     | '/api/public/weather-archive'
@@ -856,6 +877,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
+    | '/api/public/jobs/racing-dividends'
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
@@ -926,6 +948,7 @@ export interface FileRouteTypes {
     | '/api/public/lock-state'
     | '/api/public/meeting-cancellation'
     | '/api/public/racecourse-photos-status'
+    | '/api/public/racing-dividends'
     | '/api/public/telegram-alert'
     | '/api/public/track-record-summary'
     | '/api/public/weather-archive'
@@ -938,6 +961,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
+    | '/api/public/jobs/racing-dividends'
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
@@ -1010,6 +1034,7 @@ export interface FileRouteTypes {
     | '/api/public/lock-state'
     | '/api/public/meeting-cancellation'
     | '/api/public/racecourse-photos-status'
+    | '/api/public/racing-dividends'
     | '/api/public/telegram-alert'
     | '/api/public/track-record-summary'
     | '/api/public/weather-archive'
@@ -1022,6 +1047,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
+    | '/api/public/jobs/racing-dividends'
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
@@ -1083,6 +1109,7 @@ export interface RootRouteChildren {
   ApiPublicLockStateRoute: typeof ApiPublicLockStateRoute
   ApiPublicMeetingCancellationRoute: typeof ApiPublicMeetingCancellationRoute
   ApiPublicRacecoursePhotosStatusRoute: typeof ApiPublicRacecoursePhotosStatusRoute
+  ApiPublicRacingDividendsRoute: typeof ApiPublicRacingDividendsRoute
   ApiPublicTelegramAlertRoute: typeof ApiPublicTelegramAlertRoute
   ApiPublicTrackRecordSummaryRoute: typeof ApiPublicTrackRecordSummaryRoute
   ApiPublicWeatherArchiveRoute: typeof ApiPublicWeatherArchiveRoute
@@ -1094,6 +1121,7 @@ export interface RootRouteChildren {
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
   ApiPublicJobsRacingDispatchRoute: typeof ApiPublicJobsRacingDispatchRoute
+  ApiPublicJobsRacingDividendsRoute: typeof ApiPublicJobsRacingDividendsRoute
   ApiPublicJobsRacingResultsRoute: typeof ApiPublicJobsRacingResultsRoute
   ApiPublicJobsTrackRecordSummaryRoute: typeof ApiPublicJobsTrackRecordSummaryRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -1565,6 +1593,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRacecoursePhotosStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/racing-dividends': {
+      id: '/api/public/racing-dividends'
+      path: '/api/public/racing-dividends'
+      fullPath: '/api/public/racing-dividends'
+      preLoaderRoute: typeof ApiPublicRacingDividendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram-alert': {
       id: '/api/public/telegram-alert'
       path: '/api/public/telegram-alert'
@@ -1640,6 +1675,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/jobs/racing-dispatch'
       fullPath: '/api/public/jobs/racing-dispatch'
       preLoaderRoute: typeof ApiPublicJobsRacingDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/racing-dividends': {
+      id: '/api/public/jobs/racing-dividends'
+      path: '/api/public/jobs/racing-dividends'
+      fullPath: '/api/public/jobs/racing-dividends'
+      preLoaderRoute: typeof ApiPublicJobsRacingDividendsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/jobs/racing-results': {
@@ -1779,6 +1821,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicLockStateRoute: ApiPublicLockStateRoute,
   ApiPublicMeetingCancellationRoute: ApiPublicMeetingCancellationRoute,
   ApiPublicRacecoursePhotosStatusRoute: ApiPublicRacecoursePhotosStatusRoute,
+  ApiPublicRacingDividendsRoute: ApiPublicRacingDividendsRoute,
   ApiPublicTelegramAlertRoute: ApiPublicTelegramAlertRoute,
   ApiPublicTrackRecordSummaryRoute: ApiPublicTrackRecordSummaryRoute,
   ApiPublicWeatherArchiveRoute: ApiPublicWeatherArchiveRoute,
@@ -1791,6 +1834,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
   ApiPublicJobsRacingDispatchRoute: ApiPublicJobsRacingDispatchRoute,
+  ApiPublicJobsRacingDividendsRoute: ApiPublicJobsRacingDividendsRoute,
   ApiPublicJobsRacingResultsRoute: ApiPublicJobsRacingResultsRoute,
   ApiPublicJobsTrackRecordSummaryRoute: ApiPublicJobsTrackRecordSummaryRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

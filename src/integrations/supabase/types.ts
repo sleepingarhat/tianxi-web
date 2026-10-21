@@ -482,6 +482,45 @@ export type Database = {
         }
         Relationships: []
       }
+      racing_dividend_snapshots: {
+        Row: {
+          dividends: Json
+          fetched_at: string
+          id: string
+          race_count: number
+          race_date: string
+          raw_html: string
+          source_sha256: string
+          source_url: string
+          trio_combinations: Json
+          venue: string
+        }
+        Insert: {
+          dividends: Json
+          fetched_at?: string
+          id?: string
+          race_count: number
+          race_date: string
+          raw_html: string
+          source_sha256: string
+          source_url: string
+          trio_combinations: Json
+          venue: string
+        }
+        Update: {
+          dividends?: Json
+          fetched_at?: string
+          id?: string
+          race_count?: number
+          race_date?: string
+          raw_html?: string
+          source_sha256?: string
+          source_url?: string
+          trio_combinations?: Json
+          venue?: string
+        }
+        Relationships: []
+      }
       racing_official_collection_leases: {
         Row: {
           expires_at: string

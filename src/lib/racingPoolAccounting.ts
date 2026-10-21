@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { fetchRaceDividends, type DividendRow } from "./raceDividends";
+import { fetchRaceDividendEvidence, type DividendRow } from "./raceDividends";
 import { frozenPoolLegs, type FrozenPoolRace, type FrozenPoolLeg } from "./frozen-pool-legs";
 import { settleWithdrawnLeg } from "./exotic-withdrawal";
 import { getOfficialFavourites } from "./official-favourites.functions";
@@ -29,7 +29,7 @@ function ticketHit(ticket: number[], part: string): Match {
 }
 const combinationHit = (hits: Match[]): Match => hits.includes(false) ? false : hits.includes(null) ? null : true;
 
-export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, withdrawnByRace: Record<number, Set<number>> = {}, favouritesByRace: Record<number, number[] | undefined> = {}): PoolCalc[] {
+export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, withdrawnByRace: Record<number, Set<number>> = {}, favouritesByRace: Record<number, number[] | undefined> = {}, officialTrios: Record<number,string> = {}): PoolCalc[] {
   const groups = new Map<string, { name: string; main: DividendRow[]; cons: DividendRow[] }>();
   for (const d of divs) {
     if (!/孖T|三T/.test(d.pool)) continue;
@@ -49,9 +49,11 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
     const original = races.map(r => legsByRace[r] ?? null);
     const settlements = original.map((leg, i) => leg ? settleWithdrawnLeg(leg, withdrawnByRace[races[i] ?? 0] ?? new Set(), favouritesByRace[races[i] ?? 0]) : null);
     const pendingWithdrawal = settlements.some(s => s?.status === 'pending');
-    let missing = pendingWithdrawal || original.some(l => !l) || !g.main.length;
+    const verifiedMainParts = races.map(r => officialTrios[r] ?? '');
+    const hasVerifiedTrios = verifiedMainParts.every(s => /^\d+,\d+,\d+$/.test(s) && setOf(s).size === 3);
+    let missing = pendingWithdrawal || original.some(l => !l) || (!g.main.length && !hasVerifiedTrios);
     const units = original.reduce((acc, l) => acc * (l?.legs.length ?? 0), 1);
-    const mainParts = g.main[0]?.combo.split('/').map(s => s.trim()) ?? [];
+    const mainParts = g.main[0]?.combo.split('/').map(s => s.trim()) ?? (hasVerifiedTrios ? verifiedMainParts : []);
     const detail = races.map((race, i) => {
       const tickets = settlements[i]?.combinations;
       const hits = tickets?.map(t => ticketHit(t, mainParts[i] ?? '')) ?? [];
@@ -68,7 +70,10 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
         return combinationHit(tickets.map((t, i) => ticketHit(t, parts[i] ?? '')));
       };
       const mains = g.main.map(row => ({ row, hit: matchRow(row) }));
-      const mainWon = mains.some(m => m.hit === true);
+      const actualMainHit = hasVerifiedTrios ? combinationHit(tickets.map((t,i)=>ticketHit(t,verifiedMainParts[i] ?? ''))) : null;
+      // Missing dividend can only settle tickets proved NOT to win the main prize.
+      if (!g.main.length && actualMainHit !== false) missing = true;
+      const mainWon = mains.some(m => m.hit === true) || actualMainHit === true;
       if (mains.some(m => m.hit === null)) missing = true;
       for (const m of mains) if (m.hit === true) payout += m.row.dividend;
       // Consolation pays non-main-winning original tickets only; preserve multiplicities.
@@ -103,12 +108,12 @@ async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venu
 }
 
 export const exoticPoolOptions = (date: string) => queryOptions({
-  queryKey: ["exotic-trio-verified-original", date], enabled: !!date, staleTime: 30_000,
+  queryKey: ["exotic-trio-verified-original", date], enabled: !!date, staleTime: 30_000, refetchInterval:60_000, retry:2,
   queryFn: async () => {
     const { legs, venue, noArchive, races } = await loadLegs(date);
     // 無原注可核對就唔再讀其他來源，避免無關網絡失敗蓋過「無存證」。
     if (noArchive) return { pools: [] as PoolCalc[], legs, favourites: {} as Record<number, number[] | undefined>, evidence: {} as Record<number, OfficialFavourites>, venue, noArchive: true };
-    const [divs, changes] = await Promise.all([fetchRaceDividends(date), getHkjcChanges({ data: { date } })]);
+    const [dividends, changes] = await Promise.all([fetchRaceDividendEvidence(date, venue ?? undefined), getHkjcChanges({ data: { date } })]);
     const withdrawn: Record<number, Set<number>> = {};
     for (const c of changes?.changes ?? []) {
       if (c.kind !== "scratched" && c.kind !== "replaced") continue;
@@ -126,7 +131,7 @@ export const exoticPoolOptions = (date: string) => queryOptions({
         favourites[r.raceNumber] = favouriteOrderForSettlement(r) ?? undefined;
       }
     }
-    return { pools: calcPools(divs, legs, withdrawn, favourites), legs, favourites, evidence, venue, noArchive: !!noArchive };
+    return { pools: calcPools(dividends.rows, legs, withdrawn, favourites, dividends.trios), legs, favourites, evidence, venue, noArchive: !!noArchive, dividendSource: dividends.source };
   },
 });
 

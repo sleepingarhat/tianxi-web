@@ -47,6 +47,7 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
             ))}
           </div>
           {pools.some(p => p.missing) ? <p className="mb-2 text-[11px] text-gold">合計只含已核實組口；待核組口成本及派彩未納入。</p> : null}
+          {q.data && 'dividendSource' in q.data && q.data.dividendSource ? <p className="mb-2 break-all text-[10px] text-ink-3"><a href={q.data.dividendSource.url} className="text-gold underline" target="_blank" rel="noreferrer">馬會全日派彩存證</a> · SHA {q.data.dividendSource.sha256}</p> : null}
           <ul>
             {pools.map((p) => (
               <li key={`${p.name}:${p.races.join("-")}`} className="border-b border-hairline py-2 last:border-b-0">
@@ -72,6 +73,7 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
                   ))}
                 </p>}
                 {detailed ? <p className="mt-3 text-[11px] leading-relaxed text-ink-3">第 {p.races.at(-1)} 場結算 · 官方每 $10 正獎派彩 {p.mainDividend == null ? "—" : money(p.mainDividend)}{p.consolationDividend == null ? "" : ` · 安慰獎 ${money(p.consolationDividend)}`} · 派彩屬整口跨場投注，唔拆成單場收益。</p> : null}
+                {p.name.includes('三T') && p.mainDividend == null && !p.missing ? <p className="mt-1 text-[11px] leading-relaxed text-ink-3">官方未列正獎派彩；已按各場官方單T組合核實原注冇中正獎，唔代表正獎派彩係零元。</p> : null}
                 {p.races.map(race => { const source=q.data?.evidence[race]?.source; return source ? <p key={race} className="mt-1 break-all text-[10px] text-ink-3"><a className="text-gold underline" href={source.sourceUrl} target="_blank" rel="noreferrer">R{race} 官方熱門存檔</a> · SHA {source.sha256}</p> : null; })}
                 <p className="tabnum mt-1 font-mono-tx text-[10px] text-ink-2">
                   {p.missing ? '成本及派彩待核，不入合計' : `${p.units} 注 · 成本 ${money(p.cost)}`}

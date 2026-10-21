@@ -15,7 +15,7 @@
 
 ## 監控端規則
 - Before admin edits read src/components/admin/AGENTS.md.
-- P&L/detail share exoticPoolOptions/ExoticTrioPools; require verified ranks 1–5. Substitute per original triple; retain duplicate stakes, sum dividend rows, unknowns pending. Why: no changed picks or lost payouts.
+- P&L/detail share exoticPoolOptions; verified ranks 1–5, original triples, duplicate stakes, sum dividends. Cron archives resultsall raw/SHA; trios prove losing tickets without inventing main payouts. Why: automatic auditable settlement.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
 - Audit real flows separately; starts need evidence, DNF is not withdrawal; actual/frozen jockey lineage stays separate.
 
