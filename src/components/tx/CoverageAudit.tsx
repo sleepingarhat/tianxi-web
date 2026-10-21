@@ -1,3 +1,5 @@
+import { detailDeadline } from "@/lib/detail-deadline";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -8,7 +10,7 @@ import { Card, Empty, ErrorNote, Loading, Pill, Scroller, Seg, Stat, StatGrid, T
 
 export function useCoverageAudit(days = 180) {
   const read = useServerFn(getCoverageAudit);
-  return useQuery({ queryKey: ["coverage-audit", days], queryFn: () => read({ data: { days } }), staleTime: 300_000, refetchInterval: 300_000 });
+  return useQuery({ queryKey: ["coverage-audit", days], queryFn: () => detailDeadline(() => read({ data: { days } })), retry: false, staleTime: 300_000, refetchInterval: 300_000 });
 }
 const fmt = (n: number | null) => n == null ? "—" : n.toFixed(2);
 export function CoverageAudit({ days = 180, showMeetings = false }: { days?: number; showMeetings?: boolean }) {
@@ -20,7 +22,7 @@ export function CoverageAudit({ days = 180, showMeetings = false }: { days?: num
     : ["ST", "HV"].flatMap(venue => DISTANCE_BANDS.map(band => ({ label: `${venue === "ST" ? "沙田" : "跑馬地"} · ${band}`, rows: rows.filter(r => r.venue === venue && r.band === band) })));
   return <>
     <Card title="凍結四揀 × 收市市場對照" en="Daily coverage audit" action={<Pill tone={q.data?.failed.length ? "lose" : "gold"}>{q.isFetching ? "更新中" : "只讀"}</Pill>}>
-      {q.isLoading ? <Loading /> : q.error ? <ErrorNote error={q.error} /> : rows.length ? <>
+      {q.isLoading ? <Loading /> : q.error ? <div><ErrorNote error={q.error} /><Button variant="outline" onClick={() => void q.refetch()}>重新讀取分層對照</Button></div> : rows.length ? <>
         <StatGrid cols={2}>
           <Stat label="凍結四揀平均中" value={fmt(summary.model)} sub={`／4 · ${summary.n} 場`} />
           <Stat label="收市市場平均中" value={fmt(summary.market)} sub={`／4 · ${summary.paired} 場可對照`} />

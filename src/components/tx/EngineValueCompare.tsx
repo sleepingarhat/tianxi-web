@@ -1,3 +1,5 @@
+import { detailDeadline } from "@/lib/detail-deadline";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getFrozenVersionHistory } from "@/lib/racing-evidence.functions";
@@ -10,14 +12,14 @@ import { Card, Empty, ErrorNote, Loading } from "./ui";
 export function EngineValueCompare() {
   const readHistory = useServerFn(getFrozenVersionHistory);
   const readValue = useServerFn(getValueComparison);
-  const hist = useQuery({ queryKey: ["frozen-model-version-history"], queryFn: () => readHistory(), staleTime: 300_000 });
+  const hist = useQuery({ queryKey: ["frozen-model-version-history"], queryFn: () => detailDeadline(() => readHistory()), retry: false, staleTime: 300_000 });
   const rows = hist.data?.versions ?? [];
   const current = rows.slice().sort((a, b) => b.lastDate.localeCompare(a.lastDate))[0];
   const from = current ? rows.filter(r => r.version === current.version).map(r => r.firstDate).sort()[0] : undefined;
   const q = useQuery({ queryKey: ["engine-value-v2", from, current?.version], queryFn: () => {
     if (!from || !current?.version) throw new Error("未有版本起計紀錄");
-    return readValue({ data: { from, version: current.version } });
-  }, enabled: Boolean(from && current?.version), staleTime: 600_000 });
+    return detailDeadline(() => readValue({ data: { from, version: current.version } }));
+  }, retry: false, enabled: Boolean(from && current?.version), staleTime: 600_000 });
   const s = q.data?.summary;
   const t = q.data?.trend ?? [];
   const pct = (v: number | null | undefined) => `${Math.max(0, Math.min(100, ((v ?? 0) / 4) * 100))}%`;
@@ -25,7 +27,7 @@ export function EngineValueCompare() {
 
   return (
     <Card title={`引擎價值對照${from ? `（由 ${fmtMeetingDate(from)} 起）` : ""}`} en="Value vs Market">
-      {hist.isLoading || q.isLoading ? <Loading /> : hist.error || q.error ? <ErrorNote error={hist.error || q.error} /> : !s || !s.races ? <Empty label="當前版本未有已入帳賽日" /> : (
+      {hist.isLoading || q.isLoading ? <Loading /> : hist.error || q.error ? <div><ErrorNote error={hist.error || q.error} /><Button variant="outline" onClick={() => { if (hist.error) void hist.refetch(); else void q.refetch(); }}>重新讀取市場對照</Button></div> : !s || !s.races ? <Empty label="當前版本未有已入帳賽日" /> : (
         <div className="space-y-2.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-[10px] border border-hairline bg-paper p-3">
             <div className="text-center">

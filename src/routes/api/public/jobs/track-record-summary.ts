@@ -8,8 +8,9 @@ export const Route = createFileRoute('/api/public/jobs/track-record-summary')({
     if (body?.kind !== 'refresh') return Response.json({ ok: false }, { status: 400 });
     try {
       const { readTrackRecordSummary } = await import('@/lib/track-record-summary.server');
-      const summary = await readTrackRecordSummary();
-      return Response.json({ ok: true, generatedAt: summary.generatedAt });
+      const summary = await readTrackRecordSummary(true);
+      const complete = Boolean(summary.versions && summary.market?.['180']);
+      return Response.json({ ok: complete, generatedAt: summary.generatedAt, marketReady: Boolean(summary.market?.['180']), versionsReady: Boolean(summary.versions) }, { status: complete ? 200 : 502 });
     } catch { return Response.json({ ok: false, error: 'summary-refresh-failed' }, { status: 502 }); }
   } } },
 });
