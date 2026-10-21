@@ -1,9 +1,9 @@
 import { cached, CACHE_TTL } from "./computed-cache.server";
 import { completeAuditRace, coverageRows, parseResultsCsv, type AuditMeeting, type CoverageRow } from "./racing-visibility";
 import { TX_BASE } from "./tx-api";
-export async function readCoverageAudit(days: number) {
+export async function readCoverageAudit(days: number, force = false) {
   const data = { days };
-  return cached(`coverage:original-v5:${days}`, CACHE_TTL, async () => {
+  return cached(`coverage:original-v5:${days}`, force ? 0 : CACHE_TTL, async () => {
     const readJson = async (url: string) => {
       const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
       if (!response.ok) throw new Error("賽果資料暫時未能讀取");
@@ -14,8 +14,8 @@ export async function readCoverageAudit(days: number) {
     const meetings: AuditMeeting[] = [], rows: CoverageRow[] = [], failed: string[] = [], missingOdds: string[] = [];
     let excluded = 0;
     // Bounded concurrency keeps the existing data service usable for other pages.
-    for (let offset = 0; offset < dates.length; offset += 4) {
-      await Promise.all(dates.slice(offset, offset + 4).map(async m => {
+    for (let offset = 0; offset < dates.length; offset += 3) {
+      await Promise.all(dates.slice(offset, offset + 3).map(async m => {
         try {
           const [payload, csv] = await Promise.all([
             readJson(`${TX_BASE}/api/analyze/hit-rate?date=${m.date}`),

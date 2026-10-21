@@ -28,7 +28,7 @@ export const Route = createFileRoute("/track-record")({
 });
 
 function TrackRecordPage() {
-  const { data, isFetching } = useSuspenseQuery(summaryOptions);
+  const { data, isFetching, isRefetchError } = useSuspenseQuery(summaryOptions);
   const [days, setDays] = useState<30 | 60 | 90 | 180>(90);
   const [details, setDetails] = useState(false);
   return <AppShell page="engine" ticker="公開戰績 · 原四揀 · 官方賽果對賬">
@@ -44,7 +44,7 @@ function TrackRecordPage() {
       {data.versions ? data.versions.versions.slice(0, 3).map(v => <p key={`${v.version}-${v.source}`} className="break-words border-b border-hairline py-2 text-[12px] text-ink-2"><b>{v.version}</b> · {v.firstDate} 至 {v.lastDate} · {v.rows} 筆</p>) : <p className="text-[12px] text-ink-3">版本摘要暫未完整</p>}
       <p className="mt-2 text-[10px] text-ink-3">版本名稱屬已結算紀錄，不等同逐場鎖點模型指紋證明。{data.versions?.truncated ? '只列最近100組；完整資料見詳細。' : ''}</p>
     </Card>
-    <p className="mx-4 my-3 text-[11px] text-ink-3">摘要更新：{new Date(Date.parse(data.generatedAt) + 8 * 3600_000).toISOString().slice(0, 16).replace('T', ' ')} HKT{isFetching ? ' · 正在更新' : ''}。沿用公開戰績來源；不以摘要代替逐場凍結核實。</p>
+    <p className="mx-4 my-3 text-[11px] text-ink-3">摘要更新：{new Date(Date.parse(data.generatedAt) + 8 * 3600_000).toISOString().slice(0, 16).replace('T', ' ')} HKT{isFetching ? ' · 正在讀取最新摘要' : ''}{isRefetchError ? ' · 暫未能更新，以下保留上次完整摘要' : ''}。上次完整統計；每小時更新，不代表即時戰績，不以摘要代替逐場凍結核實。</p>
     <Card title="戰績詳細" en="Audit Details" action={<Button variant="outline" onClick={() => setDetails(v => !v)}>{details ? '收起詳細' : '載入詳細'}</Button>}>
       <Seg value={days} onChange={setDays} options={[{ value: 30, label: '近30日' }, { value: 60, label: '近60日' }, { value: 90, label: '近90日' }, { value: 180, label: '近半年' }]} />
     </Card>

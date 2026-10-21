@@ -44,7 +44,7 @@
 
 - Gate card→recompute→freeze→settlement; KPI uses frozen metricInput. Results need identity/SHA/leases; dividends separate. Existing callback verifies own run plus all official races. D1 uses linked gateway; GitHub fallback stays. Why: dispatch is not delivery.
 - Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.
-- Coalesce bounded picks reads, reject late data; race pages use racePicksFromDay. Summary: public rollups, same-meeting market aggregates, settled-version projections; coalesced memory/persisted cache, authenticated refresh bypasses TTL. On-demand details have independent deadlines/retries. Why: evidence without blocking first paint.
+- Coalesce picks reads; race pages use racePicksFromDay. Summary SSR reads one public complete snapshot; authenticated hourly refresh alone publishes rollups, paired markets and settled versions. Failed refresh retains dated snapshot; details have independent deadlines/retries. Why: no visitor-triggered heavy work.
 - Parallel frozen reads block unknown timing; freeze-publication-window: empty pending only for no-archive at T90→T60, never delay locks or hide verification errors. Why: waiting ≠ certification.
 - racingClassLabel preserves labels.
 

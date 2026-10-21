@@ -725,6 +725,24 @@ export type Database = {
         }
         Relationships: []
       }
+      track_record_summary_snapshot: {
+        Row: {
+          computed_at: string
+          key: string
+          payload: Json
+        }
+        Insert: {
+          computed_at?: string
+          key: string
+          payload: Json
+        }
+        Update: {
+          computed_at?: string
+          key?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

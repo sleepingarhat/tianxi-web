@@ -218,6 +218,13 @@
       "when": 1792515682309,
       "tag": "0030_public_racing_change_updates",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1792595559640,
+      "tag": "0031_public_record_summary_snapshot",
+      "breakpoints": true
     }
   ]
 }
