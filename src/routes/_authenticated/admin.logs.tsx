@@ -71,7 +71,29 @@ function Logs() {
           <label className="ml-1 flex items-center gap-1 text-[11px] text-ink-3"><input type="checkbox" checked={showOk} onChange={(e) => setShowOk(e.target.checked)} />包括成功任務</label>
           <input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="搜尋來源／內容" className="ml-auto w-44 rounded-[6px] border border-hairline bg-paper-3 px-2 py-1 text-[11px] text-ink" />
         </div>
-        <DataTable data={shown} columns={cols} pageSize={25} empty={alerts.isLoading || history.isLoading ? "讀取中…" : "冇異常紀錄"} />
+        {shown.length === 0 ? (
+          <p className="py-5 text-center text-[11px] text-ink-3">{alerts.isLoading || history.isLoading ? "讀取中…" : "冇異常紀錄"}</p>
+        ) : (
+          <>
+            {/* 手機：逐條堆疊，時間同級別照顯示，舊事故唔會睇落似即時失敗。 */}
+            <ul data-testid="log-cards" className="space-y-2 md:hidden">
+              {shown.slice(0, 30).map((l, i) => (
+                <li key={`${l.at ?? ""}-${i}`} className="rounded-[8px] border border-hairline bg-paper-3 px-2.5 py-2">
+                  <div className="flex items-center gap-2">
+                    <StatusBadge s={l.level} />
+                    <span className="tabnum font-mono-tx text-[10px] text-ink-3">{l.at ? `${hkDateTime(String(l.at))} · ${ago(String(l.at))}` : "—"}</span>
+                  </div>
+                  <p className="mt-1 break-words text-[12px] font-bold text-ink">{l.source}</p>
+                  <p className="mt-0.5 break-words text-[11px] leading-relaxed text-ink-2">{l.message}</p>
+                </li>
+              ))}
+            </ul>
+            {shown.length > 30 ? <p className="mt-2 text-[10px] leading-relaxed text-ink-3">手機只列最近30條；全部 {shown.length} 條請用電腦版表格。</p> : null}
+            <div className="hidden md:block">
+              <DataTable data={shown} columns={cols} pageSize={25} />
+            </div>
+          </>
+        )}
       </Panel>
     </>
   );

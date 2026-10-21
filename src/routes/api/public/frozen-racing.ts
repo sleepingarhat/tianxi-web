@@ -5,7 +5,7 @@ import { frozenEvidenceCodeOf, type FrozenEvidenceCode } from '@/lib/frozen-raci
 /** 三種缺證情況要分開講，會員先知道係「無存證」定「核實失敗」。 */
 const EVIDENCE_ZH: Record<FrozenEvidenceCode, string> = {
   available: '',
-  'no-archive': '呢個賽日未有已核實嘅原始凍結副本（該日未建立存證），故唔會展示最終預測；唔會以初版或臨場重算補寫。',
+  'no-archive': '呢個賽日未有已核實嘅原始凍結副本，故唔會展示最終預測；唔會以初版或臨場重算補寫。由19/10/2026賽事日起，系統會就賽前／賽後變更自動重算並喺鎖點建立凍結副本，呢啲賽日可以逐場核對原注。',
   'not-verified': '呢個賽日虽然有副本，但核實狀態未確認，暫停展示最終預測。',
   'verification-failed': '原始凍結證據未能完整核實；沒有使用初版或臨場重算補寫。',
 };

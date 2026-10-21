@@ -43,8 +43,9 @@ def run(a):
     if any(c not in frame for c in columns): raise ValueError('Missing canonical column')
     complete = [rid for rid, g in frame.groupby('race_id') if complete_field(g)]
     data = frame[frame.race_id.isin(complete)].copy()
-    dates = sorted(data.race_date.unique())[-11:]
-    for day in dates:
+    dates = sorted(data.race_date.unique())[-a.days:]
+    for i, day in enumerate(dates):
+        if i % a.shards != a.shard: continue
         path = out/f'{day}.json'
         if path.exists(): continue
         train = data[data.race_date < day].copy()
@@ -85,6 +86,7 @@ def run(a):
         record={'date':day,'trainingStart':train.race_date.min(),'trainingEnd':train.race_date.max(),
             'trainingRows':len(train),'trainingRaces':train.race_id.nunique(),'races':races,'models':model_meta}
         path.write_text(json.dumps(record,ensure_ascii=False,indent=2,allow_nan=False))
+    if a.shards > 1 and not all((out/f'{d}.json').exists() for d in dates): return
     records=[json.loads((out/f'{day}.json').read_text()) for day in dates]
     races=[r for d in records for r in d['races']]
     summary=[]
@@ -110,10 +112,10 @@ def run(a):
         '往績及血統沿用現存重建欄位，未逐筆驗證歷史採集時間；不能宣稱完全排除來源層洩漏。',
         '只比較固定200棵樹、種子42及本次參數，未進行等預算調參；RF用分級回歸，兩個boosting用場內排序。',
         '完整場數與頭四名唯一性才計分；並頭、不完整場次排除，不能外推全部賽事。',
-        '95%區間按11個賽日重抽；小樣本研究不構成升版批准。']}
+        f'95%區間按{len(dates)}個賽日重抽；小樣本研究不構成升版批准。']}
     (out/'summary.json').write_text(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False))
     print(json.dumps(summary,ensure_ascii=False),flush=True)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--input',required=True);p.add_argument('--out',required=True)
+    p=argparse.ArgumentParser();p.add_argument('--input',required=True);p.add_argument('--out',required=True);p.add_argument('--days',type=int,default=11);p.add_argument('--shard',type=int,default=0);p.add_argument('--shards',type=int,default=1)
     run(p.parse_args())
