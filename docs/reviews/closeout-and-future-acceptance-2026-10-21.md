@@ -16,10 +16,17 @@
 
 ## 未完成與阻塞
 1. T90當刻獨立不可改寫存證／card→公告→重算revision全鏈：欠17:10及17:15執行日誌與來源綁定，不能倒造今日證據。公開副本現可讀≠準時鎖定已驗。
-2. Telegram：擁有人須把正確發送機器人加入現行頻道並授予發訊權限；GitHub機器人與Lovable連接機器人不因名稱相似而視為同一身份。運維私人收件人須確認有效身份，不轉公開。
+2. Telegram：本輪正式受認證測試HTTP200及test.sent=true，現有私人告警已成功送訊；不轉公開，亦不等同已讀。GitHub賽前／賽後頻道通知仍待獨立驗收；正確發送機器人須有現行頻道發訊權限，兩個機器人不因名稱相似而視為同一身份。
 3. 今日賽後：賽事尚未開跑；由已啟用排程實際收料並記錄交付。不設助手離線回訪承諾。
 4. 第四步：缺真正鎖後換騎案例、退出／started-DNF／finished逐匹訓練產物與SHA、actual/frozen騎師lineage、退款／並頭／特殊組合全票官方對帳。已發現訓練COUNT缺口，不直接改正式Elo。
 5. 三模型：等外部工作完成所有81組及最後30日一次過評估，再核實summary與逐場檔案；未完成不填成績。
 6. 白畫面及已登入監控：無本人測試session及未重現根因，只核公開流程。
 
 未來收料由部署後的既有工作執行；未有程式及證據支持的全面驗收不自動勾完成，仍需後續核查。
+
+## 本輪Cloudflare權限與私人告警重驗
+- 部署39583408466日誌：程式已上傳，隨後account層workers/scripts/tianxi-backend/routes讀取被拒絕，不能把zone路由讀取成功當部署已成功。
+- 兩個Lovable Cloudflare連接均可讀tianxi.racing現有十條路由；新連接同一account層routes亦HTTP200。GitHub workflow實際使用CF_API_TOKEN，secret中繼資料最後更新2026-05-02，並未自動採用新Lovable連接。不能讀取或代為增權GitHub保存的原始金鑰。
+- 修復阻塞：擁有人更新tianxi-racing GitHub Actions的CF_API_TOKEN，使其涵蓋正確account及tianxi.racing zone，具Workers Scripts Edit及Workers Routes Edit，再完整重跑backend_deploy.yml。不移除路由步驟繞過拒絕、不擅改路由、不搬移私人憑證。
+- Cloudflare現行版本部署時間2026-10-21T10:17:43.534Z、流量100%；正式engine-health的display_odds_freshness PASS。證明現行程式可用，不證明GitHub部署流程已完整成功。
+- 正式/api/public/telegram-alert?test=1以現有排程密鑰測試：HTTP200，test.sent=true/detail=sent。檢查本身沒有需要送出的告警，所以頂層sent=false不代表測試失敗；兩者必須分開讀。
