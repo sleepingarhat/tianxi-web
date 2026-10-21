@@ -13,73 +13,76 @@ export type PoolCalc = {
   name: string; races: number[]; units: number; cost: number;
   mainHit: boolean; payout: number; consUnits: number; consPayout: number;
   mainDividend: number | null; consolationDividend: number | null;
-  missing: boolean; pendingWithdrawal: boolean; detail: { race: number; hit: boolean | null; original: Leg; settled: Leg; winningCombination: string | null }[];
+  missing: boolean; pendingWithdrawal: boolean; pendingSettlement: boolean; detail: { race: number; hit: boolean | null; original: Leg; settled: Leg; settledCombinations: number[][] | null; winningCombination: string | null }[];
 };
 
-const parseLeg = (s: string) => s.trim();
+type Match = boolean | null;
 const isAny = (s: string) => s === "任何組合" || s === "F";
-const setOf = (s: string) => new Set(s.split(",").map((x) => Number(x.trim())).filter(Number.isFinite));
-
-function legHit(leg: Leg | undefined, part: string | undefined): boolean | null {
-  if (!leg) return null;
-  if (!part) return null;
+const setOf = (s: string) => new Set(s.split(",").map(Number).filter(n => Number.isInteger(n) && n > 0));
+function ticketHit(ticket: number[], part: string): Match {
   if (isAny(part)) return true;
+  if (!/^\d+\s*,\s*\d+\s*,\s*\d+$/.test(part)) return null;
   const win = setOf(part);
-  if (win.size < 3) return false;
-  return leg.bankers.every((b) => win.has(b)) && leg.legs.some((x) => win.has(x));
+  return win.size === 3 ? ticket.every(n => win.has(n)) : null;
 }
+const combinationHit = (hits: Match[]): Match => hits.includes(false) ? false : hits.includes(null) ? null : true;
 
 export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, withdrawnByRace: Record<number, Set<number>> = {}, favouritesByRace: Record<number, number[] | undefined> = {}): PoolCalc[] {
-  const groups = new Map<string, { main?: DividendRow; cons?: DividendRow }>();
+  const groups = new Map<string, { name: string; main: DividendRow[]; cons: DividendRow[] }>();
   for (const d of divs) {
     if (!/孖T|三T/.test(d.pool)) continue;
-    const base = d.pool.replace(/\(安慰獎\)|（安慰獎）/, "").trim();
-    const g = groups.get(base) ?? {};
-    if (/安慰獎/.test(d.pool)) g.cons = d; else g.main = d;
-    groups.set(base, g);
+    const name = d.pool.replace(/\(安慰獎\)|（安慰獎）/, "").trim();
+    const key = `${d.race_no}:${name}`;
+    const g = groups.get(key) ?? { name, main: [], cons: [] };
+    const target = /安慰獎/.test(d.pool) ? g.cons : g.main;
+    if (!target.some(r => r.combo === d.combo && r.dividend === d.dividend)) target.push(d);
+    groups.set(key, g);
   }
   const out: PoolCalc[] = [];
-  for (const [name, g] of groups) {
-    const ref = g.main ?? g.cons;
+  for (const g of groups.values()) {
+    const ref = g.main[0] ?? g.cons[0];
     if (!ref) continue;
-    const n = ref.combo.split("/").length;
+    const n = /三T/.test(g.name) ? 3 : 2;
     const races = Array.from({ length: n }, (_, i) => ref.race_no - n + 1 + i);
-    let pendingWithdrawal = false;
-    const legs: Leg[] = races.map((r) => {
-      const leg = legsByRace[r] ?? null;
-      if (!leg) return null;
-      const s = settleWithdrawnLeg(leg, withdrawnByRace[r] ?? new Set(), favouritesByRace[r]);
-      if (s.status === "pending") { pendingWithdrawal = true; return leg; }
-      return { ...leg, ...s.leg };
+    const original = races.map(r => legsByRace[r] ?? null);
+    const settlements = original.map((leg, i) => leg ? settleWithdrawnLeg(leg, withdrawnByRace[races[i] ?? 0] ?? new Set(), favouritesByRace[races[i] ?? 0]) : null);
+    const pendingWithdrawal = settlements.some(s => s?.status === 'pending');
+    let missing = pendingWithdrawal || original.some(l => !l) || !g.main.length;
+    const units = original.reduce((acc, l) => acc * (l?.legs.length ?? 0), 1);
+    const mainParts = g.main[0]?.combo.split('/').map(s => s.trim()) ?? [];
+    const detail = races.map((race, i) => {
+      const tickets = settlements[i]?.combinations;
+      const hits = tickets?.map(t => ticketHit(t, mainParts[i] ?? '')) ?? [];
+      return { race, hit: !missing && hits.length ? hits.includes(true) ? true : hits.includes(null) ? null : false : null,
+        original: original[i] ?? null, settled: settlements[i]?.status === 'pending' ? null : settlements[i] ? { ...original[i], ...settlements[i]?.leg, fifthFromLive: false as const } : null,
+        settledCombinations: tickets ?? null, winningCombination: mainParts[i] ?? null };
     });
-    // 原票有退出而缺官方熱門證據：成本、派彩一律待核，唔入合計
-    const missing = pendingWithdrawal || legs.some((l) => !l);
-    const units = legs.reduce((a, leg) => a * (leg?.legs.length ?? 0), 1);
-    const mainParts = g.main ? g.main.combo.split("/").map(parseLeg) : [];
-    const detail = races.map((r, i) => ({ race: r, hit: !missing && g.main ? legHit(legs[i], mainParts[i]) : null,
-      original: legsByRace[r] ?? null, settled: pendingWithdrawal ? null : legs[i] ?? null, winningCombination: mainParts[i] ?? null }));
-    const mainHit = !missing && !!g.main && detail.every((d) => d.hit);
-    let consUnits = 0;
-    if (g.cons && !missing) {
-      const parts = g.cons.combo.split("/").map(parseLeg);
-      const fixedOk = parts.every((p, i) => isAny(p) || legHit(legs[i], p));
-      if (fixedOk) {
-        // 「任何組合」段：拖腳 3 組之中除咗正獎嗰組，其餘都屬安慰獎
-        consUnits = parts.reduce((acc, p, i) => {
-          if (!isAny(p)) return acc * (legs[i]?.legs.filter((x) => setOf(p).has(x)).length ?? 0);
-          const hitThis = mainParts[i] ? legHit(legs[i], mainParts[i]) : false;
-          const won = hitThis ? legs[i]?.legs.filter((x) => setOf(mainParts[i] ?? "").has(x)).length ?? 0 : 0;
-          return acc * ((legs[i]?.legs.length ?? 0) - won);
-        }, 1);
+    const allTickets = settlements.reduce<number[][][]>((acc, s) => acc.flatMap(prefix => (s?.combinations ?? []).map(ticket => [...prefix, ticket])), [[]]);
+    let payout = 0, consPayout = 0, consUnits = 0;
+    for (const tickets of allTickets) {
+      const matchRow = (row: DividendRow): Match => {
+        const parts = row.combo.split('/').map(s => s.trim());
+        if (parts.length !== n || !Number.isFinite(row.dividend) || row.dividend < 0) return null;
+        return combinationHit(tickets.map((t, i) => ticketHit(t, parts[i] ?? '')));
+      };
+      const mains = g.main.map(row => ({ row, hit: matchRow(row) }));
+      const mainWon = mains.some(m => m.hit === true);
+      if (mains.some(m => m.hit === null)) missing = true;
+      for (const m of mains) if (m.hit === true) payout += m.row.dividend;
+      // Consolation pays non-main-winning original tickets only; preserve multiplicities.
+      if (!mainWon) for (const row of g.cons) {
+        const hit = matchRow(row);
+        if (hit === null) missing = true;
+        if (hit === true) { consUnits++; consPayout += row.dividend; }
       }
     }
-    out.push({
-      name, races, units, cost: units * UNIT,
-      mainHit, payout: mainHit && g.main ? legs.reduce((a, leg, i) => a * (isAny(mainParts[i] ?? "") ? leg?.legs.length ?? 0 : leg?.legs.filter((x) => setOf(mainParts[i] ?? "").has(x)).length ?? 0), 1) * g.main.dividend : 0,
-      consUnits, consPayout: g.cons ? consUnits * g.cons.dividend : 0,
-      mainDividend: g.main?.dividend ?? null, consolationDividend: g.cons?.dividend ?? null,
-      missing, pendingWithdrawal, detail,
-    });
+    if (missing) { payout = 0; consPayout = 0; consUnits = 0; }
+    out.push({ name: g.name, races, units, cost: units * UNIT, mainHit: !missing && payout > 0,
+      payout, consUnits, consPayout,
+      mainDividend: g.main.length === 1 ? g.main[0]?.dividend ?? null : null,
+      consolationDividend: g.cons.length === 1 ? g.cons[0]?.dividend ?? null : null,
+      missing, pendingWithdrawal, pendingSettlement: missing && !pendingWithdrawal && original.every(Boolean),
+      detail: missing ? detail.map(d => ({ ...d, hit: null })) : detail });
   }
   return out.sort((a, b) => (a.races[0] ?? 0) - (b.races[0] ?? 0));
 }

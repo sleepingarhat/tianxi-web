@@ -11,7 +11,7 @@ import { Card, Pill } from "./ui";
  * 跨場分布直接由官方派彩檔推算：派彩行喺第 R 場、組合有 n 段 → 覆蓋第 R−n+1…R 場。
  * 第 1–5 選只用已核實原始副本；缺第五選或鎖前無效輸入不結算。
  */
-const money = (v: number) => `$${v.toLocaleString("en-US", { maximumFractionDigits: 1 })}`;
+const money = (v: number) => `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
 export function ExoticTrioPools({ date, detailed = false }: { date: string; detailed?: boolean }) {
   const q = useQuery(exoticPoolOptions(date));
@@ -46,21 +46,22 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
               </div>
             ))}
           </div>
+          {pools.some(p => p.missing) ? <p className="mb-2 text-[11px] text-gold">合計只含已核實組口；待核組口成本及派彩未納入。</p> : null}
           <ul>
             {pools.map((p) => (
-              <li key={p.name} className="border-b border-hairline py-2 last:border-b-0">
+              <li key={`${p.name}:${p.races.join("-")}`} className="border-b border-hairline py-2 last:border-b-0">
                 <p className="flex flex-wrap items-center gap-1.5 text-[11px]">
                   <b className="text-ink">{p.name}</b>
                   <span className="text-ink-3">第 {p.races.join("、")} 場</span>
                   <span className="ml-auto">
-                    {p.pendingWithdrawal ? <Pill tone="ink">退出待核</Pill> : p.missing ? <Pill tone="ink">缺預測</Pill> : p.mainHit ? <Pill tone="win">中正獎</Pill> : p.consUnits ? <Pill tone="gold">中安慰獎</Pill> : <Pill tone="lose">冇中</Pill>}
+                    {p.pendingWithdrawal ? <Pill tone="ink">退出待核</Pill> : p.pendingSettlement ? <Pill tone="ink">結算待核</Pill> : p.missing ? <Pill tone="ink">缺預測</Pill> : p.mainHit ? <Pill tone="win">中正獎</Pill> : p.consUnits ? <Pill tone="gold">中安慰獎</Pill> : <Pill tone="lose">冇中</Pill>}
                   </span>
                 </p>
                 {detailed ? <div className="mt-3 grid gap-3 md:grid-cols-3">
                   {p.detail.map(d => <div key={d.race} className="min-w-0 border-l-2 border-hairline pl-3 text-[11px] leading-relaxed">
                     <p className="flex items-center gap-2"><b>第 {d.race} 場</b><Pill tone={d.hit === true ? "win" : "ink"}>{d.hit === true ? "命中" : d.hit === false ? "未中" : "待核"}</Pill></p>
                     <p className="mt-1 text-ink-2">原凍結：膽 {d.original?.bankers.join("、") ?? "—"} ／ 拖 {d.original?.legs.join("、") ?? "—"}</p>
-                    <p className="text-ink-2">結算注項：膽 {d.settled?.bankers.join("、") ?? "—"} ／ 拖 {d.settled?.legs.join("、") ?? "—"}</p>
+                    <p className="text-ink-2">結算注項：{d.settledCombinations?.map(t => t.join("、")).join(" ／ ") ?? "待核"}</p>
                     <p className="text-ink-3">官方正獎組合：{d.winningCombination ?? "未有紀錄"}</p>
                   </div>)}
                 </div> : <p className="mt-1 flex flex-wrap gap-1 text-[10px]">

@@ -15,12 +15,12 @@
 
 ## 監控端規則
 - Read nested src/components/admin/AGENTS.md before edits; scoped rules apply.
-- P&L/detail share exoticPoolOptions/ExoticTrioPools; separate original/settled legs; all-combination legs pay every ticket. Require verified ranks 1–5 and valid input. Why: no double count or post-race picks.
+- P&L/detail share exoticPoolOptions/ExoticTrioPools; require verified ranks 1–5. Substitute per original triple; retain duplicate stakes, sum dividend rows, unknowns pending. Why: no changed picks or lost payouts.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
-- Audits separate code, verified flows and gaps; tasks are not delivery.
+- Audit real flows separately; starts need evidence, DNF is not withdrawal; actual/frozen jockey lineage stays separate.
 
 - Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.
-- Images require commercial-free licences or written rights, credits and /media-credits; URLs are not licences.
+- Images need commercial-free rights and /media-credits; URLs are not licences.
 - Blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; sync blueprint/roadmap/AGENTS/dev-log/GitHub. Old plans cannot revive retired products. Why: docs match code.
 - Pro uses only resolveEntitlement in src/lib/entitlement.ts, fed by my_membership and webhook-maintained subscriptions; auto-open at signup 500. Why: one free/founding/paid rule source.
 - Weekly managed HTTP jobs rotate Commons posters into racecourse_photos; require commercial-free licences and deactivate licence changes. tianxi-web Actions only monitor public status. Why: backend schedules, read-only mirror.
@@ -39,7 +39,7 @@
 
 - Replay preserves axes; pedigree uses prior-date smoothing. Family grids checkpoint input/script/versions/splits, finish before evaluation, save picks and paired corrected intervals; no production writes. Why: reproducibility is not promotion.
 
-- Scarce starts advise only; never switch models/accounting.
+- Scarce starts advise, never switch models.
 - Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.

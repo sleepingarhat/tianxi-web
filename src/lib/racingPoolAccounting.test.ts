@@ -35,4 +35,34 @@ describe('跨場共用明細及無存證', () => {
     const pools = calcPools([{ race_no: 2, pool: '孖T', combo: '1,2,3/1,2,4', dividend: 1000, unit: 10 }], { 1: leg(1), 2: leg(2) }, { 1: new Set([3]) });
     expect(pools[0]).toMatchObject({ missing: true, pendingWithdrawal: true, mainHit: false, payout: 0 });
   });
+  it('逐張原票替補形成兩張相同中獎組合，兩張都派彩', () => {
+    const leg = {race:1,bankers:[3,7],legs:[1,9,12],fifthFromLive:false as const};
+    const other = {race:2,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const};
+    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'3,7,1/1,2,3',dividend:1000,unit:10}],{1:leg,2:other},{1:new Set([9])},{1:[3,1,6,2]});
+    expect(p).toMatchObject({units:9,cost:90,payout:2000,missing:false});
+    expect(leg.legs).toEqual([1,9,12]);
+  });
+  it('多行官方正獎逐行加總，保留仙位及不同結算場次', () => {
+    const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
+    const rows = [{race_no:2,pool:'孖T',combo:'1,2,3/1,2,3',dividend:100.25,unit:10},{race_no:2,pool:'孖T',combo:'1,2,4/1,2,3',dividend:200.5,unit:10},{race_no:4,pool:'孖T',combo:'1,2,3/1,2,3',dividend:999,unit:10}];
+    const pools = calcPools(rows,{1:leg(1),2:leg(2),3:leg(3),4:leg(4)});
+    expect(pools).toHaveLength(2);
+    expect(pools[0]?.payout).toBe(300.75);
+    expect(pools[1]?.payout).toBe(999);
+  });
+  it('未知特殊組合可能命中時不能猜成未中或零派彩', () => {
+    const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
+    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'1,2,3/7>2,8,13',dividend:1000,unit:10}],{1:leg(1),2:leg(2)});
+    expect(p).toMatchObject({missing:true,pendingSettlement:true,mainHit:false,payout:0});
+  });
+  it('另一段確定未中時無需猜特殊組合，整張原票確定未中', () => {
+    const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
+    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'6,7,8/7>2,8,13',dividend:1000,unit:10}],{1:leg(1),2:leg(2)});
+    expect(p).toMatchObject({missing:false,mainHit:false,payout:0});
+  });
+  it('安慰獎不重複派給正獎票，只計餘下兩張', () => {
+    const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
+    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'1,2,3/1,2,3',dividend:1000,unit:10},{race_no:2,pool:'孖T(安慰獎)',combo:'1,2,3/F',dividend:50,unit:10}],{1:leg(1),2:leg(2)});
+    expect(p).toMatchObject({payout:1000,consUnits:2,consPayout:100});
+  });
 });

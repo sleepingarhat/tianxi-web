@@ -14,8 +14,12 @@ export async function fetchRaceDividends(date: string): Promise<DividendRow[]> {
   const rows: DividendRow[] = [];
   for (const l of lines) {
     const c = splitCsv(l);
-    const dividend = Number(String(c[iD] ?? "").replace(/,/g, ""));
-    if (!Number.isFinite(dividend)) continue;
+    // These promotional markets are not part of the race-pool accounting.
+    if (/騎師王|練馬師王/.test(c[iP] ?? '')) continue;
+    const value = String(c[iD] ?? "").replace(/,/g, "").trim();
+    if (!value || !/^\d+(?:\.\d+)?$/.test(value)) throw new Error("官方派彩含未核實金額或退款狀態，暫停結算");
+    const dividend = Number(value);
+    if (!Number.isFinite(dividend)) throw new Error("官方派彩金額無效");
     rows.push({ race_no: Number(c[iR]), pool: c[iP] ?? "", combo: c[iC] ?? "", dividend, unit: 10 });
   }
   return rows.sort((a, b) => a.race_no - b.race_no);

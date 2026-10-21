@@ -11,6 +11,10 @@ export type ModelFamilyReport = {
   limitations: string[];
   trees: number;
   seed: number;
+  tuneDates?: string[];
+  evalDates?: string[];
+  tuning?: Record<string, { grid: (number | null)[][]; best: { params: (number | null)[]; averageHits: number } }>;
+  pairedComparisons?: { left: string; right: string; difference: number; ciAdjusted95: number[]; decisive: boolean }[];
   summary: { name: string; hits: number; races: number; averageHits: number; ci95: number[] }[];
   days: { date: string; trainingEnd: string; trainingRows: number; races: { raceId: string; models: Record<string, { hits: number; selected: string[] }> }[] }[];
 };

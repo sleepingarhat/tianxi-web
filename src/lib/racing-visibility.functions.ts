@@ -54,15 +54,11 @@ export const getValueComparison = createServerFn({ method: "GET" })
     const days = Math.min(365, Math.max(30, Math.ceil((Date.now() - Date.parse(data.from)) / 86_400_000) + 2));
     const roll = await readJson(`${TX_BASE}/api/analyze/hit-rate-rollup?days=${days}`) as { perMeeting?: { date: string }[] };
     const dates = [...new Set((roll.perMeeting ?? []).map(m => m.date))].filter(d => d >= data.from).sort();
-    const token = process.env["CLOUDFLARE_API_TOKEN"], account = process.env["CLOUDFLARE_ACCOUNT_ID"];
-    if (!token || !account) throw new Error("版本原始紀錄暫時未能核對");
-    const evidenceResponse = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/d1/database/aad1636e-869a-43f5-aa95-4a19e3aa5517/query`, {
-      method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ sql: "SELECT date,race_number,GROUP_CONCAT(horse_number) AS horse_numbers FROM prediction_log WHERE engine='v12' AND variant='baseline' AND predicted_rank BETWEEN 1 AND 4 AND date>=? GROUP BY date,race_number HAVING COUNT(*)=4 AND COUNT(DISTINCT horse_number)=4 AND MIN(lgb_model_version)=? AND MAX(lgb_model_version)=? AND COUNT(lgb_model_version)=4", params: [data.from, data.version, data.version] }), signal: AbortSignal.timeout(15_000),
-    });
-    const evidence = await evidenceResponse.json() as { success?: boolean; result?: { results?: { date: string; race_number: number; horse_numbers: string }[] }[] };
-    if (!evidenceResponse.ok || !evidence.success) throw new Error("版本原始紀錄暫時未能核對");
-    const cohort = new Map((evidence.result?.[0]?.results ?? []).map(r => [`${r.date}:${r.race_number}`, r.horse_numbers.split(",").map(Number)]));
+    const { publicRacingQuery } = await import('./public-racing-evidence.server');
+    const evidence = await publicRacingQuery<{ date: string; race_number: number; horse_numbers: string }>(
+      "SELECT date,race_number,GROUP_CONCAT(horse_number) AS horse_numbers FROM prediction_log WHERE engine='v12' AND variant='baseline' AND predicted_rank BETWEEN 1 AND 4 AND date>=? GROUP BY date,race_number HAVING COUNT(*)=4 AND COUNT(DISTINCT horse_number)=4 AND MIN(lgb_model_version)=? AND MAX(lgb_model_version)=? AND COUNT(lgb_model_version)=4",
+      [data.from, data.version, data.version]);
+    const cohort = new Map(evidence.map(r => [`${r.date}:${r.race_number}`, r.horse_numbers.split(",").map(Number)]));
     const perDay: { date: string; rows: ReturnType<typeof valueRace>[] }[] = [];
     const failed: string[] = [];
     for (let i = 0; i < dates.length; i += 4) {
