@@ -18,7 +18,7 @@ export function createPicksRefresh<T>(fetchLatest: () => Promise<T>, timeoutMs =
 
 /** 最終版必須由這份預測確認，另一次lock-state不能代證。 */
 export function picksEdition(data: { frozen?: unknown; edition?: unknown } | null | undefined): "final" | "draft" | "unavailable" {
-  if (!data || data.edition === "unavailable") return "unavailable";
+  if (!data || data.edition === "unavailable" || data.edition === "pending") return "unavailable";
   if (data.edition === "draft" || data.frozen === false) return "draft";
   return data.edition === "final" || data.frozen === true ? "final" : "draft";
 }

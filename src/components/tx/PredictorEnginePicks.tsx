@@ -12,7 +12,7 @@ type TodayPicks = ReturnType<typeof useTodayPicks>;
 export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveOdds }: {
   race: TodayPicks['races'][number] | undefined;
   invalidInput: boolean;
-  tp: Pick<TodayPicks, 'isLoading' | 'error' | 'isFetching' | 'refetch'>;
+  tp: Pick<TodayPicks, 'isLoading' | 'error' | 'isFetching' | 'refetch' | 'publicationPending'>;
   start: string | null;
   sub: ReturnType<typeof effectiveTop4>;
   liveOdds: (n: unknown) => number | null;
@@ -29,7 +29,9 @@ export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveO
           ) : null
         }
       >
-        {tp.isLoading ? (
+        {tp.publicationPending ? (
+          <div role="status"><Loading label="正在建立凍結副本…" /><p className="mt-2 text-[12px] text-ink-3">原四揀已停止更新；副本核實後會自動顯示。</p></div>
+        ) : tp.isLoading ? (
           <Loading />
         ) : tp.error ? (
           <div role="alert" className="space-y-3">

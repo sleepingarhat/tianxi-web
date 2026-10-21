@@ -85,6 +85,7 @@ export type DayPicks = {
   lockAt?: string | null;
   frozen?: boolean;
   edition?: string;
+  publicationDeadline?: string;
   noMeeting?: boolean;
   message?: string;
   scoreSource?: string | null;

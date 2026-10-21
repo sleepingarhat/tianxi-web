@@ -1,5 +1,5 @@
 // 天喜 · 全日預測 hook：合併引擎預測（全部場次）與排位表資料（賠率、負磅、綵衣代碼）
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -12,6 +12,7 @@ import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
 import { changeRevision, verifiedUpdate } from './racing-change-progress';
 import { liveWithdrawal } from './live-racing-changes';
 import { horseDisplayName } from './horse-name';
+import { freezePublicationPending } from './freeze-publication-window';
 
 export type MergedPick = {
   horseNumber: number;
@@ -34,6 +35,12 @@ export type MergedPick = {
 };
 
 export function useTodayPicks() {
+  const [clock, setClock] = useState(0);
+  useEffect(() => {
+    setClock(Date.now());
+    const timer = setInterval(() => setClock(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const queryClient = useQueryClient();
   const lastRevision = useRef<string | null>(null);
   // 引擎自動偵測停賽（人手覆寫 → 馬會公告 → 賽日結構）
@@ -121,6 +128,8 @@ export function useTodayPicks() {
   });
 
   const edition = editionAfterError(picks.data, Boolean(picks.error));
+  const publicationPending = !picks.error && picks.data?.edition === 'pending' && freezePublicationPending(picks.data.lockAt, 'no-archive', clock);
+  const publicationExpired = picks.data?.edition === 'pending' && clock > Date.parse(picks.data.publicationDeadline ?? '');
   return {
     date: cancellation?.date ?? date,
     venue: picks.data?.venue as string | undefined,
@@ -128,13 +137,15 @@ export function useTodayPicks() {
     generatedAt: picks.data?.generatedAt as string | undefined,
     frozen: edition === "final",
     edition,
+    publicationPending,
+    publicationDeadline: picks.data?.publicationDeadline,
 
     engine: (picks.data?.engine ?? picks.data?.meta ?? picks.data) as import('./racing-shapes').EngineMeta,
     races: cancellation || edition === "unavailable" ? [] : races,
     meeting: meeting.data,
     cancellation,
     isLoading: cancellation ? false : picks.isLoading,
-    error: edition === "unavailable" ? picks.error : null,
+    error: edition === "unavailable" ? picks.error ?? (publicationExpired ? new Error('凍結副本未能在首場前60分鐘完成核實') : null) : null,
     isFetching: picks.isFetching,
     refetch: picks.refetch,
     changesSnapshot,

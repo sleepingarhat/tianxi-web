@@ -39,14 +39,14 @@
 
 - Replay preserves axes; pedigree uses prior-date smoothing. Family grids checkpoint input/script/versions/splits, finish before evaluation, save picks and paired corrected intervals; no production writes. Why: reproducibility is not promotion.
 
-- Scarce starts advise, never switch models.
-- Billing reminders read linked subscriptions, dedupe after delivery; native alerts stay provider-owned. Reminders are not receipts.
+- Scarce starts never switch models.
+- Billing reminders read subscriptions, dedupe after delivery; native alerts stay provider-owned. Not receipts.
 
 - Gate card→recompute→freeze→settlement; results KPI uses frozen metricInput, never alternatives. Cloud results need identity/SHA/leases; dividends separate. D1 reads use linked server gateway. GitHub stays fallback. Why: preserve evidence and valid auth.
 - Prelock leases/dedupe track revisions; unreadable picks allow dispatch, not recovery. Own card success gates recompute, not freeze.
 - Coalesce picks reads with bounded deadlines; reject late data. Race pages use racePicksFromDay, not live topPicks. History keeps newest rows and reports truncation. Why: preserve evidence and recent dates.
-- Parallelize frozen reads; unknown change timing stays blocked. Why: no masked missing evidence.
-- Preserve official Chinese/Group labels via racingClassLabel.
+- Parallel frozen reads block unknown timing; freeze-publication-window returns empty pending only for no-archive during T90→T60, never delays locks or hides verification errors. Why: waiting is not certification.
+- racingClassLabel preserves labels.
 
-- tx/Predictor* keeps route guards; name-code cleanup requires matching ID and preserves archives. Why: no hidden identity mismatch.
-- Ingestion retains dates/rows; child failures fail jobs. Backfill alerts name date/race, not today's freeze. Why: absence ≠ cancellation.
+- tx/Predictor* keeps guards; name cleanup requires matching ID, preserving archives.
+- Ingestion retains dates/rows; child failures fail jobs. Backfill alerts name date/race. Why: absence ≠ cancellation.

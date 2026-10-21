@@ -210,10 +210,10 @@ function PredictorPage() {
                 : "border-hairline bg-paper text-ink-3"
             }`}
           >
-            {tp.isLoading ? "核對預測中…" : tp.edition === "unavailable" ? "最終預測暫未能核實" : tp.frozen ? "最終版 · 已鎖" : "初版 · 未鎖"}
+            {tp.publicationPending ? "正在建立凍結副本…" : tp.isLoading ? "核對預測中…" : tp.edition === "unavailable" ? "最終預測暫未能核實" : tp.frozen ? "最終版 · 已鎖" : "初版 · 未鎖"}
           </span>
           <span className="text-[10px] leading-snug text-ink-3">
-            {tp.isLoading ? "" : tp.edition === "unavailable" ? "暫停展示預測，正在重新核對；請勿使用舊初版製作海報。" : tp.frozen
+            {tp.publicationPending ? "首場前90分鐘停止更新四揀，預留30分鐘建立及核實副本；完成後自動顯示。" : tp.isLoading ? "" : tp.edition === "unavailable" ? "暫停展示預測，正在重新核對；請勿使用舊初版製作海報。" : tp.frozen
               ? "已鎖定四揀，同對賬、賽果頁用同一套，唔會再改。"
               : `未鎖定：刷新有機會改四揀；${
                   lockClock ? `${lockClock}（首場開跑前 90 分鐘）自動鎖死全日` : "首場開跑前 90 分鐘自動鎖死全日"
@@ -257,7 +257,7 @@ function PredictorPage() {
             onChange={(e) => setRaceNo(Number(e.target.value))}
             className="w-full appearance-none rounded-[10px] border border-hairline bg-paper-2 py-[11px] pl-3 pr-9 font-sans-tc text-[13px] font-semibold text-ink"
           >
-            {races.length === 0 ? <option value={String(raceNo)}>{tp.isLoading ? "核對場次中…" : tp.error ? "場次暫未能讀取" : "暫未有場次"}</option> : null}
+            {races.length === 0 ? <option value={String(raceNo)}>{tp.publicationPending ? "副本核實中…" : tp.isLoading ? "核對場次中…" : tp.error ? "場次暫未能讀取" : "暫未有場次"}</option> : null}
             {races.map((r: any) => {
               const cls = r.class ? ` · ${r.class}` : "";
               const dist = r.distance ? ` · ${r.distance}m` : "";
@@ -403,7 +403,7 @@ function PredictorPage() {
       {tp.date && race && !invalidInput ? <RacePositionMap date={tp.date} raceId={race.raceId ?? featRaceId ?? undefined} distance={Number(race.distance) || 0} picks={picks} frozen={Boolean(tp.frozen)} /> : null}
 
       <Card title="點解揀佢" en="Why These Picks">
-        {tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} frozen={tp.frozen} />) : <Empty label="未有本場預測" />}
+        {tp.publicationPending ? <Loading label="副本核實後公開解釋…" /> : tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} frozen={tp.frozen} />) : <Empty label="未有本場預測" />}
       </Card>
 
       <Card title="特徵排序實驗室" en="Feature Lab">

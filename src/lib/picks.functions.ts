@@ -4,6 +4,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createPicksRefresh } from "./picks-refresh";
+import { freezePublicationPending, freezePublicationDeadline } from './freeze-publication-window';
+import { FrozenEvidenceError } from './frozen-racing';
 
 const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
@@ -12,11 +14,18 @@ const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 async function fetchTodayPicksUpstream() {
   const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
-  const lock = await lockResponse.json() as { date?: string; locked?: boolean; edition?: string };
+  const lock = await lockResponse.json() as { date?: string; venue?: string; lockAt?: string; locked?: boolean; edition?: string };
   if (lock.locked || lock.edition === 'final' || lock.edition === 'unavailable') {
     if (!lock.date) throw new Error('凍結賽日未能核實');
     const { readFrozenRacing } = await import('./frozen-racing.server');
-    return readFrozenRacing(lock.date);
+    try {
+      return await readFrozenRacing(lock.date);
+    } catch (error) {
+      if (error instanceof FrozenEvidenceError && freezePublicationPending(lock.lockAt, error.code) && lock.lockAt) {
+        return { date: lock.date, venue: lock.venue, lockAt: lock.lockAt, edition: 'pending', frozen: false, races: [], publicationDeadline: freezePublicationDeadline(lock.lockAt) };
+      }
+      throw error;
+    }
   }
   const token = process.env["TIANXI_ADMIN_TOKEN"];
   const url = `${WORKER_BASE}/api/analyze/today-picks`;
