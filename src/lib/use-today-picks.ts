@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayPicksAll } from "./picks.functions";
 import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
-import { picksEdition, editionAfterError, assertPicksResponse } from "./picks-refresh";
+import { picksEdition, editionAfterError, assertPicksResponse, shouldRetryPicks, PICKS_RETRY_DELAY_MS } from "./picks-refresh";
 import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
 import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
 import { changeRevision, verifiedUpdate } from './racing-change-progress';
@@ -57,8 +57,10 @@ export function useTodayPicks() {
     refetchInterval: 30_000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
-    // 定期背景重新讀取已提供自動恢復；不在初次讀取再串接55秒等待。
-    retry: false,
+    // 單次逾時／網絡波動先重試一次（背景重讀期間保留已顯示資料），仍失敗先顯示錯誤。
+    retry: (failureCount) => shouldRetryPicks(failureCount),
+    retryDelay: PICKS_RETRY_DELAY_MS,
+    refetchOnReconnect: "always",
     enabled: !cancellation,
   });
   const date: string | undefined = picks.data?.date;
