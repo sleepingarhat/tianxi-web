@@ -65,6 +65,7 @@ import { Route as AuthenticatedAdminPredictionLockRouteImport } from './routes/_
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminTrafficRouteImport } from './routes/_authenticated/admin.traffic'
 import { Route as AuthenticatedAdminUsersMembershipRouteImport } from './routes/_authenticated/admin.users-membership'
+import { Route as ApiPublicDataStatsRouteImport } from './routes/api/public/data-stats'
 import { Route as ApiPublicDrawTuneRouteImport } from './routes/api/public/draw-tune'
 import { Route as ApiPublicEngineHealthRouteImport } from './routes/api/public/engine-health'
 import { Route as ApiPublicFreezeLedgerRouteImport } from './routes/api/public/freeze-ledger'
@@ -383,6 +384,11 @@ const AuthenticatedAdminUsersMembershipRoute =
     path: '/users-membership',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicDataStatsRoute = ApiPublicDataStatsRouteImport.update({
+  id: '/api/public/data-stats',
+  path: '/api/public/data-stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDrawTuneRoute = ApiPublicDrawTuneRouteImport.update({
   id: '/api/public/draw-tune',
   path: '/api/public/draw-tune',
@@ -596,6 +602,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/traffic': typeof AuthenticatedAdminTrafficRoute
   '/admin/users-membership': typeof AuthenticatedAdminUsersMembershipRoute
+  '/api/public/data-stats': typeof ApiPublicDataStatsRoute
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
@@ -680,6 +687,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/traffic': typeof AuthenticatedAdminTrafficRoute
   '/admin/users-membership': typeof AuthenticatedAdminUsersMembershipRoute
+  '/api/public/data-stats': typeof ApiPublicDataStatsRoute
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
@@ -767,6 +775,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/traffic': typeof AuthenticatedAdminTrafficRoute
   '/_authenticated/admin/users-membership': typeof AuthenticatedAdminUsersMembershipRoute
+  '/api/public/data-stats': typeof ApiPublicDataStatsRoute
   '/api/public/draw-tune': typeof ApiPublicDrawTuneRoute
   '/api/public/engine-health': typeof ApiPublicEngineHealthRoute
   '/api/public/freeze-ledger': typeof ApiPublicFreezeLedgerRoute
@@ -854,6 +863,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/traffic'
     | '/admin/users-membership'
+    | '/api/public/data-stats'
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
@@ -938,6 +948,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/traffic'
     | '/admin/users-membership'
+    | '/api/public/data-stats'
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
@@ -1024,6 +1035,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/traffic'
     | '/_authenticated/admin/users-membership'
+    | '/api/public/data-stats'
     | '/api/public/draw-tune'
     | '/api/public/engine-health'
     | '/api/public/freeze-ledger'
@@ -1099,6 +1111,7 @@ export interface RootRouteChildren {
   ExplainDateRoute: typeof ExplainDateRoute
   EngineIndexRoute: typeof EngineIndexRoute
   ExplainIndexRoute: typeof ExplainIndexRoute
+  ApiPublicDataStatsRoute: typeof ApiPublicDataStatsRoute
   ApiPublicDrawTuneRoute: typeof ApiPublicDrawTuneRoute
   ApiPublicEngineHealthRoute: typeof ApiPublicEngineHealthRoute
   ApiPublicFreezeLedgerRoute: typeof ApiPublicFreezeLedgerRoute
@@ -1523,6 +1536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersMembershipRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/data-stats': {
+      id: '/api/public/data-stats'
+      path: '/api/public/data-stats'
+      fullPath: '/api/public/data-stats'
+      preLoaderRoute: typeof ApiPublicDataStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/draw-tune': {
       id: '/api/public/draw-tune'
       path: '/api/public/draw-tune'
@@ -1811,6 +1831,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExplainDateRoute: ExplainDateRoute,
   EngineIndexRoute: EngineIndexRoute,
   ExplainIndexRoute: ExplainIndexRoute,
+  ApiPublicDataStatsRoute: ApiPublicDataStatsRoute,
   ApiPublicDrawTuneRoute: ApiPublicDrawTuneRoute,
   ApiPublicEngineHealthRoute: ApiPublicEngineHealthRoute,
   ApiPublicFreezeLedgerRoute: ApiPublicFreezeLedgerRoute,
