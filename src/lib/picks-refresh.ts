@@ -16,6 +16,13 @@ export function createPicksRefresh<T>(fetchLatest: () => Promise<T>, timeoutMs =
   };
 }
 
+/** 單次讀取失敗（逾時、網絡中斷、上游短暫5xx）先靜默重試一次，避免一次波動令已鎖定最終版整頁變成錯誤。
+ *  只重新讀取同一份已核實副本，不改變凍結或核實規則。 */
+export const PICKS_RETRY_DELAY_MS = 2_000;
+export function shouldRetryPicks(failureCount: number): boolean {
+  return failureCount < 1;
+}
+
 /** 最終版必須由這份預測確認，另一次lock-state不能代證。 */
 export function assertPicksResponse(data: unknown): asserts data is import('./racing-shapes').DayPicks {
   if (!data || typeof data !== 'object' || !('races' in data) || !Array.isArray(data.races)) throw new Error('預測回應未完整，正在重新讀取');

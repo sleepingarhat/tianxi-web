@@ -1,8 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPicksRefresh, picksEdition, editionAfterError, assertPicksResponse } from "./picks-refresh";
+import { createPicksRefresh, picksEdition, editionAfterError, assertPicksResponse, shouldRetryPicks } from "./picks-refresh";
 import { raceStatus } from "./prediction-status";
 
 describe("今日預測最終版讀取", () => {
+  it('單次讀取失敗只靜默重試一次', () => {
+    expect(shouldRetryPicks(0)).toBe(true);
+    expect(shouldRetryPicks(1)).toBe(false);
+    expect(shouldRetryPicks(2)).toBe(false);
+  });
   it('尚未取得預測不能當初版或無賽事', () => {
     expect(picksEdition(undefined)).toBe('unavailable');
     expect(picksEdition(null)).toBe('unavailable');
