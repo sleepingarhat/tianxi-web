@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/tx/AppShell";
 import { Card, Disclaimer, ErrorNote, Loading, PageHead, Scroller, Seg, Stat, StatGrid, Table, Td } from "@/components/tx/ui";
 import { getRacingBacktest, getRacingTrainingData } from "@/lib/racingOps.functions";
+import { fmtCount, useDataStats } from "@/lib/data-stats";
 
 export const Route = createFileRoute("/engine/backtest")({
   head: () => ({
@@ -26,6 +27,7 @@ function BacktestPage() {
   const [days, setDays] = useState<90 | 180 | 365>(180);
   const bt = useQuery({ queryKey: ["racing-backtest", days], queryFn: () => getRacingBacktest({ data: { days } }), staleTime: 600_000 });
   const tr = useQuery({ queryKey: ["racing-training"], queryFn: () => getRacingTrainingData(), staleTime: 3600_000 });
+  const stats = useDataStats();
   const d = bt.data;
   const top4 = d?.metrics.find((m) => m.key === "top4");
   const verdict = d ? (d.z >= 3 ? "顯著好過隨機" : d.z >= 2 ? "好過隨機（中度）" : "未能證明好過隨機") : "";
@@ -132,13 +134,13 @@ function BacktestPage() {
         ) : tr.data ? (
           <>
             <StatGrid cols={3}>
-              <Stat label="賽日（賽果檔）" value={tr.data.totals.meetings.toLocaleString()} sub={`${tr.data.years[0]?.year ?? ""}–${tr.data.years.at(-1)?.year ?? ""}`} />
+              <Stat label="賽馬日（數據庫實數）" value={fmtCount(stats.data?.counts.raceDays)} sub={stats.data ? `${fmtCount(stats.data.counts.runnerResults)} 行賽果 · 至 ${stats.data.range.last ?? "—"}` : "每日自動更新"} />
               <Stat label="倉庫檔案" value={tr.data.totals.files.toLocaleString()} sub="tianxi-racing" />
               <Stat label="模型" value="tx-oracle-v3" sub="LGB＋Elo 集成 α=0.88（凍結）" />
             </StatGrid>
             <div className="mt-3">
               <Scroller>
-                <Table head={["年份", "賽日", "派彩檔", "分段時間檔", "賽果資料"]}>
+                <Table head={["年份", "賽果檔", "派彩檔", "分段時間檔", "賽果資料"]}>
                   {tr.data.years.map((y) => (
                     <tr key={y.year} className="border-t border-hairline">
                       <Td first>{y.year}</Td>

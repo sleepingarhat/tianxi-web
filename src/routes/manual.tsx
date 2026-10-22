@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { Card, Disclaimer, PageHead, Seg } from "@/components/tx/ui";
+import { dataScaleSentence, useDataStats } from "@/lib/data-stats";
 
 export const Route = createFileRoute("/manual")({
   head: () => ({
@@ -19,6 +20,9 @@ export const Route = createFileRoute("/manual")({
 });
 
 type Tab = "data" | "tech" | "use" | "faq";
+
+// 佔位：渲染時換成 D1 即時數量（唔寫死數字）。
+const DATA_SCALE_ITEM = "__DATA_SCALE__";
 
 const SECTIONS: Record<Tab, { en: string; title: string; blocks: { h: string; items: string[] }[] }> = {
   data: {
@@ -48,7 +52,7 @@ const SECTIONS: Record<Tab, { en: string; title: string; blocks: { h: string; it
         h: "數據涵蓋範圍",
         items: [
           "時間：2016 年 9 月至今，全部香港賽事。",
-          "規模：8,000+ 場賽事、約 98,000 條出賽記錄，每個賽馬日自動增長。",
+          DATA_SCALE_ITEM,
           "場地：只收香港本地（沙田 ST、跑馬地 HV），海外／模擬賽自動過濾。",
         ],
       },
@@ -130,6 +134,7 @@ const SECTIONS: Record<Tab, { en: string; title: string; blocks: { h: string; it
 function ManualPage() {
   const [tab, setTab] = useState<Tab>("data");
   const sec = SECTIONS[tab];
+  const dataStats = useDataStats();
 
   return (
     <AppShell page="engine" ticker="說明書 · 透明可問責">
@@ -161,7 +166,7 @@ function ManualPage() {
                 {b.items.map((it) => (
                   <li key={it} className="flex gap-2 text-[12px] leading-relaxed text-ink-2">
                     <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-gold" />
-                    <span>{it}</span>
+                    <span>{it === DATA_SCALE_ITEM ? dataScaleSentence(dataStats.data) : it}</span>
                   </li>
                 ))}
               </ul>

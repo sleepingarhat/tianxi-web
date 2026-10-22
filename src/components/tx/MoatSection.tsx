@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { getRacingDataScale } from "@/lib/racingDataScale.functions";
+import { fmtCount, fmtWan, useDataStats } from "@/lib/data-stats";
 
-// 首頁「點解揀天喜」：只講可核對嘅現行事實；數據規模由賽果檔逐個點算，每個賽馬日自動更新。
+// 首頁「點解揀天喜」：只講可核對嘅現行事實；數據規模以生產數據庫（D1）實數為唯一來源，每日自動更新。
 const PILLARS = [
   {
     no: "01",
@@ -79,14 +78,21 @@ export function MoatSection() {
 }
 
 function DataScaleStrip() {
-  const q = useQuery({ queryKey: ["racing-data-scale"], queryFn: () => getRacingDataScale(), staleTime: 3600_000 });
+  const q = useDataStats();
   const d = q.data;
-  if (!d || !d.meetings) return null;
-  const rowsLabel = d.rows >= 10000 ? `${(d.rows / 10000).toFixed(1)} 萬` : d.rows.toLocaleString();
+  const c = d?.counts;
+  // 讀唔到（或者仲讀緊）就唔顯示數字，絕不回落到寫死數字。
+  if (!d || !c || !c.raceDays) return null;
   const items: [string, string, string][] = [
-    [d.meetings.toLocaleString(), "個賽馬日", `${d.first?.slice(0, 4) ?? ""}–${d.last?.slice(0, 4) ?? ""}`],
-    [d.races.toLocaleString(), "場賽事", "逐場賽果"],
-    [rowsLabel, "行賽果", `${d.rows.toLocaleString()} 匹次`],
+    [fmtCount(c.raceDays), "個賽馬日", `${d.range.first?.slice(0, 4) ?? ""}–${d.range.last?.slice(0, 4) ?? ""}`],
+    [fmtCount(c.races), "場賽事", "逐場賽果"],
+    [fmtWan(c.runnerResults), "行賽果", `${fmtCount(c.runnerResults)} 匹次`],
+  ];
+  const extras: [string, number | null][] = [
+    ["馬匹", c.horses],
+    ["往績", c.formRecords],
+    ["晨操", c.trackwork],
+    ["派彩", c.dividends],
   ];
   return (
     <div className="mt-6 rounded-[10px] border border-hairline bg-paper p-4">
@@ -99,8 +105,14 @@ function DataScaleStrip() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-[10px] leading-relaxed text-ink-3">
-        由天喜數據倉每個賽果檔逐場點算，最新賽馬日 {d.last}；每個賽馬日完賽後自動更新。
+      <p className="tabnum mt-3 font-mono-tx text-[10.5px] text-ink-2">
+        {extras
+          .filter(([, n]) => n != null)
+          .map(([l, n]) => `${l} ${fmtCount(n)}`)
+          .join(" · ")}
+      </p>
+      <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
+        以天喜生產數據庫實數點算，最新賽果 {d.range.last ?? "—"}；每日自動更新。
       </p>
     </div>
   );
