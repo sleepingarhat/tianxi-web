@@ -21,6 +21,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { frozenComparison } from '@/lib/frozen-comparison';
 import { Button } from '@/components/ui/button';
+import { timeoutSignal } from "@/lib/fetch-timeout";
+
+/** 每個讀取最多等 15 秒（即時重算 20 秒），失敗只重試一次，之後顯示錯誤同重新讀取掣，唔會無限「載入中」。 */
+const PVR_TIMEOUT_MS = 15_000;
+const PVR_LIVE_TIMEOUT_MS = 20_000;
 
 /** 彩池代號 → 中文（馬會標準簡稱） */
 const POOL_ZH: Record<string, string> = {
@@ -76,7 +81,11 @@ function ComparePage() {
   const [date, setDate] = useState<string>("");
   const [raceId, setRaceId] = useState<string>("");
 
-  const list = useQuery({ queryKey: ["meetings", 60], queryFn: () => txApi.meetings("?limit=60") });
+  const list = useQuery({
+    queryKey: ["meetings", 60],
+    queryFn: () => txApi.meetings("?limit=60", PVR_TIMEOUT_MS),
+    retry: 1,
+  });
   const meetings: any[] = list.data?.meetings || [];
 
   // 預設揀最近一個已過去（有賽果）嘅賽馬日
@@ -89,9 +98,10 @@ function ComparePage() {
 
   const meeting = useQuery({
     queryKey: ["meeting", date],
-    queryFn: () => txApi.meeting(date),
+    queryFn: () => txApi.meeting(date, PVR_TIMEOUT_MS),
     enabled: !!date,
     refetchInterval: 60_000,
+    retry: 1,
   });
   const races: any[] = meeting.data?.races || [];
 
@@ -103,13 +113,15 @@ function ComparePage() {
 
   const picks = useQuery({
     queryKey: ["topPicks", raceId],
-    queryFn: () => txApi.topPicks(raceId),
+    queryFn: () => txApi.topPicks(raceId, PVR_LIVE_TIMEOUT_MS),
     enabled: !!raceId,
+    retry: 1,
   });
   const raceDetail = useQuery({
     queryKey: ["race", raceId],
-    queryFn: () => txApi.race(raceId),
+    queryFn: () => txApi.race(raceId, PVR_TIMEOUT_MS),
     enabled: !!raceId,
+    retry: 1,
   });
   // 存檔預測（賽前鎖定版）：已有賽果嘅賽日一律以後端凍結紀錄為準，
   // 避免顯示事後重算版本，並可標明當日實際採用嘅集成比重 α。
@@ -118,13 +130,17 @@ function ComparePage() {
   const frozen = useQuery({
     queryKey: ["pvr-frozen", date, legacy],
     queryFn: async (): Promise<any> => {
-      if (legacy) return txApi.hitRate(date);
-      const r = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { cache: "no-store" });
+      if (legacy) return txApi.hitRate(date, PVR_TIMEOUT_MS);
+      const r = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, {
+        cache: "no-store",
+        signal: timeoutSignal(PVR_TIMEOUT_MS),
+      });
       const d: any = await r.json().catch(() => null);
       if (!r.ok) throw new Error('原凍結預測暫未能核實；紀錄不變，請稍後重新讀取。');
       return frozenComparison(d);
     },
     enabled: !!date,
+    retry: 1,
   });
   const selectedRaceNumber = races.find((r: any) => String(r.id) === raceId)?.raceNumber;
   const frozenRaces: any[] = (frozen.data?.races || [])
@@ -289,7 +305,9 @@ function ComparePage() {
             }}
             className="w-full appearance-none rounded-[10px] border border-hairline bg-paper-2 px-3 py-[10px] font-sans-tc text-[13px] font-semibold text-ink"
           >
-            {meetings.length === 0 ? <option>載入中…</option> : null}
+            {meetings.length === 0 ? (
+              <option>{list.isError ? "賽日讀取失敗" : "載入中…"}</option>
+            ) : null}
             {meetings.map((mm: any) => (
               <option key={mm.id ?? mm.date} value={mm.date}>
                 {mm.date}
@@ -297,6 +315,19 @@ function ComparePage() {
               </option>
             ))}
           </select>
+          {list.isError && meetings.length === 0 ? (
+            <div className="mt-1.5 flex items-center gap-2">
+              <span className="text-[10px] text-lose">賽日清單暫時讀唔到</span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={list.isFetching}
+                onClick={() => void list.refetch()}
+              >
+                {list.isFetching ? "重新讀取中…" : "重新讀取"}
+              </Button>
+            </div>
+          ) : null}
         </div>
         <div>
           <label htmlFor="cmp-race" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">
@@ -440,6 +471,17 @@ function ComparePage() {
               <Loading />
             ) : right.length ? (
               right.map((h, i) => <Cell key={keyOf(h) || i} h={h} rank={i + 1} matched={isMatch(h, leftKeys)} />)
+            ) : raceDetail.isError ? (
+              <>
+                <EmptySide title="賽果暫時讀唔到" />
+                <Button
+                  variant="outline"
+                  className="mx-2 mb-3"
+                  onClick={() => void raceDetail.refetch()}
+                >
+                  重新讀取
+                </Button>
+              </>
             ) : (
               <EmptySide title="賽果未出" />
             )}

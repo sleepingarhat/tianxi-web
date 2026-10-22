@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import { frozenEvidenceCodeOf, type FrozenEvidenceCode } from '@/lib/frozen-racing';
+import { frozenEvidenceCodeOf, frozenEvidenceHttpStatus, type FrozenEvidenceCode } from '@/lib/frozen-racing';
 
 /** 三種缺證情況要分開講，會員先知道係「無存證」定「核實失敗」。 */
 const EVIDENCE_ZH: Record<FrozenEvidenceCode, string> = {
@@ -8,6 +8,7 @@ const EVIDENCE_ZH: Record<FrozenEvidenceCode, string> = {
   'no-archive': '呢個賽日未有已核實嘅原始凍結副本，故唔會展示最終預測；唔會以初版或臨場重算補寫。由19/10/2026賽事日起，系統會就賽前／賽後變更自動重算並喺鎖點建立凍結副本，呢啲賽日可以逐場核對原注。',
   'not-verified': '呢個賽日虽然有副本，但核實狀態未確認，暫停展示最終預測。',
   'verification-failed': '原始凍結證據未能完整核實；沒有使用初版或臨場重算補寫。',
+  'read-failed': '暫時未能讀取凍結紀錄（資料服務繁忙或逾時），請稍後再試；沒有使用初版或臨場重算補寫。',
 };
 
 export const Route = createFileRoute('/api/public/frozen-racing')({
@@ -22,8 +23,8 @@ export const Route = createFileRoute('/api/public/frozen-racing')({
       return Response.json(await readFrozenRacing(valid.data),{headers});
     } catch (error) {
       const reason = frozenEvidenceCodeOf(error);
-      console.error('frozen-racing verification failed', reason, error instanceof Error ? error.message : 'unknown');
-      return Response.json({date,edition:'unavailable',frozen:false,reason,error:EVIDENCE_ZH[reason] || EVIDENCE_ZH['verification-failed']}, {status:503,headers});
+      console.error('frozen-racing unavailable', reason, error instanceof Error ? error.message : 'unknown');
+      return Response.json({date,edition:'unavailable',frozen:false,reason,error:EVIDENCE_ZH[reason] || EVIDENCE_ZH['verification-failed']}, {status:frozenEvidenceHttpStatus(reason,error),headers});
     }
   } } },
 });

@@ -16,7 +16,7 @@ export const Route=createFileRoute('/withdrawals')({
 });
 function WithdrawalPage(){
   const {date}=Route.useSearch(); const {data}=useSuspenseQuery(options(date));
-  const labels:Record<string,string>={available:'已核實原副本','no-archive':'未有原始凍結副本','not-verified':'副本未核實','verification-failed':'副本核對未通過'};
+  const labels:Record<string,string>={available:'已核實原副本','no-archive':'未有原始凍結副本','not-verified':'副本未核實','verification-failed':'副本核對未通過','read-failed':'暫時未能讀取'};
   const group=data.summary?.groups['post-lock-jockey-change'];
   return <AppShell columns={false}>
     <PageHead en="WITHDRAWAL EVIDENCE" title="退出馬追蹤"/>

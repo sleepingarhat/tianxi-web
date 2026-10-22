@@ -1,9 +1,14 @@
 // 天喜 TIANXI · shared API client (ported from tianxi-site /assets/api.js)
 import { horseDisplayDto } from './horse-name';
+import { timeoutSignal } from "./fetch-timeout";
 export const TX_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
-async function j<T = any>(path: string): Promise<T> {
-  const r = await fetch(TX_BASE + path, { credentials: "omit" });
+/** 預設唔設限時（保持原有行為）；傳 timeoutMs 時逾時即中止，避免頁面無限「載入中」。 */
+async function j<T = any>(path: string, timeoutMs?: number): Promise<T> {
+  const r = await fetch(TX_BASE + path, {
+    credentials: "omit",
+    ...(timeoutMs ? { signal: timeoutSignal(timeoutMs) } : {}),
+  });
   if (!r.ok) throw new Error(`API ${r.status} ${path}`);
   return horseDisplayDto((await r.json()) as T);
 }
@@ -236,13 +241,16 @@ export function num(v?: number | null, digits = 1) {
 /* ---------- endpoints ---------- */
 export const txApi = {
   base: TX_BASE,
-  meetings: (q = "") => j<{ meetings: Meeting[] }>("/api/meetings" + q),
-  meeting: (date: string) => j<Meeting>("/api/meetings/" + encodeURIComponent(date)),
+  meetings: (q = "", timeoutMs?: number) =>
+    j<{ meetings: Meeting[] }>("/api/meetings" + q, timeoutMs),
+  meeting: (date: string, timeoutMs?: number) =>
+    j<Meeting>("/api/meetings/" + encodeURIComponent(date), timeoutMs),
   meetingsByMonth: (ym: string) =>
     j<{ meetings: Meeting[] }>(`/api/meetings?month=${encodeURIComponent(ym)}&limit=100`),
   smartCurrent: () => j<Meeting>("/api/meetings/smart/current"),
   nextMeeting: () => j<Meeting>("/api/meetings/next"),
-  race: (id: string) => j<any>("/api/races/" + encodeURIComponent(id)),
+  race: (id: string, timeoutMs?: number) =>
+    j<any>("/api/races/" + encodeURIComponent(id), timeoutMs),
   raceEntries: (id: string) => j<any>(`/api/races/${encodeURIComponent(id)}/entries`),
   horses: (q = "") => j<any>("/api/horses" + q),
   horse: (id: string) => j<any>("/api/horses/" + encodeURIComponent(id)),
@@ -273,9 +281,12 @@ export const txApi = {
   },
   jockeys: () => j<any>("/api/jockeys"),
   trainers: () => j<any>("/api/trainers"),
-  topPicks: (raceId: string) => j<any>("/api/analyze/top-picks?raceId=" + encodeURIComponent(raceId)),
-  hitRate: (date: string) => j<any>("/api/analyze/hit-rate?date=" + encodeURIComponent(date)),
-  hitRateRollup: (days = 90) => j<any>("/api/analyze/hit-rate-rollup?days=" + days),
+  topPicks: (raceId: string, timeoutMs?: number) =>
+    j<any>("/api/analyze/top-picks?raceId=" + encodeURIComponent(raceId), timeoutMs),
+  hitRate: (date: string, timeoutMs?: number) =>
+    j<any>("/api/analyze/hit-rate?date=" + encodeURIComponent(date), timeoutMs),
+  hitRateRollup: (days = 90, timeoutMs?: number) =>
+    j<any>("/api/analyze/hit-rate-rollup?days=" + days, timeoutMs),
   predictionAccuracy: (days = 365) => j<any>("/api/analyze/prediction-accuracy?days=" + days),
   calibration: () => j<any>("/api/analyze/calibration"),
   residuals: (days = 365) => j<any>("/api/analyze/residuals?days=" + days),
