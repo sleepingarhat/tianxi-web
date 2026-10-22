@@ -5,6 +5,9 @@ export type OfficialRunnerResult = {
   winOdds: number | null; runningPosition: string | null; jockeyId: string; trainerId: string;
 };
 
+/** HKJC withdrawal codes that may appear without a horse number. */
+const UNNUMBERED_WITHDRAWN = /^(?:WV|WX)(?:-A)?$/i;
+
 /** Parse only the complete official performance table; never incident/dividend tables. */
 export function parseOfficialResults(html: string, date: string, raceNumber: number): OfficialRunnerResult[] {
   const root = parse(html);
@@ -25,11 +28,13 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
     const fullId = horseUrl ? new URL(horseUrl, 'https://racing.hkjc.com').searchParams.get('horseid') : null;
     const horseId = fullId?.match(/^HK_\d{4}_([A-Z]\d{3})$/)?.[1];
     const place = text(0);
-    // Official replaced-out rows can have no current race number. Keep their
-    // evidence in raw HTML, not a fabricated number or the replacement's ID.
-    if (text(1) === '' && /^WV(?:-A)?$/i.test(place) && horseId) return [];
+    // Official withdrawn rows (WV/WV-A vet, WX/WX-A stewards) can have no
+    // current race number. Keep their evidence in raw HTML, not a fabricated
+    // number or the replacement's ID. Coverage still requires every card
+    // starter to be matched or independently proven withdrawn.
+    if (text(1) === '' && UNNUMBERED_WITHDRAWN.test(place) && horseId) return [];
     // Blank is not a loss. Collector must independently verify official withdrawal.
-    const finishingPosition = place === '' ? null : /^\d+$/.test(place) ? Number(place) : /^(?:DNF|PU|UR|FE|DISQ|WX|WV(?:-A)?|VOID)$/i.test(place) ? null : undefined;
+    const finishingPosition = place === '' ? null : /^\d+$/.test(place) ? Number(place) : /^(?:DNF|PU|UR|FE|DISQ|WX(?:-A)?|WV(?:-A)?|VOID)$/i.test(place) ? null : undefined;
     if (!Number.isInteger(horseNumber) || horseNumber < 1 || !horseId || seen.has(horseNumber) || ids.has(horseId) || finishingPosition === undefined) throw new Error('official-result-runner-invalid');
     seen.add(horseNumber); ids.add(horseId);
     const profile = (i: number, key: string) => {
