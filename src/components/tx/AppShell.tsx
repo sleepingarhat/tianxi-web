@@ -93,7 +93,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-paper-3 font-sans-tc text-ink">
       <div className={`relative mx-auto flex min-h-screen w-full flex-col border-x border-hairline bg-paper ${wide ? "max-w-[1040px] xl:max-w-[1200px]" : "max-w-[440px] md:max-w-[880px] lg:max-w-[1040px] xl:max-w-[1200px]"}`}>
-        <header className="sticky top-0 z-20 grid min-h-[56px] grid-cols-[auto_1fr_auto] items-center gap-2.5 border-b border-tan/10 bg-deep px-4 py-2.5 text-deep-fg">
+        <header className="sticky top-0 z-20 flex min-h-[56px] items-center gap-2.5 border-b border-tan/10 bg-deep px-4 py-2.5 text-deep-fg">
           <Link to="/" className="inline-flex items-center gap-2.5">
             <img src={tianxiLogo} width="40" height="40" alt="" className="h-10 w-10 shrink-0 rounded-[7px] object-cover" />
             <span className="flex flex-col leading-none max-[380px]:hidden">
@@ -103,7 +103,7 @@ export function AppShell({
               </small>
             </span>
           </Link>
-          <nav aria-label="主選單" className="hidden items-center justify-center gap-6 lg:flex">
+          <nav aria-label="主選單" className="hidden flex-1 items-center justify-center gap-6 lg:flex">
             {BOTNAV.map((item) => {
               const on = item.key === page || (item.key === "horse" && ["horse", "predictor", "encyclopedia"].includes(page));
               return (
@@ -113,7 +113,7 @@ export function AppShell({
               );
             })}
           </nav>
-          <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
             {signedIn === true ? <WatchNotificationsBell /> : null}
             {signedIn === true && !tier.loading ? <TierBadge tier={tier.tier} /> : null}
             {isAdmin ? (
@@ -150,12 +150,12 @@ export function AppShell({
                 >
                   會員
                 </Link>
-                <Link to="/account" className="self-center whitespace-nowrap text-[12px] text-tan">帳戶</Link>
+                <Link to="/account" className="grid h-8 place-items-center whitespace-nowrap rounded-full border border-tan/35 px-3.5 font-serif-tc text-[12px] font-bold text-deep-fg transition-colors hover:border-gold-strong max-[380px]:px-3">帳戶</Link>
                 <button
                   type="button"
                   onClick={() => void handleSignOut()}
                   disabled={signingOut}
-                  className="whitespace-nowrap rounded-full border border-tan/30 px-3.5 py-[7px] font-serif-tc text-[12px] font-bold tracking-[0.03em] text-deep-fg transition-transform active:scale-95 disabled:opacity-60 max-[380px]:px-2.5"
+                  className="grid h-8 place-items-center whitespace-nowrap rounded-full border border-tan/30 px-3.5 font-serif-tc text-[12px] font-bold tracking-[0.03em] text-deep-fg transition-transform active:scale-95 disabled:opacity-60 max-[380px]:px-2.5"
                 >
                   {signingOut ? "登出中…" : "登出"}
                 </button>
@@ -164,14 +164,14 @@ export function AppShell({
               <>
                 <Link
                   to="/auth"
-                  className="self-center whitespace-nowrap font-serif-tc text-[12px] font-bold text-tan hover:text-gold-strong"
+                  className="grid h-8 place-items-center whitespace-nowrap rounded-full border border-tan/35 px-3.5 font-serif-tc text-[12px] font-bold text-deep-fg transition-colors hover:border-gold-strong max-[380px]:px-3"
                 >
                   登入
                 </Link>
                 <Link
                   to="/membership"
                   aria-label="升級 Pro"
-                  className="whitespace-nowrap rounded-full border border-gold bg-gradient-to-b from-gold-strong to-gold px-3.5 py-[7px] font-serif-tc text-[12px] font-bold tracking-[0.03em] text-[#3a2a08] shadow-[0_1px_2px_rgba(0,0,0,0.2)] transition-transform active:scale-95 max-[380px]:px-2.5"
+                  className="flex h-8 items-center whitespace-nowrap rounded-full border border-gold bg-gradient-to-b from-gold-strong to-gold px-3.5 font-serif-tc text-[12px] font-bold tracking-[0.03em] text-[#3a2a08] shadow-[0_1px_2px_rgba(0,0,0,0.2)] transition-transform active:scale-95 max-[380px]:px-2.5"
                 >
                   <span className="max-[380px]:hidden">升級 Pro</span>
                   <svg

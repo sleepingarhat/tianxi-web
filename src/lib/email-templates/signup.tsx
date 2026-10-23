@@ -2,7 +2,6 @@ import * as React from 'react'
 
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -22,7 +21,6 @@ interface SignupEmailProps {
 }
 
 export const SignupEmail = ({
-  siteName,
   siteUrl,
   recipient,
   confirmationUrl,
@@ -31,35 +29,37 @@ export const SignupEmail = ({
     <Head>
       <style>{darkModeCss}</style>
     </Head>
-    <Preview>歡迎加入天喜賽馬！撳一下確認你嘅電郵地址，就可以開始使用。</Preview>
+    <Preview>歡迎加入天喜預測！撳一下確認你嘅電郵地址，就可以開始使用。</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={brandRow}>
-          <Text style={brand}>天喜賽馬</Text>
-          <Text style={brandSub}>TIANXI · HONG KONG RACING</Text>
+          <Text style={brand}>天喜預測</Text>
+          <Text style={brandSub}>tianxi.racing</Text>
         </Section>
         <Img
           src={`${siteUrl}/email/mascot.png`}
-          width="240"
-          height="260"
-          alt="天喜吉祥物：啡色小馬舉起大拇指歡迎你"
+          width="200"
+          height="200"
+          alt="天喜吉祥物：戴賽馬帽嘅啡色馬仔舉起大拇指歡迎你"
           style={mascot}
         />
-        <Heading style={h1}>歡迎加入天喜賽馬！</Heading>
-        <Text style={h1Sub}>Welcome to Tianxi Racing</Text>
+        <Heading style={h1}>歡迎加入天喜預測！</Heading>
+        <Text style={h1Sub}>Welcome to Tianxi</Text>
         <Section align="center">
           <Section style={divider} />
         </Section>
         <Text style={text}>
-          多謝你登記{siteName}帳戶。
+          多謝你註冊天喜預測會員。
           <br />
           請撳下面個掣，確認呢個電郵地址：
         </Text>
         <Text style={email}>{recipient}</Text>
         <Text style={textEn}>Please confirm your email address to activate your account.</Text>
-        <Button className="dm-btn" style={button} href={confirmationUrl}>
-          確認電郵&nbsp;&nbsp;Verify Email
-        </Button>
+        <Text style={buttonRow}>
+          <Link className="dm-btn" href={confirmationUrl} style={button}>
+            確認電郵&nbsp;&nbsp;Verify Email
+          </Link>
+        </Text>
         <Text style={fallbackLabel}>
           如果個掣撳唔到，可以複製以下連結貼去瀏覽器：
           <br />
@@ -71,7 +71,7 @@ export const SignupEmail = ({
           </Link>
         </Section>
         <Text style={footer}>
-          如果你冇登記過天喜賽馬帳戶，可以直接忽略呢封電郵。
+          如果你冇登記過天喜預測帳戶，可以直接忽略呢封電郵。
           <br />
           <span style={footerEn}>If you didn't create an account, you can safely ignore this email.</span>
         </Text>
@@ -119,9 +119,10 @@ const brandSub = {
 const mascot = {
   display: 'block',
   margin: '28px auto 0',
-  width: '240px',
-  height: 'auto',
+  width: '200px',
+  height: '200px',
   maxWidth: '200px',
+  borderRadius: '16px',
   border: '0',
 }
 const h1 = {
@@ -172,6 +173,7 @@ const textEn = {
   textAlign: 'center' as const,
 }
 const button = {
+  display: 'inline-block',
   backgroundColor: '#c9a227',
   color: '#0b3d2b',
   fontSize: '18px',
@@ -182,8 +184,8 @@ const button = {
   borderRadius: '999px',
   padding: '16px 44px',
   textDecoration: 'none',
-  margin: '20px auto 0',
 }
+const buttonRow = { margin: '20px 0 0', textAlign: 'center' as const }
 const fallbackLabel = {
   margin: '22px 0 0',
   fontSize: '13px',

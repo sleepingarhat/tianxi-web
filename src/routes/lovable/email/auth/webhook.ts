@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "天喜賽馬 tianxi.racing"
+const SITE_NAME = "天喜預測 tianxi.racing"
 const SENDER_DOMAIN = "notify.tianxi.racing"
 const ROOT_DOMAIN = "tianxi.racing"
 const FROM_DOMAIN = "tianxi.racing"
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           sendUrl: process.env['LOVABLE_SEND_URL'],
           emails: {
             signup: {
-              subject: "確認你嘅天喜賽馬帳戶",
+              subject: "確認你嘅天喜預測帳戶",
               render: (data) =>
                 React.createElement(SignupEmail, {
                   siteName: SITE_NAME,
