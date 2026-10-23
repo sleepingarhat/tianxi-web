@@ -64,3 +64,4 @@
 - Notification limits persist pending notices until delivery succeeds; horse pushes batch per owner while tracking per-device receipts. Why: failed transition notices must remain retryable and multiple activities must not flood a device.
 - Watch-limit transitions clear obsolete notices after restoration; raceday opt-in and delivery share a server-only release/configuration check. Why: stale notices and browser toggles cannot activate unavailable notifications.
 - Managed HTTP schedules use structured Cloud tools only, never embedded credentials or hand-authored cron HTTP SQL; unpublished targets remain unscheduled. Why: platform-owned caller authentication and safe release ordering.
+- Weather and legacy results-dispatch managed callbacks use separate jobs routes and shared server work; legacy routes retain their caller authentication until verified retirement. Why: unmanaged schedules cannot be automatically migrated and Worker callers must not break.

@@ -89,6 +89,7 @@ import { Route as ApiPublicJobsBillingRemindersRouteImport } from './routes/api/
 import { Route as ApiPublicJobsHkjcChangesRouteImport } from './routes/api/public/jobs/hkjc-changes'
 import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/public/jobs/hkjc-evidence-sync'
 import { Route as ApiPublicJobsHorseWatchRouteImport } from './routes/api/public/jobs/horse-watch'
+import { Route as ApiPublicJobsRaceResultsDispatchRouteImport } from './routes/api/public/jobs/race-results-dispatch'
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
 import { Route as ApiPublicJobsRacedayAlertsRouteImport } from './routes/api/public/jobs/raceday-alerts'
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
@@ -97,6 +98,8 @@ import { Route as ApiPublicJobsRacingDividendsRouteImport } from './routes/api/p
 import { Route as ApiPublicJobsRacingResultsRouteImport } from './routes/api/public/jobs/racing-results'
 import { Route as ApiPublicJobsTelegramProSweepRouteImport } from './routes/api/public/jobs/telegram-pro-sweep'
 import { Route as ApiPublicJobsTrackRecordSummaryRouteImport } from './routes/api/public/jobs/track-record-summary'
+import { Route as ApiPublicJobsWeatherArchiveRouteImport } from './routes/api/public/jobs/weather-archive'
+import { Route as ApiPublicJobsWeatherSyncGithubRouteImport } from './routes/api/public/jobs/weather-sync-github'
 import { Route as ApiPublicPaymentsCryptoIpnRouteImport } from './routes/api/public/payments/crypto-ipn'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
@@ -522,6 +525,12 @@ const ApiPublicJobsHorseWatchRoute = ApiPublicJobsHorseWatchRouteImport.update({
   path: '/api/public/jobs/horse-watch',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsRaceResultsDispatchRoute =
+  ApiPublicJobsRaceResultsDispatchRouteImport.update({
+    id: '/api/public/jobs/race-results-dispatch',
+    path: '/api/public/jobs/race-results-dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsRacecoursePhotosRoute =
   ApiPublicJobsRacecoursePhotosRouteImport.update({
     id: '/api/public/jobs/racecourse-photos',
@@ -568,6 +577,18 @@ const ApiPublicJobsTrackRecordSummaryRoute =
   ApiPublicJobsTrackRecordSummaryRouteImport.update({
     id: '/api/public/jobs/track-record-summary',
     path: '/api/public/jobs/track-record-summary',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsWeatherArchiveRoute =
+  ApiPublicJobsWeatherArchiveRouteImport.update({
+    id: '/api/public/jobs/weather-archive',
+    path: '/api/public/jobs/weather-archive',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsWeatherSyncGithubRoute =
+  ApiPublicJobsWeatherSyncGithubRouteImport.update({
+    id: '/api/public/jobs/weather-sync-github',
+    path: '/api/public/jobs/weather-sync-github',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicPaymentsCryptoIpnRoute =
@@ -679,6 +700,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
+  '/api/public/jobs/race-results-dispatch': typeof ApiPublicJobsRaceResultsDispatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
@@ -687,6 +709,8 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
+  '/api/public/jobs/weather-archive': typeof ApiPublicJobsWeatherArchiveRoute
+  '/api/public/jobs/weather-sync-github': typeof ApiPublicJobsWeatherSyncGithubRoute
   '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -772,6 +796,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
+  '/api/public/jobs/race-results-dispatch': typeof ApiPublicJobsRaceResultsDispatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
@@ -780,6 +805,8 @@ export interface FileRoutesByTo {
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
+  '/api/public/jobs/weather-archive': typeof ApiPublicJobsWeatherArchiveRoute
+  '/api/public/jobs/weather-sync-github': typeof ApiPublicJobsWeatherSyncGithubRoute
   '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -868,6 +895,7 @@ export interface FileRoutesById {
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
+  '/api/public/jobs/race-results-dispatch': typeof ApiPublicJobsRaceResultsDispatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
@@ -876,6 +904,8 @@ export interface FileRoutesById {
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
+  '/api/public/jobs/weather-archive': typeof ApiPublicJobsWeatherArchiveRoute
+  '/api/public/jobs/weather-sync-github': typeof ApiPublicJobsWeatherSyncGithubRoute
   '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -964,6 +994,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/horse-watch'
+    | '/api/public/jobs/race-results-dispatch'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/raceday-alerts'
     | '/api/public/jobs/racing-data-scale'
@@ -972,6 +1003,8 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
+    | '/api/public/jobs/weather-archive'
+    | '/api/public/jobs/weather-sync-github'
     | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
@@ -1057,6 +1090,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/horse-watch'
+    | '/api/public/jobs/race-results-dispatch'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/raceday-alerts'
     | '/api/public/jobs/racing-data-scale'
@@ -1065,6 +1099,8 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
+    | '/api/public/jobs/weather-archive'
+    | '/api/public/jobs/weather-sync-github'
     | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
@@ -1152,6 +1188,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/horse-watch'
+    | '/api/public/jobs/race-results-dispatch'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/raceday-alerts'
     | '/api/public/jobs/racing-data-scale'
@@ -1160,6 +1197,8 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
+    | '/api/public/jobs/weather-archive'
+    | '/api/public/jobs/weather-sync-github'
     | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
@@ -1234,6 +1273,7 @@ export interface RootRouteChildren {
   ApiPublicJobsHkjcChangesRoute: typeof ApiPublicJobsHkjcChangesRoute
   ApiPublicJobsHkjcEvidenceSyncRoute: typeof ApiPublicJobsHkjcEvidenceSyncRoute
   ApiPublicJobsHorseWatchRoute: typeof ApiPublicJobsHorseWatchRoute
+  ApiPublicJobsRaceResultsDispatchRoute: typeof ApiPublicJobsRaceResultsDispatchRoute
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
   ApiPublicJobsRacedayAlertsRoute: typeof ApiPublicJobsRacedayAlertsRoute
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
@@ -1242,6 +1282,8 @@ export interface RootRouteChildren {
   ApiPublicJobsRacingResultsRoute: typeof ApiPublicJobsRacingResultsRoute
   ApiPublicJobsTelegramProSweepRoute: typeof ApiPublicJobsTelegramProSweepRoute
   ApiPublicJobsTrackRecordSummaryRoute: typeof ApiPublicJobsTrackRecordSummaryRoute
+  ApiPublicJobsWeatherArchiveRoute: typeof ApiPublicJobsWeatherArchiveRoute
+  ApiPublicJobsWeatherSyncGithubRoute: typeof ApiPublicJobsWeatherSyncGithubRoute
   ApiPublicPaymentsCryptoIpnRoute: typeof ApiPublicPaymentsCryptoIpnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
@@ -1811,6 +1853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsHorseWatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/race-results-dispatch': {
+      id: '/api/public/jobs/race-results-dispatch'
+      path: '/api/public/jobs/race-results-dispatch'
+      fullPath: '/api/public/jobs/race-results-dispatch'
+      preLoaderRoute: typeof ApiPublicJobsRaceResultsDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/racecourse-photos': {
       id: '/api/public/jobs/racecourse-photos'
       path: '/api/public/jobs/racecourse-photos'
@@ -1865,6 +1914,20 @@ declare module '@tanstack/react-router' {
       path: '/api/public/jobs/track-record-summary'
       fullPath: '/api/public/jobs/track-record-summary'
       preLoaderRoute: typeof ApiPublicJobsTrackRecordSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/weather-archive': {
+      id: '/api/public/jobs/weather-archive'
+      path: '/api/public/jobs/weather-archive'
+      fullPath: '/api/public/jobs/weather-archive'
+      preLoaderRoute: typeof ApiPublicJobsWeatherArchiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/weather-sync-github': {
+      id: '/api/public/jobs/weather-sync-github'
+      path: '/api/public/jobs/weather-sync-github'
+      fullPath: '/api/public/jobs/weather-sync-github'
+      preLoaderRoute: typeof ApiPublicJobsWeatherSyncGithubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/payments/crypto-ipn': {
@@ -2020,6 +2083,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsHkjcChangesRoute: ApiPublicJobsHkjcChangesRoute,
   ApiPublicJobsHkjcEvidenceSyncRoute: ApiPublicJobsHkjcEvidenceSyncRoute,
   ApiPublicJobsHorseWatchRoute: ApiPublicJobsHorseWatchRoute,
+  ApiPublicJobsRaceResultsDispatchRoute: ApiPublicJobsRaceResultsDispatchRoute,
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
   ApiPublicJobsRacedayAlertsRoute: ApiPublicJobsRacedayAlertsRoute,
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
@@ -2028,6 +2092,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsRacingResultsRoute: ApiPublicJobsRacingResultsRoute,
   ApiPublicJobsTelegramProSweepRoute: ApiPublicJobsTelegramProSweepRoute,
   ApiPublicJobsTrackRecordSummaryRoute: ApiPublicJobsTrackRecordSummaryRoute,
+  ApiPublicJobsWeatherArchiveRoute: ApiPublicJobsWeatherArchiveRoute,
+  ApiPublicJobsWeatherSyncGithubRoute: ApiPublicJobsWeatherSyncGithubRoute,
   ApiPublicPaymentsCryptoIpnRoute: ApiPublicPaymentsCryptoIpnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
