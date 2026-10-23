@@ -1,6 +1,8 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
 ## 2026-10-23 會員分級（已批准，全部段落完成前不發布）
+- [x] 22:44 HKT接續第七至十一段可執行程式：依合併檔十一個分隔段核對（第7段4b、第8段5a、第9段5b、第10段6、第11段7），新增通知摘要、持久上限告警、裝置owner核實、賽日跳過監控；US$416／52週NOWPayments checkout、驗簽IPN、原子grant／疊加／退款、本人紀錄與管理員設定／原因操作，仍停用收款。十一份總結見docs/reviews/membership-eleven-summary-2026-10-23.md；不把程式或mock測試冒稱provider實際驗收。
+- [ ] 完成阻塞：會員Bot／私人頻道／VAPID／NOWPayments憑證與真實送達、sandbox invoice→IPN→UI及回放／不足額／退款、直接Worker Pro保護、通知自然排程、舊cron憑證輪換、本人登入驗收；正式未發布，宣傳CTA保持停用，全部驗收前禁止Publish。
 - [x] 21:30 HKT第四、第五、第六份可執行程式完成：392項測試與159次全站矩陣通過、build OK；本人通知設定儲存→刷新→還原、320／390／1280愛駒頁及管理員通知面板已核；未授權job401，授權只安全略過／0匹，不能當真實通知送達。詳細見docs/reviews/member-notifications-2026-10-23.md；會員Bot／VAPID／正式自然排程／真實裝置送達仍待條件，不發布。第七份NOWPayments不在本輪範圍。
 - [x] 插入優先工作：只改racing-dividends job及細helper／旁邊測試；單輪3秒重試、兩輪失敗告警、6小時去重／錯誤改變、恢復通知、外層job告警；不改解析器、認證、排程、凍結或帳本。新增18項helper／job流程測試，全套322項通過、build OK；package無test指令，npm test未能執行，改用bunx vitest run，未改package。未發布；會員分級仍未齊，保留禁止Publish。
 - [x] 1a／1b：會員設定、管理員讀寫、不可逆開閘確認及動態門檻已核對；真實登入儲存後讀回門檻200、愛駒上限30／3／90不變，未開閘。資料庫設定已讀回核實；未發布。
@@ -13,7 +15,8 @@
 - [x] 5a／5b程式及資料表：PWA無離線快取、Web Crypto aes128gcm推送、最多10裝置／每小時5次測試、失效410刪除、明確raceday_enabled=false選擇、已核實final通知／會員race1與Pro全日分層；同場／同帳戶去重與失敗重試。
 - [ ] 5a／5b啟用驗收：缺VAPID_PUBLIC_KEY、VAPID_PRIVATE_KEY、VAPID_SUBJECT及真實iPhone主畫面送達；正式未發布，五分鐘收賽日排程不提早啟動，宣傳CTA仍不啟用。
 - [x] 6前端清理：移除舊日／月方案及過時頻道資格假資料，改免費／Pro週費／創始／加密52週及telegramLinked；Stripe每週HK$78與portal不改，Crypto方案按原文先隱藏等第七份。後端舊/api/membership 410及/pro轉址為另一倉既有工作，未以本輪前端清理冒稱驗證。
-- [ ] 7：US$416／52週約HK$3,245（較逐週便宜）及sandbox付款；NOWPayments憑證尚未提供，不在本輪範圍。
+- [x] 原Part7（實際第十一段）US$416／52週約HK$3,245程式及owner/RLS／原子付款紀錄已接；較逐週便宜、本人紀錄及管理员原因操作已建，收款停用。
+- [ ] 第十一段sandbox實際付款驗收：缺NOWPayments憑證，未建立真實invoice或處理真實IPN，不開賣。
 - [ ] 文件／GitHub同步及全流程驗收；所有段落完成前禁止Publish。
 
 現行藍圖：docs/blueprint/tianxi-racing-blueprint-2026-10-13.md。此前詳細紀錄保留於同目錄 roadmap-history-before-racing-pivot-2026-10-13.md，唔再作現行待辦。
@@ -251,7 +254,7 @@
 - [x] GA4 補記 Google 登入同驗證電郵入站（2026-10-17）
 - [x] 預測與賽果分享圖、首 500 會員分享圖、導航「排位」改「賽程」（2026-10-17）
 - [x] 監控斷線誤報過濾、預測後備 workflow 修復（2026-10-17）
-- [x] 清理開發者日誌過時字眼（舊月費／季費、Whop、Telegram VIP）＋監控端會員頁移除 Whop 假資料面板（2026-10-17）
+- [x] 2026-10-23會籍清理：退役舊日／月產品與旧頻道身份假資料，現行只保留免費、每週Pro、創始Pro、加密52週及Telegram已連結；後端退役另倉核實，不以文字修改冒稱已部署。
 - [ ] GitHub tianxi-frontend 倉庫改名＋簡介改為只描述現行項目（唔提足球六合彩暫停）
 
 - [x] 首頁加入「點解揀天喜」產品優勢段（數據管道＋模型閘＋公開可驗證軌跡）

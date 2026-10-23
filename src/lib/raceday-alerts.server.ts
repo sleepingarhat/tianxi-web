@@ -4,13 +4,15 @@ import {tgRetry} from './telegram.server';
 import {vapidConfig} from './webpush.server';
 import {deliverEventPush,renewNotificationLease} from './notification-delivery.server';
 export async function runRacedayAlerts(){
-  const lockResponse=await fetch('https://tianxi-backend.tianxi-entertainment.workers.dev/api/analyze/lock-state',{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!lockResponse.ok)throw new Error('lock_unavailable');const lock=await lockResponse.json() as {locked?:boolean;edition?:string;date?:string;venue?:string};if(!lock.locked || lock.edition!=='final')return {skipped:'not_final'};
+  const {supabaseAdmin:monitor}=await import('@/integrations/supabase/client.server');
+  const skip=async(reason:string)=>{const r=await monitor.from('watch_job_runs').insert({kind:'raceday',error:reason,finished_at:new Date().toISOString()});if(r.error)throw new Error('run_record_failed');return {skipped:reason};};
+  const lockResponse=await fetch('https://tianxi-backend.tianxi-entertainment.workers.dev/api/analyze/lock-state',{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!lockResponse.ok)return skip('unavailable');const lock=await lockResponse.json() as {locked?:boolean;edition?:string;date?:string;venue?:string};if(lock.edition==='unavailable')return skip('unavailable');if(!lock.locked || lock.edition!=='final')return skip('not_final');
   const {fetchTodayPicksUpstream}=await import('./picks.functions');const day=await fetchTodayPicksUpstream() as import('./racing-shapes').DayPicks;
-  if(day.date!==lock.date || day.venue!==lock.venue || !raceAlertLines(day,true))return {skipped:'unavailable'};
+  if(day.date!==lock.date || day.venue!==lock.venue || !raceAlertLines(day,true))return skip('unavailable');
   const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');const owner=crypto.randomUUID();const lease=await db.rpc('acquire_notification_job',{k:'raceday',oid:owner});if(lease.error)throw new Error('lease_unavailable');if(!lease.data)return {skipped:'running'};
   const counts={new_rows:0,tg_sent:0,tg_failed:0,push_sent:0,push_failed:0};
   const renew=()=>renewNotificationLease('raceday',owner);
-  const run=await db.from('watch_job_runs').insert({kind:'raceday'}).select('id').single();let error:string|null=null;
+  const run=await db.from('watch_job_runs').insert({kind:'raceday'}).select('id').single();if(run.error){await db.from('notification_job_leases').delete().eq('key','raceday').eq('owner',owner);throw new Error('run_record_failed');}let error:string|null=null;
   try{
     const prefs=await db.from('notification_prefs').select('*').eq('raceday_enabled',true);if(prefs.error)throw new Error('prefs_unavailable');
     for(const pref of prefs.data){await renew();const info=await jobMembership(pref.user_id);const lines=raceAlertLines(day,info.hasPro);if(!lines)continue;const key=`raceday:${day.date}:${day.venue}:final`;

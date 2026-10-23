@@ -19,7 +19,9 @@ export async function loadUserTier(client: SupabaseClient<Database>, userId: str
     client.from("app_settings").select("key,value").in("key",["watch_limit_free_stage","watch_limit_registered","watch_limit_pro"]),
   ]);
   if (sub.error || admin.error || settings.error) throw new Error("暫時未能核實會員權限");
-  const entitlement = resolveEntitlement({ rank: row.rank, total: row.total, gateOpenAt: row.gate_open_at, threshold: row.threshold, foundingSlots: row.founding_slots, subscription: sub.data as SubRow | null });
+  const cryptoPass = await client.rpc('crypto_pass_until',{uid:userId,env:environment});
+  if(cryptoPass.error)throw new Error('暫時未能核實通行證');
+  const entitlement = resolveEntitlement({ rank: row.rank, total: row.total, gateOpenAt: row.gate_open_at, threshold: row.threshold, foundingSlots: row.founding_slots, subscription: sub.data as SubRow | null, cryptoPassUntil:cryptoPass.data });
   const isAdmin = admin.data === true;
   const tier: Tier = isAdmin || entitlement.hasPro ? "pro" : "registered";
   const limitKey = !row.gate_open_at ? "free_stage" : tier === "pro" ? "pro" : "registered";

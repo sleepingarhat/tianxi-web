@@ -7,6 +7,7 @@ import { FreeStageRoadmap } from "@/components/tx/FreeStageRoadmap";
 import { Button } from "@/components/ui/button";
 import { FoundingMemberOffer } from "@/components/tx/FoundingMemberOffer";
 import { MembershipStatus } from "@/components/tx/MembershipStatus";
+import {CryptoPasses} from '@/components/tx/CryptoPasses';
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { FREE_STAGE_GOAL_MEMBERS, PRO_WEEKLY_PRICE_HKD } from "@/lib/freeStage";
 import { useFoundingInfo } from "@/lib/founding-info";
@@ -84,6 +85,7 @@ function MembershipPage() {
 
       <div className="space-y-6 py-5 [&>section]:my-0">
       <MembershipStatus />
+      <CryptoPasses offer />
       <Card title="全站功能權益" en="Pro access" action={<Pill tone="win">限時免費</Pill>}>
         <p className="mb-4 text-[13px] leading-relaxed text-ink-2">而家免費使用以下全部功能，權益等同 Pro；唔限每日一場，亦冇「不包括」嘅功能限制。</p>
         <dl className="divide-y divide-hairline">

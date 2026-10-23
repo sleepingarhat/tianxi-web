@@ -1,0 +1,8 @@
+ALTER TABLE public.watch_limit_state ADD COLUMN notice_pending_at timestamptz;
+CREATE OR REPLACE FUNCTION public.apply_watch_limits(uid uuid, lim integer) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE paused_count integer:=0; BEGIN
+IF lim<1 OR lim>90 THEN RAISE EXCEPTION 'Invalid watch limit'; END IF; PERFORM pg_advisory_xact_lock(hashtextextended(uid::text,3323));
+IF EXISTS(SELECT 1 FROM public.watch_limit_state WHERE user_id=uid AND applied_limit=lim) THEN RETURN; END IF;
+WITH ranked AS(SELECT horse_id,row_number() OVER(ORDER BY paused ASC,activated_at DESC,created_at DESC,horse_id) AS n FROM public.horse_watchlist WHERE user_id=uid), changed AS(UPDATE public.horse_watchlist w SET paused=(r.n>lim) FROM ranked r WHERE w.user_id=uid AND w.horse_id=r.horse_id AND w.paused IS DISTINCT FROM(r.n>lim) RETURNING w.paused) SELECT count(*) INTO paused_count FROM changed WHERE paused=true;
+INSERT INTO public.watch_limit_state(user_id,applied_limit,notice_pending_at) VALUES(uid,lim,CASE WHEN paused_count>0 THEN now() END) ON CONFLICT(user_id) DO UPDATE SET applied_limit=excluded.applied_limit,updated_at=now(),notice_pending_at=CASE WHEN paused_count>0 THEN now() ELSE public.watch_limit_state.notice_pending_at END;
+END $$;
+REVOKE ALL ON FUNCTION public.apply_watch_limits(uuid,integer) FROM PUBLIC,anon,authenticated; GRANT EXECUTE ON FUNCTION public.apply_watch_limits(uuid,integer) TO service_role;

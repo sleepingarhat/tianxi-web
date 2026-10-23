@@ -6,6 +6,8 @@ import { AdminHead, Kpi, NoteBox, Panel } from "@/components/admin/kit";
 import { FREE_STAGE_GOAL_MEMBERS, freeStageProgress } from "@/lib/freeStage";
 import { getMemberAccountStats, listAdminMembers, setTestAccount, type AdminMemberRow } from "@/lib/members.functions";
 import { useFoundingInfo } from "@/lib/founding-info";
+import {CryptoPassPanel} from '@/components/admin/CryptoPassPanel';
+import {Tabs,TabsList,TabsTrigger,TabsContent} from '@/components/ui/tabs';
 
 export const Route = createFileRoute("/_authenticated/admin/users-membership")({
   head: () => ({ meta: [{ title: "會員 · 天喜監控端" }, { name: "description", content: "會員 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:title", content: "會員 · 天喜監控端" }, { property: "og:description", content: "會員 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -75,7 +77,7 @@ function Members() {
         </p>
       </Panel>
 
-      <MemberList threshold={threshold} />
+      <Tabs defaultValue="members" className="mt-4"><TabsList><TabsTrigger value="members">註冊會員</TabsTrigger><TabsTrigger value="crypto">加密貨幣</TabsTrigger></TabsList><TabsContent value="members"><MemberList threshold={threshold} /></TabsContent><TabsContent value="crypto"><CryptoPassPanel /></TabsContent></Tabs>
 
     </>
   );

@@ -97,6 +97,7 @@ import { Route as ApiPublicJobsRacingDividendsRouteImport } from './routes/api/p
 import { Route as ApiPublicJobsRacingResultsRouteImport } from './routes/api/public/jobs/racing-results'
 import { Route as ApiPublicJobsTelegramProSweepRouteImport } from './routes/api/public/jobs/telegram-pro-sweep'
 import { Route as ApiPublicJobsTrackRecordSummaryRouteImport } from './routes/api/public/jobs/track-record-summary'
+import { Route as ApiPublicPaymentsCryptoIpnRouteImport } from './routes/api/public/payments/crypto-ipn'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -569,6 +570,12 @@ const ApiPublicJobsTrackRecordSummaryRoute =
     path: '/api/public/jobs/track-record-summary',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsCryptoIpnRoute =
+  ApiPublicPaymentsCryptoIpnRouteImport.update({
+    id: '/api/public/payments/crypto-ipn',
+    path: '/api/public/payments/crypto-ipn',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -680,6 +687,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
+  '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -772,6 +780,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
+  '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -867,6 +876,7 @@ export interface FileRoutesById {
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
   '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
+  '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -962,6 +972,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
+    | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
@@ -1054,6 +1065,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
+    | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
@@ -1148,6 +1160,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/racing-results'
     | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
+    | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
@@ -1229,6 +1242,7 @@ export interface RootRouteChildren {
   ApiPublicJobsRacingResultsRoute: typeof ApiPublicJobsRacingResultsRoute
   ApiPublicJobsTelegramProSweepRoute: typeof ApiPublicJobsTelegramProSweepRoute
   ApiPublicJobsTrackRecordSummaryRoute: typeof ApiPublicJobsTrackRecordSummaryRoute
+  ApiPublicPaymentsCryptoIpnRoute: typeof ApiPublicPaymentsCryptoIpnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1853,6 +1867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsTrackRecordSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/crypto-ipn': {
+      id: '/api/public/payments/crypto-ipn'
+      path: '/api/public/payments/crypto-ipn'
+      fullPath: '/api/public/payments/crypto-ipn'
+      preLoaderRoute: typeof ApiPublicPaymentsCryptoIpnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -2007,6 +2028,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsRacingResultsRoute: ApiPublicJobsRacingResultsRoute,
   ApiPublicJobsTelegramProSweepRoute: ApiPublicJobsTelegramProSweepRoute,
   ApiPublicJobsTrackRecordSummaryRoute: ApiPublicJobsTrackRecordSummaryRoute,
+  ApiPublicPaymentsCryptoIpnRoute: ApiPublicPaymentsCryptoIpnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

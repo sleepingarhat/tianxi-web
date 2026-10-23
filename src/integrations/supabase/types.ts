@@ -53,6 +53,66 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_passes: {
+        Row: {
+          actually_paid: number | null
+          admin_note: string | null
+          created_at: string
+          environment: string
+          id: string
+          invoice_id: string | null
+          last_ipn: Json | null
+          paid_at: string | null
+          pay_currency: string | null
+          payment_id: string | null
+          price_usd: number
+          status: string
+          updated_at: string
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+          weeks: number
+        }
+        Insert: {
+          actually_paid?: number | null
+          admin_note?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          invoice_id?: string | null
+          last_ipn?: Json | null
+          paid_at?: string | null
+          pay_currency?: string | null
+          payment_id?: string | null
+          price_usd: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          valid_from?: string | null
+          valid_until?: string | null
+          weeks?: number
+        }
+        Update: {
+          actually_paid?: number | null
+          admin_note?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          invoice_id?: string | null
+          last_ipn?: Json | null
+          paid_at?: string | null
+          pay_currency?: string | null
+          payment_id?: string | null
+          price_usd?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          weeks?: number
+        }
+        Relationships: []
+      }
       football_dual_ledger: {
         Row: {
           away: string
@@ -1160,16 +1220,19 @@ export type Database = {
       watch_limit_state: {
         Row: {
           applied_limit: number
+          notice_pending_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           applied_limit: number
+          notice_pending_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           applied_limit?: number
+          notice_pending_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1292,12 +1355,17 @@ export type Database = {
         Args: { k: string; oid: string }
         Returns: boolean
       }
+      admin_crypto_action: {
+        Args: { action: string; note: string; pid: string }
+        Returns: undefined
+      }
       admin_member_list: { Args: never; Returns: Json }
       admin_open_gate_now: { Args: never; Returns: Json }
       admin_set_test_account: {
         Args: { _is_test: boolean; _user_id: string }
         Returns: undefined
       }
+      apply_crypto_ipn: { Args: { env: string; payload: Json }; Returns: Json }
       apply_watch_limits: {
         Args: { lim: number; uid: string }
         Returns: undefined
@@ -1320,6 +1388,7 @@ export type Database = {
         Args: { hash: string; uid: string }
         Returns: undefined
       }
+      crypto_pass_until: { Args: { env: string; uid: string }; Returns: string }
       founding_cap: { Args: never; Returns: number }
       has_role: {
         Args: {
@@ -1366,6 +1435,10 @@ export type Database = {
       renew_racing_prelock: {
         Args: { _date: string; _token: string }
         Returns: boolean
+      }
+      reserve_crypto_checkout: {
+        Args: { amount: number; duration: number; env: string; uid: string }
+        Returns: string
       }
       reserve_push_test: { Args: { uid: string }; Returns: undefined }
       reserve_telegram_invite: { Args: { uid: string }; Returns: number }

@@ -274,6 +274,20 @@
       "when": 1792761793823,
       "tag": "0038_notification_delivery_owner_and_lease_safety",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1792766756759,
+      "tag": "0039_crypto_passes_atomic_payment_ledger",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792766970624,
+      "tag": "0040_durable_watch_limit_notices",
+      "breakpoints": true
     }
   ]
 }
