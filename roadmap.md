@@ -17,7 +17,8 @@
 - [x] 6前端清理：移除舊日／月方案及過時頻道資格假資料，改免費／Pro週費／創始／加密52週及telegramLinked；Stripe每週HK$78與portal不改，Crypto方案按原文先隱藏等第七份。後端舊/api/membership 410及/pro轉址為另一倉既有工作，未以本輪前端清理冒稱驗證。
 - [x] 原Part7（實際第十一段）US$416／52週約HK$3,245程式及owner/RLS／原子付款紀錄已接；較逐週便宜、本人紀錄及管理员原因操作已建，收款停用。
 - [ ] 第十一段sandbox實際付款驗收：缺NOWPayments憑證，未建立真實invoice或處理真實IPN，不開賣。
-- [ ] 文件／GitHub同步及全流程驗收；所有段落完成前禁止Publish。
+- [x] 十一份總結、blueprint、AGENTS、開發者日誌及GitHub未發布草稿已同步；411項測試通過，build OK；正式main未更新。
+- [ ] 全流程驗收：等本人登入及上述外部設定／直接Worker授權／自然排程核實；所有段落完成前禁止Publish。
 
 現行藍圖：docs/blueprint/tianxi-racing-blueprint-2026-10-13.md。此前詳細紀錄保留於同目錄 roadmap-history-before-racing-pivot-2026-10-13.md，唔再作現行待辦。
 
