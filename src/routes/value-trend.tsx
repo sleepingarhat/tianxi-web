@@ -1,5 +1,7 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { Card, Disclaimer, ErrorNote, Loading, PageHead, Pill, Scroller, Stat, StatGrid, Table, Td } from "@/components/tx/ui";
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/value-trend")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ValueTrendPage,
+  component: () => <FeaturePageGate min="pro" title="值博長期走勢"><ValueTrendPage /></FeaturePageGate>,
 });
 
 const money = (v: number) => `${v >= 0 ? "+" : "−"}$${Math.abs(Math.round(v)).toLocaleString()}`;
@@ -42,7 +44,8 @@ function Chart({ rows }: { rows: ValueDay[] }) {
 }
 
 function ValueTrendPage() {
-  const q = useQuery({ queryKey: ["value-trend"], queryFn: () => getValueTrend(), staleTime: 600_000 });
+  const read = useServerFn(getValueTrend);
+  const q = useQuery({ queryKey: ["value-trend"], queryFn: () => read(), staleTime: 600_000 });
   const rows = q.data?.days ?? [];
   const t = rows.reduce((s, r) => ({ n: s.n + r.pos_n, w: s.w + r.pos_wins, m: s.m + r.pos_exp_mk, e: s.e + r.pos_exp_model, p: s.p + r.pos_pnl }), { n: 0, w: 0, m: 0, e: 0, p: 0 });
   return (

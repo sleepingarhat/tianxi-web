@@ -1,3 +1,6 @@
+import { useTier } from "@/lib/useTier";
+import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
+import { projectRacePicks } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -44,6 +47,7 @@ export const Route = createFileRoute("/race")({
 });
 
 function RacePage() {
+  const tier = useTier();
   const { id } = Route.useSearch();
   const raceId = canonicalRaceId(id);
   const { data: initial } = useSuspenseQuery(racePageQuery(raceId));
@@ -113,7 +117,7 @@ function RacePage() {
   const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
   const horses: any[] = d?.horses || d?.entries || [];
   // 引擎首選：只用已核實凍結／全日預測（同日同馬場），唔會用舊後端即時預測
-  const dayRacePicks = racePicksFromDay(dayPicks.data, raceDate, venueCode, raceNumber);
+  const dayRacePicks = projectRacePicks(racePicksFromDay(dayPicks.data, raceDate, venueCode, raceNumber), tier.tier);
   const pickRank = new Map<number, number>();
   dayRacePicks.forEach((p: any) => pickRank.set(Number(p.horseNumber), Number(p.rank)));
   const hasResult = horses.some((h) => h.finishingPosition);
@@ -215,7 +219,7 @@ function RacePage() {
                 </span>
                 <span className="flex-1 truncate font-serif-tc text-[13px] font-bold">{p.nameCh}</span>
                 <span className="tabnum font-mono-tx text-[11px] text-ink-2">
-                  {p.pWin != null ? `${(p.pWin * 100).toFixed(1)}%` : "—"}
+                  {tier.has("registered") && p.pWin != null ? `${(p.pWin * 100).toFixed(1)}%` : "—"}
                 </span>
               </div>
             ))}
@@ -225,6 +229,7 @@ function RacePage() {
         )}
       </Card>
 
+      {!tier.loading && !tier.has("pro") ? <UpgradeCard need={tier.has("registered") ? "pro" : "registered"} feature={tier.has("registered") ? "完整引擎排名及機率" : "每場引擎首選及機率"} /> : null}
       <Disclaimer />
     </AppShell>
   );

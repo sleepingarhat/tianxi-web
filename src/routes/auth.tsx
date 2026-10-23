@@ -7,9 +7,13 @@ import { Card, PageHead } from "@/components/tx/ui";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
+import { safeAuthNext } from "@/lib/auth-next";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup" } => search["mode"] === "signup" ? { mode: "signup" } : {},
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string } => {
+    const next = safeAuthNext(search["next"]);
+    return { ...(search["mode"] === "signup" ? { mode: "signup" as const } : {}), ...(next ? { next } : {}) };
+  },
   head: () => ({
     meta: [
       { title: "帳戶登入 · 天喜 TIANXI" },
@@ -54,6 +58,9 @@ function AuthPage() {
     const { data } = await supabase.auth.getUser();
     const userId = data.user?.id;
     if (!userId) return;
+    const next = safeAuthNext(search.next ?? sessionStorage.getItem("tx_auth_next"));
+    sessionStorage.removeItem("tx_auth_next");
+    if (next) { window.location.assign(next); return; }
     const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
     await router.navigate({ to: isAdmin ? "/admin" : "/membership" });
   }
@@ -135,6 +142,7 @@ function AuthPage() {
     setMsg(null);
     setGoogleBusy(true);
     sessionStorage.setItem("tx_oauth_pending", "google");
+    if (search.next) sessionStorage.setItem("tx_auth_next", search.next);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: `${window.location.origin}/auth`,

@@ -1,5 +1,7 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { AppShell } from "@/components/tx/AppShell";
@@ -18,15 +20,17 @@ export const Route = createFileRoute("/engine/backtest")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: BacktestPage,
+  component: () => <FeaturePageGate min="registered" title="訓練數據與回測"><BacktestPage /></FeaturePageGate>,
 });
 
 const fmt = (key: string, v: number) => (key === "top4" ? v.toFixed(2) : `${(v * 100).toFixed(1)}%`);
 
 function BacktestPage() {
+  const readBacktest = useServerFn(getRacingBacktest);
+  const readTraining = useServerFn(getRacingTrainingData);
   const [days, setDays] = useState<90 | 180 | 365>(180);
-  const bt = useQuery({ queryKey: ["racing-backtest", days], queryFn: () => getRacingBacktest({ data: { days } }), staleTime: 600_000 });
-  const tr = useQuery({ queryKey: ["racing-training"], queryFn: () => getRacingTrainingData(), staleTime: 3600_000 });
+  const bt = useQuery({ queryKey: ["racing-backtest", days], queryFn: () => readBacktest({ data: { days } }), staleTime: 600_000 });
+  const tr = useQuery({ queryKey: ["racing-training"], queryFn: () => readTraining(), staleTime: 3600_000 });
   const stats = useDataStats();
   const d = bt.data;
   const top4 = d?.metrics.find((m) => m.key === "top4");

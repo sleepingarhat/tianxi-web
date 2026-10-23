@@ -5,6 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdminHead, Kpi, NoteBox, Panel } from "@/components/admin/kit";
 import { FREE_STAGE_GOAL_MEMBERS, freeStageProgress } from "@/lib/freeStage";
 import { getMemberAccountStats, listAdminMembers, setTestAccount, type AdminMemberRow } from "@/lib/members.functions";
+import { useFoundingInfo } from "@/lib/founding-info";
 
 export const Route = createFileRoute("/_authenticated/admin/users-membership")({
   head: () => ({ meta: [{ title: "會員 · 天喜監控端" }, { name: "description", content: "會員 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:title", content: "會員 · 天喜監控端" }, { property: "og:description", content: "會員 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -12,6 +13,8 @@ export const Route = createFileRoute("/_authenticated/admin/users-membership")({
 });
 
 function Members() {
+  const founding = useFoundingInfo();
+  const threshold = founding.data?.threshold ?? FREE_STAGE_GOAL_MEMBERS;
   const fetchStats = useServerFn(getMemberAccountStats);
   const stats = useQuery({
     queryKey: ["member-account-stats"],
@@ -21,26 +24,25 @@ function Members() {
   });
 
   const total = stats.data?.total ?? null;
-  const pct = total == null ? null : freeStageProgress(total);
-  const remaining = total == null ? null : Math.max(0, FREE_STAGE_GOAL_MEMBERS - total);
+  const pct = total == null ? null : freeStageProgress(total, threshold);
+  const remaining = total == null ? null : Math.max(0, threshold - total);
 
   return (
     <>
       <AdminHead
         title="會員"
         en="Users & Membership"
-        desc="登記帳戶人數同免費階段門檻進度；收費未開放，付款流程已接駁（Stripe）。"
+        desc="真實登記帳戶人數、收費閘及創始名額進度。"
       />
       <NoteBox tone="gold">
-        免費階段：會籍同付款未開放，現階段唔收款。
-        下面「登記帳戶」係真實人數，免費會員累積 {FREE_STAGE_GOAL_MEMBERS.toLocaleString()} 人先開始收費同推出 iOS App。
+        {founding.data?.gate_open ? `收費閘已開；創始名額已鎖定為 ${founding.data.founding_slots} 名。` : `免費階段：現階段唔收款。真實會員累積 ${threshold.toLocaleString()} 人開閘，創始名額會同時鎖定。`}
       </NoteBox>
 
       <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi
           label="登記帳戶"
           value={stats.isLoading ? "—" : total == null ? "讀取失敗" : total.toLocaleString()}
-          sub={`目標 ${FREE_STAGE_GOAL_MEMBERS.toLocaleString()} 人${stats.data?.tests ? `・已剔除 ${stats.data.tests} 個測試帳號` : ""}`}
+          sub={`目標 ${threshold.toLocaleString()} 人${stats.data?.tests ? `・已剔除 ${stats.data.tests} 個測試帳號` : ""}`}
           tone="gold"
         />
         <Kpi label="已驗證電郵" value={stats.data ? stats.data.confirmed.toLocaleString() : "—"} />
@@ -54,7 +56,7 @@ function Members() {
       <Panel title="免費階段進度" en="Free stage → goal" className="mt-4">
         <div className="flex items-end justify-between gap-2">
           <p className="font-serif-tc text-[13px] font-bold text-ink">
-            {total == null ? "—" : total.toLocaleString()} / {FREE_STAGE_GOAL_MEMBERS.toLocaleString()} 人
+            {total == null ? "—" : total.toLocaleString()} / {threshold.toLocaleString()} 人
           </p>
           <p className="font-mono-tx text-[11px] font-bold text-gold">{pct == null ? "—" : `${pct}%`}</p>
         </div>
@@ -73,7 +75,7 @@ function Members() {
         </p>
       </Panel>
 
-      <MemberList />
+      <MemberList threshold={threshold} />
 
     </>
   );
@@ -81,7 +83,7 @@ function Members() {
 
 const fmt = (v: string | null) => (v ? new Date(v).toLocaleString("zh-HK", { dateStyle: "short", timeStyle: "short" }) : "—");
 
-function MemberList() {
+function MemberList({ threshold }: { threshold: number }) {
   const qc = useQueryClient();
   const fetchList = useServerFn(listAdminMembers);
   const mark = useServerFn(setTestAccount);
@@ -91,13 +93,16 @@ function MemberList() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-member-list"] });
       qc.invalidateQueries({ queryKey: ["member-account-stats"] });
+      qc.invalidateQueries({ queryKey: ["founding-info"] });
+      qc.invalidateQueries({ queryKey: ["tier"] });
+      qc.invalidateQueries({ queryKey: ["admin", "membership-settings"] });
     },
   });
   const rows = list.data ?? [];
   return (
     <Panel title="註冊帳戶清單" en="Accounts · admin only" className="mt-4">
       <p className="mb-3 text-[11px] leading-relaxed text-ink-3">
-        只限管理員睇到。標記為「測試」嘅帳號唔計入登記人數同 {FREE_STAGE_GOAL_MEMBERS} 人門檻，亦唔佔創始會員名額；隨時可以取消標記。
+        只限管理員睇到。標記為「測試」嘅帳號唔計入登記人數同 {threshold} 人門檻，亦唔佔創始會員名額；隨時可以取消標記。
       </p>
       {list.isLoading ? <p className="py-4 text-center text-[12px] text-ink-3">讀取中…</p> : null}
       {list.isError ? <p className="py-4 text-center text-[12px] text-lose">{(list.error as Error).message}</p> : null}

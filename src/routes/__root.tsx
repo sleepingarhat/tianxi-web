@@ -16,6 +16,8 @@ import { isArchivedProductPath } from "@/lib/product-scope";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { TierPreviewProvider } from "@/components/tx/gates/TierPreview";
 
 function NotFoundComponent() {
   return (
@@ -139,11 +141,23 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange(event => {
+      if (event === "SIGNED_OUT") {
+        queryClient.removeQueries({ queryKey: ["tier"] });
+        queryClient.removeQueries({ queryKey: ["my-membership"] });
+      } else if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        void queryClient.invalidateQueries({ queryKey: ["tier"] });
+        void queryClient.invalidateQueries({ queryKey: ["my-membership"] });
+      }
+    });
+    return () => data.subscription.unsubscribe();
+  }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <TierPreviewProvider><Outlet /></TierPreviewProvider>
       <GoogleAnalytics />
       <Toaster position="top-center" />
     </QueryClientProvider>

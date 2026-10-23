@@ -1,3 +1,6 @@
+import { useTier } from "@/lib/useTier";
+import { UpgradeCard } from "./gates/UpgradeCard";
+import { projectMeetingDates } from "@/lib/tier-projection";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -18,23 +21,26 @@ function download(rows: object[], name: string) {
   const link = document.createElement("a"); link.href = url; link.download = name; link.click(); URL.revokeObjectURL(url);
 }
 export function RacingEvidenceBrowser({ mode }: { mode: "prediction" | "elo" }) {
+  const tier = useTier();
   const readDates = useServerFn(getReconciliationDates);
   const readPredictions = useServerFn(getPredictionReconciliation);
   const readElo = useServerFn(getEloDailyLog);
   const dates = useQuery({ queryKey: ["reconciliation-dates"], queryFn: () => readDates(), staleTime: 300_000 });
   const [selected, setSelected] = useState("");
   const [entity, setEntity] = useState<"horse" | "jockey" | "trainer">("horse");
-  const date = selected || dates.data?.days?.[0]?.date || "";
-  const predictions = useQuery({ queryKey: ["prediction-reconciliation", date], queryFn: () => readPredictions({ data: { date } }), enabled: mode === "prediction" && Boolean(date), staleTime: 300_000 });
-  const elo = useQuery({ queryKey: ["elo-daily-log", date], queryFn: () => readElo({ data: { date } }), enabled: mode === "elo" && Boolean(date), staleTime: 300_000 });
+  const visibleDays = projectMeetingDates(dates.data?.days ?? [], tier.tier, new Date(Date.now()+8*3600_000).toISOString().slice(0,10));
+  const date = (tier.has("registered") ? selected : "") || visibleDays[0]?.date || "";
+  const predictions = useQuery({ queryKey: ["prediction-reconciliation", date], queryFn: () => readPredictions({ data: { date } }), enabled: !tier.loading && mode === "prediction" && Boolean(date), staleTime: 300_000 });
+  const elo = useQuery({ queryKey: ["elo-daily-log", date], queryFn: () => readElo({ data: { date } }), enabled: !tier.loading && mode === "elo" && Boolean(date), staleTime: 300_000 });
   const q = mode === "prediction" ? predictions : elo;
   const races = [...new Set(predictions.data?.rows.map(r => r.raceNumber) ?? [])];
   const eloRaces = [...new Set(elo.data?.rows.map(r => r.raceNumber) ?? [])].sort((a, b) => (a ?? 99) - (b ?? 99));
   const exportRows = mode === "prediction" ? predictions.data?.rows ?? [] : elo.data?.rows ?? [];
   return <>
+    {!tier.loading && !tier.has("registered") ? <UpgradeCard need="registered" feature="預測對賽果明細（全部賽日）" /> : null}
     <div className="mx-4 my-4 flex flex-wrap items-center gap-3">
       <label className="text-[12px] font-bold text-ink">賽馬日</label>
-      <Select value={date} onValueChange={setSelected}><SelectTrigger aria-label="賽馬日" className="w-44"><SelectValue placeholder="讀取賽馬日" /></SelectTrigger><SelectContent>{dates.data?.days.map(d => <SelectItem value={d.date} key={d.date}>{d.date}</SelectItem>)}</SelectContent></Select>
+      <Select value={date} onValueChange={setSelected} disabled={!tier.has("registered")}><SelectTrigger aria-label="賽馬日" className="w-44"><SelectValue placeholder="讀取賽馬日" /></SelectTrigger><SelectContent>{visibleDays.map(d => <SelectItem value={d.date} key={d.date}>{d.date}</SelectItem>)}</SelectContent></Select>
       <Button variant="outline" size="sm" disabled={!exportRows.length} onClick={() => download(exportRows, `tianxi-${mode}-${date}.csv`)}><Download className="mr-1 size-4" />下載原值 CSV</Button>
     </div>
     {dates.data?.truncated ? <p className="mx-4 mb-2 text-[11px] font-semibold text-gold">讀取上限提示：賽馬日選單只列最近 400 個有賽果嘅賽日，更早賽日未包括。</p> : null}

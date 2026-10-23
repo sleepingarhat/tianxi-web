@@ -2,11 +2,10 @@ import { Link } from "@tanstack/react-router";
 
 import { FREE_STAGE_GOAL_MEMBERS } from "@/lib/freeStage";
 import { Card, Pill } from "@/components/tx/ui";
+import { useFoundingInfo } from "@/lib/founding-info";
 
 /** 全站商業路線：免費階段 → 目標門檻 → 出 App 同收費。門檻由用戶拍板（2026-10-13），改動要同步藍圖／roadmap／dev-log。 */
-const GOAL_MEMBERS = FREE_STAGE_GOAL_MEMBERS;
-
-const STEPS: { id: string; name: string; state: "now" | "todo"; desc: string; tag: string }[] = [
+function roadmapSteps(GOAL_MEMBERS: number): { id: string; name: string; state: "now" | "todo"; desc: string; tag: string }[] { return [
   {
     id: "01",
     name: "而家：限時免費 Pro 功能",
@@ -28,16 +27,19 @@ const STEPS: { id: string; name: string; state: "now" | "todo"; desc: string; ta
     desc: "達標後先排 iOS App Store 上架，同時開啟付費方案。已鎖定嘅預測、公開對帳同歷史成績一律照舊免費、唔改數。",
     tag: "未開放",
   },
-];
+]; }
 
 export function FreeStageRoadmap() {
+  const { data } = useFoundingInfo();
+  const GOAL_MEMBERS = data?.threshold ?? FREE_STAGE_GOAL_MEMBERS;
+  const STEPS = roadmapSteps(GOAL_MEMBERS);
   return (
     <Card
       title="項目路線圖"
       en="Roadmap"
       action={
         <div className="flex flex-col items-end gap-2">
-          <Pill tone="win">全站免費中</Pill>
+          <Pill tone="win">{data?.gate_open ? "收費閘已開" : "全站免費中"}</Pill>
           <Link to="/membership" className="font-mono-tx text-[10px] font-bold text-gold hover:underline">
             睇方案 →
           </Link>

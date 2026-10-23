@@ -1,3 +1,6 @@
+import { useTier } from "@/lib/useTier";
+import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
+import { cardAccess } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/tx/AppShell";
@@ -23,6 +26,7 @@ export const Route = createFileRoute("/cards")({
 });
 
 function CardsPage() {
+  const tier = useTier();
   const tp = useTodayPicks();
   const races = tp.races;
   const venueName = tp.meeting?.venueName || (tp.venue === "HV" ? "跑馬地" : tp.venue === "ST" ? "沙田" : tp.venue || "");
@@ -56,6 +60,11 @@ function CardsPage() {
       ) : races.length ? (
         races.map((r: any) => {
           const start = cleanTime(r.startTime);
+          const access = cardAccess(tier.tier, Number(r.raceNumber));
+          if (access !== "full") return <Card key={r.raceNumber} title={`第 ${r.raceNumber} 場`} en={start || "開跑時間待定"}>
+            {tier.loading ? <Loading label="核對會籍中…" /> : access === "name" ? <p className="font-serif-tc font-bold text-ink">{r.picks?.[0]?.nameCh || "首選待定"}</p> : null}
+            {!tier.loading && <UpgradeCard inline need={access === "name" ? "pro" : "registered"} feature={access === "name" ? "全日逐場預測" : "其他場次首選"} />}
+          </Card>;
           const sub = effectiveTop4((r.picks ?? []).map((p: any) => ({ horseNumber: p.horseNumber, rank: p.rank, withdrawn: !!p.officialChange, announcedAtIso: p.officialChange?.announcedAtIso })), tp.engine?.lockAt);
           return (
             <Card

@@ -1,3 +1,5 @@
+import { TierGate } from "@/components/tx/gates/TierGate";
+import { explainTier } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/tx/AppShell";
@@ -126,6 +128,7 @@ function ExplainMeetingPage() {
   const { date } = Route.useParams();
   const { meeting: m, loading, error } = useExplainMeeting(date);
   const audit = useCoverageAudit();
+  const need = explainTier(date, new Date(Date.now()+8*3600_000).toISOString().slice(0,10), Boolean(m?.races.length && m.races.every(r => r.actualTop4.length >= 4)));
   const dates = audit.data?.meetings.map(m => m.date) ?? EXPLAIN_DATES;
 
   if (loading) {
@@ -180,6 +183,7 @@ function ExplainMeetingPage() {
         desc="每場列出已鎖凍結四揀同實際頭 4 名，綠框代表兩邊重疊。排名一律照凍結版本，呢頁唔會重算。"
       />
 
+      <TierGate min={need} feature={need === "pro" ? "賽前拆解" : "賽後拆解"} mode="lock">
       <Card title="賽日主尺" en="MEETING">
         <StatGrid cols={3}>
           <Stat label="平均中匹數" value={fixed(avg)} sub={`／4 · ${withOverlap.length} 場`} />
@@ -217,6 +221,7 @@ function ExplainMeetingPage() {
         </div>
       ))}
 
+      </TierGate>
       <Disclaimer extra="逐場覆蓋對帳只反映四揀同實際頭 4 嘅重疊，唔代表某匹馬勝出嘅原因；逐匹紅綠因子要等引擎倉以同一版凍結模型計好先會顯示。" />
     </AppShell>
   );

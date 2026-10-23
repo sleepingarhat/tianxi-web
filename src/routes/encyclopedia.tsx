@@ -1,3 +1,6 @@
+import { useTier } from "@/lib/useTier";
+import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
+import { projectMemberRows } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -31,6 +34,7 @@ export const Route = createFileRoute("/encyclopedia")({
 });
 
 function EncyclopediaPage() {
+  const tier = useTier();
   const [term, setTerm] = useState("");
   const [query, setQuery] = useState("");
   const [board, setBoard] = useState<"elo" | "wins" | "starts">("elo");
@@ -42,8 +46,8 @@ function EncyclopediaPage() {
     enabled: query.trim().length > 0,
   });
   const leaders = useQuery({
-    queryKey: ["horseLeaderboard", board, status],
-    queryFn: () => txApi.horseLeaderboard(board, 20, status),
+    queryKey: ["horseLeaderboard", board, status, tier.tier],
+    queryFn: () => txApi.horseLeaderboard(board, tier.has("registered") ? 1000 : 20, status),
   });
   const jockeys = useQuery({ queryKey: ["jockeys"], queryFn: () => txApi.jockeys() });
   const trainers = useQuery({ queryKey: ["trainers"], queryFn: () => txApi.trainers() });
@@ -86,7 +90,7 @@ function EncyclopediaPage() {
             <ErrorNote error={search.error} />
           ) : results.length ? (
             <div className="mt-2 divide-y divide-hairline">
-              {results.slice(0, 20).map((h: any) => (
+              {projectMemberRows(results, tier.tier).map((h: any) => (
                 <Link key={h.id} to="/horse" search={{ id: h.id }} className="flex items-center gap-2 py-2">
                   <span className="flex-1 truncate font-serif-tc text-[13px] font-bold">{h.nameCh || h.nameEn}</span>
                   <span className="tabnum font-mono-tx text-[10px] text-ink-3">{h.code}</span>
@@ -97,6 +101,7 @@ function EncyclopediaPage() {
             <Empty label="沒有符合的馬匹" />
           )
         ) : null}
+        {!tier.loading && !tier.has("registered") ? <UpgradeCard inline need="registered" feature="完整百科及排行榜" /> : null}
       </Card>
 
       <Card
@@ -130,7 +135,7 @@ function EncyclopediaPage() {
           <ErrorNote error={leaders.error} />
         ) : (
           <Table head={["馬名", "天喜Elo", "冠", "出", "勝率"]}>
-            {(leaders.data?.horses || []).map((h: any, i: number) => (
+            {projectMemberRows(leaders.data?.horses || [], tier.tier).map((h: any, i: number) => (
               <tr key={h.id} className={`border-b border-hairline ${i === 0 ? "bg-gold-bg/50" : ""}`}>
                 <Td first>
                   <Link to="/horse" search={{ id: h.id }} className="font-serif-tc font-bold">
@@ -145,6 +150,7 @@ function EncyclopediaPage() {
             ))}
           </Table>
         )}
+        {!tier.loading && !tier.has("registered") ? <UpgradeCard inline need="registered" feature="完整百科及排行榜" /> : null}
       </Card>
 
       <Card title="騎師榜" en="Jockeys">
@@ -152,7 +158,7 @@ function EncyclopediaPage() {
           <Loading />
         ) : (
           <Table head={["騎師", "出賽", "冠", "勝率", "前三率"]}>
-            {(jockeys.data?.jockeys || []).slice(0, 20).map((p: any, i: number) => (
+            {projectMemberRows(jockeys.data?.jockeys || [], tier.tier).map((p: any, i: number) => (
               <tr key={p.id} className={`border-b border-hairline ${i === 0 ? "bg-gold-bg/50" : ""}`}>
                 <Td first>
                   <span className="font-serif-tc font-bold">{p.nameCh}</span>
@@ -165,6 +171,7 @@ function EncyclopediaPage() {
             ))}
           </Table>
         )}
+        {!tier.loading && !tier.has("registered") ? <UpgradeCard inline need="registered" feature="完整百科及排行榜" /> : null}
       </Card>
 
       <Card title="練馬師榜" en="Trainers">
@@ -172,7 +179,7 @@ function EncyclopediaPage() {
           <Loading />
         ) : (
           <Table head={["練馬師", "出賽", "冠", "勝率"]}>
-            {(trainers.data?.trainers || []).slice(0, 20).map((p: any, i: number) => (
+            {projectMemberRows(trainers.data?.trainers || [], tier.tier).map((p: any, i: number) => (
               <tr key={p.id} className={`border-b border-hairline ${i === 0 ? "bg-gold-bg/50" : ""}`}>
                 <Td first>
                   <span className="font-serif-tc font-bold">{p.nameCh}</span>
@@ -184,6 +191,7 @@ function EncyclopediaPage() {
             ))}
           </Table>
         )}
+        {!tier.loading && !tier.has("registered") ? <UpgradeCard inline need="registered" feature="完整百科及排行榜" /> : null}
       </Card>
 
       <Disclaimer />

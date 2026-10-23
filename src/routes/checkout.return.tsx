@@ -5,6 +5,7 @@ import { PRO_WEEKLY_PRICE_HKD } from "@/lib/freeStage";
 import { AppShell } from "@/components/tx/AppShell";
 import { Card } from "@/components/tx/ui";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/checkout/return")({
   validateSearch: (s: Record<string, unknown>): { session_id?: string | undefined } => ({
@@ -26,6 +27,11 @@ export const Route = createFileRoute("/checkout/return")({
 
 function ReturnPage() {
   const { session_id } = Route.useSearch();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    void queryClient.invalidateQueries({ queryKey: ["tier"] });
+    void queryClient.invalidateQueries({ queryKey: ["my-membership"] });
+  }, [queryClient]);
   useEffect(() => {
     if (!session_id) return;
     const key = `tx_purchase_${session_id}`;

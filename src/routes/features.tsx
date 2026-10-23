@@ -1,3 +1,6 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
+import { featureReadDeadline } from "@/lib/feature-read-deadline";
+import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -27,7 +30,7 @@ export const Route = createFileRoute("/features")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: FeaturesPage,
+  component: () => <FeaturePageGate min="registered" title="特徵排序表"><FeaturesPage /></FeaturePageGate>,
 });
 
 function FeaturesPage() {
@@ -41,7 +44,8 @@ function FeaturesPage() {
 
   const list = useQuery({
     queryKey: ["featureRaces", date ?? "latest"],
-    queryFn: () => listFn({ data: { date } }),
+    queryFn: () => featureReadDeadline(listFn({ data: { date } })),
+    retry: false,
   });
 
   const races = list.data?.races ?? [];
@@ -49,7 +53,8 @@ function FeaturesPage() {
 
   const detail = useQuery({
     queryKey: ["featureRace", currentId],
-    queryFn: () => raceFn({ data: { raceId: currentId! } }),
+    queryFn: () => { if (!currentId) throw new Error("未有場次"); return featureReadDeadline(raceFn({ data: { raceId: currentId } })); },
+    retry: false,
     enabled: !!currentId,
   });
 
@@ -58,7 +63,7 @@ function FeaturesPage() {
   // 即時獨贏賠率：由馬會賠率源（後端 meetings API）補入，排位表本身冇賠率
   const oddsQ = useQuery({
     queryKey: ["meeting", race?.date],
-    queryFn: () => txApi.meeting(race!.date),
+    queryFn: () => { if (!race?.date) throw new Error("未有賽日"); return txApi.meeting(race.date); },
     enabled: !!race?.date,
     refetchInterval: 60_000,
   });
@@ -97,7 +102,7 @@ function FeaturesPage() {
         {list.isLoading ? (
           <Loading />
         ) : list.error ? (
-          <ErrorNote error={list.error} />
+          <><ErrorNote error={list.error} /><Button variant="outline" size="sm" onClick={() => void list.refetch()}>重新讀取</Button></>
         ) : (
           <div className="space-y-2">
             <div className="no-scrollbar flex gap-1 overflow-x-auto">
@@ -170,6 +175,7 @@ function FeaturesPage() {
       ) : detail.error ? (
         <div className="px-4">
           <ErrorNote error={detail.error} />
+          <Button variant="outline" size="sm" onClick={() => void detail.refetch()}>重新讀取</Button>
         </div>
       ) : horses.length ? (
         <>

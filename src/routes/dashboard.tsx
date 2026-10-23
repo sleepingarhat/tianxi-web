@@ -1,3 +1,6 @@
+import { TieredDayCards } from "@/components/tx/gates/TieredDayCards";
+import { useTier } from "@/lib/useTier";
+import { TierGate } from "@/components/tx/gates/TierGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -43,6 +46,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
+  const tier = useTier();
   const [board, setBoard] = useState<"elo" | "wins" | "starts">("elo");
   const [people, setPeople] = useState<"jockeys" | "trainers">("jockeys");
 
@@ -59,7 +63,7 @@ function DashboardPage() {
   });
   const rollup = useQuery({ queryKey: ["rollup", 90], queryFn: () => txApi.hitRateRollup(90) });
   const long = useQuery({ queryKey: ["rollup", 365], queryFn: () => txApi.hitRateRollup(365) });
-  const pnl = useQuery({ queryKey: ["strategyPnl", "dashboard"], queryFn: () => txApi.strategyPnl() });
+  const pnl = useQuery({ queryKey: ["strategyPnl", "dashboard"], enabled: tier.has("pro"), queryFn: () => txApi.strategyPnl() });
 
   const leaderboard = useQuery({
     queryKey: ["horseLeaderboard", board],
@@ -105,6 +109,7 @@ function DashboardPage() {
     >
       <PageHead en="TX-ORACLE · HORSE RACING" title="天喜賽馬引擎" desc="當前賽馬日、引擎首選與長期表現指標。" />
 
+      <TierGate min="registered" feature="引擎儀表板" mode="lock">
       {/* 主指標概覽 */}
       <div className="px-4 pt-3">
         <BeamCard className="p-3">
@@ -311,86 +316,9 @@ function DashboardPage() {
 
       <CloseGapPanel />
 
-      <Card
-        title="賽日流程"
-        en="Race Timeline"
-        action={
-          <Link to="/predictor" className="text-[11px] font-bold text-gold">
-            選馬 →
-          </Link>
-        }
-      >
-        {todayPicks.isLoading ? (
-          <Loading />
-        ) : races.length ? (
-          <Timeline
-            items={races.map((r) => {
-              const top = (r.picks || [])[0];
-              return {
-                key: String(r.raceNumber),
-                time: r.startTime,
-                tone: "gold" as const,
-                title: `R${r.raceNumber} · ${top?.horseNumber ?? "—"} ${top?.nameCh || "—"}`,
-                sub: `${r.distance}m · 場質${r.raceQuality?.tier || "—"} · 勝算${pct(top?.pWin)} · ${top?.jockeyCh || "—"}`,
-              };
-            })}
-          />
-        ) : (
-          <Empty label="今日尚無預測" />
-        )}
-      </Card>
+      </TierGate>
 
-      <Card
-        title="引擎首選"
-        en="Top Picks"
-        action={
-          <Link to="/predictor" className="text-[11px] font-bold text-gold">
-            選馬 →
-          </Link>
-        }
-      >
-        {todayPicks.isLoading ? (
-          <Loading />
-        ) : todayPicks.error ? (
-          <ErrorNote error={todayPicks.error} />
-        ) : races.length ? (
-          <div className="divide-y divide-hairline">
-            {races.map((r) => {
-              const top = (r.picks || [])[0];
-              return (
-                <div key={r.raceNumber} className="grid grid-cols-[1.75rem_2.5rem_minmax(0,1fr)_3.25rem] items-center gap-1.5 border-b border-hairline py-2.5 last:border-b-0 sm:gap-2.5">
-                  <span className="tabnum font-mono-tx text-[13px] font-bold text-gold">R{r.raceNumber}</span>
-                  <span className="grid h-10 w-10 place-items-center">
-                    {top ? <Silks source={top} size={38} className="shadow-sm" /> : null}
-                  </span>
-
-                  <span className="block min-w-0 overflow-hidden">
-                    <span className="flex min-w-0 items-center gap-1.5">
-                      <span className="tabnum grid h-7 w-7 shrink-0 place-items-center rounded-[4px] bg-deep font-mono-tx text-[12px] font-bold text-deep-fg">
-                        {top?.horseNumber ?? "—"}
-                      </span>
-                      <span className="min-w-0 truncate font-serif-tc text-[15px] font-bold">{top?.nameCh || "—"}</span>
-                    </span>
-                    <span className="tabnum mt-1 flex flex-wrap gap-x-1.5 font-mono-tx text-[9px] leading-tight text-ink-3">
-                      <span>勝算{pct(top?.pWin)}</span><span>三甲{pct(top?.pTop3)}</span><span>前四{pct(top?.pTop4)}</span>
-                    </span>
-                    <span className="mt-1 block truncate text-[10px] leading-tight text-ink-2" title={top?.jockeyCh || undefined}>騎師 · {top?.jockeyCh || "—"}</span>
-                    <TxBar ratio={Number(top?.pWin) || 0} tone="gold" height={3} className="mt-1" min={3} />
-                  </span>
-                  <span className="tabnum text-right font-mono-tx text-[10px] text-ink-3">
-                    {r.distance}m
-                    <br />
-                    場質{r.raceQuality?.tier || "—"}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <Empty label="今日尚無預測" />
-        )}
-      </Card>
-
+      <TieredDayCards />
 
       <Card title="滾動表現" en="Rolling 90d">
         {rollup.isLoading ? (
@@ -431,6 +359,7 @@ function DashboardPage() {
               />
               <p className="mt-1.5 text-[9px] leading-relaxed text-ink-3">金色虛線＝期內平均；圓點＝單個賽馬日平均命中匹數。</p>
             </div>
+            <TierGate min="pro" feature="策略盈虧">
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
               <p className="mb-1 text-[10px] font-bold text-ink-3">
                 彩池命中 · 實戰複式（{pnlFrom} 起 · 命中場數／投注場數）
@@ -476,11 +405,13 @@ function DashboardPage() {
                 ))}
               </div>
             </div>
+            </TierGate>
 
           </div>
         )}
       </Card>
 
+      <TierGate min="registered" feature="完整排行榜" mode="lock">
       <Card
         title="馬匹排行"
         en="Horse Leaderboard"
@@ -571,6 +502,8 @@ function DashboardPage() {
           </Table>
         )}
       </Card>
+
+      </TierGate>
 
       <Disclaimer />
     </AppShell>

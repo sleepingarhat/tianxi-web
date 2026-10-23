@@ -22,7 +22,10 @@
 - Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.
 - Images need commercial-free rights and /media-credits; URLs are not licences.
 - Blueprint: docs/blueprint/tianxi-racing-blueprint-2026-10-13.md; sync blueprint/roadmap/AGENTS/dev-log/GitHub; old plans never revive retired products.
-- Pro uses only resolveEntitlement in src/lib/entitlement.ts, fed by my_membership and webhook-maintained subscriptions; auto-open at signup 500. Why: one free/founding/paid rule source.
+- Pro uses only resolveEntitlement fed by my_membership and verified payment records; app_settings supplies the gate threshold and founding cap is locked once at opening. Why: one server-authoritative membership rule source.
+- Tier middleware must authorize protected reads server-side, including direct Worker entrypoints; public historical audit projections stay public. Why: open source transparency is not access control.
+- Membership views share tier-projection for permitted rows and field sets; DEV tier preview may only downgrade the UI, never grant server access. Why: hidden picks must not enter rendered markup and acceptance must not change real membership.
+- Membership setting actions verify the current admin role server-side and use the existing settings RLS and gate RPC; the admin panel never grants membership itself. Why: editing the UI cannot escalate privileges or rewrite the locked founding cap.
 - Weekly managed HTTP jobs rotate Commons posters into racecourse_photos; commercial-free licences required, deactivate on licence changes. tianxi-web Actions only monitor public status (read-only mirror).
 
 - Homepage counts use only racing_results_index; twice-daily jobs count tianxi-racing results CSVs, 40 files/run. Why: verifiable automatic figures.

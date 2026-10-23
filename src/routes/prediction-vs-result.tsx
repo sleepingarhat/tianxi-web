@@ -1,3 +1,6 @@
+import { useTier } from "@/lib/useTier";
+import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
+import { projectMeetingDates } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ShareButton } from "@/components/tx/ShareCard";
@@ -78,6 +81,7 @@ function keyOf(h?: Horse | null) {
 function rankColor(rank: number) { return rank === 1 ? "text-gold" : "text-ink-3"; }
 
 function ComparePage() {
+  const tier = useTier();
   const [date, setDate] = useState<string>("");
   const [raceId, setRaceId] = useState<string>("");
 
@@ -86,11 +90,11 @@ function ComparePage() {
     queryFn: () => txApi.meetings("?limit=60", PVR_TIMEOUT_MS),
     retry: 1,
   });
-  const meetings: any[] = list.data?.meetings || [];
+  const meetings: any[] = projectMeetingDates(list.data?.meetings || [], tier.tier, new Date(Date.now() + 8 * 3600_000).toISOString().slice(0,10));
 
   // 預設揀最近一個已過去（有賽果）嘅賽馬日
   useEffect(() => {
-    if (date || !meetings.length) return;
+    if (!meetings.length || (date && meetings.some(m => m.date === date))) return;
     const today = new Date().toISOString().slice(0, 10);
     const found = meetings.find((m: any) => m.date <= today) || meetings[0];
     setDate(found.date);
@@ -291,6 +295,7 @@ function ComparePage() {
         </p>
       </section>
 
+      {!tier.loading && !tier.has("registered") ? <UpgradeCard need="registered" feature="預測對賽果明細（全部賽日）" /> : null}
       <section className="grid grid-cols-2 gap-2.5 border-b border-hairline px-5 pb-3.5 pt-2">
         <div>
           <label htmlFor="cmp-date" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">
@@ -298,6 +303,7 @@ function ComparePage() {
           </label>
           <select
             id="cmp-date"
+            disabled={!tier.has("registered")}
             value={date}
             onChange={(e) => {
               setRaceId("");

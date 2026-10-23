@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthState } from "@/lib/useAuthState";
 import tianxiLogo from "@/assets/tianxi-racing-logo-v10.jpg";
 import { OverflowTicker } from "./OverflowTicker";
+import { TierBadge } from "./gates/TierBadge";
+import { useTier, useFoundingInfo } from "@/lib/useTier";
 
 
 
@@ -66,6 +68,8 @@ export function AppShell({
   children: ReactNode;
 }) {
   const { signedIn, isAdmin } = useAuthState();
+  const tier = useTier();
+  const founding = useFoundingInfo();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [signingOut, setSigningOut] = useState(false);
@@ -107,6 +111,7 @@ export function AppShell({
             })}
           </nav>
           <div className="flex items-center gap-3">
+            {signedIn === true && !tier.loading ? <TierBadge tier={tier.tier} /> : null}
             {isAdmin ? (
               <Link
                 to="/admin"
@@ -178,6 +183,8 @@ export function AppShell({
             )}
           </div>
         </header>
+
+        {signedIn === false && founding.data && !founding.data.gate_open && founding.data.remaining > 0 ? <div className="border-b border-hairline bg-gold-bg px-4 py-1.5 text-center text-[11px] text-ink-2">創始會員名額尚餘 <b className="tabnum text-gold">{founding.data.remaining}</b> 個 · <Link to="/auth" className="font-bold text-gold">免費登記享 Pro 全站功能</Link></div> : null}
 
         {ticker ? (
           <div className="border-b border-gold-strong/30 bg-gold-bg px-4 py-1.5">

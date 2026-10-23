@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       computed_cache: {
         Row: {
           computed_at: string
@@ -872,10 +893,12 @@ export type Database = {
     }
     Functions: {
       admin_member_list: { Args: never; Returns: Json }
+      admin_open_gate_now: { Args: never; Returns: Json }
       admin_set_test_account: {
         Args: { _is_test: boolean; _user_id: string }
         Returns: undefined
       }
+      apply_watch_limits_all: { Args: never; Returns: undefined }
       claim_official_collection_lease: {
         Args: { lease_id: string }
         Returns: boolean
@@ -884,6 +907,7 @@ export type Database = {
         Args: { _date: string; _token: string }
         Returns: Json
       }
+      founding_cap: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -892,7 +916,11 @@ export type Database = {
         Returns: boolean
       }
       member_account_stats: { Args: never; Returns: Json }
+      membership_gate_at: { Args: never; Returns: string }
       my_membership: { Args: never; Returns: Json }
+      open_membership_gate_if_ready: { Args: never; Returns: boolean }
+      paywall_threshold: { Args: never; Returns: number }
+      public_founding_info: { Args: never; Returns: Json }
       public_member_count: { Args: never; Returns: number }
       racing_data_scale: { Args: never; Returns: Json }
       reconcile_subscription_event: {

@@ -1,5 +1,6 @@
 // 賽馬後端健康 + 回測（唯讀）。只讀倉庫／Worker，唔改任何凍結數值。
 import { createServerFn } from "@tanstack/react-start";
+import { requireTier } from "./tier.server";
 
 const GH = "https://api.github.com/repos/sleepingarhat/tianxi-racing";
 const RAW = "https://raw.githubusercontent.com/sleepingarhat/tianxi-racing/main";
@@ -165,6 +166,7 @@ const BOX_COST: Record<string, number> = { FF: 10, TRIO: 40, TIERCE: 240, QUARTE
 const BOX_LABEL: Record<string, string> = { TRIO: "單T 4 揀複式", FF: "四連環 4 揀", TIERCE: "三重彩 4 揀複式", QUARTET: "四重彩 4 揀複式" };
 
 export const getRacingBacktest = createServerFn({ method: "GET" })
+  .middleware([requireTier("registered")])
   .inputValidator((d: { days?: number }) => ({ days: Math.min(365, Math.max(30, Number(d?.days) || 180)) }))
   .handler(async ({ data }) => {
     const roll = (await (await fetch(`${WORKER}/api/analyze/hit-rate-rollup?days=${data.days}`, { signal: AbortSignal.timeout(15_000) })).json()) as {
@@ -299,7 +301,7 @@ export const getRacingBacktest = createServerFn({ method: "GET" })
 
 /* ---------------- 訓練數據規模 ---------------- */
 
-export const getRacingTrainingData = createServerFn({ method: "GET" }).handler(async () => {
+export const getRacingTrainingData = createServerFn({ method: "GET" }).middleware([requireTier("registered")]).handler(async () => {
   const res = await gh(`/git/trees/main?recursive=1`);
   if (!res.ok) return { years: [], totals: { meetings: 0, horses: 0, files: 0 } };
   const j = (await res.json()) as { tree: { path: string; type: string; size?: number }[] };

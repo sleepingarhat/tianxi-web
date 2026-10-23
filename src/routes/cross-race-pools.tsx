@@ -1,3 +1,4 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/cross-race-pools")({
     { property: "og:description", content: "逐場核對孖T／三T原注及命中，逐口列成本與派彩；缺證據不結算。" },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
-  component: CrossRacePoolsPage,
+  component: () => <FeaturePageGate min="pro" title="孖T／三T 組合"><CrossRacePoolsPage /></FeaturePageGate>,
 });
 
 function CrossRacePoolsPage() {

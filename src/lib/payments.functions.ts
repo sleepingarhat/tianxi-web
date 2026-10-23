@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib/stripe.server";
 import { resolveEntitlement, type SubRow } from "@/lib/entitlement";
 import { customerBelongsToUser } from "./audit-safety";
+import { DEFAULT_PAYWALL_THRESHOLD, FOUNDING_SLOTS } from "./freeStage";
 
 const PRO_PRICE_ID = "pro_weekly";
 
@@ -21,14 +22,16 @@ async function loadMembership(ctx: Ctx, environment: StripeEnv) {
     .limit(1)
     .maybeSingle();
   if (subError) throw new Error("無法讀取訂閱紀錄");
-  const row = (m ?? {}) as { rank?: number; total?: number; gate_open_at?: string | null };
+  const row = (m ?? {}) as { rank?: number; total?: number; gate_open_at?: string | null; threshold?: number; founding_slots?: number };
   const entitlement = resolveEntitlement({
     rank: row.rank ?? null,
     total: row.total ?? 0,
     gateOpenAt: row.gate_open_at ?? null,
     subscription: (sub as SubRow | null) ?? null,
+    threshold: row.threshold ?? DEFAULT_PAYWALL_THRESHOLD,
+    foundingSlots: row.founding_slots ?? FOUNDING_SLOTS,
   });
-  return { rank: row.rank ?? null, total: row.total ?? 0, gateOpenAt: row.gate_open_at ?? null, entitlement, customerId: (sub as { stripe_customer_id?: string | null } | null)?.stripe_customer_id ?? null };
+  return { rank: row.rank ?? null, total: row.total ?? 0, gateOpenAt: row.gate_open_at ?? null, threshold: row.threshold, foundingSlots: row.founding_slots, entitlement, customerId: (sub as { stripe_customer_id?: string | null } | null)?.stripe_customer_id ?? null };
 }
 
 export const getMyMembership = createServerFn({ method: "POST" })
@@ -36,7 +39,7 @@ export const getMyMembership = createServerFn({ method: "POST" })
   .inputValidator((d: { environment: StripeEnv }) => d)
   .handler(async ({ data, context }) => {
     const r = await loadMembership(context as unknown as Ctx, data.environment);
-    return { rank: r.rank, total: r.total, gateOpenAt: r.gateOpenAt, entitlement: r.entitlement, hasBilling: !!r.customerId };
+    return { rank: r.rank, total: r.total, gateOpenAt: r.gateOpenAt, threshold: r.threshold, foundingSlots: r.foundingSlots, entitlement: r.entitlement, hasBilling: !!r.customerId };
   });
 
 async function resolveOrCreateCustomer(stripe: Stripe, options: { email?: string | undefined; userId: string }): Promise<string> {

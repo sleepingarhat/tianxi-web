@@ -1,5 +1,16 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
+## 2026-10-23 會員分級（已批准，全部段落完成前不發布）
+- [x] 插入優先工作：只改racing-dividends job及細helper／旁邊測試；單輪3秒重試、兩輪失敗告警、6小時去重／錯誤改變、恢復通知、外層job告警；不改解析器、認證、排程、凍結或帳本。新增18項helper／job流程測試，全套322項通過、build OK；package無test指令，npm test未能執行，改用bunx vitest run，未改package。未發布；會員分級仍未齊，保留禁止Publish。
+- [x] 1a／1b：會員設定、管理員讀寫、不可逆開閘確認及動態門檻已核對；真實登入儲存後讀回門檻200、愛駒上限30／3／90不變，未開閘。資料庫設定已讀回核實；未發布。
+- [x] 2：按合併檔完成頁面權限分級及DOM裁剪；訪客第一場完整、其他場鎖定，開閘前登入會員完整；DEV降級至開閘後第201名可核對registered欄，不授予伺服器Pro。features兩函式、value-trend及backtest／training讀取加入既有tier middleware，公開歷史審計及共用今日貼士保持公開。347項測試通過、build OK；151項320／390／1280、RTL、慢API及1000會員fixture檢查通過；真實會員百科398行、歷史特徵22行讀回。特徵頁限時可重試；未發布，Worker真正Pro保護不以UI冒稱完成。
+- [ ] 後端權限接線／後續驗收：直接Worker Pro讀取、今日貼士分層回應及付款狀態須按後續指令完成，不以第二份前端限制代替資料保護；全部十一份完成前禁止Publish。
+- [ ] 3a／3b：愛駒追蹤30／3／90、超額暫停與愛駒頁。
+- [ ] 4a／4b：Telegram連結、私人頻道批核／移除及每日提示實測。
+- [ ] 5a／5b：PWA、Web Push及賽日凍結版通知實測。
+- [ ] 6／7：退役方案清理、US$416／52週約HK$3,245（較逐週便宜）及sandbox付款；NOWPayments憑證尚未提供。
+- [ ] 文件／GitHub同步及全流程驗收；所有段落完成前禁止Publish。
+
 現行藍圖：docs/blueprint/tianxi-racing-blueprint-2026-10-13.md。此前詳細紀錄保留於同目錄 roadmap-history-before-racing-pivot-2026-10-13.md，唔再作現行待辦。
 
 ## 今次單一產品改版

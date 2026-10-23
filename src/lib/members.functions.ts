@@ -74,7 +74,7 @@ export const listAdminMembers = createServerFn({ method: "POST" })
     return (Array.isArray(data) ? data : []) as AdminMemberRow[];
   });
 
-/** 標記／取消測試帳號；測試帳號唔計入 500 人門檻。 */
+/** 標記／取消測試帳號；測試帳號唔計入設定的真實會員門檻。 */
 export const setTestAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { userId: string; isTest: boolean }) => {

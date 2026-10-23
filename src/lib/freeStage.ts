@@ -1,6 +1,13 @@
 /** 免費階段商業路線（用戶 2026-10-13 拍板）：登記帳戶累積至門檻先出 iOS App 同開始收費。
  *  呢檔係瀏覽器安全模組，首頁路線圖、會員頁同監控端都讀同一個數，改呢度即全站跟住改。 */
-export const FREE_STAGE_GOAL_MEMBERS = 500;
+export const DEFAULT_PAYWALL_THRESHOLD = 200;
+/** Client fallback only; runtime threshold/cap comes from membership RPCs. */
+export const FOUNDING_SLOTS = DEFAULT_PAYWALL_THRESHOLD;
+/** @deprecated Use runtime membership settings where available. */
+export const FREE_STAGE_GOAL_MEMBERS = DEFAULT_PAYWALL_THRESHOLD;
+export const WATCH_LIMITS = { free_stage: 30, registered: 3, pro: 90 } as const;
+export const CRYPTO_PASS_PRICE_USD = 416;
+export const CRYPTO_PASS_APPROX_HKD = 3245;
 export const PRO_WEEKLY_PRICE_HKD = 78;
 export const FOUNDING_PRO_WEEKS = 52;
 export const FOUNDING_PRO_VALUE_HKD = PRO_WEEKLY_PRICE_HKD * FOUNDING_PRO_WEEKS;

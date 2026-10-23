@@ -1,3 +1,4 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/engine/residuals")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ResidualsPage,
+  component: () => <FeaturePageGate min="registered" title="殘差診斷"><ResidualsPage /></FeaturePageGate>,
 });
 
 type Row = {

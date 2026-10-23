@@ -1,3 +1,4 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { useState } from "react";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/strategy-pnl")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: StrategyPnlPage,
+  component: () => <FeaturePageGate min="pro" title="策略盈虧"><StrategyPnlPage /></FeaturePageGate>,
 });
 
 const VENUE: Record<string, string> = { ST: "沙田", HV: "跑馬地" };

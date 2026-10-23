@@ -1,3 +1,5 @@
+import { useTier } from "@/lib/useTier";
+import { TierGate } from "@/components/tx/gates/TierGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
@@ -152,6 +154,7 @@ function Spark({ history }: { history: any[] }) {
 
 /* ---------------- page ---------------- */
 function HorsePage() {
+  const tier = useTier();
   const [perfTab, setPerfTab] = useState("distance");
   const { id, raceId } = Route.useSearch();
   const horseId = canonicalHorseId(id);
@@ -237,7 +240,7 @@ function HorsePage() {
       page=""
       ticker={
         h.nameCh
-          ? `${h.nameCh} · ${h.code} · 天喜Elo ${num(latestElo.rating, 0)} · 現評 ${has(h.currentRating) ? h.currentRating : "—"}`
+          ? `${h.nameCh} · ${h.code} · 天喜Elo ${tier.has("registered") ? num(latestElo.rating, 0) : "—"} · 現評 ${has(h.currentRating) ? h.currentRating : "—"}`
           : "載入馬匹資料…"
       }
     >
@@ -281,7 +284,7 @@ function HorsePage() {
               <div className="text-right">
                 <p className="font-mono-tx text-[9px] tracking-[0.18em] text-ink-3">天喜ELO</p>
                 <p className="tabnum font-mono-tx text-[24px] font-bold leading-none text-gold">
-                  {num(latestElo.rating, 0)}
+                  {tier.has("registered") ? num(latestElo.rating, 0) : "—"}
                 </p>
               </div>
             </div>
@@ -296,7 +299,7 @@ function HorsePage() {
             <div className="mt-2 flex flex-wrap gap-1.5">
               {(h.sire || h.pedigree?.sire) ? <Pill tone="gold">血統已收錄</Pill> : <Pill>血統待補</Pill>}
               {style ? <Pill>跑法 {style}</Pill> : null}
-              {latestTrackwork?.date ? <Pill>最近晨操 {fmtMeetingDate(latestTrackwork.date)}</Pill> : <Pill>晨操未有收錄</Pill>}
+              {tier.has("registered") && latestTrackwork?.date ? <Pill>最近晨操 {fmtMeetingDate(latestTrackwork.date)}</Pill> : <Pill>晨操未有收錄</Pill>}
               {isNewHorse ? <Pill tone="gold">新馬 · 血統評分尚待回測</Pill> : null}
             </div>
           </section>
@@ -330,6 +333,7 @@ function HorsePage() {
             {isNewHorse ? <p className="mt-2 rounded-[6px] border border-gold-strong/40 bg-gold-bg px-2.5 py-2 text-[10px] leading-relaxed text-ink-2">血統資料已接入；新馬血統起步評分仍在歷史回測，未影響現行生產排名。</p> : null}
           </Card></div>
 
+          <TierGate min="registered" feature="Elo 走勢及研究信號" mode="preview" preview={<div className="mx-4 border-y border-hairline py-3 text-[11px] text-ink-3"><p>天喜Elo 起點：{eloHistory[0] ? num(eloHistory[0].rating, 0) : "—"}</p>{signals.slice(0, 1).map((s: any) => <p key={s.key}>{s.label || s.key}：{s.value}</p>)}</div>}>
           {/* 天喜Elo */}
           {has(latestElo.rating) ? (
             <div id="elo" className="scroll-mt-12"><Card title="天喜Elo 評分走勢" en="Latest 天喜Elo">
@@ -421,6 +425,8 @@ function HorsePage() {
             </Card></div>
           ) : null}
 
+          </TierGate>
+
           {/* 近期往績 */}
           <div id="form" className="scroll-mt-12"><Card
             title="近期往績"
@@ -485,7 +491,7 @@ function HorsePage() {
                           </p>
                         ))}
                       </div>
-                      {has(sectionalText(f.sectionals)) ? (
+                      {tier.has("registered") && has(sectionalText(f.sectionals)) ? (
                         <p className="border-t border-hairline px-3 py-2 font-mono-tx text-[10px] leading-relaxed text-ink-2">
                           <b className="text-ink">分段</b> {sectionalText(f.sectionals)}
                         </p>
@@ -501,12 +507,14 @@ function HorsePage() {
                 <p className="pt-1 text-[9.5px] leading-relaxed text-ink-3">
                   以上為賽後歷史資料；檔位、負磅、騎師、配備、評語及分段不代表目前狀態。
                 </p>
+                {!tier.has("registered") ? <TierGate min="registered" feature="歷史分段" mode="preview" preview={forms[0] && has(sectionalText(forms[0].sectionals)) ? <p className="text-[11px] text-ink-3">{sectionalText(forms[0].sectionals).split(/[／|,，]/)[0]}</p> : null}>{null}</TierGate> : null}
               </div>
             ) : (
               <Empty label="尚無往績記錄" />
             )}
           </Card></div>
 
+          <TierGate min="registered" feature="操練紀錄及傷患紀錄" mode="lock">
           {/* 操練 */}
           <div id="training" className="scroll-mt-12"><Card title="操練紀錄" en="Trackwork · Trials">
             <div className="space-y-2">
@@ -577,6 +585,8 @@ function HorsePage() {
               </div>
             </Card>
           ) : null}
+
+          </TierGate>
 
           {/* 資料方法及覆蓋 */}
           <div id="source" className="scroll-mt-12"><Card title="資料方法及覆蓋" en="Provenance">

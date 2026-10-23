@@ -232,6 +232,13 @@
       "when": 1792602400121,
       "tag": "0032_official_dividend_evidence",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1792750140165,
+      "tag": "0033_membership_tier_foundation",
+      "breakpoints": true
     }
   ]
 }

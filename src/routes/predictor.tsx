@@ -1,3 +1,7 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
+import { TierGate } from "@/components/tx/gates/TierGate";
+import { useTier } from "@/lib/useTier";
+import { predictorAllowed } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -39,10 +43,11 @@ export const Route = createFileRoute("/predictor")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PredictorPage,
+  component: () => <FeaturePageGate min="registered" title="選馬神器" preview={<div className="mx-4 grid grid-cols-2 gap-3 border-y border-hairline py-4" aria-label="選馬分析預覽">{["模型搏冷", "市場穩陣"].map(label => <div key={label}><p className="font-bold text-ink-3">{label}</p>{[1,2,3,4].map(n => <div key={n} className="mt-2 h-8 bg-paper-2" />)}</div>)}</div>}><PredictorPage /></FeaturePageGate>,
 });
 
 function PredictorPage() {
+  const tier = useTier();
   const [raceNo, setRaceNo] = useState(1);
   const [now, setNow] = useState(() => new Date());
 
@@ -143,7 +148,7 @@ function PredictorPage() {
   const featList = useQuery({
     queryKey: ["whyFeatureRaces", tp.date ?? "latest"],
     queryFn: () => listFn({ data: tp.date ? { date: tp.date } : {} }),
-    enabled: !!tp.date,
+    enabled: !!tp.date && predictorAllowed(tier.tier, Number(race?.raceNumber)),
   });
   const featRaceId =
     (featList.data?.races ?? []).find((r: any) => Number(r.raceNumber) === Number(race?.raceNumber))?.id ?? null;
@@ -153,7 +158,7 @@ function PredictorPage() {
       if (!featRaceId) throw new Error("未有場次資料");
       return raceFn({ data: { raceId: featRaceId } });
     },
-    enabled: !!featRaceId,
+    enabled: !!featRaceId && predictorAllowed(tier.tier, Number(race?.raceNumber)),
   });
   const featHorses = featRace.data?.horses ?? [];
   const evidenceIds: FeatureId[] = ["distance", "draw", "jt", "time", "finish", "form"];
@@ -165,6 +170,13 @@ function PredictorPage() {
     const leader = ranked[0];
     return { id, label: FEATURE_MAP[id].shortLabel, leader, stat: leader?.stats[id] };
   });
+
+  if (race && !predictorAllowed(tier.tier, Number(race.raceNumber))) {
+    return <AppShell columns={false} page="predictor"><PageHead en="Predictor" title="選馬神器" />
+      <div className="mx-4 flex flex-wrap gap-2">{races.map((r: any) => <Button key={r.raceNumber} variant="outline" size="sm" onClick={() => setRaceNo(Number(r.raceNumber))}>R{r.raceNumber}</Button>)}</div>
+      <TierGate min="pro" feature={`第 ${race.raceNumber} 場完整分析`}>{null}</TierGate>
+    </AppShell>;
+  }
 
   if (tp.cancellation) {
     return (
@@ -414,7 +426,7 @@ function PredictorPage() {
         {tp.publicationPending ? <Loading label="副本核實後公開解釋…" /> : tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} frozen={tp.frozen} />) : <Empty label="未有本場預測" />}
       </Card>
 
-      <Card title="特徵排序實驗室" en="Feature Lab">
+      <TierGate min="pro" feature="特徵排序實驗室"><Card title="特徵排序實驗室" en="Feature Lab">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
           十項特徵（同場對賽、同程、檔位、最快時間、最快末段、騎練合作等）逐項排名，並可自選組合運算綜合排序，全部由歷史賽事資料實時計算。屬研究輔助，非預測模型。
         </p>
@@ -425,6 +437,8 @@ function PredictorPage() {
           打開特徵排序表 →
         </Link>
       </Card>
+
+      </TierGate>
 
       <details className="mx-4 my-3 rounded-[10px] border border-hairline bg-paper-2">
         <summary className="cursor-pointer px-3 py-2.5 font-serif-tc text-[12px] font-bold text-ink">馬場即時天氣與跑道狀況</summary>

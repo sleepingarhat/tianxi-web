@@ -1,3 +1,4 @@
+import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 // 天喜 · 特徵選取表：全部特徵、採用狀態、模型重要度、未採用原因
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/engine/features")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: FeatureCatalogPage,
+  component: () => <FeaturePageGate min="registered" title="特徵選取表"><FeatureCatalogPage /></FeaturePageGate>,
 });
 
 const STATUS_TONE: Record<FeatureStatus, "win" | "gold" | "ink"> = {
@@ -56,7 +57,7 @@ function FeatureCatalogPage() {
     const map = new Map<FeatureGroup, typeof rows>();
     for (const r of rows) {
       if (!map.has(r.group)) map.set(r.group, []);
-      map.get(r.group)!.push(r);
+      map.get(r.group)?.push(r);
     }
     for (const list of map.values()) {
       list.sort((a, b) =>

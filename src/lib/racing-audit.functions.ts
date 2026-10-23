@@ -1,3 +1,4 @@
+import { requireTier } from "./tier.server";
 import { cached, CACHE_TTL } from "./computed-cache.server";
 import { truncateRecent } from "./history-window";
 // 公開只讀：重訓紀錄、值博長期走勢、完整性審計。固定查詢，唔改任何凍結數值。
@@ -46,7 +47,7 @@ export type ValueDay = {
 };
 
 /** 凍結獨贏機率 vs 收市隱含機率（兩者每場歸一、去抽水）。研究口徑，非投注建議。 */
-export const getValueTrend = createServerFn({ method: "GET" }).handler(async (): Promise<{ days: ValueDay[]; truncated: boolean }> => { return cached("value-trend-window", CACHE_TTL, async () => {
+export const getValueTrend = createServerFn({ method: "GET" }).middleware([requireTier("pro")]).handler(async (): Promise<{ days: ValueDay[]; truncated: boolean }> => { return cached("value-trend-window", CACHE_TTL, async () => {
   const rows = await d1<ValueDay>(`WITH b AS (SELECT date, race_number, p_win, actual_finish AS fin, actual_win_odds AS od, 1.0/actual_win_odds AS imp
       FROM prediction_log WHERE engine='v12' AND variant='baseline' AND predicted_rank IS NOT NULL
       AND actual_win_odds>1 AND actual_finish IS NOT NULL AND p_win IS NOT NULL),
