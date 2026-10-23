@@ -3,9 +3,12 @@ import {jobMembership} from './job-membership.server';
 import {tgRetry} from './telegram.server';
 import {vapidConfig} from './webpush.server';
 import {deliverEventPush,renewNotificationLease} from './notification-delivery.server';
+import {racedayAvailability} from './notification-availability.server';
+import {shouldRecordRacedaySkip} from './notification-availability';
 export async function runRacedayAlerts(){
+  if(!await racedayAvailability())return {skipped:'raceday_not_live'};
   const {supabaseAdmin:monitor}=await import('@/integrations/supabase/client.server');
-  const skip=async(reason:string)=>{const r=await monitor.from('watch_job_runs').insert({kind:'raceday',error:reason,finished_at:new Date().toISOString()});if(r.error)throw new Error('run_record_failed');return {skipped:reason};};
+  const skip=async(reason:string)=>{const last=await monitor.from('watch_job_runs').select('error,started_at').eq('kind','raceday').order('id',{ascending:false}).limit(1).maybeSingle();if(!last.error && shouldRecordRacedaySkip(last.data?{error:last.data.error,created_at:last.data.started_at}:null,reason,hkDay(Date.now())))await monitor.from('watch_job_runs').insert({kind:'raceday',error:reason,finished_at:new Date().toISOString()});return {skipped:reason};};
   const lockResponse=await fetch('https://tianxi-backend.tianxi-entertainment.workers.dev/api/analyze/lock-state',{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!lockResponse.ok)return skip('unavailable');const lock=await lockResponse.json() as {locked?:boolean;edition?:string;date?:string;venue?:string};if(lock.edition==='unavailable')return skip('unavailable');if(!lock.locked || lock.edition!=='final')return skip('not_final');
   const {fetchTodayPicksUpstream}=await import('./picks.functions');const day=await fetchTodayPicksUpstream() as import('./racing-shapes').DayPicks;
   if(day.date!==lock.date || day.venue!==lock.venue || !raceAlertLines(day,true))return skip('unavailable');

@@ -19,7 +19,7 @@ export function MembershipSettingsPanel() {
   const open = useServerFn(openMembershipGate);
   const client = useQueryClient();
   const query = useQuery({ queryKey: ["admin", "membership-settings"], queryFn: () => read() });
-  const [values, setValues] = useState<Record<MembershipSettingKey, number> | null>(null);
+  const [values, setValues] = useState<(Record<MembershipSettingKey, number> & {raceday_alerts_enabled:boolean}) | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   useEffect(() => { if (query.data) setValues(query.data.values); }, [query.data]);
@@ -42,6 +42,7 @@ export function MembershipSettingsPanel() {
         <div className="flex justify-between gap-3"><dt>創始名額（已鎖定）</dt><dd>{query.data.gateOpenAt ? query.data.foundingSlots : "未鎖定"}</dd></div>
       </dl>
       {MEMBERSHIP_SETTING_KEYS.map(key => <label key={key} className="grid gap-1 text-sm text-ink-2">{labels[key]}<input type="number" min={1} max={100000} step={1} disabled={busy || (key === "paywall_threshold" && !!query.data.gateOpenAt)} value={values[key]} onChange={event => setValues({ ...values, [key]: Number(event.target.value) })} className="w-full rounded-md border border-hairline bg-paper-3 px-3 py-2 text-ink disabled:opacity-60" /></label>)}
+      <label className="flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" disabled={busy} checked={values.raceday_alerts_enabled} onChange={event=>setValues({...values,raceday_alerts_enabled:event.target.checked})}/>賽日提示已上線</label>
       <p className="text-xs leading-relaxed text-ink-3">同一個數字決定幾多人開閘，同埋首幾多名有 52 週免費 Pro。開閘之後創始名額會鎖定。</p>
       <div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={() => void act(false)}>儲存會員設定</Button>{!query.data.gateOpenAt && <Button variant="outline" disabled={busy} onClick={() => void act(true)}>立即開閘</Button>}</div>
       {message && <p role="status" className="text-sm text-ink-2">{message}</p>}

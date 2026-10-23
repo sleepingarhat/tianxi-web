@@ -4,6 +4,7 @@ import {useServerFn} from '@tanstack/react-start';
 import {useAuthState} from '@/lib/useAuthState';
 import {getCryptoOffer,listMyCryptoPasses,createCryptoCheckout} from '@/lib/crypto-pass.functions';
 import {CRYPTO_STATUSES} from '@/lib/crypto-pass';
+import {formatHkd,FOUNDING_PRO_VALUE_HKD} from '@/lib/freeStage';
 import {Button} from '@/components/ui/button';
 import {Card} from './ui';
 const date=(s:string|null)=>s?new Date(s).toLocaleDateString('zh-HK',{timeZone:'Asia/Hong_Kong'}):'—';
@@ -19,7 +20,7 @@ export function CryptoPasses({offer=false}:{offer?:boolean}){
  const activeOffer=offer && config.data?.crypto_pass_enabled && config.data.gateOpen;
  if(!activeOffer && !passes.data?.length && !passes.isError && !returned)return null;
  return <Card title={activeOffer?'加密貨幣 52 週通行證':'加密貨幣付款紀錄'} en="Crypto pass">
- {activeOffer && config.data?<div className="space-y-3 text-sm text-ink-2"><p className="font-mono-tx text-xl font-bold text-ink">US${config.data.crypto_pass_price_usd}（約 HK${Math.round(config.data.crypto_pass_price_usd*7.8).toLocaleString()}）</p><p>一次付款 {config.data.crypto_pass_weeks} 週，比逐週付款便宜；唔會自動續期，到期前 14 日會提你。</p><p>支援 USDT、USDC、BTC、ETH 等，由 NOWPayments 處理。</p>{warning?<><p className="text-gold">{warning}</p><Button disabled={pending} onClick={()=>void pay(true)}>已明白，繼續付款</Button></>:<Button disabled={pending} onClick={()=>void pay()}>{pending?'正在建立付款連結…':'用加密貨幣付款'}</Button>}</div>:null}
+ {activeOffer && config.data?<div className="space-y-3 text-sm text-ink-2"><p className="font-mono-tx text-xl font-bold text-ink">{formatHkd(config.data.crypto_pass_price_usd*7.8)}（{config.data.crypto_pass_weeks} 週，八折）</p><p><s>{formatHkd(FOUNDING_PRO_VALUE_HKD)}</s></p><p>約 US${config.data.crypto_pass_price_usd}，以 USDT／USDC 等加密貨幣支付</p><p>一次付款 {config.data.crypto_pass_weeks} 週，比逐週付款便宜；唔會自動續期，到期前 14 日會提你。</p>{warning?<><p className="text-gold">{warning}</p><Button disabled={pending} onClick={()=>void pay(true)}>已明白，繼續付款</Button></>:<Button disabled={pending} onClick={()=>void pay()}>{pending?'正在建立付款連結…':'用加密貨幣付款'}</Button>}</div>:null}
  {returned?<p className="my-3 text-sm text-gold">付款確認中（區塊鏈確認可能需時數分鐘至一小時）。</p>:latest && offer?<p className="my-3 text-sm text-win">Pro 已啟用至 {date(latest.valid_until)}</p>:null}
  {error?<p className="my-3 text-sm text-lose">{error}</p>:null}
  {passes.isError?<Button variant="outline" onClick={()=>void passes.refetch()}>重新讀取付款紀錄</Button>:null}

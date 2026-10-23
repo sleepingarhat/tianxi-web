@@ -1,6 +1,8 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
 ## 2026-10-23 會員分級（已批准，全部段落完成前不發布）
+- [x] 發布前可執行修正：上限／過期通知、Pro掃描次序、server賽日提示上線閘、HK$3,244.80八折、獨立feed密鑰及測試；427項通過、平台自動typecheck/build OK。0041／0042已套用，旗標false、未開閘、未呼叫job或發布。
+- [ ] 發布前剩餘：通知排程須Cloud結構工具，未發布目標不建立；舊weather密鑰輪換及回呼遷移、Vault設定、同環境付款設定及真實登入／送達驗收。詳見docs/reviews/membership-publish-preflight-2026-10-23.md。
 - [x] 22:44 HKT接續第七至十一段可執行程式：依合併檔十一個分隔段核對（第7段4b、第8段5a、第9段5b、第10段6、第11段7），新增通知摘要、持久上限告警、裝置owner核實、賽日跳過監控；US$416／52週NOWPayments checkout、驗簽IPN、原子grant／疊加／退款、本人紀錄與管理員設定／原因操作，仍停用收款。十一份總結見docs/reviews/membership-eleven-summary-2026-10-23.md；不把程式或mock測試冒稱provider實際驗收。
 - [ ] 完成阻塞：會員Bot／私人頻道／VAPID／NOWPayments憑證與真實送達、sandbox invoice→IPN→UI及回放／不足額／退款、直接Worker Pro保護、通知自然排程、舊cron憑證輪換、本人登入驗收；正式未發布，宣傳CTA保持停用，全部驗收前禁止Publish。
 - [x] 21:30 HKT第四、第五、第六份可執行程式完成：392項測試與159次全站矩陣通過、build OK；本人通知設定儲存→刷新→還原、320／390／1280愛駒頁及管理員通知面板已核；未授權job401，授權只安全略過／0匹，不能當真實通知送達。詳細見docs/reviews/member-notifications-2026-10-23.md；會員Bot／VAPID／正式自然排程／真實裝置送達仍待條件，不發布。第七份NOWPayments不在本輪範圍。

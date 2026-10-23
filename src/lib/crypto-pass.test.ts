@@ -1,6 +1,8 @@
 import {describe,it,expect} from 'vitest';
 import {cryptoPassStart,cryptoPassEnd,verifyCryptoSignature,sortKeysDeep,cryptoIpnSchema,cryptoSettingsSchema,ignoreCryptoTransition} from './crypto-pass';
+import {formatHkd} from './freeStage';
 describe('crypto pass rules',()=>{
+ it('USD price and HKD display stay linked at 7.8 without changing settlement',()=>{expect(416*7.8).toBeCloseTo(3244.8,2);expect(formatHkd(416*7.8)).toBe('HK$3,244.80');expect(formatHkd(500*7.8)).toBe('HK$3,900.00');});
  it('uses USD416 for 52 weeks',()=>{expect(cryptoSettingsSchema.parse({crypto_pass_enabled:false,crypto_pass_price_usd:416,crypto_pass_weeks:52}).crypto_pass_price_usd).toBe(416);});
  it('grants exactly 364 days',()=>{expect(cryptoPassEnd('2026-10-23T00:00:00Z',52)).toBe('2027-10-22T00:00:00.000Z');});
  it('starts after founding year',()=>{expect(cryptoPassStart('2026-10-23T00:00:00Z','2027-10-22T00:00:00Z',null)).toBe('2027-10-22T00:00:00.000Z');});

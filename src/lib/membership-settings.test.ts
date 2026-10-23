@@ -9,4 +9,6 @@ describe("會員設定", () => {
   it("保留Pro90匹", () => expect(validateMembershipSettings(settings).watch_limit_pro).toBe(90));
   it("拒絕零值", () => expect(() => validateMembershipSettings({ ...settings, paywall_threshold: 0 })).toThrow());
   it("拒絕小數", () => expect(() => validateMembershipSettings({ ...settings, watch_limit_pro: 1.5 })).toThrow());
+  it("賽日提示預設關閉",()=>expect(validateMembershipSettings(settings).raceday_alerts_enabled).toBe(false));
+  it("賽日提示接受boolean",()=>expect(validateMembershipSettings({...settings,raceday_alerts_enabled:true}).raceday_alerts_enabled).toBe(true));
 });

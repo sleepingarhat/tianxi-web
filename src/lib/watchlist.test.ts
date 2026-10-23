@@ -7,6 +7,8 @@ describe('愛駒規則',()=>{
  it('閘前30匹',()=>expect(WATCH_LIMITS.free_stage).toBe(30));
  it('免費會員3匹',()=>expect(WATCH_LIMITS.registered).toBe(3));
  it('Pro90匹',()=>expect(WATCH_LIMITS.pro).toBe(90));
+ it('創始會員10匹開閘後90上限全部保留',()=>expect(applyWatchLimitTransition(rows.slice(0,10),90,30).filter(r=>!r.paused)).toHaveLength(10));
+ it('登記會員10匹開閘保留最近3匹',()=>{const selected=applyWatchLimitTransition(rows.slice(0,10),3,30);expect(selected.filter(r=>!r.paused).map(r=>r.horse_id)).toEqual(['horse_J009','horse_J008','horse_J007']);expect(selected.filter(r=>r.paused)).toHaveLength(7);});
  it('12匹開閘後保留最近3匹及9匹暫停，不刪紀錄',()=>{const r=enforceWatchRows(rows,3);expect(r).toHaveLength(12);expect(r.filter(v=>!v.paused).map(v=>v.horse_id)).toEqual(['horse_J011','horse_J010','horse_J009']);expect(r.filter(v=>v.paused)).toHaveLength(9);expect(rows.every(v=>!v.paused)).toBe(true);});
  it('同一上限重讀保留手動暫停，不自動重新啟用',()=>{const paused=rows.map(r=>({...r,paused:true}));expect(applyWatchLimitTransition(paused,30,30).every(r=>r.paused)).toBe(true);expect(applyWatchLimitTransition(paused,90,30).filter(r=>!r.paused)).toHaveLength(12);});
  it('升級後恢復暫停愛駒',()=>{expect(enforceWatchRows(enforceWatchRows(rows,3),90).filter(v=>!v.paused)).toHaveLength(12);});
