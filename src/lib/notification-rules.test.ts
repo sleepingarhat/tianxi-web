@@ -1,0 +1,23 @@
+import { describe, expect, it } from 'vitest';
+import { acceptsWatchEvent, isOldWatchEvent, raceAlertLines, watchEventLine, TELEGRAM_TOKEN_TTL_MS, TELEGRAM_INVITE_TTL_SECONDS, LIMIT_NOTICE_INTERVAL_MS, type WatchEvent } from './notification-rules';
+const w = {paused:false,created_at:'2026-10-23T00:00:00Z',notify_entry:true,notify_trial:true,notify_trackwork:true,notify_injury:true};
+const event: WatchEvent = {event_key:'trackwork:1',type:'trackwork',horse_id:'horse_J062',event_date:'2026-10-20',title:'晨操',detail:{workType:'踱步'}};
+describe('notification business rules',()=>{
+  it('link tokens expire in 15 minutes',()=>expect(TELEGRAM_TOKEN_TTL_MS).toBe(900000));
+  it('invites expire in one hour',()=>expect(TELEGRAM_INVITE_TTL_SECONDS).toBe(3600));
+  it('limit notices are seven days apart',()=>expect(LIMIT_NOTICE_INTERVAL_MS).toBe(604800000));
+  it('paused horses never create events',()=>expect(acceptsWatchEvent({...w,paused:true},event,'all')).toBe(false));
+  it('gallop mode excludes walking',()=>expect(acceptsWatchEvent(w,event,'gallop')).toBe(false));
+  it('gallop mode accepts quick work',()=>expect(acceptsWatchEvent(w,{...event,detail:{workType:'快操'}},'gallop')).toBe(true));
+  it('disabled trial toggle suppresses pending trial retries',()=>expect(acceptsWatchEvent({...w,notify_trial:false},{...event,type:'trial'},'all')).toBe(false));
+  it('preserves official entry fields without inventing missing values',()=>{const value=watchEventLine('金鑽貴人',{...event,type:'entry',detail:{venue:'ST',raceNumber:3,horseNumber:5,draw:7,jockey:'潘頓',weight:126}});expect(value).toContain('第3場');expect(value).toContain('檔7');expect(value).toContain('126磅');expect(value).not.toContain('undefined');});
+  it('old trackwork is seen not delivered',()=>expect(isOldWatchEvent(w,event)).toBe(true));
+  it('yesterday remains deliverable',()=>expect(isOldWatchEvent(w,{...event,event_date:'2026-10-22'})).toBe(false));
+  it('future entries are always deliverable',()=>expect(isOldWatchEvent(w,{...event,type:'entry'})).toBe(false));
+  const day={date:'2026-10-25',venue:'ST',edition:'final',frozen:true,races:[1,2].map(raceNumber=>({raceNumber,picks:[{nameCh:'嘉應高昇',horseNumber:5,pWin:0.256}]}))};
+  it('unlocked drafts do not send',()=>expect(raceAlertLines({...day,edition:'draft'},true)).toBeNull());
+  it('unverified final never sends',()=>expect(raceAlertLines({...day,frozen:false},true)).toBeNull());
+  it('registered users only receive race one',()=>expect(raceAlertLines(day,false)).toEqual(['第1場 #5 嘉應高昇（勝出機率 26%）']));
+  it('Pro users receive each race',()=>expect(raceAlertLines(day,true)).toHaveLength(2));
+  it('missing identity stops delivery',()=>expect(raceAlertLines({...day,races:[{raceNumber:1,picks:[{horseNumber:5}]}]},true)).toBeNull());
+});

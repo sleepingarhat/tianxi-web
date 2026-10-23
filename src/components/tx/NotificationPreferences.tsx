@@ -1,0 +1,8 @@
+import {useQuery,useQueryClient} from '@tanstack/react-query';
+import {useServerFn} from '@tanstack/react-start';
+import {Link} from '@tanstack/react-router';
+import {toast} from 'sonner';
+import {useAuthState} from '@/lib/useAuthState';
+import {getPrefs,updatePrefs} from '@/lib/watchlist.functions';
+import {Card} from './ui';
+export function NotificationPreferences(){const auth=useAuthState();const client=useQueryClient();const get=useServerFn(getPrefs);const update=useServerFn(updatePrefs);const q=useQuery({queryKey:['notification-prefs',auth.userId],enabled:auth.signedIn===true,queryFn:()=>get()});const change=async(data:{telegram_enabled?:boolean;push_enabled?:boolean;raceday_enabled?:boolean;trackwork_mode?:'all'|'gallop'})=>{try{await update({data});await client.invalidateQueries({queryKey:['notification-prefs',auth.userId]});}catch{toast.error('設定未能儲存');}};return <Card title="提示設定" en="Preferences"><div className="flex flex-wrap gap-4 text-xs">{(['telegram_enabled','push_enabled','raceday_enabled'] as const).map((key,i)=><label key={key} className="flex items-center gap-2"><input type="checkbox" disabled={!q.data} checked={q.data?.[key] ?? false} onChange={e=>void change({[key]:e.target.checked})}/>{['Telegram','推送通知','收賽日提示'][i]}</label>)}<label className="flex items-center gap-2">晨操<select className="bg-paper text-ink" value={q.data?.trackwork_mode ?? 'gallop'} onChange={e=>void change({trackwork_mode:e.target.value==='all'?'all':'gallop'})}><option value="gallop">快操／試閘／出賽</option><option value="all">全部晨操</option></select></label></div><p className="mt-3 text-xs text-ink-3">每日批次同步，非即時；<Link to="/account" className="text-gold">連結 Telegram／設定推送</Link>。收賽日提示只通知已核實賽前凍結最終版。</p></Card>;}

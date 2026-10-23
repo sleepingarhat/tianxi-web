@@ -53,3 +53,10 @@
 
 - tx/Predictor* keeps guards; name cleanup requires matching ID, preserving archives.
 - Ingestion retains dates/rows; child failures fail jobs. Backfill alerts name date/race. Why: absence ≠ cancellation.
+
+- Watch mutations authorize via loadUserTier and service-only atomic owner RPCs; apply limits only on limit transitions and isolate browser caches by user identity. Why: concurrent requests must not bypass caps, erase manual pauses or expose another account's collection.
+- Horse-follow event reads verify ownership and tolerate unavailable upstream with private stored-event fallback; notification delivery and cleanup scheduling belong to the notification job. Why: missing synchronization is not evidence of no real horse activity.
+- Member Telegram uses its dedicated bot, hashed single-use atomic link tokens and entitlement-approved join requests; engine-alert credentials are never substituted. Why: separate identities and owner-bound private-channel access.
+- Notification jobs use durable leases, explicit raceday opt-in, stable per-owner event keys and verified final frozen picks; delivery timestamps follow provider success and failed delivery remains retryable. Why: concurrent jobs and missing evidence cannot imply delivery or authorize extra picks.
+- Web Push uses bundled Web Crypto aes128gcm, owner-bound known-provider endpoints, and a same-origin notification-only service worker without fetch caches. Why: avoid SSRF, stale racing data and cross-account subscription takeover.
+- Notification delivery renews owner-bound leases and persists per-event/device push receipts; Telegram unlink deletes only after server-side removal succeeds. Why: partial device failures stay retryable without resending accepted devices, and direct deletes cannot evade channel expiry.

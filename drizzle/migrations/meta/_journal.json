@@ -239,6 +239,41 @@
       "when": 1792750140165,
       "tag": "0033_membership_tier_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792756003649,
+      "tag": "0034_horse_watchlist_owner_scoped",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792756345944,
+      "tag": "0035_watch_limit_transition_preserves_selection",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792761292629,
+      "tag": "0036_telegram_member_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792761435135,
+      "tag": "0037_webpush_and_raceday_optin",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792761793823,
+      "tag": "0038_notification_delivery_owner_and_lease_safety",
+      "breakpoints": true
     }
   ]
 }

@@ -1,14 +1,19 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
 ## 2026-10-23 會員分級（已批准，全部段落完成前不發布）
+- [x] 21:30 HKT第四、第五、第六份可執行程式完成：392項測試與159次全站矩陣通過、build OK；本人通知設定儲存→刷新→還原、320／390／1280愛駒頁及管理員通知面板已核；未授權job401，授權只安全略過／0匹，不能當真實通知送達。詳細見docs/reviews/member-notifications-2026-10-23.md；會員Bot／VAPID／正式自然排程／真實裝置送達仍待條件，不發布。第七份NOWPayments不在本輪範圍。
 - [x] 插入優先工作：只改racing-dividends job及細helper／旁邊測試；單輪3秒重試、兩輪失敗告警、6小時去重／錯誤改變、恢復通知、外層job告警；不改解析器、認證、排程、凍結或帳本。新增18項helper／job流程測試，全套322項通過、build OK；package無test指令，npm test未能執行，改用bunx vitest run，未改package。未發布；會員分級仍未齊，保留禁止Publish。
 - [x] 1a／1b：會員設定、管理員讀寫、不可逆開閘確認及動態門檻已核對；真實登入儲存後讀回門檻200、愛駒上限30／3／90不變，未開閘。資料庫設定已讀回核實；未發布。
 - [x] 2：按合併檔完成頁面權限分級及DOM裁剪；訪客第一場完整、其他場鎖定，開閘前登入會員完整；DEV降級至開閘後第201名可核對registered欄，不授予伺服器Pro。features兩函式、value-trend及backtest／training讀取加入既有tier middleware，公開歷史審計及共用今日貼士保持公開。347項測試通過、build OK；151項320／390／1280、RTL、慢API及1000會員fixture檢查通過；真實會員百科398行、歷史特徵22行讀回。特徵頁限時可重試；未發布，Worker真正Pro保護不以UI冒稱完成。
 - [ ] 後端權限接線／後續驗收：直接Worker Pro讀取、今日貼士分層回應及付款狀態須按後續指令完成，不以第二份前端限制代替資料保護；全部十一份完成前禁止Publish。
-- [ ] 3a／3b：愛駒追蹤30／3／90、超額暫停與愛駒頁。
-- [ ] 4a／4b：Telegram連結、私人頻道批核／移除及每日提示實測。
-- [ ] 5a／5b：PWA、Web Push及賽日凍結版通知實測。
-- [ ] 6／7：退役方案清理、US$416／52週約HK$3,245（較逐週便宜）及sandbox付款；NOWPayments憑證尚未提供。
+- [x] 3a／3b追蹤及頁面：本人資料RLS、服務端會籍30／3／90及原子上限、超額保留／暫停與揀選、全站星號、搜尋、愛駒頁、會員入口及鐘仔。真實J062搜尋→追蹤→刷新1／30→取消、訪客星號→登記入口→恢复登入→自動追蹤及/watchlist保留query實測通過；361項測試及155項全站畫面矩陣通過，build OK。未建立新會員測Google授權；不改實際開閘／會籍。
+- [ ] 3b動態來源驗收：已實作本人馬匹動態讀取及14日私有通知fallback，尚未驗得官方事件來源有資料；120日清理函數已建，排程與每日通知在第四份接線，不宣稱同步或送達已完成。
+- [x] 4a／4b程式及資料表：獨立會員Bot、單次15分鐘token／限5次、1小時批核邀請／每日3次、Pro掃描、愛駒Job、event_key去重／失敗重試、私人設定及監控執行紀錄。來源與實際通知驗收另列，不冒稱送達。
+- [ ] 4a／4b啟用驗收：缺TIANXI_RACING_BOT_TOKEN、TELEGRAM_WEBHOOK_SECRET、TELEGRAM_PRO_CHAT_ID；需加入會員Bot並授權私人頻道。正式未發布，不能設定正式webhook或啟動會打404的排程；擬Pro每小時、愛駒:15，發布後核實自然週期。來源401與舊cron憑證風險須獨立核實。
+- [x] 5a／5b程式及資料表：PWA無離線快取、Web Crypto aes128gcm推送、最多10裝置／每小時5次測試、失效410刪除、明確raceday_enabled=false選擇、已核實final通知／會員race1與Pro全日分層；同場／同帳戶去重與失敗重試。
+- [ ] 5a／5b啟用驗收：缺VAPID_PUBLIC_KEY、VAPID_PRIVATE_KEY、VAPID_SUBJECT及真實iPhone主畫面送達；正式未發布，五分鐘收賽日排程不提早啟動，宣傳CTA仍不啟用。
+- [x] 6前端清理：移除舊日／月方案及過時頻道資格假資料，改免費／Pro週費／創始／加密52週及telegramLinked；Stripe每週HK$78與portal不改，Crypto方案按原文先隱藏等第七份。後端舊/api/membership 410及/pro轉址為另一倉既有工作，未以本輪前端清理冒稱驗證。
+- [ ] 7：US$416／52週約HK$3,245（較逐週便宜）及sandbox付款；NOWPayments憑證尚未提供，不在本輪範圍。
 - [ ] 文件／GitHub同步及全流程驗收；所有段落完成前禁止Publish。
 
 現行藍圖：docs/blueprint/tianxi-racing-blueprint-2026-10-13.md。此前詳細紀錄保留於同目錄 roadmap-history-before-racing-pivot-2026-10-13.md，唔再作現行待辦。

@@ -26,6 +26,7 @@ import { Route as ManualRouteImport } from './routes/manual'
 import { Route as MediaCreditsRouteImport } from './routes/media-credits'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as ModelRouteImport } from './routes/model'
+import { Route as MyHorsesRouteImport } from './routes/my-horses'
 import { Route as PoolOddsRouteImport } from './routes/pool-odds'
 import { Route as PredictionReconciliationRouteImport } from './routes/prediction-reconciliation'
 import { Route as PredictionVsResultRouteImport } from './routes/prediction-vs-result'
@@ -42,7 +43,9 @@ import { Route as StrategyPnlRouteImport } from './routes/strategy-pnl'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackRecordRouteImport } from './routes/track-record'
 import { Route as ValueTrendRouteImport } from './routes/value-trend'
+import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as EngineIndexRouteImport } from './routes/engine.index'
@@ -85,13 +88,17 @@ import { Route as ApiPublicHooksRaceResultsDispatchRouteImport } from './routes/
 import { Route as ApiPublicJobsBillingRemindersRouteImport } from './routes/api/public/jobs/billing-reminders'
 import { Route as ApiPublicJobsHkjcChangesRouteImport } from './routes/api/public/jobs/hkjc-changes'
 import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/public/jobs/hkjc-evidence-sync'
+import { Route as ApiPublicJobsHorseWatchRouteImport } from './routes/api/public/jobs/horse-watch'
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
+import { Route as ApiPublicJobsRacedayAlertsRouteImport } from './routes/api/public/jobs/raceday-alerts'
 import { Route as ApiPublicJobsRacingDataScaleRouteImport } from './routes/api/public/jobs/racing-data-scale'
 import { Route as ApiPublicJobsRacingDispatchRouteImport } from './routes/api/public/jobs/racing-dispatch'
 import { Route as ApiPublicJobsRacingDividendsRouteImport } from './routes/api/public/jobs/racing-dividends'
 import { Route as ApiPublicJobsRacingResultsRouteImport } from './routes/api/public/jobs/racing-results'
+import { Route as ApiPublicJobsTelegramProSweepRouteImport } from './routes/api/public/jobs/telegram-pro-sweep'
 import { Route as ApiPublicJobsTrackRecordSummaryRouteImport } from './routes/api/public/jobs/track-record-summary'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
@@ -179,6 +186,11 @@ const ModelRoute = ModelRouteImport.update({
   path: '/model',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyHorsesRoute = MyHorsesRouteImport.update({
+  id: '/my-horses',
+  path: '/my-horses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PoolOddsRoute = PoolOddsRouteImport.update({
   id: '/pool-odds',
   path: '/pool-odds',
@@ -260,10 +272,20 @@ const ValueTrendRoute = ValueTrendRouteImport.update({
   path: '/value-trend',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WatchlistRoute = WatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
   id: '/withdrawals',
   path: '/withdrawals',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -494,10 +516,21 @@ const ApiPublicJobsHkjcEvidenceSyncRoute =
     path: '/api/public/jobs/hkjc-evidence-sync',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsHorseWatchRoute = ApiPublicJobsHorseWatchRouteImport.update({
+  id: '/api/public/jobs/horse-watch',
+  path: '/api/public/jobs/horse-watch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicJobsRacecoursePhotosRoute =
   ApiPublicJobsRacecoursePhotosRouteImport.update({
     id: '/api/public/jobs/racecourse-photos',
     path: '/api/public/jobs/racecourse-photos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsRacedayAlertsRoute =
+  ApiPublicJobsRacedayAlertsRouteImport.update({
+    id: '/api/public/jobs/raceday-alerts',
+    path: '/api/public/jobs/raceday-alerts',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicJobsRacingDataScaleRoute =
@@ -524,6 +557,12 @@ const ApiPublicJobsRacingResultsRoute =
     path: '/api/public/jobs/racing-results',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsTelegramProSweepRoute =
+  ApiPublicJobsTelegramProSweepRouteImport.update({
+    id: '/api/public/jobs/telegram-pro-sweep',
+    path: '/api/public/jobs/telegram-pro-sweep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsTrackRecordSummaryRoute =
   ApiPublicJobsTrackRecordSummaryRouteImport.update({
     id: '/api/public/jobs/track-record-summary',
@@ -534,6 +573,12 @@ const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
     path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
@@ -564,6 +609,7 @@ export interface FileRoutesByFullPath {
   '/media-credits': typeof MediaCreditsRoute
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
+  '/my-horses': typeof MyHorsesRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -580,7 +626,9 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -623,13 +671,17 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/billing-reminders': typeof ApiPublicJobsBillingRemindersRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
+  '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
+  '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
   '/api/public/jobs/racing-dividends': typeof ApiPublicJobsRacingDividendsRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
+  '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -650,6 +702,7 @@ export interface FileRoutesByTo {
   '/media-credits': typeof MediaCreditsRoute
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
+  '/my-horses': typeof MyHorsesRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -666,7 +719,9 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
   '/engine/backtest': typeof EngineBacktestRoute
@@ -708,13 +763,17 @@ export interface FileRoutesByTo {
   '/api/public/jobs/billing-reminders': typeof ApiPublicJobsBillingRemindersRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
+  '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
+  '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
   '/api/public/jobs/racing-dividends': typeof ApiPublicJobsRacingDividendsRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
+  '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -737,6 +796,7 @@ export interface FileRoutesById {
   '/media-credits': typeof MediaCreditsRoute
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
+  '/my-horses': typeof MyHorsesRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -753,7 +813,9 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -796,13 +858,17 @@ export interface FileRoutesById {
   '/api/public/jobs/billing-reminders': typeof ApiPublicJobsBillingRemindersRoute
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
+  '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
+  '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
   '/api/public/jobs/racing-data-scale': typeof ApiPublicJobsRacingDataScaleRoute
   '/api/public/jobs/racing-dispatch': typeof ApiPublicJobsRacingDispatchRoute
   '/api/public/jobs/racing-dividends': typeof ApiPublicJobsRacingDividendsRoute
   '/api/public/jobs/racing-results': typeof ApiPublicJobsRacingResultsRoute
+  '/api/public/jobs/telegram-pro-sweep': typeof ApiPublicJobsTelegramProSweepRoute
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -825,6 +891,7 @@ export interface FileRouteTypes {
     | '/media-credits'
     | '/membership'
     | '/model'
+    | '/my-horses'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -841,7 +908,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/watchlist'
     | '/withdrawals'
+    | '/account'
     | '/admin'
     | '/checkout/return'
     | '/engine/audit'
@@ -884,13 +953,17 @@ export interface FileRouteTypes {
     | '/api/public/jobs/billing-reminders'
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
+    | '/api/public/jobs/horse-watch'
     | '/api/public/jobs/racecourse-photos'
+    | '/api/public/jobs/raceday-alerts'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
     | '/api/public/jobs/racing-dividends'
     | '/api/public/jobs/racing-results'
+    | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
+    | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -911,6 +984,7 @@ export interface FileRouteTypes {
     | '/media-credits'
     | '/membership'
     | '/model'
+    | '/my-horses'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -927,7 +1001,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/watchlist'
     | '/withdrawals'
+    | '/account'
     | '/checkout/return'
     | '/engine/audit'
     | '/engine/backtest'
@@ -969,13 +1045,17 @@ export interface FileRouteTypes {
     | '/api/public/jobs/billing-reminders'
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
+    | '/api/public/jobs/horse-watch'
     | '/api/public/jobs/racecourse-photos'
+    | '/api/public/jobs/raceday-alerts'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
     | '/api/public/jobs/racing-dividends'
     | '/api/public/jobs/racing-results'
+    | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
+    | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   id:
@@ -997,6 +1077,7 @@ export interface FileRouteTypes {
     | '/media-credits'
     | '/membership'
     | '/model'
+    | '/my-horses'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -1013,7 +1094,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/watchlist'
     | '/withdrawals'
+    | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/checkout/return'
     | '/engine/audit'
@@ -1056,13 +1139,17 @@ export interface FileRouteTypes {
     | '/api/public/jobs/billing-reminders'
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
+    | '/api/public/jobs/horse-watch'
     | '/api/public/jobs/racecourse-photos'
+    | '/api/public/jobs/raceday-alerts'
     | '/api/public/jobs/racing-data-scale'
     | '/api/public/jobs/racing-dispatch'
     | '/api/public/jobs/racing-dividends'
     | '/api/public/jobs/racing-results'
+    | '/api/public/jobs/telegram-pro-sweep'
     | '/api/public/jobs/track-record-summary'
     | '/api/public/payments/webhook'
+    | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
@@ -1085,6 +1172,7 @@ export interface RootRouteChildren {
   MediaCreditsRoute: typeof MediaCreditsRoute
   MembershipRoute: typeof MembershipRoute
   ModelRoute: typeof ModelRoute
+  MyHorsesRoute: typeof MyHorsesRoute
   PoolOddsRoute: typeof PoolOddsRoute
   PredictionReconciliationRoute: typeof PredictionReconciliationRoute
   PredictionVsResultRoute: typeof PredictionVsResultRoute
@@ -1101,6 +1189,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrackRecordRoute: typeof TrackRecordRoute
   ValueTrendRoute: typeof ValueTrendRoute
+  WatchlistRoute: typeof WatchlistRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   EngineAuditRoute: typeof EngineAuditRoute
@@ -1131,13 +1220,17 @@ export interface RootRouteChildren {
   ApiPublicJobsBillingRemindersRoute: typeof ApiPublicJobsBillingRemindersRoute
   ApiPublicJobsHkjcChangesRoute: typeof ApiPublicJobsHkjcChangesRoute
   ApiPublicJobsHkjcEvidenceSyncRoute: typeof ApiPublicJobsHkjcEvidenceSyncRoute
+  ApiPublicJobsHorseWatchRoute: typeof ApiPublicJobsHorseWatchRoute
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
+  ApiPublicJobsRacedayAlertsRoute: typeof ApiPublicJobsRacedayAlertsRoute
   ApiPublicJobsRacingDataScaleRoute: typeof ApiPublicJobsRacingDataScaleRoute
   ApiPublicJobsRacingDispatchRoute: typeof ApiPublicJobsRacingDispatchRoute
   ApiPublicJobsRacingDividendsRoute: typeof ApiPublicJobsRacingDividendsRoute
   ApiPublicJobsRacingResultsRoute: typeof ApiPublicJobsRacingResultsRoute
+  ApiPublicJobsTelegramProSweepRoute: typeof ApiPublicJobsTelegramProSweepRoute
   ApiPublicJobsTrackRecordSummaryRoute: typeof ApiPublicJobsTrackRecordSummaryRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
@@ -1263,6 +1356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-horses': {
+      id: '/my-horses'
+      path: '/my-horses'
+      fullPath: '/my-horses'
+      preLoaderRoute: typeof MyHorsesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pool-odds': {
       id: '/pool-odds'
       path: '/pool-odds'
@@ -1375,12 +1475,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ValueTrendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/watchlist': {
+      id: '/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof WatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/withdrawals': {
       id: '/withdrawals'
       path: '/withdrawals'
       fullPath: '/withdrawals'
       preLoaderRoute: typeof WithdrawalsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -1676,11 +1790,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsHkjcEvidenceSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/horse-watch': {
+      id: '/api/public/jobs/horse-watch'
+      path: '/api/public/jobs/horse-watch'
+      fullPath: '/api/public/jobs/horse-watch'
+      preLoaderRoute: typeof ApiPublicJobsHorseWatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/racecourse-photos': {
       id: '/api/public/jobs/racecourse-photos'
       path: '/api/public/jobs/racecourse-photos'
       fullPath: '/api/public/jobs/racecourse-photos'
       preLoaderRoute: typeof ApiPublicJobsRacecoursePhotosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/raceday-alerts': {
+      id: '/api/public/jobs/raceday-alerts'
+      path: '/api/public/jobs/raceday-alerts'
+      fullPath: '/api/public/jobs/raceday-alerts'
+      preLoaderRoute: typeof ApiPublicJobsRacedayAlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/jobs/racing-data-scale': {
@@ -1711,6 +1839,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsRacingResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/telegram-pro-sweep': {
+      id: '/api/public/jobs/telegram-pro-sweep'
+      path: '/api/public/jobs/telegram-pro-sweep'
+      fullPath: '/api/public/jobs/telegram-pro-sweep'
+      preLoaderRoute: typeof ApiPublicJobsTelegramProSweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/track-record-summary': {
       id: '/api/public/jobs/track-record-summary'
       path: '/api/public/jobs/track-record-summary'
@@ -1723,6 +1858,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/payments/webhook'
       fullPath: '/api/public/payments/webhook'
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -1777,10 +1919,12 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
 }
 
@@ -1805,6 +1949,7 @@ const rootRouteChildren: RootRouteChildren = {
   MediaCreditsRoute: MediaCreditsRoute,
   MembershipRoute: MembershipRoute,
   ModelRoute: ModelRoute,
+  MyHorsesRoute: MyHorsesRoute,
   PoolOddsRoute: PoolOddsRoute,
   PredictionReconciliationRoute: PredictionReconciliationRoute,
   PredictionVsResultRoute: PredictionVsResultRoute,
@@ -1821,6 +1966,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrackRecordRoute: TrackRecordRoute,
   ValueTrendRoute: ValueTrendRoute,
+  WatchlistRoute: WatchlistRoute,
   WithdrawalsRoute: WithdrawalsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   EngineAuditRoute: EngineAuditRoute,
@@ -1852,13 +1998,17 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsBillingRemindersRoute: ApiPublicJobsBillingRemindersRoute,
   ApiPublicJobsHkjcChangesRoute: ApiPublicJobsHkjcChangesRoute,
   ApiPublicJobsHkjcEvidenceSyncRoute: ApiPublicJobsHkjcEvidenceSyncRoute,
+  ApiPublicJobsHorseWatchRoute: ApiPublicJobsHorseWatchRoute,
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
+  ApiPublicJobsRacedayAlertsRoute: ApiPublicJobsRacedayAlertsRoute,
   ApiPublicJobsRacingDataScaleRoute: ApiPublicJobsRacingDataScaleRoute,
   ApiPublicJobsRacingDispatchRoute: ApiPublicJobsRacingDispatchRoute,
   ApiPublicJobsRacingDividendsRoute: ApiPublicJobsRacingDividendsRoute,
   ApiPublicJobsRacingResultsRoute: ApiPublicJobsRacingResultsRoute,
+  ApiPublicJobsTelegramProSweepRoute: ApiPublicJobsTelegramProSweepRoute,
   ApiPublicJobsTrackRecordSummaryRoute: ApiPublicJobsTrackRecordSummaryRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }

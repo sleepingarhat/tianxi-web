@@ -263,6 +263,51 @@ export type Database = {
         }
         Relationships: []
       }
+      horse_watchlist: {
+        Row: {
+          activated_at: string
+          created_at: string
+          horse_id: string
+          horse_name: string | null
+          notify_entry: boolean
+          notify_injury: boolean
+          notify_push: boolean
+          notify_telegram: boolean
+          notify_trackwork: boolean
+          notify_trial: boolean
+          paused: boolean
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string
+          created_at?: string
+          horse_id: string
+          horse_name?: string | null
+          notify_entry?: boolean
+          notify_injury?: boolean
+          notify_push?: boolean
+          notify_telegram?: boolean
+          notify_trackwork?: boolean
+          notify_trial?: boolean
+          paused?: boolean
+          user_id: string
+        }
+        Update: {
+          activated_at?: string
+          created_at?: string
+          horse_id?: string
+          horse_name?: string | null
+          notify_entry?: boolean
+          notify_injury?: boolean
+          notify_push?: boolean
+          notify_telegram?: boolean
+          notify_trackwork?: boolean
+          notify_trial?: boolean
+          paused?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       member_test_accounts: {
         Row: {
           marked_at: string
@@ -305,6 +350,60 @@ export type Database = {
           released_at?: string
           status?: string
           version?: string
+        }
+        Relationships: []
+      }
+      notification_job_leases: {
+        Row: {
+          expires_at: string
+          key: string
+          owner: string
+        }
+        Insert: {
+          expires_at: string
+          key: string
+          owner: string
+        }
+        Update: {
+          expires_at?: string
+          key?: string
+          owner?: string
+        }
+        Relationships: []
+      }
+      notification_prefs: {
+        Row: {
+          last_limit_notice_at: string | null
+          push_enabled: boolean
+          raceday_alerts: boolean
+          raceday_enabled: boolean
+          raceday_opted_in_at: string | null
+          telegram_enabled: boolean
+          trackwork_mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_limit_notice_at?: string | null
+          push_enabled?: boolean
+          raceday_alerts?: boolean
+          raceday_enabled?: boolean
+          raceday_opted_in_at?: string | null
+          telegram_enabled?: boolean
+          trackwork_mode?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_limit_notice_at?: string | null
+          push_enabled?: boolean
+          raceday_alerts?: boolean
+          raceday_enabled?: boolean
+          raceday_opted_in_at?: string | null
+          telegram_enabled?: boolean
+          trackwork_mode?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -353,6 +452,81 @@ export type Database = {
           severity?: string
           source?: string
           status_code?: number | null
+        }
+        Relationships: []
+      }
+      push_delivery_receipts: {
+        Row: {
+          delivered_at: string
+          event_key: string
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          delivered_at?: string
+          event_key: string
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          delivered_at?: string
+          event_key?: string
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          fail_count: number
+          id: string
+          last_success_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          fail_count?: number
+          id?: string
+          last_success_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          fail_count?: number
+          id?: string
+          last_success_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_test_requests: {
+        Row: {
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          user_id?: string
         }
         Relationships: []
       }
@@ -470,6 +644,33 @@ export type Database = {
           source_page?: string
           venue?: string
           width?: number
+        }
+        Relationships: []
+      }
+      raceday_notifications: {
+        Row: {
+          created_at: string
+          event_key: string
+          id: number
+          sent_push_at: string | null
+          sent_telegram_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_key: string
+          id?: never
+          sent_push_at?: string | null
+          sent_telegram_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_key?: string
+          id?: never
+          sent_push_at?: string | null
+          sent_telegram_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -785,6 +986,90 @@ export type Database = {
         }
         Relationships: []
       }
+      telegram_link_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          token_hash: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          token_hash: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          token_hash?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      telegram_links: {
+        Row: {
+          chat_id: number
+          dm_blocked: boolean
+          last_checked_at: string | null
+          linked_at: string
+          pro_joined_at: string | null
+          pro_removed_at: string | null
+          telegram_user_id: number
+          telegram_username: string | null
+          user_id: string
+        }
+        Insert: {
+          chat_id: number
+          dm_blocked?: boolean
+          last_checked_at?: string | null
+          linked_at?: string
+          pro_joined_at?: string | null
+          pro_removed_at?: string | null
+          telegram_user_id: number
+          telegram_username?: string | null
+          user_id: string
+        }
+        Update: {
+          chat_id?: number
+          dm_blocked?: boolean
+          last_checked_at?: string | null
+          linked_at?: string
+          pro_joined_at?: string | null
+          pro_removed_at?: string | null
+          telegram_user_id?: number
+          telegram_username?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      telegram_pro_invites: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: number
+          invite_link: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: never
+          invite_link?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: never
+          invite_link?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       track_record_summary_snapshot: {
         Row: {
           computed_at: string
@@ -820,6 +1105,117 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watch_job_runs: {
+        Row: {
+          error: string | null
+          events: number
+          feed_freshness: Json | null
+          finished_at: string | null
+          horses: number
+          id: number
+          kind: string
+          new_rows: number
+          push_failed: number
+          push_sent: number
+          started_at: string
+          tg_failed: number
+          tg_sent: number
+        }
+        Insert: {
+          error?: string | null
+          events?: number
+          feed_freshness?: Json | null
+          finished_at?: string | null
+          horses?: number
+          id?: never
+          kind?: string
+          new_rows?: number
+          push_failed?: number
+          push_sent?: number
+          started_at?: string
+          tg_failed?: number
+          tg_sent?: number
+        }
+        Update: {
+          error?: string | null
+          events?: number
+          feed_freshness?: Json | null
+          finished_at?: string | null
+          horses?: number
+          id?: never
+          kind?: string
+          new_rows?: number
+          push_failed?: number
+          push_sent?: number
+          started_at?: string
+          tg_failed?: number
+          tg_sent?: number
+        }
+        Relationships: []
+      }
+      watch_limit_state: {
+        Row: {
+          applied_limit: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applied_limit: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applied_limit?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watch_notifications: {
+        Row: {
+          created_at: string
+          event_date: string | null
+          event_key: string
+          event_type: string
+          horse_id: string | null
+          id: number
+          payload: Json
+          push_sent_at: string | null
+          read_at: string | null
+          telegram_sent_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_date?: string | null
+          event_key: string
+          event_type: string
+          horse_id?: string | null
+          id?: number
+          payload?: Json
+          push_sent_at?: string | null
+          read_at?: string | null
+          telegram_sent_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_date?: string | null
+          event_key?: string
+          event_type?: string
+          horse_id?: string | null
+          id?: number
+          payload?: Json
+          push_sent_at?: string | null
+          read_at?: string | null
+          telegram_sent_at?: string | null
+          title?: string
           user_id?: string
         }
         Relationships: []
@@ -892,10 +1288,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acquire_notification_job: {
+        Args: { k: string; oid: string }
+        Returns: boolean
+      }
       admin_member_list: { Args: never; Returns: Json }
       admin_open_gate_now: { Args: never; Returns: Json }
       admin_set_test_account: {
         Args: { _is_test: boolean; _user_id: string }
+        Returns: undefined
+      }
+      apply_watch_limits: {
+        Args: { lim: number; uid: string }
         Returns: undefined
       }
       apply_watch_limits_all: { Args: never; Returns: undefined }
@@ -907,6 +1311,15 @@ export type Database = {
         Args: { _date: string; _token: string }
         Returns: Json
       }
+      cleanup_watch_notifications: { Args: never; Returns: number }
+      consume_telegram_link_token: {
+        Args: { cid: number; hash: string; tid: number; tname: string }
+        Returns: boolean
+      }
+      create_telegram_link_token: {
+        Args: { hash: string; uid: string }
+        Returns: undefined
+      }
       founding_cap: { Args: never; Returns: number }
       has_role: {
         Args: {
@@ -916,7 +1329,20 @@ export type Database = {
         Returns: boolean
       }
       member_account_stats: { Args: never; Returns: Json }
+      membership_for_notification_job: { Args: { uid: string }; Returns: Json }
       membership_gate_at: { Args: never; Returns: string }
+      mutate_horse_watch: {
+        Args: {
+          action: string
+          active?: boolean
+          hid: string
+          hname?: string
+          lim: number
+          swap_id?: string
+          uid: string
+        }
+        Returns: undefined
+      }
       my_membership: { Args: never; Returns: Json }
       open_membership_gate_if_ready: { Args: never; Returns: boolean }
       paywall_threshold: { Args: never; Returns: number }
@@ -933,9 +1359,25 @@ export type Database = {
         }
         Returns: Json
       }
+      renew_notification_job: {
+        Args: { k: string; oid: string }
+        Returns: boolean
+      }
       renew_racing_prelock: {
         Args: { _date: string; _token: string }
         Returns: boolean
+      }
+      reserve_push_test: { Args: { uid: string }; Returns: undefined }
+      reserve_telegram_invite: { Args: { uid: string }; Returns: number }
+      save_push_subscription: {
+        Args: {
+          agent: string
+          akey: string
+          ep: string
+          pkey: string
+          uid: string
+        }
+        Returns: undefined
       }
       save_racing_prelock: {
         Args: {
@@ -945,6 +1387,10 @@ export type Database = {
           _token: string
         }
         Returns: boolean
+      }
+      select_active_watches: {
+        Args: { horse_ids: string[]; lim: number; uid: string }
+        Returns: undefined
       }
     }
     Enums: {

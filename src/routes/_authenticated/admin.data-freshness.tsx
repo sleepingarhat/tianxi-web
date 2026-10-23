@@ -4,6 +4,7 @@ import { AdminHead, DataTable, Panel, StatusBadge, useMemoCols, type Status } fr
 import { ago, useRacingHealth } from "@/components/admin/data";
 import { useFixture, workflowFixture } from "@/components/admin/fixtures";
 import { hkDateTime } from "@/lib/hkTime";
+import { NotificationRunsPanel } from "@/components/admin/NotificationRunsPanel";
 
 export const Route = createFileRoute("/_authenticated/admin/data-freshness")({
   head: () => ({ meta: [{ title: "資料新鮮度 · 天喜監控端" }, { name: "description", content: "資料新鮮度 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:title", content: "資料新鮮度 · 天喜監控端" }, { property: "og:description", content: "資料新鮮度 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -48,6 +49,7 @@ function Freshness() {
       <Panel title="定時任務" en="GitHub Actions" className="mt-4">
         <DataTable data={rows} columns={cols} pageSize={25} empty={rh.isLoading ? "讀取中…" : "未有任務資料"} />
       </Panel>
+      <NotificationRunsPanel />
     </>
   );
 }

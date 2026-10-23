@@ -17,6 +17,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { PendingFollowHandler } from "@/components/tx/PendingFollowHandler";
 import { TierPreviewProvider } from "@/components/tx/gates/TierPreview";
 
 function NotFoundComponent() {
@@ -91,6 +92,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0F5E49" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "天喜賽馬" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       {
         "script:ld+json": {
           "@context": "https://schema.org",
@@ -141,13 +146,21 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => { if ('serviceWorker' in navigator && window.top === window.self) void navigator.serviceWorker.register('/sw.js').catch(() => {}); }, []);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange(event => {
       if (event === "SIGNED_OUT") {
         queryClient.removeQueries({ queryKey: ["tier"] });
+        queryClient.removeQueries({ queryKey: ["watchlist"] });
+        queryClient.removeQueries({ queryKey: ["watch-notifications"] });
+        queryClient.removeQueries({ queryKey: ["watch-latest"] });
         queryClient.removeQueries({ queryKey: ["my-membership"] });
+        queryClient.removeQueries({ queryKey: ["telegram-link"] });
+        queryClient.removeQueries({ queryKey: ["notification-prefs"] });
       } else if (event === "SIGNED_IN" || event === "USER_UPDATED") {
         void queryClient.invalidateQueries({ queryKey: ["tier"] });
+        void queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+        void queryClient.invalidateQueries({ queryKey: ["watch-notifications"] });
         void queryClient.invalidateQueries({ queryKey: ["my-membership"] });
       }
     });
@@ -157,7 +170,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <TierPreviewProvider><Outlet /></TierPreviewProvider>
+      <TierPreviewProvider><PendingFollowHandler /><Outlet /></TierPreviewProvider>
       <GoogleAnalytics />
       <Toaster position="top-center" />
     </QueryClientProvider>

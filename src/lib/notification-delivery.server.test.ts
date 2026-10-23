@@ -1,0 +1,20 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+const mock=vi.hoisted(()=>({receipts:new Set<string>(),send:vi.fn(),rpc:vi.fn()}));
+vi.mock('./webpush.server',()=>({deliverPush:mock.send}));
+vi.mock('@/integrations/supabase/client.server',()=>({supabaseAdmin:{rpc:mock.rpc,from:()=>{let uid='',key='',sub='';const q={select:()=>q,eq:(k:string,v:string)=>{if(k==='user_id')uid=v;if(k==='event_key')key=v;if(k==='subscription_id')sub=v;return q;},maybeSingle:async()=>({data:mock.receipts.has(`${uid}:${key}:${sub}`)?{delivered_at:'2026-10-23'}:null,error:null}),upsert:async(row:{user_id:string;event_key:string;subscription_id:string})=>{mock.receipts.add(`${row.user_id}:${row.event_key}:${row.subscription_id}`);return {error:null};}};return q;}}}));
+import {deliverEventPush,renewNotificationLease} from './notification-delivery.server';
+import type {PushRow} from './webpush.server';
+const a={id:'device-a'} as PushRow;const b={id:'device-b'} as PushRow;
+const message={title:'愛駒',body:'',url:'/my-horses',tag:'entry:1'};
+beforeEach(()=>{mock.receipts.clear();mock.send.mockReset();mock.rpc.mockReset();});
+it('failed second device retries while accepted first device never resends',async()=>{
+ mock.send.mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true);const renew=vi.fn(async()=>{});
+ expect(await deliverEventPush('owner','entry:1',a,message,86400,renew)).toBe(true);
+ expect(await deliverEventPush('owner','entry:1',b,message,86400,renew)).toBe(false);
+ expect(await deliverEventPush('owner','entry:1',a,message,86400,renew)).toBe(true);
+ expect(await deliverEventPush('owner','entry:1',b,message,86400,renew)).toBe(true);
+ expect(mock.send).toHaveBeenCalledTimes(3);expect(mock.receipts.size).toBe(2);
+});
+it('another owner cannot reuse a previous owner receipt',async()=>{mock.send.mockResolvedValue(true);const renew=async()=>{};await deliverEventPush('first','entry:1',a,message,86400,renew);await deliverEventPush('second','entry:1',a,message,86400,renew);expect(mock.send).toHaveBeenCalledTimes(2);});
+it('lost lease aborts before any device call',async()=>{await expect(deliverEventPush('owner','entry:1',a,message,86400,async()=>{throw new Error('lost');})).rejects.toThrow('lost');expect(mock.send).not.toHaveBeenCalled();});
+it('renewal requires current owner acknowledgement',async()=>{mock.rpc.mockResolvedValue({data:false,error:null});await expect(renewNotificationLease('watch','owner')).rejects.toThrow('notification_lease_lost');expect(mock.rpc).toHaveBeenCalledWith('renew_notification_job',{k:'watch',oid:'owner'});});

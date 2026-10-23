@@ -1,0 +1,2 @@
+import { createFileRoute,redirect } from '@tanstack/react-router';
+export const Route=createFileRoute('/watchlist')({beforeLoad:({location})=>{throw redirect({href:'/my-horses'+location.searchStr,replace:true});},head:()=>({meta:[{title:'愛駒追蹤 · 天喜賽馬'},{name:'description',content:'前往天喜我的愛駒。'},{property:'og:title',content:'愛駒追蹤 · 天喜賽馬'},{property:'og:description',content:'前往個人愛駒收藏及每日動態。'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]})});

@@ -12,6 +12,7 @@ export function FoundingMemberOffer() {
   const { data: info } = useFoundingInfo();
   const total = info?.total;
   const foundingSlots = info?.founding_slots ?? FREE_STAGE_GOAL_MEMBERS;
+  if (!info || info.remaining <= 0) return null;
   return (
     <section aria-labelledby="founding-offer-title" className="border-y border-gold-strong/40 bg-deep px-5 py-6 text-deep-fg md:px-10 md:py-8">
       <div className="grid items-center gap-5 md:grid-cols-[minmax(0,1fr)_auto]">
