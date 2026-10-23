@@ -1,0 +1,3 @@
+import {createFileRoute} from '@tanstack/react-router';
+import {authenticateCronRequest} from '@/integrations/supabase/cron-auth';
+export const Route=createFileRoute('/api/public/jobs/horse-watch')({server:{handlers:{POST:async({request})=>{const denied=await authenticateCronRequest(request);if(denied)return denied;try{const {runHorseWatchJob}=await import('@/lib/horse-watch-job.server');return Response.json(await runHorseWatchJob());}catch{return Response.json({ok:false,error:'horse-watch-failed'},{status:502});}}}}});

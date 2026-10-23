@@ -1,0 +1,41 @@
+import { createServerFn } from '@tanstack/react-start';
+import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
+import { z } from 'zod';
+import { HORSE_ID, watchLimitMessage, type WatchList } from './watchlist';
+import {assertRacedayOptIn} from './notification-availability';
+const horseId=z.string().regex(HORSE_ID);
+export const listWatchlist=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context}):Promise<WatchList>=>{
+  const { loadUserTier }=await import('./tier.server');
+  const info=await loadUserTier(context.supabase,context.userId);
+  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
+  const applied=await supabaseAdmin.rpc('apply_watch_limits',{uid:context.userId,lim:Math.min(90,info.watchLimit)});
+  if(applied.error) throw new Error('暫時未能核對追蹤上限');
+  const [list,settings]=await Promise.all([context.supabase.from('horse_watchlist').select('*').eq('user_id',context.userId).order('paused').order('activated_at',{ascending:false}),context.supabase.from('app_settings').select('value').eq('key','watch_limit_pro').single()]);
+  if(list.error || settings.error) throw new Error('暫時未能讀取愛駒');
+  const rows=list.data ?? [];
+  return {rows,limit:Math.min(90,info.watchLimit),proLimit:typeof settings.data.value==='number'?Math.min(90,settings.data.value):90,activeCount:rows.filter(r=>!r.paused).length,pausedCount:rows.filter(r=>r.paused).length,tier:info.tier,gateOpen:info.gateOpen};
+});
+export const mutateWatch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({action:z.enum(['add','remove','active']),horseId,horseName:z.string().max(120).optional(),active:z.boolean().optional(),swapOutHorseId:horseId.optional()}).parse(data)).handler(async({data,context})=>{
+ const {loadUserTier}=await import('./tier.server'); const info=await loadUserTier(context.supabase,context.userId);
+ const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
+ const r=await supabaseAdmin.rpc('mutate_horse_watch',{uid:context.userId,lim:Math.min(90,info.watchLimit),action:data.action,hid:data.horseId,...(data.horseName ? {hname:data.horseName}:{}),active:data.active ?? true,...(data.swapOutHorseId ? {swap_id:data.swapOutHorseId}:{})});
+ if(r.error) { const settings=await context.supabase.from('app_settings').select('value').eq('key','watch_limit_pro').single(); const proLimit=typeof settings.data?.value==='number'?settings.data.value:90; throw new Error(r.error.message.includes('WATCH_LIMIT')?`WATCH_LIMIT: ${watchLimitMessage(info.watchLimit,proLimit,info.gateOpen,info.tier)}`:r.error.message); }
+ return {ok:true};
+});
+export const selectActiveWatches=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({horseIds:z.array(horseId).max(90)}).parse(data)).handler(async({data,context})=>{
+ const {loadUserTier}=await import('./tier.server'); const info=await loadUserTier(context.supabase,context.userId); const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
+ const r=await supabaseAdmin.rpc('select_active_watches',{uid:context.userId,lim:Math.min(90,info.watchLimit),horse_ids:data.horseIds}); if(r.error) throw new Error(r.error.message); return {ok:true};
+});
+export const updateWatch=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({horseId,notify_entry:z.boolean().optional(),notify_trial:z.boolean().optional(),notify_trackwork:z.boolean().optional(),notify_injury:z.boolean().optional(),notify_push:z.boolean().optional(),notify_telegram:z.boolean().optional()}).strict().parse(data)).handler(async({data,context})=>{const {horseId:hid,...patch}=data; const r=await context.supabase.from('horse_watchlist').update(Object.fromEntries(Object.entries(patch).filter(([,v])=>v!==undefined)) as {notify_entry?:boolean;notify_trial?:boolean;notify_trackwork?:boolean;notify_injury?:boolean;notify_push?:boolean;notify_telegram?:boolean}).eq('user_id',context.userId).eq('horse_id',hid);if(r.error)throw new Error('提示設定未能儲存');return {ok:true};});
+export const getPrefs=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).handler(async({context})=>{const {racedayAvailability}=await import('./notification-availability.server');const r=await context.supabase.from('notification_prefs').select('*').eq('user_id',context.userId).maybeSingle();if(r.error)throw new Error('設定未能讀取');return {...(r.data ?? {telegram_enabled:false,push_enabled:false,trackwork_mode:'gallop',raceday_enabled:false}),racedayLive:await racedayAvailability()};});
+export const updatePrefs=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({telegram_enabled:z.boolean().optional(),push_enabled:z.boolean().optional(),trackwork_mode:z.enum(['gallop','all']).optional(),raceday_enabled:z.boolean().optional()}).strict().parse(data)).handler(async({data,context})=>{if(data.raceday_enabled===true){const {racedayAvailability}=await import('./notification-availability.server');assertRacedayOptIn(data.raceday_enabled,await racedayAvailability());}const patch=Object.fromEntries(Object.entries(data).filter(([,v])=>v!==undefined)) as {telegram_enabled?:boolean;push_enabled?:boolean;trackwork_mode?:string;raceday_enabled?:boolean};const r=await context.supabase.from('notification_prefs').upsert({...patch,...(data.raceday_enabled===true?{raceday_opted_in_at:new Date().toISOString()}:{}),user_id:context.userId,updated_at:new Date().toISOString()});if(r.error)throw new Error('設定未能儲存');return {ok:true};});
+export const listNotifications=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({limit:z.number().int().min(1).max(50).default(50)}).parse(data ?? {})).handler(async({data,context})=>{const r=await context.supabase.from('watch_notifications').select('*').eq('user_id',context.userId).order('created_at',{ascending:false}).limit(data.limit);if(r.error)throw new Error('動態未能讀取');return r.data ?? [];});
+export const markNotificationsRead=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({ids:z.array(z.number().int()).max(50)}).parse(data)).handler(async({data,context})=>{const r=await context.supabase.from('watch_notifications').update({read_at:new Date().toISOString()}).eq('user_id',context.userId).in('id',data.ids).is('read_at',null);if(r.error)throw new Error('已讀記錄未能儲存');return {ok:true};});
+export const getLatestHorseEvents=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({horseIds:z.array(horseId).max(90)}).parse(data)).handler(async({data,context})=>{
+ const followed=await context.supabase.from('horse_watchlist').select('horse_id').eq('user_id',context.userId).in('horse_id',data.horseIds);
+ if(followed.error)throw new Error('愛駒身份未能核實');const ids=followed.data.map(r=>r.horse_id);if(ids.length!==new Set(data.horseIds).size)throw new Error('只可讀取自己追蹤嘅馬匹');
+ const result:Record<string,{title:string;date:string}>={}; if(!ids.length)return result;
+ try { const secret=process.env['WATCH_FEED_SECRET'] ?? process.env['WEATHER_CRON_SECRET']; if(secret) { const since=new Date(Date.now()+8*3600000-14*86400000).toISOString().slice(0,10);const response=await fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/watch/events?horse_ids=${encodeURIComponent(ids.join(','))}&since=${since}&trackwork=all`,{headers:{'x-cron-secret':secret},signal:AbortSignal.timeout(10000)});if(response.ok){ const {projectLatestEvents}=await import('./watch-events'); Object.assign(result,projectLatestEvents(await response.json(),ids)); } } }catch { /* historical notification fallback; never expose provider secrets */ }
+ const fallback=await context.supabase.from('watch_notifications').select('horse_id,title,event_date,created_at').eq('user_id',context.userId).in('horse_id',ids).gte('created_at',new Date(Date.now()-14*86400000).toISOString()).order('created_at',{ascending:false}).limit(1000);
+ for(const r of fallback.data ?? []) if(r.horse_id && !result[r.horse_id])result[r.horse_id]={title:r.title,date:r.event_date ?? r.created_at.slice(0,10)}; return result;
+});

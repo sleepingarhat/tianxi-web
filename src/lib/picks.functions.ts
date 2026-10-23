@@ -11,7 +11,7 @@ const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
 // 不保存完成結果：避免凍結恢復後繼續公開舊初版或吞掉阻截錯誤。
 
-async function fetchTodayPicksUpstream() {
+export async function fetchTodayPicksUpstream() {
   const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
   const lock = await lockResponse.json() as { date?: string; venue?: string; lockAt?: string; locked?: boolean; edition?: string };

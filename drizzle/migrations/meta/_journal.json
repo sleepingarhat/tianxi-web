@@ -239,6 +239,69 @@
       "when": 1792750140165,
       "tag": "0033_membership_tier_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1792756003649,
+      "tag": "0034_horse_watchlist_owner_scoped",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1792756345944,
+      "tag": "0035_watch_limit_transition_preserves_selection",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1792761292629,
+      "tag": "0036_telegram_member_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792761435135,
+      "tag": "0037_webpush_and_raceday_optin",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792761793823,
+      "tag": "0038_notification_delivery_owner_and_lease_safety",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1792766756759,
+      "tag": "0039_crypto_passes_atomic_payment_ledger",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1792766970624,
+      "tag": "0040_durable_watch_limit_notices",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1792776669039,
+      "tag": "0041_membership_watch_limits_and_raceday_release_gate",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1792776805866,
+      "tag": "0042_watch_limits_payment_environment_isolation",
+      "breakpoints": true
     }
   ]
 }

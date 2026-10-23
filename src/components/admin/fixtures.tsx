@@ -69,16 +69,16 @@ export function workflowFixture(kind: "demo" | "worst") {
   ];
 }
 
-export type MemberFixture = { id: string; name: string; email: string; plan: "日票" | "月票"; status: "有效" | "已到期" | "已取消"; vip: boolean; expiresAt: string | null };
+export type MemberFixture = { id: string; name: string; email: string; plan: "免費" | "Pro 週費" | "創始 Pro" | "加密 52 週"; status: "有效" | "已到期" | "已取消"; telegramLinked: boolean; expiresAt: string | null };
 
 export function membersFixture(kind: "demo" | "worst"): MemberFixture[] {
   const member = (i: number): MemberFixture => ({
     id: `fixture-member-${i}`,
     name: i % 17 === 0 ? "一個用嚟驗證極長姓名唔會撐爆版面嘅測試會員" : `測試會員 ${i + 1}`,
     email: i % 23 === 0 ? `extremely-long-member-address-${i}@subdomain.example.invalid` : `member-${i}@example.invalid`,
-    plan: i % 3 === 0 ? "日票" : "月票",
+    plan: (["免費", "Pro 週費", "創始 Pro", "加密 52 週"] as const)[i % 4] ?? "免費",
     status: i % 11 === 0 ? "已取消" : i % 5 === 0 ? "已到期" : "有效",
-    vip: i % 2 === 0,
+    telegramLinked: i % 2 === 0,
     expiresAt: i % 29 === 0 ? null : new Date(Date.now() + (i % 5 - 1) * 86_400_000).toISOString(),
   });
   return Array.from({ length: kind === "worst" ? 1200 : 12 }, (_, i) => member(i));

@@ -22,6 +22,8 @@ async function loadMembership(ctx: Ctx, environment: StripeEnv) {
     .limit(1)
     .maybeSingle();
   if (subError) throw new Error("無法讀取訂閱紀錄");
+  const pass=await ctx.supabase.rpc('crypto_pass_until',{uid:ctx.userId,env:environment});
+  if(pass.error)throw new Error('無法讀取通行證紀錄');
   const row = (m ?? {}) as { rank?: number; total?: number; gate_open_at?: string | null; threshold?: number; founding_slots?: number };
   const entitlement = resolveEntitlement({
     rank: row.rank ?? null,
@@ -30,6 +32,7 @@ async function loadMembership(ctx: Ctx, environment: StripeEnv) {
     subscription: (sub as SubRow | null) ?? null,
     threshold: row.threshold ?? DEFAULT_PAYWALL_THRESHOLD,
     foundingSlots: row.founding_slots ?? FOUNDING_SLOTS,
+    cryptoPassUntil:pass.data,
   });
   return { rank: row.rank ?? null, total: row.total ?? 0, gateOpenAt: row.gate_open_at ?? null, threshold: row.threshold, foundingSlots: row.founding_slots, entitlement, customerId: (sub as { stripe_customer_id?: string | null } | null)?.stripe_customer_id ?? null };
 }

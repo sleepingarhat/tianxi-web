@@ -1,3 +1,4 @@
+import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -221,7 +222,7 @@ function ResultsPage() {
                         <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[10px] font-bold text-deep-fg">
                           {p.horseNumber}
                         </span>
-                        {p.horseId ? <Link to="/horse" search={{ id: p.horseId }} className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${p.hit ? "font-bold text-win" : "text-ink-2"}`}>{p.nameCh}</Link> : <span className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${p.hit ? "font-bold text-win" : "text-ink-2"}`}>{p.nameCh}</span>}
+                        <FollowHorseButton horseId={p.horseId} horseName={p.nameCh}/>{p.horseId ? <Link to="/horse" search={{ id: p.horseId }} className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${p.hit ? "font-bold text-win" : "text-ink-2"}`}>{p.nameCh}</Link> : <span className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${p.hit ? "font-bold text-win" : "text-ink-2"}`}>{p.nameCh}</span>}
                         <span className="shrink-0 font-mono-tx text-[10px]">{p.hit ? "✓" : "·"}</span>
                       </div>
                     ))}
@@ -234,7 +235,7 @@ function ResultsPage() {
                         <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[10px] font-bold text-deep-fg">
                           {a.horseNumber}
                         </span>
-                        {a.horseId ? <Link to="/horse" search={{ id: a.horseId }} className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${a.hit ? "font-bold text-win" : "text-ink-2"}`}>{a.nameCh}</Link> : <span className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${a.hit ? "font-bold text-win" : "text-ink-2"}`}>{a.nameCh}</span>}
+                        <FollowHorseButton horseId={a.horseId} horseName={a.nameCh}/>{a.horseId ? <Link to="/horse" search={{ id: a.horseId }} className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${a.hit ? "font-bold text-win" : "text-ink-2"}`}>{a.nameCh}</Link> : <span className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${a.hit ? "font-bold text-win" : "text-ink-2"}`}>{a.nameCh}</span>}
                         <span className="tabnum shrink-0 font-mono-tx text-[10px] text-ink-3">{a.winOdds ?? "—"}</span>
                       </div>
                     ))}

@@ -1,3 +1,4 @@
+import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { useTier } from "@/lib/useTier";
 import { TierGate } from "@/components/tx/gates/TierGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -268,8 +269,8 @@ function HorsePage() {
                 <p className="font-mono-tx text-[10px] font-bold uppercase tracking-[0.22em] text-gold">
                   HORSE DOSSIER{has(h.code) ? ` · ${h.code}` : ""}
                 </p>
-                <h1 className="mt-1 flex items-center gap-2 font-serif-tc text-[27px] font-bold leading-tight text-ink">
-                  <span className="fx-spotlight">{h.nameCh || h.nameEn}</span>
+                <h1 className="mt-1 flex flex-wrap items-center gap-2 font-serif-tc text-[27px] font-bold leading-tight text-ink">
+                  <span className="fx-spotlight">{h.nameCh || h.nameEn}</span><FollowHorseButton horseId={horseId} horseName={h.nameCh || h.nameEn || horseId} variant="pill"/>
                   {style ? <Pill tone="gold">{style}</Pill> : null}
                 </h1>
                 {has(h.nameEn) && h.nameEn !== h.nameCh ? (

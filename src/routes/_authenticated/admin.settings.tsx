@@ -6,6 +6,8 @@ import { AdminHead, NoteBox, Panel, StatusBadge } from "@/components/admin/kit";
 import { REFRESH_KEY, useRacingHealth } from "@/components/admin/data";
 import { txApi } from "@/lib/tx-api";
 import { MembershipSettingsPanel } from "@/components/admin/MembershipSettingsPanel";
+import { TelegramSettingsPanel } from "@/components/admin/TelegramSettingsPanel";
+import {CryptoPassPanel} from '@/components/admin/CryptoPassPanel';
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   head: () => ({ meta: [{ title: "設定 · 天喜監控端" }, { name: "description", content: "設定 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:title", content: "設定 · 天喜監控端" }, { property: "og:description", content: "設定 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -54,6 +56,8 @@ function SettingsPage() {
       <AdminHead title="設定" en="Settings" desc="會員分級及監控端顯示設定。會員設定會套用全站；自動更新間隔只影響本機。" />
       <div className="grid gap-3 lg:grid-cols-2">
         <MembershipSettingsPanel />
+        <TelegramSettingsPanel />
+        <CryptoPassPanel settings />
         <Panel title="接口" en="API Endpoints">
           <ul className="space-y-1.5">
             {ENDPOINTS.map(([n, u]) => <EndpointRow key={String(n)} n={String(n)} u={String(u)} />)}

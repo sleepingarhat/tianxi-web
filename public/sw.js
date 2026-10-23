@@ -1,0 +1,6 @@
+self.addEventListener('install',()=>self.skipWaiting());
+self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
+function sameOriginPath(value){try{const url=new URL(value || '/my-horses',self.location.origin);return url.origin===self.location.origin?url.href:new URL('/my-horses',self.location.origin).href;}catch{return new URL('/my-horses',self.location.origin).href;}}
+self.addEventListener('push',event=>{let data={title:'天喜賽馬',body:'有新動態',url:'/my-horses',tag:'watch'};try{data={...data,...event.data.json()};}catch{}event.waitUntil(self.registration.showNotification(data.title,{body:data.body,tag:data.tag,icon:'/favicon-v10-192.png',badge:'/favicon-v10-96.png',data:{url:sameOriginPath(data.url)}}));});
+self.addEventListener('notificationclick',event=>{event.notification.close();const url=sameOriginPath(event.notification.data?.url);event.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(async tabs=>{const tab=tabs.find(t=>new URL(t.url).origin===self.location.origin);if(tab){await tab.navigate(url);return tab.focus();}return self.clients.openWindow(url);}));});
+// Deliberately no fetch handler: never cache predictions, odds, pages or API responses.

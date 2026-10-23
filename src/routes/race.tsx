@@ -1,3 +1,4 @@
+import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { useTier } from "@/lib/useTier";
 import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
 import { projectRacePicks } from "@/lib/tier-projection";
@@ -185,7 +186,7 @@ function RacePage() {
                         {h.jockeyCh || h.jockey || "—"} ／ {h.trainerCh || h.trainer || "—"}
                       </p>
                     </div>
-                    <div className="flex min-w-9 justify-end">{rank ? <Pill tone="gold">引擎 #{rank}</Pill> : null}</div>
+                    <div className="flex min-w-9 items-center justify-end"><FollowHorseButton horseId={horseLinkId} horseName={horseName}/>{rank ? <Pill tone="gold">引擎 #{rank}</Pill> : null}</div>
                   </div>
 
                   <dl className="mt-2.5 grid grid-cols-6 overflow-hidden rounded-[6px] border border-hairline bg-paper-2">

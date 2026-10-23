@@ -1,3 +1,4 @@
+import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { useTier } from "@/lib/useTier";
 import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
 import { cardAccess } from "@/lib/tier-projection";
@@ -94,7 +95,7 @@ function CardsPage() {
                       <tr key={p.horseNumber} className={`border-b border-hairline ${i === 0 ? "bg-gold-bg/50" : ""}`}>
                         <Td first>
                           <div className="flex items-center gap-1.5">
-                            <Silks source={p} size={34} className="shadow-sm" />
+                            <FollowHorseButton horseId={p.horseId} horseName={p.nameCh}/><Silks source={p} size={34} className="shadow-sm" />
                             <span className="tabnum grid h-7 w-7 shrink-0 place-items-center rounded-[4px] bg-deep font-mono-tx text-[12px] font-bold text-deep-fg">
                               {p.horseNumber}
                             </span>

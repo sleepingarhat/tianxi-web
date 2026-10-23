@@ -7,12 +7,14 @@ import { Card, PageHead } from "@/components/tx/ui";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
+import { HORSE_ID } from "@/lib/watchlist";
+import { passwordStrength } from "@/lib/password-strength";
 import { safeAuthNext } from "@/lib/auth-next";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string } => {
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string; follow?: string } => {
     const next = safeAuthNext(search["next"]);
-    return { ...(search["mode"] === "signup" ? { mode: "signup" as const } : {}), ...(next ? { next } : {}) };
+    return { ...(search["mode"] === "signup" ? { mode: "signup" as const } : {}), ...(next ? { next } : {}), ...(typeof search["follow"] === "string" && HORSE_ID.test(search["follow"]) ? {follow:search["follow"]} : {}) };
   },
   head: () => ({
     meta: [
@@ -41,6 +43,41 @@ function describeGoogleError(raw: string): string {
     return "Google 登入服務暫時未能使用，請稍後再試，或改用電郵登入。";
   }
   return `Google 登入未能完成（${raw}）。請再試一次；若持續失敗，可改用電郵登入。`;
+}
+
+/** 將常見登入／註冊英文錯誤譯成中文。 */
+function describeAuthError(raw: string): string {
+  const s = raw.toLowerCase();
+  if (s.includes("weak") || s.includes("easy to guess") || s.includes("pwned")) return "呢個密碼太常見、容易被估中，請改用另一個較強嘅密碼（8 個字元或以上，混合大小寫英文、數字及符號）。";
+  if (s.includes("at least") && s.includes("character")) return "密碼太短，請至少輸入 8 個字元。";
+  if (s.includes("invalid login") || s.includes("invalid credentials")) return "電郵或密碼唔啱，請再試一次。";
+  if (s.includes("email not confirmed")) return "電郵未確認，請先到收件箱（包括垃圾郵件）撳確認連結。";
+  if (s.includes("already registered") || s.includes("already exists")) return "呢個電郵已經註冊，請直接登入。";
+  if (s.includes("rate limit") || s.includes("too many")) return "嘗試次數太多，請稍候再試。";
+  if (s.includes("invalid") && s.includes("email")) return "電郵格式唔正確。";
+  return `操作未能完成（${raw}），請再試一次。`;
+}
+
+function PasswordMeter({ pw }: { pw: string }) {
+  if (!pw) return null;
+  const { score, label, checks, common } = passwordStrength(pw);
+  const tone = score <= 1 ? "bg-lose" : score <= 2 ? "bg-gold" : "bg-win";
+  const text = score <= 1 ? "text-lose" : score <= 2 ? "text-gold" : "text-win";
+  return (
+    <div className="mt-2" aria-live="polite">
+      <div className="flex gap-1">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span key={i} className={`h-1.5 flex-1 rounded-full ${i < score ? tone : "bg-hairline"}`} />
+        ))}
+      </div>
+      <p className={`mt-1 text-[11px] font-bold ${text}`}>密碼強度：{label}{common ? "（屬常見密碼，容易被估中）" : ""}</p>
+      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px]">
+        {checks.map((c) => (
+          <li key={c.label} className={c.ok ? "text-win" : "text-ink-3"}>{c.ok ? "✓" : "○"} {c.label}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function AuthPage() {
@@ -123,7 +160,7 @@ function AuthPage() {
         });
         if (error) throw error;
         track("sign_up", { method: "email" });
-        setMsg("已建立帳戶。如需電郵確認，請先檢查收件箱，然後回來登入。");
+        setMsg("已建立帳戶。確認電郵已寄出，請檢查收件箱；如未見到，請睇埋「垃圾郵件」並標記為「非垃圾郵件」。");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -131,7 +168,7 @@ function AuthPage() {
         await goAfterSignIn();
       }
     } catch (e2) {
-      setErr(e2 instanceof Error ? e2.message : String(e2));
+      setErr(describeAuthError(e2 instanceof Error ? e2.message : String(e2)));
     } finally {
       setBusy(false);
     }
@@ -185,12 +222,13 @@ function AuthPage() {
             <input
               type="password"
               required
-              minLength={6}
+              minLength={mode === "signup" ? 8 : 6}
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink outline-none focus:border-gold"
             />
+            {mode === "signup" && <PasswordMeter pw={password} />}
           </label>
           <Button
             type="submit"

@@ -7,7 +7,11 @@ export const FOUNDING_SLOTS = DEFAULT_PAYWALL_THRESHOLD;
 export const FREE_STAGE_GOAL_MEMBERS = DEFAULT_PAYWALL_THRESHOLD;
 export const WATCH_LIMITS = { free_stage: 30, registered: 3, pro: 90 } as const;
 export const CRYPTO_PASS_PRICE_USD = 416;
-export const CRYPTO_PASS_APPROX_HKD = 3245;
+export const CRYPTO_PASS_PRICE_HKD = 3244.8;
+export const CRYPTO_PASS_DISCOUNT = 0.8;
+export function formatHkd(amount: number) {
+  return `HK$${amount.toLocaleString('en-HK', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+}
 export const PRO_WEEKLY_PRICE_HKD = 78;
 export const FOUNDING_PRO_WEEKS = 52;
 export const FOUNDING_PRO_VALUE_HKD = PRO_WEEKLY_PRICE_HKD * FOUNDING_PRO_WEEKS;
