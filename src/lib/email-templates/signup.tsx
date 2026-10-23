@@ -37,7 +37,7 @@ export const SignupEmail = ({
           <Text style={brandSub}>tianxi.racing</Text>
         </Section>
         <Img
-          src={`${siteUrl}/email/mascot.png`}
+          src={`${siteUrl}/email/mascot-v2.png`}
           width="200"
           height="200"
           alt="天喜吉祥物：戴賽馬帽嘅啡色馬仔舉起大拇指歡迎你"
