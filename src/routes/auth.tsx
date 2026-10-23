@@ -7,12 +7,13 @@ import { Card, PageHead } from "@/components/tx/ui";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
+import { HORSE_ID } from "@/lib/watchlist";
 import { safeAuthNext } from "@/lib/auth-next";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string } => {
+  validateSearch: (search: Record<string, unknown>): { mode?: "signup"; next?: string; follow?: string } => {
     const next = safeAuthNext(search["next"]);
-    return { ...(search["mode"] === "signup" ? { mode: "signup" as const } : {}), ...(next ? { next } : {}) };
+    return { ...(search["mode"] === "signup" ? { mode: "signup" as const } : {}), ...(next ? { next } : {}), ...(typeof search["follow"] === "string" && HORSE_ID.test(search["follow"]) ? {follow:search["follow"]} : {}) };
   },
   head: () => ({
     meta: [

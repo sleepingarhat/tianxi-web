@@ -6,12 +6,14 @@ export type AuthState = {
   /** null = 未載入完成 */
   signedIn: boolean | null;
   isAdmin: boolean;
+  userId: string | null;
 };
 
 /** 全站共用登入狀態：signedIn 用嚟切換註冊／會員按鈕，isAdmin 決定監控台入口。 */
 export function useAuthState(): AuthState {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -20,6 +22,7 @@ export function useAuthState(): AuthState {
       const { data } = await supabase.auth.getSession();
       if (!alive) return;
       const session = data.session;
+      setUserId(session?.user.id ?? null);
       setSignedIn(!!session);
       if (!session) {
         setIsAdmin(false);
@@ -42,5 +45,5 @@ export function useAuthState(): AuthState {
     };
   }, []);
 
-  return { signedIn, isAdmin };
+  return { signedIn, isAdmin, userId };
 }

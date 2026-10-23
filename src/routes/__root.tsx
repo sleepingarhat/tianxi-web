@@ -17,6 +17,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { PendingFollowHandler } from "@/components/tx/PendingFollowHandler";
 import { TierPreviewProvider } from "@/components/tx/gates/TierPreview";
 
 function NotFoundComponent() {
@@ -145,9 +146,14 @@ function RootComponent() {
     const { data } = supabase.auth.onAuthStateChange(event => {
       if (event === "SIGNED_OUT") {
         queryClient.removeQueries({ queryKey: ["tier"] });
+        queryClient.removeQueries({ queryKey: ["watchlist"] });
+        queryClient.removeQueries({ queryKey: ["watch-notifications"] });
+        queryClient.removeQueries({ queryKey: ["watch-latest"] });
         queryClient.removeQueries({ queryKey: ["my-membership"] });
       } else if (event === "SIGNED_IN" || event === "USER_UPDATED") {
         void queryClient.invalidateQueries({ queryKey: ["tier"] });
+        void queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+        void queryClient.invalidateQueries({ queryKey: ["watch-notifications"] });
         void queryClient.invalidateQueries({ queryKey: ["my-membership"] });
       }
     });
@@ -157,7 +163,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <TierPreviewProvider><Outlet /></TierPreviewProvider>
+      <TierPreviewProvider><PendingFollowHandler /><Outlet /></TierPreviewProvider>
       <GoogleAnalytics />
       <Toaster position="top-center" />
     </QueryClientProvider>

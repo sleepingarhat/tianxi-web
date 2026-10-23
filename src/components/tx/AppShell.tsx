@@ -6,12 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthState } from "@/lib/useAuthState";
 import tianxiLogo from "@/assets/tianxi-racing-logo-v10.jpg";
 import { OverflowTicker } from "./OverflowTicker";
+import { WatchNotificationsBell } from "./WatchNotificationsBell";
 import { TierBadge } from "./gates/TierBadge";
 import { useTier, useFoundingInfo } from "@/lib/useTier";
 
 
 
 export type NavKey =
+  | "myhorses"
   | "dashboard"
   | "horse"
   | "predictor"
@@ -47,6 +49,7 @@ const BOTNAV: { to: string; key: NavKey; label: string; icon: ReactNode }[] = [
     ),
   },
 
+  { to: "/my-horses", key: "myhorses", label: "愛駒", icon: <path d="m12 3 2.8 5.7 6.3.9-4.6 4.5 1.1 6.3-5.6-3-5.6 3 1.1-6.3L3 9.6l6.2-.9z" /> },
   { to: "/schedule", key: "schedule", label: "賽程", icon: <><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4M16 3v4M4 11h16" /></> },
   { to: "/engine", key: "engine", label: "引擎", icon: <><circle cx="12" cy="12" r="9" /><path d="M12 12l5-5M5 16h14" /></> },
 ];
@@ -105,12 +108,13 @@ export function AppShell({
               const on = item.key === page || (item.key === "horse" && ["horse", "predictor", "encyclopedia"].includes(page));
               return (
                 <Link key={item.key} to={item.to} aria-current={on ? "page" : undefined} className={`font-serif-tc text-[14px] font-bold transition-colors hover:text-gold-strong ${on ? "text-gold-strong" : "text-deep-fg/75"}`}>
-                  {item.label}
+                  {item.key === "myhorses" ? "我的愛駒" : item.label}
                 </Link>
               );
             })}
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {signedIn === true ? <WatchNotificationsBell /> : null}
             {signedIn === true && !tier.loading ? <TierBadge tier={tier.tier} /> : null}
             {isAdmin ? (
               <Link

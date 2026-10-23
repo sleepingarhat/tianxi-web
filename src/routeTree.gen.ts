@@ -26,6 +26,7 @@ import { Route as ManualRouteImport } from './routes/manual'
 import { Route as MediaCreditsRouteImport } from './routes/media-credits'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as ModelRouteImport } from './routes/model'
+import { Route as MyHorsesRouteImport } from './routes/my-horses'
 import { Route as PoolOddsRouteImport } from './routes/pool-odds'
 import { Route as PredictionReconciliationRouteImport } from './routes/prediction-reconciliation'
 import { Route as PredictionVsResultRouteImport } from './routes/prediction-vs-result'
@@ -42,6 +43,7 @@ import { Route as StrategyPnlRouteImport } from './routes/strategy-pnl'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrackRecordRouteImport } from './routes/track-record'
 import { Route as ValueTrendRouteImport } from './routes/value-trend'
+import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
@@ -179,6 +181,11 @@ const ModelRoute = ModelRouteImport.update({
   path: '/model',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyHorsesRoute = MyHorsesRouteImport.update({
+  id: '/my-horses',
+  path: '/my-horses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PoolOddsRoute = PoolOddsRouteImport.update({
   id: '/pool-odds',
   path: '/pool-odds',
@@ -258,6 +265,11 @@ const TrackRecordRoute = TrackRecordRouteImport.update({
 const ValueTrendRoute = ValueTrendRouteImport.update({
   id: '/value-trend',
   path: '/value-trend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchlistRoute = WatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
@@ -564,6 +576,7 @@ export interface FileRoutesByFullPath {
   '/media-credits': typeof MediaCreditsRoute
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
+  '/my-horses': typeof MyHorsesRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -580,6 +593,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
@@ -650,6 +664,7 @@ export interface FileRoutesByTo {
   '/media-credits': typeof MediaCreditsRoute
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
+  '/my-horses': typeof MyHorsesRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -666,6 +681,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -737,6 +753,7 @@ export interface FileRoutesById {
   '/media-credits': typeof MediaCreditsRoute
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
+  '/my-horses': typeof MyHorsesRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -753,6 +770,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
+  '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
@@ -825,6 +843,7 @@ export interface FileRouteTypes {
     | '/media-credits'
     | '/membership'
     | '/model'
+    | '/my-horses'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -841,6 +860,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/watchlist'
     | '/withdrawals'
     | '/admin'
     | '/checkout/return'
@@ -911,6 +931,7 @@ export interface FileRouteTypes {
     | '/media-credits'
     | '/membership'
     | '/model'
+    | '/my-horses'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -927,6 +948,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/watchlist'
     | '/withdrawals'
     | '/checkout/return'
     | '/engine/audit'
@@ -997,6 +1019,7 @@ export interface FileRouteTypes {
     | '/media-credits'
     | '/membership'
     | '/model'
+    | '/my-horses'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -1013,6 +1036,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/track-record'
     | '/value-trend'
+    | '/watchlist'
     | '/withdrawals'
     | '/_authenticated/admin'
     | '/checkout/return'
@@ -1085,6 +1109,7 @@ export interface RootRouteChildren {
   MediaCreditsRoute: typeof MediaCreditsRoute
   MembershipRoute: typeof MembershipRoute
   ModelRoute: typeof ModelRoute
+  MyHorsesRoute: typeof MyHorsesRoute
   PoolOddsRoute: typeof PoolOddsRoute
   PredictionReconciliationRoute: typeof PredictionReconciliationRoute
   PredictionVsResultRoute: typeof PredictionVsResultRoute
@@ -1101,6 +1126,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrackRecordRoute: typeof TrackRecordRoute
   ValueTrendRoute: typeof ValueTrendRoute
+  WatchlistRoute: typeof WatchlistRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   EngineAuditRoute: typeof EngineAuditRoute
@@ -1263,6 +1289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-horses': {
+      id: '/my-horses'
+      path: '/my-horses'
+      fullPath: '/my-horses'
+      preLoaderRoute: typeof MyHorsesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pool-odds': {
       id: '/pool-odds'
       path: '/pool-odds'
@@ -1373,6 +1406,13 @@ declare module '@tanstack/react-router' {
       path: '/value-trend'
       fullPath: '/value-trend'
       preLoaderRoute: typeof ValueTrendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watchlist': {
+      id: '/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof WatchlistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/withdrawals': {
@@ -1805,6 +1845,7 @@ const rootRouteChildren: RootRouteChildren = {
   MediaCreditsRoute: MediaCreditsRoute,
   MembershipRoute: MembershipRoute,
   ModelRoute: ModelRoute,
+  MyHorsesRoute: MyHorsesRoute,
   PoolOddsRoute: PoolOddsRoute,
   PredictionReconciliationRoute: PredictionReconciliationRoute,
   PredictionVsResultRoute: PredictionVsResultRoute,
@@ -1821,6 +1862,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrackRecordRoute: TrackRecordRoute,
   ValueTrendRoute: ValueTrendRoute,
+  WatchlistRoute: WatchlistRoute,
   WithdrawalsRoute: WithdrawalsRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   EngineAuditRoute: EngineAuditRoute,

@@ -263,6 +263,51 @@ export type Database = {
         }
         Relationships: []
       }
+      horse_watchlist: {
+        Row: {
+          activated_at: string
+          created_at: string
+          horse_id: string
+          horse_name: string | null
+          notify_entry: boolean
+          notify_injury: boolean
+          notify_push: boolean
+          notify_telegram: boolean
+          notify_trackwork: boolean
+          notify_trial: boolean
+          paused: boolean
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string
+          created_at?: string
+          horse_id: string
+          horse_name?: string | null
+          notify_entry?: boolean
+          notify_injury?: boolean
+          notify_push?: boolean
+          notify_telegram?: boolean
+          notify_trackwork?: boolean
+          notify_trial?: boolean
+          paused?: boolean
+          user_id: string
+        }
+        Update: {
+          activated_at?: string
+          created_at?: string
+          horse_id?: string
+          horse_name?: string | null
+          notify_entry?: boolean
+          notify_injury?: boolean
+          notify_push?: boolean
+          notify_telegram?: boolean
+          notify_trackwork?: boolean
+          notify_trial?: boolean
+          paused?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       member_test_accounts: {
         Row: {
           marked_at: string
@@ -305,6 +350,33 @@ export type Database = {
           released_at?: string
           status?: string
           version?: string
+        }
+        Relationships: []
+      }
+      notification_prefs: {
+        Row: {
+          push_enabled: boolean
+          raceday_alerts: boolean
+          telegram_enabled: boolean
+          trackwork_mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          push_enabled?: boolean
+          raceday_alerts?: boolean
+          telegram_enabled?: boolean
+          trackwork_mode?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          push_enabled?: boolean
+          raceday_alerts?: boolean
+          telegram_enabled?: boolean
+          trackwork_mode?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -824,6 +896,69 @@ export type Database = {
         }
         Relationships: []
       }
+      watch_limit_state: {
+        Row: {
+          applied_limit: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applied_limit: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applied_limit?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watch_notifications: {
+        Row: {
+          created_at: string
+          event_date: string | null
+          event_key: string
+          event_type: string
+          horse_id: string | null
+          id: number
+          payload: Json
+          push_sent_at: string | null
+          read_at: string | null
+          telegram_sent_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_date?: string | null
+          event_key: string
+          event_type: string
+          horse_id?: string | null
+          id?: number
+          payload?: Json
+          push_sent_at?: string | null
+          read_at?: string | null
+          telegram_sent_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_date?: string | null
+          event_key?: string
+          event_type?: string
+          horse_id?: string | null
+          id?: number
+          payload?: Json
+          push_sent_at?: string | null
+          read_at?: string | null
+          telegram_sent_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weather_snapshots: {
         Row: {
           captured_at: string
@@ -898,6 +1033,10 @@ export type Database = {
         Args: { _is_test: boolean; _user_id: string }
         Returns: undefined
       }
+      apply_watch_limits: {
+        Args: { lim: number; uid: string }
+        Returns: undefined
+      }
       apply_watch_limits_all: { Args: never; Returns: undefined }
       claim_official_collection_lease: {
         Args: { lease_id: string }
@@ -907,6 +1046,7 @@ export type Database = {
         Args: { _date: string; _token: string }
         Returns: Json
       }
+      cleanup_watch_notifications: { Args: never; Returns: number }
       founding_cap: { Args: never; Returns: number }
       has_role: {
         Args: {
@@ -917,6 +1057,18 @@ export type Database = {
       }
       member_account_stats: { Args: never; Returns: Json }
       membership_gate_at: { Args: never; Returns: string }
+      mutate_horse_watch: {
+        Args: {
+          action: string
+          active?: boolean
+          hid: string
+          hname?: string
+          lim: number
+          swap_id?: string
+          uid: string
+        }
+        Returns: undefined
+      }
       my_membership: { Args: never; Returns: Json }
       open_membership_gate_if_ready: { Args: never; Returns: boolean }
       paywall_threshold: { Args: never; Returns: number }
@@ -945,6 +1097,10 @@ export type Database = {
           _token: string
         }
         Returns: boolean
+      }
+      select_active_watches: {
+        Args: { horse_ids: string[]; lim: number; uid: string }
+        Returns: undefined
       }
     }
     Enums: {

@@ -1,3 +1,4 @@
+import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { TierGate } from "@/components/tx/gates/TierGate";
 import { useTier } from "@/lib/useTier";
@@ -423,7 +424,7 @@ function PredictorPage() {
       {tp.date && race && !invalidInput ? <RacePositionMap date={tp.date} raceId={race.raceId ?? featRaceId ?? undefined} distance={Number(race.distance) || 0} picks={picks} frozen={Boolean(tp.frozen)} /> : null}
 
       <Card title="點解揀佢" en="Why These Picks">
-        {tp.publicationPending ? <Loading label="副本核實後公開解釋…" /> : tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <LivePickEvidence key={p.horseNumber} raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} frozen={tp.frozen} />) : <Empty label="未有本場預測" />}
+        {tp.publicationPending ? <Loading label="副本核實後公開解釋…" /> : tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <div key={p.horseNumber} className="flex items-start gap-1"><FollowHorseButton horseId={p.horseId} horseName={p.nameCh}/><div className="min-w-0 flex-1"><LivePickEvidence raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} frozen={tp.frozen} /></div></div>) : <Empty label="未有本場預測" />}
       </Card>
 
       <TierGate min="pro" feature="特徵排序實驗室"><Card title="特徵排序實驗室" en="Feature Lab">

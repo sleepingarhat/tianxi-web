@@ -10,6 +10,7 @@ import { createCheckoutSession, createPortalSession, getMyMembership } from "@/l
 import { track } from "@/lib/track";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { FREE_STAGE_GOAL_MEMBERS, FOUNDING_PRO_WEEKS, PRO_WEEKLY_PRICE_HKD } from "@/lib/freeStage";
+import { useWatchSet } from "@/lib/useWatchSet";
 import { useAuthState } from "@/lib/useAuthState";
 
 const fmt = (s: string | null) => (s ? new Date(s).toLocaleDateString("zh-HK", { timeZone: "Asia/Hong_Kong" }) : "—");
@@ -20,6 +21,7 @@ function env() {
 
 export function MembershipStatus() {
   const { signedIn } = useAuthState();
+  const watch = useWatchSet();
   const [checkout, setCheckout] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const getFn = useServerFn(getMyMembership);
@@ -88,5 +90,5 @@ export function MembershipStatus() {
     );
   })();
 
-  return <Card title="我嘅會籍" en="My membership" action={<Pill tone="ink">個人</Pill>}>{body}</Card>;
+  return <Card title="我嘅會籍" en="My membership" action={<Pill tone="ink">個人</Pill>}>{signedIn ? <Link to="/my-horses" className="mb-3 block text-xs font-bold text-gold">我的愛駒（{watch.data?.activeCount ?? "—"} 匹） →</Link> : null}{body}</Card>;
 }
