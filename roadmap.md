@@ -4,9 +4,9 @@
 - [x] 平台安全清單讀回25個排程：23 active、2 retired inactive；兩個舊天氣migration確認明文header及預覽站目標，未印出憑證。
 - [x] 已批准另建managed天氣回呼，共用server工作、原Worker及舊排程驗證不變；新增6項規則測試，測試結果另記。
 - [x] 用戶04:44 HKT批准現在發布，確認Cloudflare同值密鑰已部署；新增賽果派送獨立managed入口，共用固定workflow及force=n，原入口驗證保留。
-- [ ] 發布天氣及賽果派送新入口，建立平台排程並驗證首次自然運行；新工作正常才停舊工作。
-- [ ] 新排程驗證後停用／移除weather-archive-5min、weather-sync-github-nightly；race-results-dispatch屬unmanaged，目標及明文憑證狀態仍待安全盤點，未改。
-- [ ] 用戶04:39 HKT表示已提供新WEATHER_CRON_SECRET：核對已存在（不讀值）；舊天氣排程用舊值會被拒，直至新平台排程發布；Cloudflare Worker同值須用戶確認。未刪舊排程、未發布，會員旗標不變。
+- [x] 新入口正式發布並核對未授權401；441項測試通過，GitHub鏡像已同步。三個平台工作20:50 UTC首次均200：存檔無賽事、同步無當日存檔、賽果派送已接納但不代表收齊；同步／派送臨時單次驗收後已還原15:50及15:31／17:31 UTC。
+- [x] 首次正常後停用舊weather-archive-5min（1）、weather-sync-github-nightly（2）、race-results-dispatch（5）；平台清單讀回active=false。舊入口仍保留；舊賽果資料庫URL及header內容不由安全清單公開，未繞過限制查值，不冒稱已核實目標。
+- [x] 新密鑰只核對名稱存在、Cloudflare同值已部署由用戶確認；付款環境live、crypto_pass_enabled=false、raceday_alerts_enabled=false讀回，未作開閘操作。驗收詳見docs/reviews/weather-schedule-migration-2026-10-24.md。
 
 ## 2026-10-24 頂部登入按鈕重排及確認電郵驗收
 - [x] 頂部選單右側按鈕重排：手機版按鈕組貼右（ml-auto）、登入／帳戶改描邊膠囊、登入／登出／升級Pro統一 h-8 高度；431項測試通過，已發布正式站並同步鏡像。
