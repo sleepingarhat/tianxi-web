@@ -12,6 +12,28 @@ describe('official results do not contaminate training',()=>{
     const html = fixture(`<tr><td>WV</td><td></td><td><a href="/horse?horseid=HK_2024_K554">AMAZING PARTNERS</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
     expect(parseOfficialResults(html,'2026-10-19',11).map(r=>r.horseId)).toEqual(['K001','K002','K003','K004']);
   });
+  it('unnumbered WX (stewards withdrawal) is skipped like WV, not a parse failure',()=>{
+    const html = fixture(`<tr><td>WX</td><td></td><td><a href="/horse?horseid=HK_2024_L184">SYNTHETIC</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
+    expect(parseOfficialResults(html,'2026-10-19',11).map(r=>r.horseId)).toEqual(['K001','K002','K003','K004']);
+  });
+  it('unnumbered WX-A is skipped too',()=>{
+    const html = fixture(`<tr><td>WX-A</td><td></td><td><a href="/horse?horseid=HK_2024_L184">SYNTHETIC</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
+    expect(parseOfficialResults(html,'2026-10-19',11)).toHaveLength(4);
+  });
+  it('numbered WX-A keeps the runner unplaced',()=>{
+    const html = fixture(`<tr><td>WX-A</td><td>5</td><td><a href="/horse?horseid=HK_2024_L184">SYNTHETIC</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
+    expect(parseOfficialResults(html,'2026-10-19',11).at(-1)).toMatchObject({horseNumber:5,horseId:'L184',finishingPosition:null});
+  });
+  it('unnumbered rows with any other code still fail closed',()=>{
+    for (const code of ['DNF','PU','','1','WXNR','XWX']) {
+      const html = fixture(`<tr><td>${code}</td><td></td><td><a href="/horse?horseid=HK_2024_L184">SYNTHETIC</a></td>${'<td>---</td>'.repeat(9)}</tr>`);
+      expect(()=>parseOfficialResults(html,'2026-10-19',11)).toThrow('official-result-runner-invalid');
+    }
+  });
+  it('unnumbered WX without a horse identity still fails closed',()=>{
+    const html = fixture(`<tr><td>WX</td><td></td><td>SYNTHETIC</td>${'<td>---</td>'.repeat(9)}</tr>`);
+    expect(()=>parseOfficialResults(html,'2026-10-19',11)).toThrow('official-result-runner-invalid');
+  });
   it('documented D1 prefix preserves exact identity, not fuzzy replacement',()=>{
     expect(()=>verifyOfficialResultCoverage(rows,card.map(r=>({...r,horseId:`horse_${r.horseId}`})),new Set())).not.toThrow();
     expect(()=>verifyOfficialResultCoverage(rows,card.map(r=>({...r,horseId:r.horseNumber===4?'horse_L999':`horse_${r.horseId}`})),new Set())).toThrow('official-result-identity-mismatch');
