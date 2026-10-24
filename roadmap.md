@@ -12,7 +12,7 @@
 ## 2026-10-24 NOWPayments 收款驗收及續期核對
 - [x] 20:16 HKT用戶選擇小額正式USDT BSC（BEP20）10美元驗收；正式只讀憑證HTTP200，最低額重驗保護、管理員獨立訂單／驗簽回呼／只讀付款狀態已建，0043已套用；不寫Pro帳本或開閘。
 - [ ] 小額驗收待發布批准及本人管理員登入；新增正式回呼未發布，未建立invoice或付款，未核實實際IPN／Custody到帳。本人session --self無匹配帳戶，需預覽登入才能端到端驗收。
-- [x] 19:33 HKT後以已儲存憑證只讀呼叫Sandbox /v1/currencies，HTTP403／INVALID_API_KEY；未建立invoice、未付款、未授予資格。已設定不代表有效，需安全表單換入Sandbox帳戶憑證後重驗。
+- [x] 歷史Sandbox只讀檢查HTTP403／INVALID_API_KEY；20:16後正式只讀驗證HTTP200取代Sandbox要求，不需再填Sandbox憑證。21項付款安全測試通過、未驗簽回呼401，GitHub已同步；未付款／未授予資格。
 - [x] 提供 NOWPayments 官方網站及 Sandbox 測試入口；本輪安全表單已儲存API Key、IPN Secret及Sandbox設定，取代先前未設定狀態。
 - [ ] 核實已儲存憑證有效性及商戶收款設定；維持收費閘及Crypto關閉，不改 membership_payment_environment=live。
 - [ ] 測試訂單→付款→已驗簽回呼→同一會員52週資格→畫面讀回；驗證重複回呼、不足額、退款及sandbox不能授予正式Pro；正式到帳需另有真實交易證據。
