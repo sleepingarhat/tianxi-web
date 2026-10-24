@@ -21,6 +21,7 @@ export const Route = createFileRoute("/dev-log")({
 type Tag = "數據" | "技術" | "前端" | "系統";
 
 const ENTRIES: { date: string; title: string; tags: Tag[]; body: string }[] = [
+  {date:"2026-10-24 · 21:40 HKT",title:"統一凍結起計日定為2026-10-04",tags:["數據","前端"],body:"用戶批准以2026-10-04（首個有賽前凍結第五選嘅賽日）作統一凍結起計日；凍結紀錄頁由該日起列出，戰績頁標明起計日。只改展示範圍，舊凍結、指紋及官方結算紀錄不刪不改。NOWPayments小額驗收測試按用戶指示延後，收費閘、Crypto及賽日提示保持關閉。"},
   {date:"2026-10-24 · 20:30 HKT",title:"BSC十美元獨立收款驗收準備（未發布）",tags:["系統","技術"],body:"按用戶選擇建立USDT BSC（BEP20）10美元驗收，管理員獨立訂單、正式最低額重驗、原子建立claim及SHA512驗簽回呼；獨立紀錄不寫Pro付款帳本、不授予52週、不開收費閘。0043已套用，設定頁可讀驗收付款；待發布新回呼及本人登入後才建立invoice，尚未付款或驗證實際IPN與託管到帳。會員付款環境live、Crypto及賽日提示false保持不變。"},
   {date:"2026-10-24 · 20:16 HKT後",title:"改為小額正式收款驗收，API憑證有效",tags:["系統"],body:"用戶決定略過Sandbox並選擇小額正式驗收。正式只讀幣種查詢回HTTP200，四個USDT網絡最低額亦讀回；待確認錢包網絡後建立獨立驗收訂單。尚未建立付款、未到帳或驗證IPN，未改付款服務環境設定；小額驗收不能授予416美元52週Pro。收費閘、Crypto及賽日提示保持關閉。此前Sandbox403不代表正式API Key無效；今次未發布。"},
   {date:"2026-10-24 · 19:33 HKT後",title:"NOWPayments測試憑證核實未通過",tags:["系統"],body:"使用已安全儲存憑證，只讀查詢NOWPayments Sandbox支援幣種，服務回HTTP403／INVALID_API_KEY。尚未建立付款、未驗到帳或授予Pro；需透過安全表單更新Sandbox帳戶憑證再驗，不將已儲存設定冒稱有效。未讀出或顯示密鑰，未開收費閘、Crypto或賽日提示，正式付款環境live保持不變；今次未發布。"},

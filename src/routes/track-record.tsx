@@ -32,7 +32,7 @@ function TrackRecordPage() {
   const [days, setDays] = useState<30 | 60 | 90 | 180>(90);
   const [details, setDetails] = useState(false);
   return <AppShell page="engine" ticker="公開戰績 · 原四揀 · 官方賽果對賬">
-    <PageHead en="Verified Track Record" title="公開戰績" desc="四揀平均命中匹數 · 目標 3／4" />
+    <PageHead en="Verified Track Record" title="公開戰績" desc="四揀平均命中匹數 · 目標 3／4 · 統一凍結起計日 2026-10-04" />
     <div className="mx-4 my-3 grid grid-cols-1 gap-3 md:grid-cols-3">
       {[30, 60, 90].map(window => { const s = data.summary[`last${window}`]; return <KpiTile key={window} label={`近 ${window} 日 · 四揀平均中`} en={`Last ${window} days`} value={num(s?.avgHit, 2)} unit="／4" sub={`${s?.races ?? 0} 場 · 目標 3.00`} tone="gold" />; })}
     </div>

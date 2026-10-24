@@ -123,7 +123,7 @@ function FreezeLedgerPage() {
     queryFn: async () => {
       let res: Response;
       try {
-        res = await fetch("/api/public/freeze-ledger?since=2026-09-01", {
+        res = await fetch("/api/public/freeze-ledger?since=2026-10-04", {
           signal: timeoutSignal(LEDGER_TIMEOUT_MS),
         });
       } catch (err) {
