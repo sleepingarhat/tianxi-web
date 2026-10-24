@@ -9,10 +9,9 @@ export const Route = createFileRoute("/api/public/weather-archive")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["WEATHER_CRON_SECRET"];
-        if (!secret || request.headers.get("x-cron-secret") !== secret) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { requireSharedSecret, weatherHookSecrets } = await import("@/lib/shared-secret.server");
+        const denied = requireSharedSecret(request, weatherHookSecrets());
+        if (denied) return denied;
         const { runWeatherArchive } = await import("@/lib/weather-archive.server");
         const url = new URL(request.url);
         return runWeatherArchive(url.origin, url.searchParams.get("force") === "1");

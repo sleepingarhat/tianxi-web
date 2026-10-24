@@ -19,4 +19,15 @@ describe('市場盤口告警', () => {
     expect(response.status).toBe(401);
     expect(mocks.send).not.toHaveBeenCalled();
   });
+  it('ALERT_HOOK_SECRET 可派送；fallback 關咗之後舊共用值 401', async () => {
+    vi.stubEnv('ALERT_HOOK_SECRET', 'alert-only');
+    vi.stubEnv('WEATHER_CRON_SECRET', 'legacy-only');
+    mocks.send.mockResolvedValue({ sent: true });
+    const req = (secret: string) => new Request('http://localhost/api/public/telegram-alert', { method: 'POST', headers: { 'content-type': 'application/json', 'x-cron-secret': secret }, body: JSON.stringify({ kind: 'odds-stale', date: '2026-10-25', races: [1] }) });
+    expect((await post({ request: req('alert-only') })).status).toBe(200);
+    expect((await post({ request: req('legacy-only') })).status).toBe(200);
+    vi.stubEnv('LEGACY_CRON_SECRET_FALLBACK', 'off');
+    expect((await post({ request: req('legacy-only') })).status).toBe(401);
+    expect((await post({ request: req('alert-only') })).status).toBe(200);
+  });
 });
