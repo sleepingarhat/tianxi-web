@@ -10,8 +10,8 @@
 - [x] 同步藍圖、開發者日誌及四倉庫並逐檔讀回；451項測試通過，會員頁200名及無自動開閘文案驗收，尚未發布。賽馬577fa16、研究dcf6e30、腦圖0cec9e2；網站鏡像另同步。收費閘、Crypto及賽日提示不開啟。
 
 ## 2026-10-24 NOWPayments 收款驗收及續期核對
-- [x] 提供 NOWPayments 官方網站及 Sandbox 測試入口；安全憑證表單尚未完成，未儲存任何 NOWPayments 憑證。
-- [ ] 安全設定 NOWPayments 測試憑證、核對商戶收款設定；維持收費閘及Crypto關閉，不改 membership_payment_environment=live。
+- [x] 提供 NOWPayments 官方網站及 Sandbox 測試入口；本輪安全表單已儲存API Key、IPN Secret及Sandbox設定，取代先前未設定狀態。
+- [ ] 核實已儲存憑證有效性及商戶收款設定；維持收費閘及Crypto關閉，不改 membership_payment_environment=live。
 - [ ] 測試訂單→付款→已驗簽回呼→同一會員52週資格→畫面讀回；驗證重複回呼、不足額、退款及sandbox不能授予正式Pro；正式到帳需另有真實交易證據。
 - [x] 非託管加密付款不新增每週10 USDT；維持52週一次付。Stripe每週HK$78程式支援自動續訂，正式啟用尚未完成，不冒稱已可收款。
 
