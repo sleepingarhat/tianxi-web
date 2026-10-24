@@ -5,6 +5,7 @@
 - [x] 排位及賠率收料改用馬會白名單查詢（共用hkjc-racecard.ts），失敗即報錯；場次資料改由RaceCard.aspx解析（racecard-meta.ts），解析失敗COALESCE保留現值；/api/meetings後備顯示改用declared_weight。
 - [x] 2026-10-25沙田完整試跑：11場156匹、剔走2匹鎖前退出、140行寫入，負磅122–132、開跑時間、距離、班次、場地全部正確；16項測試通過；tianxi-racing推送81f6c8d，後端部署已觸發。舊凍結不改；未發布網站。
 - [x] B場地研究收料：官方Going Information同源commonMeetings白名單查詢；原文／CSV／SHA只追加、最新每日馬場投影、缺讀數留空及研究截點守衛；11項測試通過。首次2026-10-25 ST實讀好地／A賽道，讀數未公布；不接模型或改凍結。tianxi-database已重定向tianxi-racing，集中該倉。
+- [x] B首次GitHub手動工作40135567486成功（測試、官方收料及存檔commit）；程式29b9fdc已讀回。
 - [ ] B自然工作及官方非空探針／錘擊數值验收；待馬會發布數值，研究閘未開始，禁止升版。GitHub每小時47分收料及排位完成觸發。
 
 ## 2026-10-24 跨倉庫自動一致性檢查及API安全表單
