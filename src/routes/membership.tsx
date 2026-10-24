@@ -65,7 +65,7 @@ function MembershipPage() {
       <PageHead
         en="Free Stage · Tianxi Pro"
         title="限時免費 · 享 Pro 全站功能"
-        desc={`香港賽馬全部功能免費使用，冇隱藏收費。創始门檻${GOAL_MEMBERS.toLocaleString()}人，滿額不自動開閘；付款驗收及批准後才收費，iOS App尚未推出。而家功能權益等同 Pro，並非已開通付費訂閱，現階段唔收款。`}
+        desc={`香港賽馬全部功能免費使用，冇隱藏收費。創始門檻${GOAL_MEMBERS.toLocaleString()}人，滿額不自動開閘；付款驗收及批准後才收費，iOS App尚未推出。而家功能權益等同 Pro，並非已開通付費訂閱，現階段唔收款。`}
       />
 
       <div className="grid grid-cols-2 gap-3 px-4 py-5">
