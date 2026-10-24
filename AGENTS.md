@@ -15,6 +15,7 @@
 
 ## 監控端規則
 - Before admin edits read src/components/admin/AGENTS.md.
+- Ops logs use the shared read-only current-incident projection: latest gate evidence and live checks supersede history; API events are scoped to the Hong Kong day. Suppress stale odds alerts only with explicit live out-of-window evidence. Why: history is not current health and failed reads must stay visible.
 - P&L/detail share exoticPoolOptions; verified ranks 1–5, original triples, duplicate stakes, sum dividends. Cron archives resultsall raw/SHA; trios prove losing tickets without inventing main payouts. Why: automatic auditable settlement.
 - Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
 - Audit real flows separately; starts need evidence, DNF is not withdrawal; actual/frozen jockey lineage stays separate.
