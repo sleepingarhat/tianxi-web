@@ -4,7 +4,7 @@ import { FREE_STAGE_GOAL_MEMBERS } from "@/lib/freeStage";
 import { Card, Pill } from "@/components/tx/ui";
 import { useFoundingInfo } from "@/lib/founding-info";
 
-/** 全站商業路線：免費階段 → 目標門檻 → 出 App 同收費。門檻由用戶拍板（2026-10-13），改動要同步藍圖／roadmap／dev-log。 */
+/** 全站商業路線：免費階段 → 目標門檻 → 付款驗收及批准後收費。門檻由用戶拍板（2026-10-13），改動要同步藍圖／roadmap／dev-log。 */
 function roadmapSteps(GOAL_MEMBERS: number): { id: string; name: string; state: "now" | "todo"; desc: string; tag: string }[] { return [
   {
     id: "01",
@@ -17,14 +17,14 @@ function roadmapSteps(GOAL_MEMBERS: number): { id: string; name: string; state: 
     id: "02",
     name: `目標：免費會員 ${GOAL_MEMBERS.toLocaleString()} 人`,
     state: "todo",
-    desc: "登記會員累積至這個數目先至進入下一步。未達標之前，收費同 App 都唔會悄悄推出；達標當日會喺呢頁同會員頁公告。",
+    desc: "呢個數目只表示會員進度；滿額唔會自動開閘。付款驗收及批准後才開放收費，iOS App另待安排。",
     tag: "等呢一步",
   },
   {
     id: "03",
-    name: "之後：出 iOS App ＋開始收費",
+    name: "之後：付款驗收及批准・iOS App",
     state: "todo",
-    desc: "達標後先排 iOS App Store 上架，同時開啟付費方案。已鎖定嘅預測、公開對帳同歷史成績一律照舊免費、唔改數。",
+    desc: "付款驗收及批准後先開付費方案；iOS App Store 上架另待安排。已鎖定嘅預測、公開對帳同歷史成績一律照舊免費、唔改數。",
     tag: "未開放",
   },
 ]; }
@@ -76,8 +76,8 @@ export function FreeStageRoadmap() {
         ))}
       </ol>
       <p className="mt-2 border-t border-hairline pt-4 text-[10px] leading-relaxed text-ink-2">
-        <b className="text-ink">觸發條件只有一個：免費會員累積 {GOAL_MEMBERS.toLocaleString()} 人。</b>
-        呢個門檻唔會因為個別場次輸贏而改動；達到之後先開始收費同推出 iOS App。公開對帳永久免費。
+        <b className="text-ink">會員進度門檻： {GOAL_MEMBERS.toLocaleString()} 人。</b>
+        滿額不自動開閘；付款驗收及批准後才開始收費，iOS App尚未推出。公開對帳永久免費。
       </p>
     </Card>
   );

@@ -1,6 +1,6 @@
 import { useFoundingInfo } from "@/lib/founding-info";
 
-/** 開閘倒數：真實會員滿設定門檻即開閘。 */
+/** 開閘倒數：真實會員進度；滿額不自動開閘，開閘狀態以伺服器為準。 */
 export function MemberCountdown() {
   const { data } = useFoundingInfo();
   if (!data) return <div className="h-[52px]" aria-hidden />;

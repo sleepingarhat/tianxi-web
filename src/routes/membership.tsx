@@ -20,12 +20,12 @@ export const Route = createFileRoute("/membership")({
       {
         name: "description",
         content:
-          `天喜而家全站免費：香港賽馬全部功能免費使用。免費會員累積 ${FREE_STAGE_GOAL_MEMBERS} 人先至開始收費同推出 iOS App。`,
+          `天喜而家全站免費：香港賽馬全部功能免費使用。首${FREE_STAGE_GOAL_MEMBERS}名開閘送52週Pro，付款驗收及批准後才收費，滿額不自動開閘。`,
       },
       { property: "og:title", content: "天喜會員 · 而家全站免費" },
       {
         property: "og:description",
-        content: `全部功能免費使用；免費會員累積 ${FREE_STAGE_GOAL_MEMBERS} 人先開始收費同出 iOS App，公開對帳永久免費。`,
+        content: `全部功能免費使用；首${FREE_STAGE_GOAL_MEMBERS}名創始優惠，收款須先驗收及批准；公開對帳永久免費。`,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -60,12 +60,12 @@ function MembershipPage() {
   return (
     <AppShell
       page="dashboard"
-      ticker={`全站免費中 · 收費未開放 · 免費會員累積 ${GOAL_MEMBERS.toLocaleString()} 人先開始收費同出 iOS App`}
+      ticker={`全站免費中 · 收費未開放 · 創始門檻 ${GOAL_MEMBERS.toLocaleString()} 人 · 付款驗收及批准後才開閘`}
     >
       <PageHead
         en="Free Stage · Tianxi Pro"
         title="限時免費 · 享 Pro 全站功能"
-        desc={`香港賽馬全部功能免費使用，冇隱藏收費。免費會員累積至 ${GOAL_MEMBERS.toLocaleString()} 人先至開始收費同推出 iOS App；而家功能權益等同 Pro，並非已開通付費訂閱，現階段唔收款。`}
+        desc={`香港賽馬全部功能免費使用，冇隱藏收費。創始门檻${GOAL_MEMBERS.toLocaleString()}人，滿額不自動開閘；付款驗收及批准後才收費，iOS App尚未推出。而家功能權益等同 Pro，並非已開通付費訂閱，現階段唔收款。`}
       />
 
       <div className="grid grid-cols-2 gap-3 px-4 py-5">
@@ -91,7 +91,7 @@ function MembershipPage() {
         <dl className="divide-y divide-hairline">
           {FEATURES.map(([name, detail]) => <div key={name} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3"><div className="min-w-0"><dt className="text-[13px] font-bold text-ink">{name}</dt><dd className="mt-1 text-[12px] leading-relaxed text-ink-3">{detail}</dd></div><span className="shrink-0 whitespace-nowrap text-[12px] font-bold text-win">已包括 ✓</span></div>)}
         </dl>
-        <p className="mt-4 border-t border-hairline pt-3 text-[11px] leading-relaxed text-ink-3">收費閘：註冊會員達 {GOAL_MEMBERS} 人時開放。首 {foundingSlots} 名真實會員開閘後送 52 週 Pro；之後加入嘅會員開閘後按 HK${PRO_WEEKLY_PRICE_HKD}／星期訂閱。Telegram Pro 頻道為 Pro 會員專享，於<Link to="/account" className="text-gold">個人頁</Link>連結後申請加入；通知啟用及送達仍待驗收。</p>
+        <p className="mt-4 border-t border-hairline pt-3 text-[11px] leading-relaxed text-ink-3">收費閘：門檻 {GOAL_MEMBERS} 人，須付款驗收及批准後才開放，滿額不自動收費。首 {foundingSlots} 名真實會員開閘後送 52 週 Pro；之後加入嘅會員開閘後按 HK${PRO_WEEKLY_PRICE_HKD}／星期訂閱。Telegram Pro 頻道為 Pro 會員專享，於<Link to="/account" className="text-gold">個人頁</Link>連結後申請加入；通知啟用及送達仍待驗收。</p>
       </Card>
 
       <FreeStageRoadmap />
@@ -102,7 +102,7 @@ function MembershipPage() {
         </div>
         <p className="tabnum mt-4 font-mono-tx text-[28px] font-bold text-ink">HK${PRO_WEEKLY_PRICE_HKD}<span className="ml-2 inline-block text-[12px] font-normal text-ink-3">／星期 · Stripe · 可隨時取消</span></p>
         <p className="mt-3 text-[13px] leading-relaxed text-ink-2">可用全站所有功能，將來可能增設其他會員資格。收入支持天喜持續維護、研究同升級預測系統。</p>
-        <p className="mt-4 border-t border-hairline pt-3 text-[12px] leading-relaxed text-ink-3">登記會員累積 {GOAL_MEMBERS} 人後先安排收費同 iOS App；屆時冇免費試用。首 {foundingSlots} 名會員獲贈嘅 52 週 Pro 會籍毋須付款，期滿後可選擇按 HK${PRO_WEEKLY_PRICE_HKD}／星期續訂。公開對帳同歷史成績永久免費。</p>
+        <p className="mt-4 border-t border-hairline pt-3 text-[12px] leading-relaxed text-ink-3">創始門檻 {GOAL_MEMBERS} 人；付款驗收及批准後才收費，iOS App上架另待安排；屆時冇免費試用。首 {foundingSlots} 名會員獲贈嘅 52 週 Pro 會籍毋須付款，期滿後可選擇按 HK${PRO_WEEKLY_PRICE_HKD}／星期續訂。公開對帳同歷史成績永久免費。</p>
       </Card>
       </div>
 

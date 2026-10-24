@@ -16,7 +16,7 @@ describe("關閘不可建立付費訂閱", () => {
     provider.create.mockClear();
     const query: Record<string, unknown> = {};
     for (const name of ["select", "eq", "order", "limit"]) query[name] = () => query;
-    query.maybeSingle = async () => ({ data: { status: "past_due", current_period_end: null, cancel_at_period_end: false }, error: null });
+    query["maybeSingle"] = async () => ({ data: { status: "past_due", current_period_end: null, cancel_at_period_end: false }, error: null });
     const context = {
       userId: "test-owner", claims: {}, supabase: {
         rpc: async (name: string) => ({ data: name === "my_membership" ? { rank: 201, total: 201, threshold: 200, founding_slots: 200, gate_open_at: gate } : null, error: null }),
