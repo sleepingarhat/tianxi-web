@@ -66,7 +66,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ clientSecret: string } | { error: string }> => {
     const ctx = context as unknown as Ctx;
     const m = await loadMembership(ctx, data.environment);
-    if (m.entitlement.kind === "free_stage") return { error: "收費閘未開，現階段唔收款。" };
+    if (!m.gateOpenAt || !Number.isFinite(Date.parse(m.gateOpenAt))) return { error: "收費閘未開，現階段唔收款。" };
     if (m.entitlement.hasPro) return { error: "你已經係 Pro 會員，唔使再訂閱。" };
     try {
       const stripe = createStripeClient(data.environment);

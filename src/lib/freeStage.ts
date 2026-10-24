@@ -1,5 +1,5 @@
-/** 免費階段商業路線（用戶 2026-10-13 拍板）：登記帳戶累積至門檻先出 iOS App 同開始收費。
- *  呢檔係瀏覽器安全模組，首頁路線圖、會員頁同監控端都讀同一個數，改呢度即全站跟住改。 */
+/** 免費階段門檻只表示進度；付款驗收及用戶明確批准後先開閘，不會滿額自動收費。
+ *  瀏覽器安全預設；實際門檻及開閘時鎖定名額由會員 RPC 提供。 */
 export const DEFAULT_PAYWALL_THRESHOLD = 200;
 /** Client fallback only; runtime threshold/cap comes from membership RPCs. */
 export const FOUNDING_SLOTS = DEFAULT_PAYWALL_THRESHOLD;

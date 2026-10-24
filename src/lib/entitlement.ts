@@ -35,7 +35,7 @@ export function foundingUntil(gateOpenAt: string): string {
 /**
  * 會籍規則（用戶拍板）：
  * - 未開閘＝限時免費，註冊會員享 Pro 功能。
- * - 註冊滿門檻人數開閘；首門檻名額自動 Pro 52 週，名額於開閘一次鎖定。
+ * - 門檻不自動開閘；付款驗收及用戶批准後才開閘，首創始名額 Pro 52 週，名額一次鎖定。
  * - 付費訂閱：取消後用到本期完結；扣款失敗即時停權。
  */
 export function resolveEntitlement(input: MembershipInput): Entitlement {

@@ -5,6 +5,9 @@ const now = new Date("2027-01-10T00:00:00Z");
 const gate = "2027-01-01T00:00:00Z";
 
 describe("會籍規則", () => {
+  it("超過200名不會自行開閘", () => {
+    expect(resolveEntitlement({ rank: 201, total: 201, gateOpenAt: null, subscription: null, now })).toMatchObject({ kind: "free_stage", hasPro: true, remaining: 0 });
+  });
   it("199人未開閘：限時免費享 Pro", () => {
     const e = resolveEntitlement({ rank: 10, total: 199, gateOpenAt: null, subscription: null, now });
     expect(e).toMatchObject({ kind: "free_stage", hasPro: true, remaining: 1 });

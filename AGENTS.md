@@ -66,3 +66,5 @@
 - Watch-limit transitions clear obsolete notices after restoration; raceday opt-in and delivery share a server-only release/configuration check. Why: stale notices and browser toggles cannot activate unavailable notifications.
 - Managed HTTP schedules use structured Cloud tools only, never embedded credentials or hand-authored cron HTTP SQL; unpublished targets remain unscheduled. Why: platform-owned caller authentication and safe release ordering.
 - Weather and legacy results-dispatch managed callbacks use separate jobs routes and shared server work; legacy routes retain their caller authentication until verified retirement. Why: unmanaged schedules cannot be automatically migrated and Worker callers must not break.
+- Checkout must check the server gate timestamp independently of entitlement kind before provider access. Why: a failed subscription must never bypass a closed charging gate.
+- Current repository summaries must supersede dated historical observations explicitly; never rewrite race evidence or applied migrations. Why: derived knowledge must not revive retired rules.
