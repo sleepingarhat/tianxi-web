@@ -9,7 +9,8 @@ export const Route = createFileRoute("/api/public/weather-archive")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { requireSharedSecret, weatherHookSecrets } = await import("@/lib/shared-secret.server");
+        const { requireSharedSecret, weatherHookSecrets } =
+          await import("@/lib/shared-secret.server");
         const denied = requireSharedSecret(request, weatherHookSecrets());
         if (denied) return denied;
         const { runWeatherArchive } = await import("@/lib/weather-archive.server");

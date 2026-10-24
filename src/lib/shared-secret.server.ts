@@ -18,7 +18,10 @@ function digest(value: string): Buffer {
 }
 
 /** 常數時間比較：hash 成固定長度先比較，所有候選都會比一次。 */
-export function secretMatches(given: string | null | undefined, candidates: Array<string | undefined>): boolean {
+export function secretMatches(
+  given: string | null | undefined,
+  candidates: Array<string | undefined>,
+): boolean {
   const valid = candidates.filter((v): v is string => typeof v === "string" && v.length > 0);
   if (!given || !valid.length) return false;
   const g = digest(given);
@@ -32,7 +35,9 @@ export function legacyFallbackEnabled(e: Env = env()): boolean {
 }
 
 export function weatherHookSecrets(e: Env = env()): string[] {
-  return [e["WEATHER_CRON_SECRET"], e["WEATHER_CRON_SECRET_PREVIOUS"]].filter((v): v is string => !!v);
+  return [e["WEATHER_CRON_SECRET"], e["WEATHER_CRON_SECRET_PREVIOUS"]].filter(
+    (v): v is string => !!v,
+  );
 }
 
 export function alertHookSecrets(e: Env = env()): string[] {
@@ -43,7 +48,11 @@ export function alertHookSecrets(e: Env = env()): string[] {
 
 /** 網站 → Worker 愛駒 feed 用嘅密鑰。 */
 export function watchFeedSenderSecret(e: Env = env()): string | undefined {
-  return e["WATCH_FEED_SECRET"] || (legacyFallbackEnabled(e) ? e["WEATHER_CRON_SECRET"] : undefined) || undefined;
+  return (
+    e["WATCH_FEED_SECRET"] ||
+    (legacyFallbackEnabled(e) ? e["WEATHER_CRON_SECRET"] : undefined) ||
+    undefined
+  );
 }
 
 /** 入口用：通過回 null，否則回 401。未設定任何密鑰都係 401（同舊行為一致）。 */

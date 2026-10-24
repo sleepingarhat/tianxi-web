@@ -10,7 +10,8 @@ export const Route = createFileRoute("/api/public/hooks/race-results-dispatch")(
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { requireSharedSecret, weatherHookSecrets } = await import("@/lib/shared-secret.server");
+        const { requireSharedSecret, weatherHookSecrets } =
+          await import("@/lib/shared-secret.server");
         const denied = requireSharedSecret(request, weatherHookSecrets());
         if (denied) return denied;
 

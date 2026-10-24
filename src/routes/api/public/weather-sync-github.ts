@@ -9,7 +9,8 @@ export const Route = createFileRoute("/api/public/weather-sync-github")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { requireSharedSecret, weatherHookSecrets } = await import("@/lib/shared-secret.server");
+        const { requireSharedSecret, weatherHookSecrets } =
+          await import("@/lib/shared-secret.server");
         const denied = requireSharedSecret(request, weatherHookSecrets());
         if (denied) return denied;
         const { syncWeatherDate, hkDateStr } = await import("@/lib/weather-sync-github.server");

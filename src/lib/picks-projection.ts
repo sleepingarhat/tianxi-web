@@ -13,13 +13,16 @@ export function projectDayPicksForViewer(day: DayPicks, tier: Tier): DayPicks {
   return {
     ...day,
     races: day.races.map((race: RaceRow) => {
-      const open = Number(race.raceNumber) === 1 || race.settled === true || race.hasResult === true;
+      const open =
+        Number(race.raceNumber) === 1 || race.settled === true || race.hasResult === true;
       if (open || !Array.isArray(race.picks)) return race;
       return { ...race, picks: race.picks.slice(0, 1) };
     }),
   };
 }
 
-export function proEnforcementEnabled(env: Record<string, string | undefined> = process.env as Record<string, string | undefined>): boolean {
+export function proEnforcementEnabled(
+  env: Record<string, string | undefined> = process.env as Record<string, string | undefined>,
+): boolean {
   return (env["PRO_ENFORCEMENT"] ?? "").trim().toLowerCase() === "on";
 }
