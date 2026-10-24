@@ -515,6 +515,54 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_acceptance_invoices: {
+        Row: {
+          actually_paid: number
+          created_at: string
+          environment: string
+          id: string
+          invoice_id: string | null
+          invoice_url: string | null
+          owner_id: string
+          pay_currency: string
+          payment_id: string | null
+          price_usd: number
+          status: string
+          updated_at: string
+          verified_receipt: Json | null
+        }
+        Insert: {
+          actually_paid?: number
+          created_at?: string
+          environment?: string
+          id?: string
+          invoice_id?: string | null
+          invoice_url?: string | null
+          owner_id: string
+          pay_currency?: string
+          payment_id?: string | null
+          price_usd?: number
+          status?: string
+          updated_at?: string
+          verified_receipt?: Json | null
+        }
+        Update: {
+          actually_paid?: number
+          created_at?: string
+          environment?: string
+          id?: string
+          invoice_id?: string | null
+          invoice_url?: string | null
+          owner_id?: string
+          pay_currency?: string
+          payment_id?: string | null
+          price_usd?: number
+          status?: string
+          updated_at?: string
+          verified_receipt?: Json | null
+        }
+        Relationships: []
+      }
       push_delivery_receipts: {
         Row: {
           delivered_at: string
@@ -1366,6 +1414,10 @@ export type Database = {
         Returns: undefined
       }
       apply_crypto_ipn: { Args: { env: string; payload: Json }; Returns: Json }
+      apply_payment_acceptance_receipt: {
+        Args: { payload: Json }
+        Returns: boolean
+      }
       apply_watch_limits: {
         Args: { lim: number; uid: string }
         Returns: undefined
@@ -1440,6 +1492,7 @@ export type Database = {
         Args: { amount: number; duration: number; env: string; uid: string }
         Returns: string
       }
+      reserve_payment_acceptance: { Args: { uid: string }; Returns: string }
       reserve_push_test: { Args: { uid: string }; Returns: undefined }
       reserve_telegram_invite: { Args: { uid: string }; Returns: number }
       save_push_subscription: {

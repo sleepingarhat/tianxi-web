@@ -8,6 +8,7 @@ import { txApi } from "@/lib/tx-api";
 import { MembershipSettingsPanel } from "@/components/admin/MembershipSettingsPanel";
 import { TelegramSettingsPanel } from "@/components/admin/TelegramSettingsPanel";
 import {CryptoPassPanel} from '@/components/admin/CryptoPassPanel';
+import {PaymentAcceptancePanel} from '@/components/admin/PaymentAcceptancePanel';
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   head: () => ({ meta: [{ title: "設定 · 天喜監控端" }, { name: "description", content: "設定 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:title", content: "設定 · 天喜監控端" }, { property: "og:description", content: "設定 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -58,6 +59,7 @@ function SettingsPage() {
         <MembershipSettingsPanel />
         <TelegramSettingsPanel />
         <CryptoPassPanel settings />
+        <PaymentAcceptancePanel />
         <Panel title="接口" en="API Endpoints">
           <ul className="space-y-1.5">
             {ENDPOINTS.map(([n, u]) => <EndpointRow key={String(n)} n={String(n)} u={String(u)} />)}

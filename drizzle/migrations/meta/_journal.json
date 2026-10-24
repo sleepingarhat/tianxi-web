@@ -302,6 +302,13 @@
       "when": 1792776805866,
       "tag": "0042_watch_limits_payment_environment_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1792844919011,
+      "tag": "0043_isolated_nowpayments_live_acceptance",
+      "breakpoints": true
     }
   ]
 }

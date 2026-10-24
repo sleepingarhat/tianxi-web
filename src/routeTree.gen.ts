@@ -100,6 +100,7 @@ import { Route as ApiPublicJobsTelegramProSweepRouteImport } from './routes/api/
 import { Route as ApiPublicJobsTrackRecordSummaryRouteImport } from './routes/api/public/jobs/track-record-summary'
 import { Route as ApiPublicJobsWeatherArchiveRouteImport } from './routes/api/public/jobs/weather-archive'
 import { Route as ApiPublicJobsWeatherSyncGithubRouteImport } from './routes/api/public/jobs/weather-sync-github'
+import { Route as ApiPublicPaymentsAcceptanceIpnRouteImport } from './routes/api/public/payments/acceptance-ipn'
 import { Route as ApiPublicPaymentsCryptoIpnRouteImport } from './routes/api/public/payments/crypto-ipn'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
@@ -591,6 +592,12 @@ const ApiPublicJobsWeatherSyncGithubRoute =
     path: '/api/public/jobs/weather-sync-github',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsAcceptanceIpnRoute =
+  ApiPublicPaymentsAcceptanceIpnRouteImport.update({
+    id: '/api/public/payments/acceptance-ipn',
+    path: '/api/public/payments/acceptance-ipn',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsCryptoIpnRoute =
   ApiPublicPaymentsCryptoIpnRouteImport.update({
     id: '/api/public/payments/crypto-ipn',
@@ -711,6 +718,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/jobs/weather-archive': typeof ApiPublicJobsWeatherArchiveRoute
   '/api/public/jobs/weather-sync-github': typeof ApiPublicJobsWeatherSyncGithubRoute
+  '/api/public/payments/acceptance-ipn': typeof ApiPublicPaymentsAcceptanceIpnRoute
   '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -807,6 +815,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/jobs/weather-archive': typeof ApiPublicJobsWeatherArchiveRoute
   '/api/public/jobs/weather-sync-github': typeof ApiPublicJobsWeatherSyncGithubRoute
+  '/api/public/payments/acceptance-ipn': typeof ApiPublicPaymentsAcceptanceIpnRoute
   '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -906,6 +915,7 @@ export interface FileRoutesById {
   '/api/public/jobs/track-record-summary': typeof ApiPublicJobsTrackRecordSummaryRoute
   '/api/public/jobs/weather-archive': typeof ApiPublicJobsWeatherArchiveRoute
   '/api/public/jobs/weather-sync-github': typeof ApiPublicJobsWeatherSyncGithubRoute
+  '/api/public/payments/acceptance-ipn': typeof ApiPublicPaymentsAcceptanceIpnRoute
   '/api/public/payments/crypto-ipn': typeof ApiPublicPaymentsCryptoIpnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -1005,6 +1015,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/track-record-summary'
     | '/api/public/jobs/weather-archive'
     | '/api/public/jobs/weather-sync-github'
+    | '/api/public/payments/acceptance-ipn'
     | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
@@ -1101,6 +1112,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/track-record-summary'
     | '/api/public/jobs/weather-archive'
     | '/api/public/jobs/weather-sync-github'
+    | '/api/public/payments/acceptance-ipn'
     | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
@@ -1199,6 +1211,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/track-record-summary'
     | '/api/public/jobs/weather-archive'
     | '/api/public/jobs/weather-sync-github'
+    | '/api/public/payments/acceptance-ipn'
     | '/api/public/payments/crypto-ipn'
     | '/api/public/payments/webhook'
     | '/api/public/telegram/webhook'
@@ -1284,6 +1297,7 @@ export interface RootRouteChildren {
   ApiPublicJobsTrackRecordSummaryRoute: typeof ApiPublicJobsTrackRecordSummaryRoute
   ApiPublicJobsWeatherArchiveRoute: typeof ApiPublicJobsWeatherArchiveRoute
   ApiPublicJobsWeatherSyncGithubRoute: typeof ApiPublicJobsWeatherSyncGithubRoute
+  ApiPublicPaymentsAcceptanceIpnRoute: typeof ApiPublicPaymentsAcceptanceIpnRoute
   ApiPublicPaymentsCryptoIpnRoute: typeof ApiPublicPaymentsCryptoIpnRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
@@ -1930,6 +1944,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsWeatherSyncGithubRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/acceptance-ipn': {
+      id: '/api/public/payments/acceptance-ipn'
+      path: '/api/public/payments/acceptance-ipn'
+      fullPath: '/api/public/payments/acceptance-ipn'
+      preLoaderRoute: typeof ApiPublicPaymentsAcceptanceIpnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/crypto-ipn': {
       id: '/api/public/payments/crypto-ipn'
       path: '/api/public/payments/crypto-ipn'
@@ -2094,6 +2115,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsTrackRecordSummaryRoute: ApiPublicJobsTrackRecordSummaryRoute,
   ApiPublicJobsWeatherArchiveRoute: ApiPublicJobsWeatherArchiveRoute,
   ApiPublicJobsWeatherSyncGithubRoute: ApiPublicJobsWeatherSyncGithubRoute,
+  ApiPublicPaymentsAcceptanceIpnRoute: ApiPublicPaymentsAcceptanceIpnRoute,
   ApiPublicPaymentsCryptoIpnRoute: ApiPublicPaymentsCryptoIpnRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
