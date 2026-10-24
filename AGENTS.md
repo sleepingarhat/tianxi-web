@@ -54,6 +54,7 @@
 
 - tx/Predictor* keeps guards; name cleanup requires matching ID, preserving archives.
 - Ingestion retains dates/rows; child failures fail jobs. Backfill alerts name date/race. Why: absence ≠ cancellation.
+- Track-condition research uses official identity-bearing commonMeetings evidence with append-only raw/CSV SHA manifests and a rebuildable daily projection; pre-race readers require capture and dated official timestamps before cutoff. Why: pending readings, latest views and post-race captures cannot certify original pre-race features.
 
 - Watch mutations authorize via loadUserTier and service-only atomic owner RPCs; apply limits only on limit transitions and isolate browser caches by user identity. Why: concurrent requests must not bypass caps, erase manual pauses or expose another account's collection.
 - Horse-follow event reads verify ownership and tolerate unavailable upstream with private stored-event fallback; notification delivery and cleanup scheduling belong to the notification job. Why: missing synchronization is not evidence of no real horse activity.
