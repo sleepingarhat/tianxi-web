@@ -68,3 +68,4 @@
 - Weather and legacy results-dispatch managed callbacks use separate jobs routes and shared server work; legacy routes retain their caller authentication until verified retirement. Why: unmanaged schedules cannot be automatically migrated and Worker callers must not break.
 - Checkout must check the server gate timestamp independently of entitlement kind before provider access. Why: a failed subscription must never bypass a closed charging gate.
 - Current repository summaries must supersede dated historical observations explicitly; never rewrite race evidence or applied migrations. Why: derived knowledge must not revive retired rules.
+- Cross-repository policy audits use docs/repository-policy.json and pinned default-branch commits; the racing repo alone hosts the hourly read-only audit, with explicit historical scopes and fail-closed reads. Why: detect drift without rewriting evidence or running duplicate production jobs in mirrors.
