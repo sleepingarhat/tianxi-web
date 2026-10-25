@@ -14,7 +14,7 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
         const { readOfficialResultMeetings } = await import('@/lib/racing-results-official.server');
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
         const { sendTelegramAlert } = await import('@/lib/telegramAlert.server');
-        const { alertOnce, collectPendingRaces, raceFailureAlertKey, raceFailureAlertText, resultErrorCode } = await import('@/lib/racing-results-failures');
+        const { alertOnce, collectPendingRaces, raceFailureAlertKey, raceFailureAlertText, resultErrorCode, raceStartedAt, suppressRaceFailureAlert } = await import('@/lib/racing-results-failures');
         const alertStore = {
           read: async (key: string) => {
             const r = await supabaseAdmin.from('telegram_alert_state').select('value').eq('key', key).maybeSingle();
@@ -42,6 +42,23 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
           const { meetings, sha256 } = await readOfficialResultMeetings();
           const { collectOfficialRace } = await import('@/lib/hkjc-results-collector.server');
           const candidates = meetings.filter(m => [today, yesterday].includes(m.date) && ['ST','HV'].includes(m.venueCode));
+          // Best-effort race start times (D1) for alert-noise control. Unknown
+          // timing never suppresses an alert.
+          const startedMaps = new Map<string, Map<number, number>>();
+          {
+            const { publicRacingQuery } = await import('@/lib/public-racing-evidence.server');
+            for (const m of candidates) {
+              try {
+                const rows = await publicRacingQuery<{ raceNumber: number; startTime: string | null }>(`SELECT r.race_number raceNumber,r.start_time startTime FROM races r JOIN race_meetings mt ON mt.id=r.meeting_id WHERE mt.date=? AND mt.venue=?`, [m.date, m.venueCode]);
+                const map = new Map<number, number>();
+                for (const r of rows) {
+                  const t = raceStartedAt(r.startTime, m.date);
+                  if (t != null && t <= now.getTime()) map.set(r.raceNumber, t);
+                }
+                startedMaps.set(`${m.date}:${m.venueCode}`, map);
+              } catch { /* timing unknown → never suppress */ }
+            }
+          }
           let liveResult: { raceNumber: number; action: string; sha256?: string } | null = null;
           const raceFailures: { date: string; venue: string; raceNumber: number; code: string }[] = [];
           const meetingFailures: { date: string; venue: string; code: string }[] = [];
@@ -108,10 +125,13 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
           }
           for (const f of raceFailures) {
             console.error('official-results-race', f.date, f.venue, f.raceNumber, f.code);
+            if (suppressRaceFailureAlert(f, startedMaps.get(`${f.date}:${f.venue}`) ?? null, now)) continue;
             await alertOnce(raceFailureAlertKey(f), raceFailureAlertText(f), alertStore);
           }
           for (const f of meetingFailures) {
             console.error('official-results-meeting', f.date, f.venue, f.code);
+            // Before race 1 no result can exist; a status-query timeout then is noise.
+            if (f.code === 'official-result-timeout' && (startedMaps.get(`${f.date}:${f.venue}`)?.size ?? 1) === 0) continue;
             await alertOnce(`results-meeting-failure:${f.date}:${f.venue}:${f.code}`,
               `⚠️ 全日完場後賽果收料核對／觸發失敗：${f.date} ${f.venue}（${f.code}）；未確認完成，原凍結不改，請核對後備收料。`, alertStore);
           }
@@ -125,7 +145,16 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
             await sendTelegramAlert(`⚠️ 歷史賽果補收未完成：${body.data.date} ${body.data.venue} 第${body.data.raceNumber}場（${code}）；不涉及今日凍結，原預測及戰績不改。`).catch(() => null);
           } else {
             const hktDay = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
-            await alertOnce(`results-job-failure:${hktDay}:${code}`, `⚠️ 全日完場後賽果收料核對／觸發失敗（${code}）；未確認完成，原凍結不改，請核對後備收料。`, alertStore);
+            // Before race 1 starts, a status-query timeout is expected noise, not an incident.
+            let skipTimeoutAlert = false;
+            if (code === 'official-result-timeout') {
+              try {
+                const { publicRacingQuery } = await import('@/lib/public-racing-evidence.server');
+                const rows = await publicRacingQuery<{ startTime: string | null }>(`SELECT r.start_time startTime FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=?`, [hktDay]);
+                skipTimeoutAlert = !rows.some(r => { const t = raceStartedAt(r.startTime, hktDay); return t != null && t <= Date.now(); });
+              } catch { /* timing unknown → alert as before */ }
+            }
+            if (!skipTimeoutAlert) await alertOnce(`results-job-failure:${hktDay}:${code}`, `⚠️ 全日完場後賽果收料核對／觸發失敗（${code}）；未確認完成，原凍結不改，請核對後備收料。`, alertStore);
           }
           return Response.json({ ok: false, error: 'results-collection-check-failed', code }, { status: 502 });
         }

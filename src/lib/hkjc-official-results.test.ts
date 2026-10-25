@@ -55,4 +55,20 @@ describe('official results do not contaminate training',()=>{
   it('actual jockey is mandatory for completed runners',()=>{
     expect(()=>verifyOfficialResultCoverage(rows.map(r=>({...r,jockeyId:''})),card,new Set())).toThrow('actual-rider-missing');
   });
+  it('pre-lock withdrawn runner listed on the page but off the card passes with an official notice',()=>{
+    const offCard = {raceNumber:1,horseNumber:5,horseId:'K585',finishingPosition:null,winOdds:null,runningPosition:null,jockeyId:'',trainerId:''};
+    expect(()=>verifyOfficialResultCoverage([...rows.slice(0,4),offCard],card.slice(0,4),new Set(),new Set(['5:K585']))).not.toThrow();
+  });
+  it('off-card unplaced runner without an official notice still blocks publishing',()=>{
+    const offCard = {raceNumber:1,horseNumber:5,horseId:'K585',finishingPosition:null,winOdds:null,runningPosition:null,jockeyId:'',trainerId:''};
+    expect(()=>verifyOfficialResultCoverage([...rows.slice(0,4),offCard],card.slice(0,4),new Set())).toThrow('official-result-identity-mismatch');
+  });
+  it('off-card notice with a different horse identity still blocks publishing',()=>{
+    const offCard = {raceNumber:1,horseNumber:5,horseId:'K585',finishingPosition:null,winOdds:null,runningPosition:null,jockeyId:'',trainerId:''};
+    expect(()=>verifyOfficialResultCoverage([...rows.slice(0,4),offCard],card.slice(0,4),new Set(),new Set(['5:L999']))).toThrow('official-result-identity-mismatch');
+  });
+  it('off-card runner with a placing is never excused as withdrawn',()=>{
+    const offCard = {raceNumber:1,horseNumber:5,horseId:'K585',finishingPosition:2,winOdds:3,runningPosition:null,jockeyId:'PZ',trainerId:'SCS'};
+    expect(()=>verifyOfficialResultCoverage([...rows.slice(0,4),offCard],card.slice(0,4),new Set(),new Set(['5:K585']))).toThrow('official-result-identity-mismatch');
+  });
 });

@@ -42,12 +42,24 @@ query wt_WeatherMeeting( $localSim: LocalSim, $status: [MeetingStatus!])  {
 `;
 
 export async function readOfficialResultMeetings() {
-  const response = await fetch('https://info.cld.hkjc.com/graphql/base/', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', origin: 'https://racing.hkjc.com', referer: 'https://racing.hkjc.com/' },
-    body: JSON.stringify({ query: QUERY, variables: { localSim: 'LOCAL', status: ['DECLARED', 'DEFINED', 'STARTED', 'CLOSED', 'ABANDON_PARTIAL', 'ABANDON'] } }),
-    signal: AbortSignal.timeout(4000),
-  });
+  // HKJC's status endpoint is slow at times: allow 9s per attempt and retry
+  // once on network/timeout or 5xx before giving up.
+  let response: Response | null = null;
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 2 && !response; attempt++) {
+    try {
+      const r = await fetch('https://info.cld.hkjc.com/graphql/base/', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: 'https://racing.hkjc.com', referer: 'https://racing.hkjc.com/' },
+        body: JSON.stringify({ query: QUERY, variables: { localSim: 'LOCAL', status: ['DECLARED', 'DEFINED', 'STARTED', 'CLOSED', 'ABANDON_PARTIAL', 'ABANDON'] } }),
+        signal: AbortSignal.timeout(9000),
+      });
+      if (r.ok || r.status < 500 || attempt === 1) response = r;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  if (!response) throw lastError instanceof Error ? lastError : new Error('official-status-unreachable');
   if (!response.ok) throw new Error(`official-status-${response.status}`);
   const raw = await response.text();
   const json = JSON.parse(raw) as { errors?: unknown[]; data?: { commonMeetings?: OfficialResultMeeting[] } };
