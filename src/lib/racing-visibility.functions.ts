@@ -7,8 +7,10 @@ import { sameFourPicks } from "./audit-safety";
 export const getCoverageAudit = createServerFn({ method: "GET" })
   .inputValidator((input: { days?: number }) => ({ days: Math.min(365, Math.max(30, Math.round(Number(input.days) || 180))) }))
   .handler(async ({ data }) => {
-    const { readCoverageAudit } = await import('./coverage-audit.server');
-    return readCoverageAudit(data.days);
+    const [{ readCoverageAudit }, { viewerTier }, { projectCoverageAudit }] = await Promise.all([
+      import('./coverage-audit.server'), import('./picks-entitlement.server'), import('./hit-rate-projection')]);
+    // 快取保存完整結果；分級喺讀快取之後先做。
+    return projectCoverageAudit(await readCoverageAudit(data.days), await viewerTier());
   });
 /** 引擎價值對照：由當前凍結版本首次使用日起，只讀凍結四揀與收市賠率。 */
 export const getValueComparison = createServerFn({ method: "GET" })
@@ -18,8 +20,9 @@ export const getValueComparison = createServerFn({ method: "GET" })
   })
   .handler(async ({ data }) => cached(`value-cmp:original-v5:${data.version}:${data.from}`, CACHE_TTL, async () => {
     const { valueRace, summarizeValue } = await import("./racing-visibility");
+    const { workerFetch } = await import("./site-reader.server");
     const readJson = async (url: string) => {
-      const r = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+      const r = await workerFetch(url, { signal: AbortSignal.timeout(15_000) });
       if (!r.ok) throw new Error("賽果資料暫時未能讀取");
       return r.json();
     };

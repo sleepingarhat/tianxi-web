@@ -169,7 +169,7 @@ export const getRacingBacktest = createServerFn({ method: "GET" })
   .middleware([requireTier("registered")])
   .inputValidator((d: { days?: number }) => ({ days: Math.min(365, Math.max(30, Number(d?.days) || 180)) }))
   .handler(async ({ data }) => {
-    const roll = (await (await fetch(`${WORKER}/api/analyze/hit-rate-rollup?days=${data.days}`, { signal: AbortSignal.timeout(15_000) })).json()) as {
+    const roll = (await (await (await import("./site-reader.server")).workerFetch(`${WORKER}/api/analyze/hit-rate-rollup?days=${data.days}`, { signal: AbortSignal.timeout(15_000) })).json()) as {
       perMeeting?: { date: string; venue: string }[];
       from?: string;
       to?: string;
@@ -189,7 +189,7 @@ export const getRacingBacktest = createServerFn({ method: "GET" })
       meetings.map(async (m) => {
         try {
           const [hr, results] = await Promise.all([
-            fetch(`${WORKER}/api/analyze/hit-rate?date=${m.date}`, { signal: AbortSignal.timeout(15_000) }).then((r) => (r.ok ? r.json() : null)),
+            import("./site-reader.server").then(({ workerFetch }) => workerFetch(`${WORKER}/api/analyze/hit-rate?date=${m.date}`, { signal: AbortSignal.timeout(15_000) })).then((r) => (r.ok ? r.json() : null)),
             loadResults(m.date),
           ]);
           return { m, hr, results };

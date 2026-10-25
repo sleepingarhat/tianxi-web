@@ -3,6 +3,9 @@ import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
 import { projectMeetingDates } from "@/lib/tier-projection";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMeetingHitRate } from "@/lib/hit-rate.functions";
+import { useAuthState } from "@/lib/useAuthState";
 import { ShareButton } from "@/components/tx/ShareCard";
 import { exoticPoolOptions, winningSingleDividends } from "@/lib/racingPoolAccounting";
 import { useEffect, useState } from "react";
@@ -131,10 +134,12 @@ function ComparePage() {
   // 避免顯示事後重算版本，並可標明當日實際採用嘅集成比重 α。
   // 2026-10-21 起同「賽果核對」一樣，只用已核實原始凍結副本；之前嘅賽日照列舊紀錄並標明未核實。
   const legacy = isLegacyEvidenceDate(date);
+  const readHitRate = useServerFn(getMeetingHitRate);
+  const { userId: viewerId } = useAuthState();
   const frozen = useQuery({
-    queryKey: ["pvr-frozen", date, legacy],
+    queryKey: ["pvr-frozen", viewerId, date, legacy],
     queryFn: async (): Promise<any> => {
-      if (legacy) return txApi.hitRate(date, PVR_TIMEOUT_MS);
+      if (legacy) return readHitRate({ data: { date } });
       const r = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, {
         cache: "no-store",
         signal: timeoutSignal(PVR_TIMEOUT_MS),

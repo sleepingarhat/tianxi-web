@@ -1,11 +1,12 @@
 import { cached, CACHE_TTL } from "./computed-cache.server";
 import { completeAuditRace, coverageRows, parseResultsCsv, type AuditMeeting, type CoverageRow } from "./racing-visibility";
 import { TX_BASE } from "./tx-api";
+import { workerFetch } from "./site-reader.server";
 export async function readCoverageAudit(days: number, force = false) {
   const data = { days };
   return cached(`coverage:original-v5:${days}`, force ? 0 : CACHE_TTL, async () => {
     const readJson = async (url: string) => {
-      const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+      const response = await workerFetch(url, { signal: AbortSignal.timeout(15_000) });
       if (!response.ok) throw new Error("賽果資料暫時未能讀取");
       return response.json();
     };

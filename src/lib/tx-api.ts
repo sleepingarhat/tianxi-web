@@ -283,8 +283,6 @@ export const txApi = {
   trainers: () => j<any>("/api/trainers"),
   topPicks: (raceId: string, timeoutMs?: number) =>
     j<any>("/api/analyze/top-picks?raceId=" + encodeURIComponent(raceId), timeoutMs),
-  hitRate: (date: string, timeoutMs?: number) =>
-    j<any>("/api/analyze/hit-rate?date=" + encodeURIComponent(date), timeoutMs),
   hitRateRollup: (days = 90, timeoutMs?: number) =>
     j<any>("/api/analyze/hit-rate-rollup?days=" + days, timeoutMs),
   predictionAccuracy: (days = 365) => j<any>("/api/analyze/prediction-accuracy?days=" + days),

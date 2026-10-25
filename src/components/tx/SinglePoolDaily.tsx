@@ -2,21 +2,25 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import { fetchRaceDividends } from "@/lib/raceDividends";
 import { SINGLE_POOLS, singlePoolKey, winningSingleDividends } from "@/lib/racingPoolAccounting";
-import { TX_BASE } from "@/lib/tx-api";
+import { getMeetingHitRate } from "@/lib/hit-rate.functions";
+import { useAuthState } from "@/lib/useAuthState";
 
 import { Card, Pill } from "./ui";
+import { RedactedNote } from "./RedactedNote";
 
 /** 單場四彩池逐場核對：模型首 4 複式，每場派彩以馬會官方派彩檔為準。 */
-type Row = { race: number; top4: number[]; actual: number[]; pools: Record<string, number> };
+type Row = { race: number; top4: number[]; actual: number[]; pools: Record<string, number>; redacted?: boolean };
 
-export const singlePoolDayOptions = (date: string) => queryOptions({
-  queryKey: ["single-pool-day", date], enabled: !!date, staleTime: 10 * 60_000,
+export const singlePoolDayOptions = (date: string, viewer: string | null = null) => queryOptions({
+  queryKey: ["single-pool-day", viewer, date], enabled: !!date, staleTime: 10 * 60_000,
   queryFn: async (): Promise<Row[]> => {
     const [hr, divs] = await Promise.all([
-      fetch(`${TX_BASE}/api/analyze/hit-rate?date=${date}`).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); }),
+      getMeetingHitRate({ data: { date } }),
       fetchRaceDividends(date),
     ]);
     return (hr?.races ?? []).map((r: any) => {
+      // 訪客隱藏場次：只有賽果，唔計入命中／派彩統計（唔當冇中）。
+      if (r.redacted) return { race: Number(r.raceNumber), top4: [], actual: (r.actualTop4 ?? []).map((h: any) => Number(h.horseNumber)), pools: {}, redacted: true };
       const top4 = (r.predictedTop4 ?? []).map((h: any) => Number(h.horseNumber)).filter(Number.isFinite);
       const actual = (r.actualTop4 ?? []).map((h: any) => Number(h.horseNumber));
       const pools: Record<string, number> = {};
@@ -24,15 +28,18 @@ export const singlePoolDayOptions = (date: string) => queryOptions({
         const k = singlePoolKey(d.pool)!; pools[k] = (pools[k] ?? 0) + d.dividend;
       }
       return { race: Number(r.raceNumber), top4, actual, pools };
-    }).filter((r: Row) => r.top4.length === 4).sort((a: Row, b: Row) => a.race - b.race);
+    }).filter((r: Row) => r.redacted || r.top4.length === 4).sort((a: Row, b: Row) => a.race - b.race);
   },
 });
 
 const money = (v: number) => `$${Math.round(v).toLocaleString("en-US")}`;
 
 export function SinglePoolDaily({ date }: { date: string }) {
-  const q = useQuery(singlePoolDayOptions(date));
-  const rows = q.data ?? [];
+  const { userId } = useAuthState();
+  const q = useQuery(singlePoolDayOptions(date, userId));
+  const all = q.data ?? [];
+  const rows = all.filter((r) => !r.redacted);
+  const hidden = all.filter((r) => r.redacted);
   const tot = SINGLE_POOLS.map((p) => {
     const payout = rows.reduce((a, r) => a + (r.pools[p.key] ?? 0), 0);
     const hits = rows.filter((r) => r.pools[p.key]).length;
@@ -72,6 +79,7 @@ export function SinglePoolDaily({ date }: { date: string }) {
                 </li>
               ))}
             </ul>
+            {hidden.length ? <RedactedNote races={hidden.map((r) => ({ race: r.race, actual: r.actual }))} /> : null}
           </>
         )}
     </Card>

@@ -1,5 +1,6 @@
 import { recordSummary, type RecordRollup } from './track-record-summary';
 import { TX_BASE } from './tx-api';
+import { workerFetch } from './site-reader.server';
 import { readCoverageAudit } from './coverage-audit.server';
 import { readVersionHistory } from './version-history.server';
 import type { RecordSummary } from './track-record-summary';
@@ -24,7 +25,7 @@ export async function readTrackRecordSummary(force = false): Promise<RecordSumma
   refreshing = (async () => {
     // Five concurrent calls, then at most six during coverage: respect the edge connection limit.
     const [rollups, versions] = await Promise.all([Promise.all([30, 60, 90, 180].map(async days => {
-      const response = await fetch(`${TX_BASE}/api/analyze/hit-rate-rollup?days=${days}`, { signal: AbortSignal.timeout(12_000) });
+      const response = await workerFetch(`${TX_BASE}/api/analyze/hit-rate-rollup?days=${days}`, { signal: AbortSignal.timeout(12_000) });
       if (!response.ok) throw new Error('戰績摘要暫未能更新');
       return await response.json() as RecordRollup;
     })), readVersionHistory()]);

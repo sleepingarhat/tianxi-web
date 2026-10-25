@@ -93,6 +93,8 @@ export type ExplainMeeting = {
   date: string;
   venue: string | null;
   races: ExplainRace[];
+  /** 訪客隱藏場次（只有賽果，唔計命中）。 */
+  redacted?: { race: number; actual: number[] }[];
 };
 
 export const EXPLAIN_GLOBAL = globalJson as unknown as ExplainGlobal;

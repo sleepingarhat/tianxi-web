@@ -22,6 +22,8 @@ def local_files():
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for f in files:
             p = os.path.relpath(os.path.join(root, f), ".")
+            # 建置自動產生檔（例如 tsconfig.tsbuildinfo）唔入鏡像
+            if f.endswith(".tsbuildinfo"): continue
             if f in (".env", ".git") or f == ".env" or f.startswith(".env.") or p.startswith(KEEP): continue
             out[p] = open(p, "rb").read()
     return out

@@ -7,6 +7,7 @@ import { Card, Disclaimer, Empty, ErrorNote, PageHead, Pill, Stat, StatGrid } fr
 import { TxBar } from "@/components/tx/viz";
 import { EXPLAIN_DATES, VENUE_ZH, fixed, type ExplainRace } from "@/lib/explain-data";
 import { useExplainMeeting } from "@/lib/explain-live";
+import { RedactedNote } from "@/components/tx/RedactedNote";
 import { useCoverageAudit } from "@/components/tx/CoverageAudit";
 import { Loading } from "@/components/tx/ui";
 import { LivePickEvidence } from "@/components/tx/LivePickEvidence";
@@ -220,6 +221,7 @@ function ExplainMeetingPage() {
           </details>
         </div>
       ))}
+      {m.redacted?.length ? <div className="mx-4 mb-3"><RedactedNote races={m.redacted} /></div> : null}
 
       </TierGate>
       <Disclaimer extra="逐場覆蓋對帳只反映四揀同實際頭 4 嘅重疊，唔代表某匹馬勝出嘅原因；逐匹紅綠因子要等引擎倉以同一版凍結模型計好先會顯示。" />

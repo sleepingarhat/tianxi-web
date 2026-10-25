@@ -4,17 +4,21 @@ import { useQuery } from "@tanstack/react-query";
 
 import { type ExplainMeeting, type ExplainRace } from "@/lib/explain-data";
 import { completeAuditRace } from "@/lib/racing-visibility";
-import { txApi } from "@/lib/tx-api";
+import { useServerFn } from "@tanstack/react-start";
+import { getMeetingHitRate } from "@/lib/hit-rate.functions";
+import { useAuthState } from "@/lib/useAuthState";
 
 const bandOf = (d: number | null) => (d == null ? null : d <= 1200 ? "短途" : d <= 1650 ? "一哩" : d <= 2000 ? "中長" : "長途");
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function mapHitRate(date: string, j: any): ExplainMeeting | null {
   const races: any[] = Array.isArray(j?.races) ? j.races : [];
-  const ok = races.filter(completeAuditRace);
-  if (!ok.length) return null;
+  const redacted = races.filter((r) => r?.redacted).map((r) => ({ race: Number(r.raceNumber), actual: (r.actualTop4 ?? []).map((a: any) => Number(a.horseNumber)) }));
+  const ok = races.filter((r) => !r?.redacted && completeAuditRace(r));
+  if (!ok.length && !redacted.length) return null;
   return {
     date,
+    ...(redacted.length ? { redacted } : {}),
     venue: j?.venue ?? null,
     races: ok.map(
       (r): ExplainRace => ({
@@ -57,8 +61,11 @@ export function mapHitRate(date: string, j: any): ExplainMeeting | null {
 /** 每個日期都先讀現行凍結對帳，不再優先固定 JSON 或排除今日已結算場次。 */
 export function useExplainMeeting(date: string) {
   const eligible = /^\d{4}-\d{2}-\d{2}$/.test(date);
-  const q = useQuery({ queryKey: ["explainLive", date], enabled: eligible,
-    queryFn: async () => mapHitRate(date, await txApi.hitRate(date)), staleTime: 300_000, refetchInterval: 300_000,
+  const read = useServerFn(getMeetingHitRate);
+  const { userId, signedIn } = useAuthState();
+  // 回應按會籍分級：快取以用戶身份分隔。
+  const q = useQuery({ queryKey: ["explainLive", userId, date], enabled: eligible && signedIn !== null,
+    queryFn: async () => mapHitRate(date, await read({ data: { date } })), staleTime: 300_000, refetchInterval: 300_000,
   });
   return { meeting: q.data ?? undefined, loading: eligible && q.isLoading, live: Boolean(q.data), error: q.error };
 }
