@@ -22,6 +22,12 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     const identities = await query<{ count: number }>(`SELECT COUNT(DISTINCT venue) count FROM race_meetings WHERE date=? AND venue IN ('ST','HV')`, [data.raceId.slice(5, 15)]);
     if (identities[0]?.count !== 1) throw new Error("同日馬場來源不唯一，暫不配對解釋紀錄");
     const settled = await query<{ settled: number }>(`SELECT 1 AS settled FROM race_results WHERE race_id=? AND finishing_position BETWEEN 1 AND 98 LIMIT 1`, [data.raceId]);
+    // PRO_ENFORCEMENT=on：伺服器按 FEATURE_TIERS 核實（賽後 explain.postrace=registered；賽前 explain.prerace=pro），
+    // 唔再只靠前端 TierGate。預設 off，同現況一樣。
+    const { proEnforcementEnabled, lockedEvidenceAllowed, projectLockedEvidence } = await import('./picks-projection');
+    const enforce = proEnforcementEnabled();
+    const tier = enforce ? await (await import('./picks-entitlement.server')).viewerTier() : null;
+    if (tier && !lockedEvidenceAllowed(tier, settled.length > 0)) return null;
     if (!settled.length) {
       const response = await fetch(`${TX_BASE}/api/analyze/today-picks`, { signal: AbortSignal.timeout(15_000) });
       if (!response.ok) return null;
@@ -35,7 +41,9 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
       LEFT JOIN horse_pedigree hp ON hp.horse_id=pl.horse_id
       WHERE r.id=? AND pl.horse_id=? AND pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL LIMIT 1`, [data.raceId, data.horseId]);
     const row = rows[0];
-    return row ? { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" } : null;
+    if (!row) return null;
+    const evidence: LockedEvidence = { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" };
+    return tier ? projectLockedEvidence(evidence, tier) : evidence;
   });
 
 export const getFrozenVersionHistory = createServerFn({ method: "GET" }).handler(async (): Promise<{ versions: VersionEvidence[]; truncated: boolean }> => {
