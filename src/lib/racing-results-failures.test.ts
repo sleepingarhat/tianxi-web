@@ -5,7 +5,9 @@ import {
   raceFailureAlertKey,
   raceFailureAlertText,
   raceStartedAt,
+  raceStartTimingMap,
   resultErrorCode,
+  suppressMeetingTimeoutAlert,
   suppressRaceFailureAlert,
   type AlertStore,
 } from "./racing-results-failures";
@@ -117,9 +119,13 @@ describe("transient alert suppression", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), started, after)).toBe(false);
     expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, after)).toBe(false);
   });
-  it("a timeout before race 1 is suppressed; once any race started it alerts", () => {
-    expect(suppressRaceFailureAlert(failure("official-result-timeout", 1), new Map(), within)).toBe(true);
+  it("RESULT-status race timeouts always alert, including an empty timing map", () => {
+    expect(suppressRaceFailureAlert(failure("official-result-timeout", 1), new Map(), within)).toBe(false);
     expect(suppressRaceFailureAlert(failure("official-result-timeout", 1), started, within)).toBe(false);
+  });
+  it("parse gaps before the off or exactly 20 minutes after it are not suppressed", () => {
+    expect(suppressRaceFailureAlert(failure("official-result-table-missing"), started, new Date("2026-10-25T14:29:59+08:00"))).toBe(false);
+    expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, new Date("2026-10-25T14:50:00+08:00"))).toBe(false);
   });
   it("unknown timing never suppresses", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), null, within)).toBe(false);
@@ -128,6 +134,39 @@ describe("transient alert suppression", () => {
   it("other failure codes always alert", () => {
     expect(suppressRaceFailureAlert(failure("official-result-identity-mismatch"), started, within)).toBe(false);
     expect(suppressRaceFailureAlert(failure("unexpected-error"), new Map(), within)).toBe(false);
+  });
+});
+
+describe("meeting and job timeout timing evidence", () => {
+  const now = new Date("2026-10-25T12:00:00+08:00");
+  const code = "official-result-timeout";
+  const timing = (startTime: string | null) => raceStartTimingMap([{ raceNumber: 1, startTime }], "2026-10-25");
+  it("no D1 rows cannot mute a timeout", () => {
+    expect(suppressMeetingTimeoutAlert(code, raceStartTimingMap([], "2026-10-25"), now)).toBe(false);
+    expect(suppressMeetingTimeoutAlert(code, new Map(), now)).toBe(false);
+  });
+  it("missing start_time cannot mute a timeout", () => {
+    expect(suppressMeetingTimeoutAlert(code, timing(null), now)).toBe(false);
+  });
+  it.each(["soon", "", "25:00", "13:99"])("invalid start_time %s cannot mute a timeout", start => {
+    expect(timing(start)).toBeNull();
+    expect(suppressMeetingTimeoutAlert(code, timing(start), now)).toBe(false);
+  });
+  it("only known future starts mute meeting/job timeouts", () => {
+    expect(suppressMeetingTimeoutAlert(code, timing("13:00"), now)).toBe(true);
+    expect(suppressMeetingTimeoutAlert(code, timing("12:00"), now)).toBe(false);
+    expect(suppressMeetingTimeoutAlert(code, timing("11:59"), now)).toBe(false);
+  });
+  it("a started race prevents suppression even when other races are future", () => {
+    const map = raceStartTimingMap([{ raceNumber: 1, startTime: "11:59" }, { raceNumber: 2, startTime: "13:00" }], "2026-10-25");
+    expect(suppressMeetingTimeoutAlert(code, map, now)).toBe(false);
+  });
+  it("partial unknown timing cannot certify a pre-race meeting", () => {
+    const map = raceStartTimingMap([{ raceNumber: 1, startTime: null }, { raceNumber: 2, startTime: "13:00" }], "2026-10-25");
+    expect(suppressMeetingTimeoutAlert(code, map, now)).toBe(false);
+  });
+  it("non-timeout failures remain visible before race 1", () => {
+    expect(suppressMeetingTimeoutAlert("official-result-identity-mismatch", timing("13:00"), now)).toBe(false);
   });
 });
 
