@@ -7,8 +7,11 @@ type LockedEvidence = { horseElo: number | null; jockeyElo: number | null; train
 type VersionEvidence = { version: string; firstDate: string; lastDate: string; source: string | null; rows: number };
 
 // Fixed projections only. No arbitrary SQL or database credentials cross the RPC boundary.
+// One shared lazy import: parallel reads must resolve the same server module instance.
+let reader: Promise<typeof import('./public-racing-evidence.server')> | undefined;
 async function query<T>(sql: string, params: unknown[]): Promise<T[]> {
-  const { publicRacingQuery } = await import('./public-racing-evidence.server');
+  reader ??= import('./public-racing-evidence.server');
+  const { publicRacingQuery } = await reader;
   return publicRacingQuery<T>(sql, params);
 }
 
@@ -36,13 +39,15 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
       // 會籍單一來源：兩條路都係 loadUserTier → rpc my_entitlement()。PRO_ENFORCEMENT=on 時沿用上面已核實嘅 tier，唔再查第二次。
       const pro = tier ? tier === 'pro' : await (await import('./evidence-viewer.server')).evidenceViewerIsPro();
       if (!pro && identity.raceNumber !== 1) return null;
-      const token = pro ? process.env['TIANXI_ADMIN_TOKEN'] : undefined;
-      if (pro && !token) throw new Error('凍結解釋讀取憑證未設定');
-      const response = await fetch(`${TX_BASE}/api/analyze/today-picks`, { cache: 'no-store', signal: AbortSignal.timeout(15_000), headers: token ? { authorization: `Bearer ${token}` } : {} });
-      if (!response.ok) return null;
-      const body = await response.json() as FrozenEvidenceBody;
-      if (!frozenEvidenceAllows(body, identity, pro)) return null;
-      // Worker visibility is not proof that a mutable log still matches its original lock.
+      // Pro never reads the Worker: the admin edition is live, not frozen. Non-Pro uses only the
+      // anonymous public picks gate. No private credential is used on this path.
+      if (!pro) {
+        const response = await fetch(`${TX_BASE}/api/analyze/today-picks`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+        if (!response.ok) return null;
+        const body = await response.json() as FrozenEvidenceBody;
+        if (!frozenEvidenceAllows(body, identity, false)) return null;
+      }
+      // Both paths require the original snapshot (SHA, lock passed, baseline rows, lock meta).
       const { frozenColumns, validateFrozenSnapshot, frozenEvidenceStatus } = await import('./frozen-racing');
       const [saved, current, metas] = await Promise.all([
         query<{ snapshot_json: string; sha256: string; ok: number | null }>(`SELECT s.snapshot_json,s.sha256,p.ok FROM prediction_original_snapshots s LEFT JOIN prediction_recovery_status p ON p.date=s.date AND p.engine=s.engine WHERE s.date=? AND s.engine='v12'`, [identity.date]),
