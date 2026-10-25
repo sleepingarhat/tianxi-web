@@ -1,13 +1,19 @@
-import { resolveEntitlement, type SubRow } from './entitlement';
+import { fetchEntitlement, legacyEntitlement } from "./membership-entitlement.server";
+
+/** 背景工作用：rpc membership_entitlement(uid)（service_role，drizzle 0044）；同網站／Worker 同一套規則（admin 亦當 Pro）。 */
 export async function jobMembership(userId: string) {
-  const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
-  const result=await supabaseAdmin.rpc('membership_for_notification_job',{uid:userId});
-  if(result.error || !result.data)throw new Error('暫時未能核實會籍');
-  const row=result.data as unknown as {rank:number|null;total:number;gate_open_at:string|null;threshold:number;founding_slots:number};
-  const environment=import.meta.env['VITE_PAYMENTS_CLIENT_TOKEN']?.startsWith('pk_live_')?'live':'sandbox';
-  const sub=await supabaseAdmin.from('subscriptions').select('status,current_period_end,cancel_at_period_end').eq('user_id',userId).eq('environment',environment).order('created_at',{ascending:false}).limit(1).maybeSingle();
-  if(sub.error)throw new Error('暫時未能核實訂閱');
-  const pass=await supabaseAdmin.rpc('crypto_pass_until',{uid:userId,env:environment});if(pass.error)throw new Error('暫時未能核實通行證');
-  const entitlement=resolveEntitlement({rank:row.rank,total:row.total,gateOpenAt:row.gate_open_at,threshold:row.threshold,foundingSlots:row.founding_slots,subscription:sub.data as SubRow|null,cryptoPassUntil:pass.data});
-  return {hasPro:entitlement.hasPro,gateOpen:!!row.gate_open_at};
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const rpc = supabaseAdmin.rpc.bind(supabaseAdmin) as unknown as (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => PromiseLike<{ data: unknown; error: { code?: string } | null }>;
+  const e = await fetchEntitlement({
+    callEntitlementRpc: () => rpc("membership_entitlement", { uid: userId }),
+    legacy: async () => {
+      const m = await supabaseAdmin.rpc("membership_for_notification_job", { uid: userId });
+      if (m.error || !m.data) throw new Error("暫時未能核實會籍");
+      return legacyEntitlement(userId, m.data);
+    },
+  });
+  return { hasPro: e.tier === "pro", gateOpen: !!e.gateOpenAt };
 }

@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-const mocks = vi.hoisted(() => ({ query: vi.fn(), pro: vi.fn(), fetch: vi.fn(), validate: vi.fn() }));
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+const mocks = vi.hoisted(() => ({ query: vi.fn(), pro: vi.fn(), tier: vi.fn(), fetch: vi.fn(), validate: vi.fn() }));
 vi.mock('@tanstack/react-start', () => ({ createServerFn: () => {
   const builder = { inputValidator: () => builder, handler: (handler: unknown) => handler };
   return builder;
@@ -8,6 +9,7 @@ vi.mock('@tanstack/react-start/server', () => ({ setResponseHeader: vi.fn() }));
 vi.mock('./public-racing-evidence.server', () => ({ publicRacingQuery: (sql: string, params: unknown[]) => mocks.query(sql, params) }));
 vi.mock('@/lib/public-racing-evidence.server', () => ({ publicRacingQuery: (sql: string, params: unknown[]) => mocks.query(sql, params) }));
 vi.mock('./evidence-viewer.server', () => ({ evidenceViewerIsPro: () => mocks.pro() }));
+vi.mock('./picks-entitlement.server', () => ({ viewerTier: () => mocks.tier() }));
 vi.mock('./frozen-racing', () => ({ frozenColumns: ['date'], frozenEvidenceStatus: () => 'available', validateFrozenSnapshot: (...args: unknown[]) => mocks.validate(...args) }));
 import { getLockedEvidence } from './racing-evidence.functions';
 
@@ -20,11 +22,9 @@ describe('賽前解釋實際讀取流程', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.unstubAllEnvs();
-    // Fake values only: any read that reaches the real reader is routed back to mocks.query.
-    vi.stubEnv('CLOUDFLARE_API_KEY', 'test-cf');
-    vi.stubEnv('LOVABLE_API_KEY', 'test-lovable');
-    vi.stubEnv('CLOUDFLARE_ACCOUNT_ID', 'test-account');
-    vi.stubEnv('TIANXI_ADMIN_TOKEN', 'test-only-private-token');
+    // Fake values only (CI has no connector env vars): any read that reaches the real reader is
+    // routed back to mocks.query. TIANXI_ADMIN_TOKEN is set only to prove no path ever sends it.
+    for (const [name, value] of Object.entries({ CLOUDFLARE_API_KEY: 'test-cf', LOVABLE_API_KEY: 'test-lovable', CLOUDFLARE_ACCOUNT_ID: 'test-account', CONNECTOR_GATEWAY_BASE_URL: 'https://gateway.test', TIANXI_ADMIN_TOKEN: 'test-only-private-token' })) vi.stubEnv(name, value);
     vi.stubGlobal('fetch', mocks.fetch);
     mocks.pro.mockResolvedValue(false);
     body = () => publicBody;
@@ -90,5 +90,41 @@ describe('賽前解釋實際讀取流程', () => {
     mocks.validate.mockRejectedValue(new Error('原始副本指紋不一致'));
     await expect(read(input(1))).rejects.toThrow('原始副本指紋不一致');
     expect(mocks.query.mock.calls.some(([sql]) => sql.includes('horse_pedigree'))).toBe(false);
+  });
+  it('回傳只抄允許清單欄位', async () => {
+    mocks.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('COUNT(DISTINCT venue)')) return [{ count: 1 }];
+      if (sql.includes('FROM race_results')) return [{ settled: 1 }];
+      if (sql.includes('horse_pedigree')) return [{ horseElo: 1500, rank: 1, internalOnly: 'x' }];
+      return [];
+    });
+    expect(await read(input(2))).toEqual({ horseElo: 1500, rank: 1, provenance: 'historical-unverified' });
+  });
+  describe('PRO_ENFORCEMENT=on：同一個 my_entitlement tier', () => {
+    beforeEach(() => vi.stubEnv('PRO_ENFORCEMENT', 'on'));
+    it('訪客賽前第1場都唔得（explain.prerace=pro），唔讀 Worker', async () => {
+      mocks.tier.mockResolvedValue('guest');
+      expect(await read(input(1))).toBeNull();
+      expect(workerCalls()).toHaveLength(0);
+      expect(mocks.validate).not.toHaveBeenCalled();
+    });
+    it('免費會員賽前唔得；賽後得', async () => {
+      mocks.tier.mockResolvedValue('registered');
+      expect(await read(input(1))).toBeNull();
+      mocks.query.mockImplementation(async (sql: string) => {
+        if (sql.includes('COUNT(DISTINCT venue)')) return [{ count: 1 }];
+        if (sql.includes('FROM race_results')) return [{ settled: 1 }];
+        if (sql.includes('horse_pedigree')) return [{ horseElo: 1500, rank: 1 }];
+        return [];
+      });
+      expect(await read(input(2))).toMatchObject({ horseElo: 1500, provenance: 'historical-unverified' });
+    });
+    it('Pro 用同一個 tier，唔再另查 evidenceViewerIsPro，亦唔呼叫 Worker', async () => {
+      mocks.tier.mockResolvedValue('pro');
+      expect(await read(input(2))).toMatchObject({ horseElo: 1500 });
+      expect(mocks.pro).not.toHaveBeenCalled();
+      expect(workerCalls()).toHaveLength(0);
+      expect(mocks.validate).toHaveBeenCalledTimes(1);
+    });
   });
 });

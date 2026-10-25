@@ -11,10 +11,10 @@ export const Route = createFileRoute("/api/public/telegram-alert")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["WEATHER_CRON_SECRET"];
-        if (!secret || request.headers.get("x-cron-secret") !== secret) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { requireSharedSecret, alertHookSecrets } =
+          await import("@/lib/shared-secret.server");
+        const denied = requireSharedSecret(request, alertHookSecrets());
+        if (denied) return denied;
         const url = new URL(request.url);
         const test = url.searchParams.get("test") === "1";
         const { runAlertChecks, sendTelegramAlert } = await import("@/lib/telegramAlert.server");

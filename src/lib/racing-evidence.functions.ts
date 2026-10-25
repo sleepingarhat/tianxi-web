@@ -29,9 +29,15 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     const identities = await query<{ count: number }>(`SELECT COUNT(DISTINCT venue) count FROM race_meetings WHERE date=? AND venue IN ('ST','HV')`, [data.raceId.slice(5, 15)]);
     if (identities[0]?.count !== 1) throw new Error("同日馬場來源不唯一，暫不配對解釋紀錄");
     const settled = await query<{ settled: number }>(`SELECT 1 AS settled FROM race_results WHERE race_id=? AND finishing_position BETWEEN 1 AND 98 LIMIT 1`, [data.raceId]);
+    // PRO_ENFORCEMENT=on：伺服器按 FEATURE_TIERS 核實（賽後 explain.postrace=registered；賽前 explain.prerace=pro），
+    // 唔再只靠前端 TierGate。預設 off，同現況一樣。
+    const { proEnforcementEnabled, lockedEvidenceAllowed, projectLockedEvidence } = await import('./picks-projection');
+    const enforce = proEnforcementEnabled();
+    const tier = enforce ? await (await import('./picks-entitlement.server')).viewerTier() : null;
+    if (tier && !lockedEvidenceAllowed(tier, settled.length > 0)) return null;
     if (!settled.length) {
-      const { evidenceViewerIsPro } = await import('./evidence-viewer.server');
-      const pro = await evidenceViewerIsPro();
+      // 會籍單一來源：兩條路都係 loadUserTier → rpc my_entitlement()。PRO_ENFORCEMENT=on 時沿用上面已核實嘅 tier，唔再查第二次。
+      const pro = tier ? tier === 'pro' : await (await import('./evidence-viewer.server')).evidenceViewerIsPro();
       if (!pro && identity.raceNumber !== 1) return null;
       // Pro never reads the Worker: the admin edition is live, not frozen. Non-Pro uses only the
       // anonymous public picks gate. No private credential is used on this path.
@@ -60,7 +66,10 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
       LEFT JOIN horse_pedigree hp ON hp.horse_id=pl.horse_id
       WHERE pl.date=? AND pl.race_number=? AND pl.horse_id=? AND pl.engine='v12' AND pl.variant='baseline' AND pl.predicted_rank IS NOT NULL LIMIT 1`, [identity.date, identity.raceNumber, data.horseId]);
     const row = rows[0];
-    return row ? { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" } : null;
+    if (!row) return null;
+    const evidence: LockedEvidence = { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" };
+    // 回傳一律逐欄允許清單（LOCKED_EVIDENCE_SPEC），唔會因為 SELECT 加欄就外洩。
+    return projectLockedEvidence(evidence, tier ?? 'guest');
   });
 
 export const getFrozenVersionHistory = createServerFn({ method: "GET" }).handler(async (): Promise<{ versions: VersionEvidence[]; truncated: boolean }> => {

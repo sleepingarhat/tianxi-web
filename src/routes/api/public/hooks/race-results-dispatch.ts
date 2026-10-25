@@ -10,10 +10,10 @@ export const Route = createFileRoute("/api/public/hooks/race-results-dispatch")(
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["WEATHER_CRON_SECRET"];
-        if (!secret || request.headers.get("x-cron-secret") !== secret) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const { requireSharedSecret, weatherHookSecrets } =
+          await import("@/lib/shared-secret.server");
+        const denied = requireSharedSecret(request, weatherHookSecrets());
+        if (denied) return denied;
 
         const { dispatchRaceResults } = await import('@/lib/race-results-dispatch.server');
         return dispatchRaceResults();

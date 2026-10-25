@@ -64,7 +64,12 @@ const refreshPicks = createPicksRefresh(fetchTodayPicksUpstream);
 export const getTodayPicksAll = createServerFn({ method: "GET" }).handler(async () => {
   const { setResponseHeader } = await import("@tanstack/react-start/server");
   setResponseHeader("Cache-Control", "no-store");
-  return (await refreshPicks()) as import('./racing-shapes').DayPicks;
+  const day = (await refreshPicks()) as import('./racing-shapes').DayPicks;
+  // PRO_ENFORCEMENT=on：喺伺服器按會籍投影（預設 off，同現況一樣由前端投影）。
+  const { proEnforcementEnabled, projectDayPicksForViewer } = await import('./picks-projection');
+  if (!proEnforcementEnabled()) return day;
+  const { viewerTier } = await import('./picks-entitlement.server');
+  return projectDayPicksForViewer(day, await viewerTier());
 });
 
 /** 監控台用：可選強制重新運算（fresh=1，忽略快取） */

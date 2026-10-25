@@ -1,0 +1,35 @@
+name: PR checks
+
+# 只喺 pull_request 跑：typecheck + vitest + build。冇任何部署步驟、唔用任何 secret。
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install (frozen lockfile)
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: npx tsc --noEmit -p .
+      - name: Unit tests
+        run: npx vitest run
+      - name: Build
+        run: npx vite build
