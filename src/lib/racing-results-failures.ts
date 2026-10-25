@@ -53,19 +53,47 @@ export const EARLY_RESULT_GRACE_MS = 20 * 60_000;
 /** Parse an ISO timestamp or "HH:mm"/"HH:mm:ss" (HKT) into epoch ms for the given race date. */
 export function raceStartedAt(startTime: string | null | undefined, date: string): number | null {
   if (!startTime) return null;
-  const iso = Date.parse(startTime);
-  if (Number.isFinite(iso)) return iso;
+  if (/^\d{4}-\d{2}-\d{2}T/.test(startTime)) {
+    const iso = Date.parse(startTime);
+    return Number.isFinite(iso) ? iso : null;
+  }
   const m = startTime.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
   const [, hh, mm] = m ?? [];
   if (!hh || !mm || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  return Date.parse(`${date}T${hh.padStart(2, "0")}:${mm}:00+08:00`);
+  if (Number(hh) > 23 || Number(mm) > 59) return null;
+  const parsed = Date.parse(`${date}T${hh.padStart(2, "0")}:${mm}:00+08:00`);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/** Preserve future starts; missing/invalid timing is not evidence of a pre-race meeting. */
+export function raceStartTimingMap(
+  rows: ReadonlyArray<{ raceNumber: number; startTime: string | null }>,
+  date: string,
+): ReadonlyMap<number, number> | null {
+  if (!rows.length) return null;
+  const map = new Map<number, number>();
+  for (const row of rows) {
+    const time = raceStartedAt(row.startTime, date);
+    if (time == null || !Number.isFinite(time)) return null;
+    map.set(row.raceNumber, time);
+  }
+  return map;
+}
+
+/** Meeting/job timeouts may be muted only with positive evidence that every known start is future. */
+export function suppressMeetingTimeoutAlert(
+  code: string,
+  timing: ReadonlyMap<number, number> | null,
+  now = new Date(),
+): boolean {
+  return code === "official-result-timeout" && timing != null && timing.size > 0 &&
+    [...timing.values()].every(time => Number.isFinite(time) && time > now.getTime());
 }
 
 /**
  * Noise control: right after the off, HKJC's result table is legitimately
- * absent or incomplete, and before race 1 no result can exist at all. Suppress
- * only those known-transient alerts; every other failure still alerts.
- * startedMap: raceNumber → started epoch ms; null = timing unknown (never suppress).
+ * absent or incomplete. A RESULT-status race timeout always alerts.
+ * startedMap: raceNumber → start epoch ms; null = timing unknown (never suppress).
  */
 export function suppressRaceFailureAlert(
   f: RaceFailure,
@@ -73,10 +101,10 @@ export function suppressRaceFailureAlert(
   now = new Date(),
 ): boolean {
   if (!startedMap) return false;
-  if (f.code === "official-result-timeout") return startedMap.size === 0;
   if (f.code === "official-result-table-missing" || f.code === "official-result-columns-incomplete") {
     const started = startedMap.get(f.raceNumber);
-    return started != null && now.getTime() - started < EARLY_RESULT_GRACE_MS;
+    const elapsed = started == null ? NaN : now.getTime() - started;
+    return elapsed >= 0 && elapsed < EARLY_RESULT_GRACE_MS;
   }
   return false;
 }
