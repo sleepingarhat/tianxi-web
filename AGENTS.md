@@ -29,7 +29,7 @@
 - Homepage counts use only racing_results_index; twice-daily jobs count tianxi-racing results CSVs, 40 files/run. Why: verifiable automatic figures.
 - Coverage shares racing-visibility frozen rows/full closing CSVs; guides exclude same-day/future form and finish positions. Why: auditable denominators and pre-race evidence, no prediction writes.
 - RacePositionMap pairs historical medians and actual checkpoints, separates finish rank and cites sources; history is not frozen.
-- Server reads of the racing Worker go through workerFetch, which attaches the read-only site token only to Worker URLs; browsers never call hit-rate directly and tier projection runs after the shared cache. Why: restricted anonymous Worker modes must not break the site or leak hidden picks.
+- Server today-picks/hit-rate reads use workerFetch, including evidence, prelock and admin/fresh paths; preserve admin authorization and timeouts. It attaches the read-only site token only to Worker URLs; browsers never call hit-rate directly and tier projection runs after shared caches. Why: restricted anonymous modes must not break reads or grant privileges.
 - Racing evidence reads match canonical date/venue/race/horse without requiring settled race rows; pre-race scores need the verified original snapshot (SHA, lock passed, baseline). Pro is authorized server-side and reads no Worker/admin edition; non-Pro also needs the public frozen picks. Isolate browser caches by user; pedigrees stay separate. Why: admin editions are live, not frozen.
 
 - Retired sources/journals live only in private research with commits/checksums; keep only product-scope gates (redirect/410). Why: preserve research, don't ship retired products.

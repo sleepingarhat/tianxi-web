@@ -1,5 +1,6 @@
 import { HKJC_CHANGES_URL, parseHkjcChangesPage } from './hkjc-changes';
 import { changeKey, changeRevision } from './racing-change-progress';
+import { workerFetch } from './site-reader.server';
 
 /** Fetch the official HKJC changes page once and append an immutable snapshot (deduped by SHA). */
 export async function captureHkjcChanges() {
@@ -63,7 +64,7 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const read = async (fresh: boolean) => {
     if (fresh && !token) return null;
     // 重算讀取實測約19秒，放寬至45秒；一般讀取維持15秒。
-    const r = await fetch(picksUrl + (fresh ? '?fresh=1' : ''), { cache: 'no-store', headers: token ? { authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(fresh ? 45_000 : 15_000) });
+    const r = await workerFetch(picksUrl + (fresh ? '?fresh=1' : ''), { cache: 'no-store', headers: token ? { authorization: `Bearer ${token}` } : {}, signal: AbortSignal.timeout(fresh ? 45_000 : 15_000) });
     if (!r.ok) return null;
     const body = z.object({ date: z.string(), generatedAt: z.string().optional(), races: z.array(z.object({ raceNumber: z.number().int().positive(), picks: z.array(z.object({ horseNumber: z.number().int().positive(), nameCh: z.string().min(1) })).min(4) })).min(1) }).safeParse(await r.json());
     if (!body.success || body.data.date !== date) return null;

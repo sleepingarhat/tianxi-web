@@ -2,19 +2,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const mocks = vi.hoisted(() => ({ fetch: vi.fn(), tier: vi.fn(), cached: vi.fn() }));
+const mocks = vi.hoisted(() => ({ fetch: vi.fn(), tier: vi.fn(), cached: vi.fn(), query: vi.fn(), pro: vi.fn(), validate: vi.fn(), rpc: vi.fn(), prelock: vi.fn() }));
 vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
-  const builder = { middleware: () => builder, inputValidator: (v: (i: unknown) => unknown) => { (builder as any).v = v; return builder; }, handler: (h: (a: { data: unknown }) => unknown) => (input: { data: unknown }) => h({ data: (builder as any).v(input.data) }) };
+  const builder = { middleware: () => builder, inputValidator: (v: (i: unknown) => unknown) => { (builder as any).v = v; return builder; }, handler: (h: (a: { data: unknown; context?: unknown }) => unknown) => (input: { data: unknown; context?: unknown }) => h({ data: (builder as any).v(input.data), context: input.context }) };
   return builder;
 } }));
 vi.mock("./picks-entitlement.server", () => ({ viewerTier: () => mocks.tier() }));
 vi.mock("./computed-cache.server", () => ({ CACHE_TTL: 1, cached: (_k: string, _t: number, fn: () => unknown) => mocks.cached(fn) }));
+vi.mock('@tanstack/react-start/server', () => ({ setResponseHeader: vi.fn() }));
+vi.mock('./public-racing-evidence.server', () => ({ publicRacingQuery: (sql: string) => mocks.query(sql) }));
+vi.mock('./evidence-viewer.server', () => ({ evidenceViewerIsPro: () => mocks.pro() }));
+vi.mock('./frozen-racing', () => ({ frozenColumns: ['date'], frozenEvidenceStatus: () => 'available', validateFrozenSnapshot: () => mocks.validate() }));
+vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { rpc: (...args: unknown[]) => mocks.rpc(...args) } }));
+vi.mock('./prelock-workflow', () => ({ advancePrelock: (...args: unknown[]) => mocks.prelock(...args) }));
+vi.mock('./telegramAlert.server', () => ({ sendTelegramAlert: vi.fn() }));
+vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth: {} }));
 
 import { SITE_READER_HEADER, siteReaderHeaders, workerFetch } from "./site-reader.server";
 import { TX_BASE } from "./tx-api";
 import { getMeetingHitRate } from "./hit-rate.functions";
 import { getCoverageAudit } from "./racing-visibility.functions";
 import { readCoverageAudit } from "./coverage-audit.server";
+import { getLockedEvidence } from './racing-evidence.functions';
+import { recomputeIfStaleBeforeLock } from './hkjc-changes.server';
+import { fetchTodayPicksUpstream, getOraclePicks } from './picks.functions';
 
 let token = "";
 beforeEach(() => {
@@ -80,6 +91,87 @@ describe("單日對帳分級", () => {
   });
   it("拒絕無效日期", async () => {
     await expect((async () => (getMeetingHitRate as any)({ data: { date: "2026-10-25&x=1" } }))()).rejects.toThrow();
+  });
+});
+
+describe('today-picks 實際請求憑證回歸', () => {
+  it('全日選馬讀取带網站憑證並保留40秒timeout及admin header', async () => {
+    vi.stubEnv('TIANXI_ADMIN_TOKEN', 'test-admin-upstream');
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    mocks.fetch.mockImplementation(async (url: string) => url.includes('lock-state')
+      ? { ok: true, json: async () => ({ locked: false }) }
+      : { ok: true, text: async () => JSON.stringify({ races: [], noMeeting: true }) });
+    try {
+      expect(await fetchTodayPicksUpstream()).toMatchObject({ noMeeting: true });
+      const call = mocks.fetch.mock.calls.find(c => String(c[0]).endsWith('/today-picks')) ?? [];
+      expect(headerOf(call)).toBe(token);
+      expect(new Headers(call[1]?.headers).get('authorization')).toBe('Bearer test-admin-upstream');
+      expect(call[1]?.cache).toBe('no-store');
+      expect(call[1]?.signal).toBeInstanceOf(AbortSignal);
+      expect(timeout).toHaveBeenCalledWith(40_000);
+    } finally { timeout.mockRestore(); }
+  });
+
+  it.each([false, true])('監控選馬 fresh=%s 驗證admin後帶網站憑證', async fresh => {
+    vi.stubEnv('TIANXI_ADMIN_TOKEN', 'test-admin-oracle');
+    mocks.fetch.mockResolvedValue({ ok: true, text: async () => JSON.stringify({ races: [] }) });
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { role: 'admin' }, error: null });
+    const query = { select: () => query, eq: () => query, maybeSingle };
+    const context = { userId: 'test-user', supabase: { from: () => query } };
+    await (getOraclePicks as unknown as (input: unknown) => Promise<unknown>)({ data: { fresh }, context });
+    expect(maybeSingle).toHaveBeenCalledTimes(1);
+    const call = mocks.fetch.mock.calls[0] ?? [];
+    expect(call[0]).toBe(`${TX_BASE}/api/analyze/today-picks${fresh ? '?fresh=1' : ''}`);
+    expect(headerOf(call)).toBe(token);
+    expect(new Headers(call[1]?.headers).get('authorization')).toBe('Bearer test-admin-oracle');
+  });
+
+  it('非Pro第1場解釋帶網站唯讀憑證，保留no-store及15秒timeout，不帶admin', async () => {
+    vi.stubEnv('TIANXI_ADMIN_TOKEN', 'test-admin-not-for-evidence');
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    mocks.pro.mockResolvedValue(false);
+    mocks.query.mockImplementation(async (sql: string) => {
+      if (sql.includes('COUNT(DISTINCT venue)')) return [{ count: 1 }];
+      if (sql.includes('prediction_original_snapshots')) return [{ snapshot_json: '{}', sha256: 'test', ok: 1 }];
+      if (sql.includes('horse_pedigree')) return [{ horseElo: 1500, rank: 1 }];
+      return [];
+    });
+    mocks.validate.mockResolvedValue({ venue: 'ST', rows: [{ race_number: 1, horse_id: 'horse_K585' }] });
+    mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ frozen: true, date: '2026-10-25', venue: 'ST', races: [{ raceNumber: 1, picks: [{ horseId: 'horse_K585' }] }] }) });
+    try {
+      const out = await getLockedEvidence({ data: { raceId: 'race_2026-10-25_ST_1', horseId: 'horse_K585' } });
+      expect(out).toMatchObject({ horseElo: 1500 });
+      expect(mocks.fetch).toHaveBeenCalledTimes(1);
+      const call = mocks.fetch.mock.calls[0] ?? [];
+      expect(call[0]).toBe(`${TX_BASE}/api/analyze/today-picks`);
+      expect(headerOf(call)).toBe(token);
+      expect(new Headers(call[1]?.headers).get('authorization')).toBeNull();
+      expect(call[1]?.cache).toBe('no-store');
+      expect(call[1]?.signal).toBeInstanceOf(AbortSignal);
+      expect(timeout).toHaveBeenCalledWith(15_000);
+    } finally { timeout.mockRestore(); }
+  });
+
+  it.each([false, true])('馬會改動檢查 fresh=%s 帶網站憑證，保留既有admin用途及timeout', async fresh => {
+    vi.stubEnv('TIANXI_ADMIN_TOKEN', 'test-admin-recompute');
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    mocks.rpc.mockImplementation(async (name: string) => ({ error: null, data: name === 'claim_racing_prelock' ? {} : true }));
+    mocks.prelock.mockImplementation(async (_date: string, state: object, deps: { read: (fresh: boolean) => Promise<unknown> }) => {
+      expect(await deps.read(fresh)).toEqual([]);
+      return { ...state, phase: 'clean' };
+    });
+    mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ date: '2026-10-25', generatedAt: '2026-10-25T02:00:00Z', races: [{ raceNumber: 1, picks: [1, 2, 3, 4].map(horseNumber => ({ horseNumber, nameCh: '測試馬' })) }] }) });
+    try {
+      expect(await recomputeIfStaleBeforeLock([], '2026-10-25')).toMatchObject({ action: 'clean', freezeAuthorized: false });
+      expect(mocks.fetch).toHaveBeenCalledTimes(1);
+      const call = mocks.fetch.mock.calls[0] ?? [];
+      expect(call[0]).toBe(`${TX_BASE}/api/analyze/today-picks${fresh ? '?fresh=1' : ''}`);
+      expect(headerOf(call)).toBe(token);
+      expect(new Headers(call[1]?.headers).get('authorization')).toBe('Bearer test-admin-recompute');
+      expect(call[1]?.cache).toBe('no-store');
+      expect(call[1]?.signal).toBeInstanceOf(AbortSignal);
+      expect(timeout).toHaveBeenCalledWith(fresh ? 45_000 : 15_000);
+    } finally { timeout.mockRestore(); }
   });
 });
 

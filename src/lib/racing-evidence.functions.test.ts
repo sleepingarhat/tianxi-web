@@ -22,6 +22,7 @@ describe('賽前解釋實際讀取流程', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.unstubAllEnvs();
+    vi.stubEnv('SITE_READER_TOKEN', '');
     // Fake values only (CI has no connector env vars): any read that reaches the real reader is
     // routed back to mocks.query. TIANXI_ADMIN_TOKEN is set only to prove no path ever sends it.
     for (const [name, value] of Object.entries({ CLOUDFLARE_API_KEY: 'test-cf', LOVABLE_API_KEY: 'test-lovable', CLOUDFLARE_ACCOUNT_ID: 'test-account', CONNECTOR_GATEWAY_BASE_URL: 'https://gateway.test', TIANXI_ADMIN_TOKEN: 'test-only-private-token' })) vi.stubEnv(name, value);
@@ -47,14 +48,16 @@ describe('賽前解釋實際讀取流程', () => {
   const workerCalls = () => mocks.fetch.mock.calls.filter(([url]) => !String(url).includes('/d1/'));
   const input = (n: number) => ({ data: { raceId: `race_2026-10-25_ST_${n}`, horseId: 'horse_K585' } });
 
-  it('無賽後races行仍可讀核實第1場原解釋，公開讀取不帶任何憑證', async () => {
+  it('無賽後races行仍可讀核實第1場原解釋，未設網站憑證亦不帶admin憑證', async () => {
     expect(await read(input(1))).toMatchObject({ horseElo: 1500, provenance: 'public-frozen-picks' });
     const query = mocks.query.mock.calls.find(([sql]) => sql.includes('horse_pedigree'));
     expect(query?.[0]).not.toContain('JOIN races');
     expect(query?.[1]).toEqual(['2026-10-25', 1, 'horse_K585']);
     const worker = workerCalls();
     expect(worker).toHaveLength(1);
-    expect(worker[0]?.[1]?.headers).toBeUndefined();
+    const headers = new Headers(worker[0]?.[1]?.headers);
+    expect(headers.get('Authorization')).toBeNull();
+    expect(headers.get('X-Tianxi-Site-Token')).toBeNull();
   });
   it('免費用戶第2場不查原解釋', async () => {
     expect(await read(input(2))).toBeNull();

@@ -40,9 +40,10 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
       const pro = tier ? tier === 'pro' : await (await import('./evidence-viewer.server')).evidenceViewerIsPro();
       if (!pro && identity.raceNumber !== 1) return null;
       // Pro never reads the Worker: the admin edition is live, not frozen. Non-Pro uses only the
-      // anonymous public picks gate. No private credential is used on this path.
+      // public frozen picks gate via the server-only read-only site credential, never admin.
       if (!pro) {
-        const response = await fetch(`${TX_BASE}/api/analyze/today-picks`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+        const { workerFetch } = await import('./site-reader.server');
+        const response = await workerFetch(`${TX_BASE}/api/analyze/today-picks`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
         if (!response.ok) return null;
         const body = await response.json() as FrozenEvidenceBody;
         if (!frozenEvidenceAllows(body, identity, false)) return null;

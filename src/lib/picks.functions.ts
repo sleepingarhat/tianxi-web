@@ -29,7 +29,8 @@ export async function fetchTodayPicksUpstream() {
   }
   const token = process.env["TIANXI_ADMIN_TOKEN"];
   const url = `${WORKER_BASE}/api/analyze/today-picks`;
-  const res = await fetch(url, {
+  const { workerFetch } = await import('./site-reader.server');
+  const res = await workerFetch(url, {
     cache: "no-store",
     signal: AbortSignal.timeout(40_000),
     headers: {
@@ -81,7 +82,8 @@ export const getOraclePicks = createServerFn({ method: "POST" })
     if (error || !role) throw new Error("只限管理員使用監控工具");
     const token = process.env["TIANXI_ADMIN_TOKEN"];
     const url = `${WORKER_BASE}/api/analyze/today-picks${data.fresh ? "?fresh=1" : ""}`;
-    const res = await fetch(url, {
+    const { workerFetch } = await import('./site-reader.server');
+    const res = await workerFetch(url, {
       headers: {
         "user-agent": "tianxi-web-admin",
         ...(token ? { authorization: `Bearer ${token}` } : {}),
