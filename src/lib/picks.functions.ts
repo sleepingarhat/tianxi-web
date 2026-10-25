@@ -66,9 +66,9 @@ export const getTodayPicksAll = createServerFn({ method: "GET" }).handler(async 
   const { setResponseHeader } = await import("@tanstack/react-start/server");
   setResponseHeader("Cache-Control", "no-store");
   const day = (await refreshPicks()) as import('./racing-shapes').DayPicks;
-  // PRO_ENFORCEMENT=on：喺伺服器按會籍投影（預設 off，同現況一樣由前端投影）。
-  const { proEnforcementEnabled, projectDayPicksForViewer } = await import('./picks-projection');
-  if (!proEnforcementEnabled()) return day;
+  // 一律喺伺服器按會籍投影（Pro 全日、其他人按 FEATURE_TIERS），唔再依賴 PRO_ENFORCEMENT 開關：
+  // 上游用管理員 token 攞到全日資料，冇投影就直接交俾瀏覽器會洩漏賽前預測。
+  const { projectDayPicksForViewer } = await import('./picks-projection');
   const { viewerTier } = await import('./picks-entitlement.server');
   return projectDayPicksForViewer(day, await viewerTier());
 });

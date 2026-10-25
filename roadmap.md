@@ -1,5 +1,15 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
+## 2026-10-25 getTodayPicksAll 伺服器投影（本輪未發布）
+- [x] 堵塞未登入直接讀全日完整凍結選馬：getTodayPicksAll 唔再依賴 PRO_ENFORCEMENT，一律 viewerTier() + projectDayPicksForViewer() 伺服器投影（Pro 全日、其他人按 FEATURE_TIERS）。
+- [x] use-today-picks.ts 同 race.tsx 核對：全部欄位可選兼有用投影後資料嘅 fallback，缺欄位唔會報錯或空白。
+- [x] 新增 picks.functions.test.ts 4 項測試：匿名／已註冊／Pro × 未完賽／已完賽，匿名同已註冊攞唔到賽前第2場之後完整預測（已註冊只得首選身份），Pro 攞到全部；PRO_ENFORCEMENT 點設都一律投影。全套92檔552項通過、tsc 無錯。
+- [ ] 用戶 review 後先 Publish；下個賽日開賽前用測試帳戶同未登入兩種身份實測。
+
+## 2026-10-25 用戶覆核更新
+- [x] SITE_READER_TOKEN 兩邊一致已閂口：12:23 UTC Worker ANON_HITRATE_MODE 轉 restricted 實測通過（匿名得 aggregate、Pro 見全部11場）；tianxi-racing PR #91 已合併，wrangler.toml 係 restricted。
+- [x] 名稱更正：Worker 會籍開關係 PRO_ENTITLEMENT_MODE（唔係 PRO_ENTECTION_MODE）；Worker today-picks 對非管理員未完賽一律只派第1場，off 唔係繞過漏洞。下個賽日用 tg_reader_check workflow 確認匿名 today-picks races=1。
+
 ## 2026-10-25 Worker 讀取補漏及憑證輪換（本輪未發布）
 - [x] 四個入口補用 workerFetch：非Pro解釋、馬會改動檢查、全日選馬upstream及監控選馬；保留 cache／timeout／既有權限。新增6項實際請求測試，全套91檔548項通過。全倉讀取清單見 docs/reviews/worker-reader-audit-2026-10-25.md。
 - [x] SITE_READER_TOKEN 安全更新表單已儲存；未讀取或比較值，Cloudflare 11:42 部署由用戶確認；兩邊一致性待restricted預覽驗證。
