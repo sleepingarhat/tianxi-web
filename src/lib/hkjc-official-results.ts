@@ -52,7 +52,7 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
 }
 
 /** No result may publish until all current-card starters are accounted for by identity. */
-export function verifyOfficialResultCoverage(results: OfficialRunnerResult[], card: {horseNumber: number; horseId: string}[], withdrawn: ReadonlySet<number>) {
+export function verifyOfficialResultCoverage(results: OfficialRunnerResult[], card: {horseNumber: number; horseId: string}[], withdrawn: ReadonlySet<number>, offCardWithdrawn: ReadonlySet<string> = new Set()) {
   if (card.length < 4) throw new Error('official-card-incomplete');
   // D1 uses horse_K001; official links use HK_YYYY_K001. Strip only
   // the documented storage prefix, never fuzzy-match different identities.
@@ -60,6 +60,13 @@ export function verifyOfficialResultCoverage(results: OfficialRunnerResult[], ca
   const expected = new Map(card.map(r => [r.horseNumber, canonical(r.horseId)]));
   if (expected.size !== card.length) throw new Error('official-card-duplicate');
   for (const r of results) {
+    // Pre-lock withdrawn runners are removed from the current card, yet HKJC
+    // still lists them without a placing. Skip only an exact official-notice
+    // identity ("horseNumber:horseId"); anything else off-card still blocks.
+    if (!expected.has(r.horseNumber)) {
+      if (r.finishingPosition === null && offCardWithdrawn.has(`${r.horseNumber}:${r.horseId}`)) continue;
+      throw new Error('official-result-identity-mismatch');
+    }
     if (expected.get(r.horseNumber) !== r.horseId) throw new Error('official-result-identity-mismatch');
     if (withdrawn.has(r.horseNumber) && r.finishingPosition !== null) throw new Error('withdrawn-runner-has-placing');
     if (r.finishingPosition === null && !withdrawn.has(r.horseNumber)) throw new Error('nonfinisher-needs-separate-evidence');

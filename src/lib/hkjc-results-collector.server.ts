@@ -19,7 +19,22 @@ export async function collectOfficialRace(date: string, venue: string, raceNumbe
   const { readLatestHkjcChanges } = await import('./hkjc-changes.server');
   const changes = await readLatestHkjcChanges(date);
   const withdrawn = new Set(card.filter(r=>changes?.venue===venue && officialWithdrawal(changes.changes as unknown as import('./hkjc-changes').HkjcChange[],raceNumber,r.horseNumber,r.nameCh)).map(r=>r.horseNumber));
-  verifyOfficialResultCoverage(results,card,withdrawn);
+  // Pre-lock withdrawn runners are deleted from the D1 card but HKJC still
+  // lists them without a placing. Accept them only when an official changes
+  // notice confirms the exact identity; without a notice coverage still fails.
+  const onCard = new Set(card.map(r=>r.horseNumber));
+  const offCard = results.filter(r=>!onCard.has(r.horseNumber) && r.finishingPosition===null);
+  const offCardWithdrawn = new Set<string>();
+  if (offCard.length) {
+    const ids = offCard.map(r=>`horse_${r.horseId}`);
+    const names = await publicRacingQuery<{id:string;nameCh:string}>(`SELECT id,name_ch nameCh FROM horses WHERE id IN (${ids.map(()=>'?').join(',')})`,ids);
+    const nameById = new Map(names.map(n=>[n.id,n.nameCh]));
+    for (const r of offCard) {
+      const fullId = `horse_${r.horseId}`;
+      if (changes?.venue===venue && officialWithdrawal(changes.changes as unknown as import('./hkjc-changes').HkjcChange[],raceNumber,r.horseNumber,nameById.get(fullId),fullId)) offCardWithdrawn.add(`${r.horseNumber}:${r.horseId}`);
+    }
+  }
+  verifyOfficialResultCoverage(results,card,withdrawn,offCardWithdrawn);
   const saved = await supabaseAdmin.from('racing_official_result_snapshots').upsert({race_date:date,venue,race_number:raceNumber,source_url:sourceUrl,source_sha256:sha256,raw_html:html,results:JSON.parse(JSON.stringify(results)),identity_verified:true},{onConflict:'race_date,venue,race_number,source_sha256',ignoreDuplicates:true});
   if (saved.error) throw new Error('official-result-archive-failed');
   return { raceNumber, action:'archived-identity-verified',sha256 };

@@ -47,6 +47,40 @@ export async function collectPendingRaces(
 export const raceFailureAlertKey = (f: RaceFailure) =>
   `results-race-failure:${f.date}:${f.venue}:R${f.raceNumber}:${f.code}`;
 
+/** HKJC's result table appears shortly after the off; parse gaps inside this window are expected, not incidents. */
+export const EARLY_RESULT_GRACE_MS = 20 * 60_000;
+
+/** Parse an ISO timestamp or "HH:mm"/"HH:mm:ss" (HKT) into epoch ms for the given race date. */
+export function raceStartedAt(startTime: string | null | undefined, date: string): number | null {
+  if (!startTime) return null;
+  const iso = Date.parse(startTime);
+  if (Number.isFinite(iso)) return iso;
+  const m = startTime.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  const [, hh, mm] = m ?? [];
+  if (!hh || !mm || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  return Date.parse(`${date}T${hh.padStart(2, "0")}:${mm}:00+08:00`);
+}
+
+/**
+ * Noise control: right after the off, HKJC's result table is legitimately
+ * absent or incomplete, and before race 1 no result can exist at all. Suppress
+ * only those known-transient alerts; every other failure still alerts.
+ * startedMap: raceNumber → started epoch ms; null = timing unknown (never suppress).
+ */
+export function suppressRaceFailureAlert(
+  f: RaceFailure,
+  startedMap: ReadonlyMap<number, number> | null,
+  now = new Date(),
+): boolean {
+  if (!startedMap) return false;
+  if (f.code === "official-result-timeout") return startedMap.size === 0;
+  if (f.code === "official-result-table-missing" || f.code === "official-result-columns-incomplete") {
+    const started = startedMap.get(f.raceNumber);
+    return started != null && now.getTime() - started < EARLY_RESULT_GRACE_MS;
+  }
+  return false;
+}
+
 export const raceFailureAlertText = (f: RaceFailure) =>
   `⚠️ 賽果收料失敗：${f.date} ${f.venue} 第${f.raceNumber}場（${f.code}）；已跳過此場繼續後續場次，此賽日不會標記為已核實，原凍結不改。可於修正後補收：archive-backfill ${f.date} ${f.venue} R${f.raceNumber}。`;
 
