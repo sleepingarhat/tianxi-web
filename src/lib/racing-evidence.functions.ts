@@ -33,8 +33,8 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     const tier = enforce ? await (await import('./picks-entitlement.server')).viewerTier() : null;
     if (tier && !lockedEvidenceAllowed(tier, settled.length > 0)) return null;
     if (!settled.length) {
-      const { evidenceViewerIsPro } = await import('./evidence-viewer.server');
-      const pro = await evidenceViewerIsPro();
+      // 會籍單一來源：兩條路都係 loadUserTier → rpc my_entitlement()。PRO_ENFORCEMENT=on 時沿用上面已核實嘅 tier，唔再查第二次。
+      const pro = tier ? tier === 'pro' : await (await import('./evidence-viewer.server')).evidenceViewerIsPro();
       if (!pro && identity.raceNumber !== 1) return null;
       const token = pro ? process.env['TIANXI_ADMIN_TOKEN'] : undefined;
       if (pro && !token) throw new Error('凍結解釋讀取憑證未設定');
@@ -63,7 +63,8 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     const row = rows[0];
     if (!row) return null;
     const evidence: LockedEvidence = { ...row, provenance: settled.length ? "historical-unverified" : "public-frozen-picks" };
-    return tier ? projectLockedEvidence(evidence, tier) : evidence;
+    // 回傳一律逐欄允許清單（LOCKED_EVIDENCE_SPEC），唔會因為 SELECT 加欄就外洩。
+    return projectLockedEvidence(evidence, tier ?? 'guest');
   });
 
 export const getFrozenVersionHistory = createServerFn({ method: "GET" }).handler(async (): Promise<{ versions: VersionEvidence[]; truncated: boolean }> => {
