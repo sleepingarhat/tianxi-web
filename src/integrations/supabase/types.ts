@@ -1399,6 +1399,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _membership_entitlement: { Args: { uid: string }; Returns: Json }
       acquire_notification_job: {
         Args: { k: string; oid: string }
         Returns: boolean
@@ -1449,9 +1450,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_pro: { Args: { uid: string }; Returns: boolean }
       member_account_stats: { Args: never; Returns: Json }
+      membership_entitlement: { Args: { uid: string }; Returns: Json }
       membership_for_notification_job: { Args: { uid: string }; Returns: Json }
       membership_gate_at: { Args: never; Returns: string }
+      membership_payment_environment: { Args: never; Returns: string }
       mutate_horse_watch: {
         Args: {
           action: string
@@ -1464,6 +1468,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_entitlement: { Args: never; Returns: Json }
       my_membership: { Args: never; Returns: Json }
       open_membership_gate_if_ready: { Args: never; Returns: boolean }
       paywall_threshold: { Args: never; Returns: number }

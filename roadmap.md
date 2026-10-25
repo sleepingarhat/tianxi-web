@@ -15,6 +15,13 @@
 - [ ] 全日完場後匿名讀取全場：TG通知程式需獨立憑證，另開PR處理。
 - [ ] PR #84 刪除三個診斷workflow（無CI，待用戶審核合併）。
 
+## 2026-10-25 hit-rate 唯讀憑證（PR #86，待用戶合併）
+- [ ] 合併次序：#83 → #85（改對main）→ #86（改對main）→ PR #5 → 套用0044查證6個函數（my_entitlement、membership_entitlement、_membership_entitlement、is_pro、membership_payment_environment、apply_watch_limits_all）→ 先 Publish。
+- [ ] 0044 放 drizzle/migrations 係啱；若套用時重新編號，用 Lovable 版本並刪 PR 重複份。
+- [ ] PR #5 合併同步後（需要 viewerTier()）先做網站部分：新增 site-reader.server.ts（X-Tianxi-Site-Token，只限 TX_BASE／WORKER 網域）、hit-rate.functions.ts（getMeetingHitRate 按 viewerTier 分級）、getCoverageAudit 補 tier 檢查（guest 只第1場完整）、explain-live.ts／prediction-vs-result.tsx／SinglePoolDaily.tsx 改行伺服器函數；SITE_READER_TOKEN 由用戶自行加入 Secrets，唔生成唔寫檔。
+- [ ] Cloudflare 同 Lovable 兩邊設 SITE_READER_TOKEN；真賽日確認 TG 通知正常後，先將 ANON_FULL_CARD_MODE 同 ANON_HITRATE_MODE 改 restricted（改 wrangler.toml 正常 deploy）。
+- [ ] 開 restricted 後舊網站 legacy-site/explain 日平均會偏低，建議正式停用舊網站。
+
 ## 2026-10-25 timeout 誤靜音及安全 PR 跟進
 - [x] 正式資料庫讀回：R1 已於06:00 UTC自動存檔，identity_verified=true、11行；已有R2，毋須重複補收。
 - [x] 修正場次／賽日／job timeout 靜音：RESULT場次逾時永不靜音；空資料、缺失、無效或部分未知時間均不可證明未開跑，全部有效且未開跑才靜音賽日／job逾時；全套479項測試通過、預覽build OK。
@@ -482,3 +489,8 @@
 - [x] 統一凍結起計日定為 2026-10-04（用戶批准）
 - [ ] 血統研究報告及已改好顯示發布
 - [x] 數據擴充修正版A／B／C1+C7已批准並實作研究收料；B非空數值、C7新補充發布及自然工作仍待證據，其他C項未自動納入模型。未過研究閘及用戶批准不入生產。
+
+- [ ] 補回 races 表缺少嘅舊場次途程資料，令走位樣本可計入同途程舊紀錄（唔急；只補研究／顯示資料，唔改凍結）
+- [ ] racing-evidence.functions.ts 解釋資料讀取器 import 失敗後重設快取（下次一併修）
+
+- [ ] PR #5 上線次序：合併 #5 → Lovable 套用 0044 並查證 my_entitlement()／is_pro() 存在 → 先 Publish；套用前禁止 Publish（等用戶 PR 及憑證規格）
