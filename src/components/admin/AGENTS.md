@@ -4,3 +4,6 @@
 - Demo／Worst case 假資料只經 src/components/admin/fixtures.tsx 嘅 useFixture，並以 import.meta.env.DEV 把關。理由：break-ui 驗收要可重現，正式站唔可以出假數。
 - Admin engine-health consumers share a display-only language adapter in the admin data hook; preserve response keys and source records so terminology edits cannot change monitoring logic.
 - Console read/action panels share console-data; routes retain auth guards. Why: smaller files without changing permissions or endpoints.
+- P&L/detail share exoticPoolOptions; verified ranks 1–5, original triples, duplicate stakes, sum dividends. Cron archives resultsall raw/SHA; trios prove losing tickets without inventing main payouts. Why: automatic auditable settlement.
+- Admin notes wrap on desktop and stack on mobile; cross-race trio reconciliation uses ExoticTrioPools apart from single-race aggregates. Why: readable notes and separate accounting scopes.
+- Audit real flows separately; starts need evidence, DNF is not withdrawal; actual/frozen jockey lineage stays separate.
