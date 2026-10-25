@@ -32,7 +32,7 @@
 - Homepage counts use only racing_results_index; twice-daily jobs count tianxi-racing results CSVs, 40 files/run. Why: verifiable automatic figures.
 - Coverage shares racing-visibility frozen rows/full closing CSVs; guides exclude same-day/future form and finish positions. Why: auditable denominators and pre-race evidence, no prediction writes.
 - RacePositionMap pairs historical medians and actual checkpoints, separates finish rank and cites sources; history is not frozen.
-- Racing evidence uses fixed read-only settled/public-frozen projections; current pedigrees stay separate from original scores, missing snapshots unverified. Why: references cannot certify locks.
+- Racing evidence reads match canonical date/venue/race/horse without requiring settled race rows; verify original SHA/baseline before pre-race scores, authorize Pro server-side and isolate browser caches by user. Pedigrees stay separate. Why: references cannot certify locks.
 
 - Retired sources/journals live only in private research with commits/checksums; keep only product-scope gates (redirect/410). Why: preserve research, don't ship retired products.
 - Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.

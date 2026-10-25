@@ -32,6 +32,12 @@ describe("read-only coverage rules", () => {
   });
 });
 describe("historical running positions", () => {
+  it('連字號走位計入歷史並排除終點', () => {
+    expect(actualStages('1-1-2')).toEqual([1,1,1]);
+    const summary = historicalPositions([{ date:'2026-10-20', distance:1200, runningPosition:'1-1-2' }, { date:'2026-10-10', distance:1200, runningPosition:'2 3 4' }, { date:'2026-10-01', distance:1200, runningPosition:'3-2-1' }], '2026-10-25',1200);
+    expect(summary.n).toBe(3);
+    expect(summary.last).toBe('2026-10-20');
+  });
   it("excludes same-day and future results before the race cutoff", () => {
     const summary = historicalPositions([{ date: "2026-10-13", distance: 1650, runningPosition: "5 3 3 1" }, { date: "2026-10-14", distance: 1650, runningPosition: "1 1 1 1" }, { date: "2026-10-15", distance: 1650, runningPosition: "2 2 2 2" }], "2026-10-14", 1650);
     expect(summary.n).toBe(1); expect(summary.stages.map(s => s.mid)).toEqual([5, 3, 3]);

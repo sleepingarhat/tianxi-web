@@ -70,19 +70,19 @@ export type PositionForm = { date: string; distance?: number; runningPosition?: 
 /** Same early/mid/late sampling as history; terminal finishing position is excluded. */
 export function actualStages(runningPosition?: string | null): (number | null)[] | null {
   const text = runningPosition?.trim() ?? "";
-  if (!/^\d+(?:\s+\d+)+$/.test(text)) return null;
-  const ps = text.split(/\s+/).map(Number).slice(0, -1);
+  if (!/^\d+(?:[\s-]+\d+)+$/.test(text)) return null;
+  const ps = text.split(/[\s-]+/).map(Number).slice(0, -1);
   return [0, 0.5, 1].map(f => ps[Math.round((ps.length - 1) * f)] ?? null);
 }
 export function historicalPositions(form: PositionForm[], beforeDate: string, distance: number) {
-  const eligible = form.filter(r => r.date < beforeDate && /^\d+(?:\s+\d+)+$/.test(r.runningPosition?.trim() ?? ""))
+  const eligible = form.filter(r => r.date < beforeDate && /^\d+(?:[\s-]+\d+)+$/.test(r.runningPosition?.trim() ?? ""))
     .sort((a, b) => b.date.localeCompare(a.date));
   const sameBand = eligible.filter(r => r.distance && distanceBand(r.distance) === distanceBand(distance));
   const selected = (sameBand.length ? sameBand : eligible).slice(0, 8);
   const stages = [0, 0.5, 1].map(fraction => {
     const values = selected.map(r => {
       // Exclude final finishing position: this is a running-position guide, not a win prediction.
-      const ps = (r.runningPosition ?? "").trim().split(/\s+/).map(Number).slice(0, -1);
+      const ps = (r.runningPosition ?? "").trim().split(/[\s-]+/).map(Number).slice(0, -1);
       return ps[Math.round((ps.length - 1) * fraction)] ?? 0;
     }).filter(p => p > 0).sort((a, b) => a - b);
     const quantile = (q: number) => {
