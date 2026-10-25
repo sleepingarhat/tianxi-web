@@ -4,10 +4,12 @@ import { getLockedEvidence } from "@/lib/racing-evidence.functions";
 import { LOCKED_FACTORS, parseLockedFactors } from "@/lib/locked-details";
 import { Empty, Pill } from "./ui";
 import { Button } from '@/components/ui/button';
+import { useAuthState } from '@/lib/useAuthState';
 
 export function LivePickEvidence({ raceId, horseId, name, frozen }: { raceId?: string; horseId?: string; name: string; frozen?: boolean }) {
   const read = useServerFn(getLockedEvidence);
-  const q = useQuery({ queryKey: ["live-pick-evidence", raceId, horseId], enabled: Boolean(raceId && horseId), staleTime: 300_000,
+  const { userId, signedIn } = useAuthState();
+  const q = useQuery({ queryKey: ["live-pick-evidence", userId, raceId, horseId], enabled: signedIn !== null && Boolean(raceId && horseId), staleTime: 300_000,
     queryFn: () => read({ data: { raceId: raceId?.startsWith("race_") ? raceId : `race_${raceId ?? ""}`, horseId: horseId ?? "" } }),
   });
   const number = (value: number | null | undefined) => value == null ? "未記錄" : value.toFixed(1);

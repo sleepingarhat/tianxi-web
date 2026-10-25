@@ -74,7 +74,7 @@ export function RacePositionMap({ date, raceId, distance, picks, frozen }: { dat
               </div>;
             })}
           </div>
-          <p className="mt-1.5 text-[10px] text-ink-3">{p.failed ? "歷史讀取失敗" : `歷史樣本 ${p.summary.n} 仗 · ${p.summary.sameBand ? "同途程組" : "跨途程"}`}</p>
+          <p className="mt-1.5 text-[10px] text-ink-3">{p.failed ? "歷史讀取失敗" : p.summary.n === 0 ? "未有可用嘅香港正式賽事走位紀錄（試閘不計入）" : `歷史樣本 ${p.summary.n} 仗 · ${p.summary.sameBand ? "同途程組" : "跨途程"}`}</p>
           <details className="mt-2 text-[10px] leading-relaxed text-ink-3"><summary className="cursor-pointer">原始走位及歷史範圍</summary><p className="mt-2 break-words">當場完整走位：{runner?.runningPosition || "未有資料"}；最後一個數字為終點，不計入上方走位。</p><p>{p.failed ? "歷史範圍未能讀取，唔當成零樣本。" : `歷史中間50%範圍：${p.summary.stages.map((s, i) => `${["早段", "中段", "末段"][i]} ${s.low == null ? "無資料" : `${Number(s.low.toFixed(1))}–${Number(s.high?.toFixed(1))}位`}`).join(" · ")}`}</p></details>
         </article>;
       })}
