@@ -52,7 +52,7 @@ function LabPage() {
               <p className="text-[12px] leading-relaxed text-ink-2">{tool.blurb}</p>
               {ready ? (
                 <p className="mt-2">
-                  <Link to={tool.href as "/lab/h2h"} className="text-[11px] font-bold text-gold">
+                  <Link to={tool.href as "/"} className="text-[11px] font-bold text-gold">
                     進入 →
                   </Link>
                 </p>
@@ -72,7 +72,7 @@ function LabPage() {
       </section>
 
       <p className="mx-4 mt-4 text-[11px] leading-relaxed text-ink-3">
-        頭對頭已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
+        頭對頭、走位節奏已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
       </p>
       <Disclaimer />
     </AppShell>

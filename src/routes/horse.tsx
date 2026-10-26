@@ -88,6 +88,29 @@ function sectionalText(list: unknown) {
     .filter(has)
     .join("；");
 }
+
+function SectionalMiniBars({ list }: { list: unknown }) {
+  if (!Array.isArray(list) || !list.length) return null;
+  const times = list
+    .map((s: any) => (has(s.sectionTime) ? Number(s.sectionTime) : null))
+    .filter((n: number | null): n is number => n != null && Number.isFinite(n));
+  if (!times.length) return null;
+  const max = Math.max(...times);
+  return (
+    <div className="mt-1.5 flex items-end gap-1" aria-label="分段用時小圖">
+      {list.map((s: any, i: number) => {
+        const t = has(s.sectionTime) ? Number(s.sectionTime) : null;
+        const h = t != null && max > 0 ? Math.max(4, Math.round((t / max) * 28)) : 4;
+        return (
+          <div key={i} className="flex flex-col items-center gap-0.5">
+            <div className="w-3 rounded-sm bg-gold/70" style={{ height: h }} title={t != null ? `${t}s` : undefined} />
+            <span className="font-mono-tx text-[8px] text-ink-3">{has(s.sectionNumber) ? s.sectionNumber : i + 1}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 const statusText = (s: unknown) =>
   s === "active" ? "現役" : s === "retired" ? "已退役" : has(s) ? String(s) : "";
 
@@ -493,9 +516,12 @@ function HorsePage() {
                         ))}
                       </div>
                       {tier.has("registered") && has(sectionalText(f.sectionals)) ? (
-                        <p className="border-t border-hairline px-3 py-2 font-mono-tx text-[10px] leading-relaxed text-ink-2">
-                          <b className="text-ink">分段</b> {sectionalText(f.sectionals)}
-                        </p>
+                        <div className="border-t border-hairline px-3 py-2 font-mono-tx text-[10px] leading-relaxed text-ink-2">
+                          <p>
+                            <b className="text-ink">分段</b> {sectionalText(f.sectionals)}
+                          </p>
+                          {tier.has("pro") ? <SectionalMiniBars list={f.sectionals} /> : null}
+                        </div>
                       ) : null}
                       {has(f.comment) ? (
                         <p className="border-t border-hairline bg-gold-bg/40 px-3 py-2 text-[11px] leading-relaxed text-ink-2">
