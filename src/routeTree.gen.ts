@@ -21,6 +21,7 @@ import { Route as EncyclopediaRouteImport } from './routes/encyclopedia'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FreezeLedgerRouteImport } from './routes/freeze-ledger'
 import { Route as HorseRouteImport } from './routes/horse'
+import { Route as LabRouteImport } from './routes/lab'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ManualRouteImport } from './routes/manual'
 import { Route as MediaCreditsRouteImport } from './routes/media-credits'
@@ -41,6 +42,7 @@ import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StrategyPnlRouteImport } from './routes/strategy-pnl'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TodayRouteImport } from './routes/today'
 import { Route as TrackRecordRouteImport } from './routes/track-record'
 import { Route as ValueTrendRouteImport } from './routes/value-trend'
 import { Route as WatchlistRouteImport } from './routes/watchlist'
@@ -166,6 +168,11 @@ const HorseRoute = HorseRouteImport.update({
   path: '/horse',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LabRoute = LabRouteImport.update({
+  id: '/lab',
+  path: '/lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -265,6 +272,11 @@ const StrategyPnlRoute = StrategyPnlRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodayRoute = TodayRouteImport.update({
+  id: '/today',
+  path: '/today',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackRecordRoute = TrackRecordRouteImport.update({
@@ -639,6 +651,7 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
+  '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -659,6 +672,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/strategy-pnl': typeof StrategyPnlRoute
   '/terms': typeof TermsRoute
+  '/today': typeof TodayRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
   '/watchlist': typeof WatchlistRoute
@@ -737,6 +751,7 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
+  '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -757,6 +772,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/strategy-pnl': typeof StrategyPnlRoute
   '/terms': typeof TermsRoute
+  '/today': typeof TodayRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
   '/watchlist': typeof WatchlistRoute
@@ -836,6 +852,7 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
+  '/lab': typeof LabRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -856,6 +873,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/strategy-pnl': typeof StrategyPnlRoute
   '/terms': typeof TermsRoute
+  '/today': typeof TodayRoute
   '/track-record': typeof TrackRecordRoute
   '/value-trend': typeof ValueTrendRoute
   '/watchlist': typeof WatchlistRoute
@@ -936,6 +954,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/freeze-ledger'
     | '/horse'
+    | '/lab'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -956,6 +975,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/strategy-pnl'
     | '/terms'
+    | '/today'
     | '/track-record'
     | '/value-trend'
     | '/watchlist'
@@ -1034,6 +1054,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/freeze-ledger'
     | '/horse'
+    | '/lab'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1054,6 +1075,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/strategy-pnl'
     | '/terms'
+    | '/today'
     | '/track-record'
     | '/value-trend'
     | '/watchlist'
@@ -1132,6 +1154,7 @@ export interface FileRouteTypes {
     | '/features'
     | '/freeze-ledger'
     | '/horse'
+    | '/lab'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1152,6 +1175,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/strategy-pnl'
     | '/terms'
+    | '/today'
     | '/track-record'
     | '/value-trend'
     | '/watchlist'
@@ -1232,6 +1256,7 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   FreezeLedgerRoute: typeof FreezeLedgerRoute
   HorseRoute: typeof HorseRoute
+  LabRoute: typeof LabRoute
   LoginRoute: typeof LoginRoute
   ManualRoute: typeof ManualRoute
   MediaCreditsRoute: typeof MediaCreditsRoute
@@ -1252,6 +1277,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StrategyPnlRoute: typeof StrategyPnlRoute
   TermsRoute: typeof TermsRoute
+  TodayRoute: typeof TodayRoute
   TrackRecordRoute: typeof TrackRecordRoute
   ValueTrendRoute: typeof ValueTrendRoute
   WatchlistRoute: typeof WatchlistRoute
@@ -1389,6 +1415,13 @@ declare module '@tanstack/react-router' {
       path: '/horse'
       fullPath: '/horse'
       preLoaderRoute: typeof HorseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab': {
+      id: '/lab'
+      path: '/lab'
+      fullPath: '/lab'
+      preLoaderRoute: typeof LabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1529,6 +1562,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/today': {
+      id: '/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof TodayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/track-record': {
@@ -2049,6 +2089,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   FreezeLedgerRoute: FreezeLedgerRoute,
   HorseRoute: HorseRoute,
+  LabRoute: LabRoute,
   LoginRoute: LoginRoute,
   ManualRoute: ManualRoute,
   MediaCreditsRoute: MediaCreditsRoute,
@@ -2069,6 +2110,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StrategyPnlRoute: StrategyPnlRoute,
   TermsRoute: TermsRoute,
+  TodayRoute: TodayRoute,
   TrackRecordRoute: TrackRecordRoute,
   ValueTrendRoute: ValueTrendRoute,
   WatchlistRoute: WatchlistRoute,
@@ -2125,13 +2167,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
