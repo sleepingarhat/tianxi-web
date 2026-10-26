@@ -15,6 +15,8 @@ import { useTier, useFoundingInfo } from "@/lib/useTier";
 export type NavKey =
   | "myhorses"
   | "dashboard"
+  | "today"
+  | "lab"
   | "horse"
   | "predictor"
   | "schedule"
@@ -37,6 +39,17 @@ const BOTNAV: { to: string; key: NavKey; label: string; icon: ReactNode }[] = [
     ),
   },
   {
+    to: "/today",
+    key: "today",
+    label: "今日",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </>
+    ),
+  },
+  {
     to: "/predictor",
     key: "horse",
     label: "選馬",
@@ -48,9 +61,20 @@ const BOTNAV: { to: string; key: NavKey; label: string; icon: ReactNode }[] = [
       </>
     ),
   },
-
   { to: "/my-horses", key: "myhorses", label: "愛駒", icon: <path d="m12 3 2.8 5.7 6.3.9-4.6 4.5 1.1 6.3-5.6-3-5.6 3 1.1-6.3L3 9.6l6.2-.9z" /> },
   { to: "/schedule", key: "schedule", label: "賽程", icon: <><rect x="4" y="5" width="16" height="16" rx="2" /><path d="M8 3v4M16 3v4M4 11h16" /></> },
+  {
+    to: "/lab",
+    key: "lab",
+    label: "研究室",
+    icon: (
+      <>
+        <path d="M9 3h6" />
+        <path d="M10 3v6l-4.5 8.5A2 2 0 0 0 7.2 21h9.6a2 2 0 0 0 1.7-3.5L14 9V3" />
+        <path d="M8.5 14h7" />
+      </>
+    ),
+  },
   { to: "/engine", key: "engine", label: "引擎", icon: <><circle cx="12" cy="12" r="9" /><path d="M12 12l5-5M5 16h14" /></> },
 ];
 

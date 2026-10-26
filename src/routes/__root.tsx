@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, type Query } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -151,8 +151,8 @@ function RootComponent() {
     const { data } = supabase.auth.onAuthStateChange(event => {
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
         const privateReads = new Set(['todayPicksAll','verified-results-audit','pvr-frozen','freezeLedger','prediction-reconciliation','original-race-audit','exotic-trio-verified-original','withdrawal-tracker','topPicks','cmpStyles']);
-        void queryClient.cancelQueries({ predicate: q => privateReads.has(String(q.queryKey[0])) });
-        queryClient.removeQueries({ predicate: q => privateReads.has(String(q.queryKey[0])) });
+        void queryClient.cancelQueries({ predicate: (q: Query) => privateReads.has(String(q.queryKey[0])) });
+        queryClient.removeQueries({ predicate: (q: Query) => privateReads.has(String(q.queryKey[0])) });
       }
       if (event === "SIGNED_OUT") {
         queryClient.removeQueries({ queryKey: ["tier"] });
