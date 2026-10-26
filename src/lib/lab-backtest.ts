@@ -32,6 +32,7 @@ export type BacktestSummary = {
   net: number | null;
   roiPct: number | null;
   maxDrawdown: number | null;
+  maxLosingStreakDays?: number | null;
   showRoi: boolean;
 };
 
@@ -129,6 +130,12 @@ export function loadStrategies(): SavedStrategy[] {
   }
 }
 
+/** 別名：比較器下拉用 */
+export function listStrategies(): SavedStrategy[] {
+  return loadStrategies();
+}
+
+
 export function saveStrategies(list: SavedStrategy[]): void {
   if (typeof localStorage === "undefined") return;
   localStorage.setItem(STRATEGY_STORAGE_KEY, JSON.stringify(list));
@@ -186,6 +193,8 @@ export function getStrategy(id: string): SavedStrategy | undefined {
 export function deleteStrategy(id: string): void {
   saveStrategies(loadStrategies().filter((s) => s.id !== id));
 }
+
+export const LIVE_FROM_DATE = '2026-10-04' as const;
 
 export const BACKTEST_RANGE_PRESETS = [
   { key: "1q", label: "近 1 季", from: "2025-09-01", to: "2026-10-04" },

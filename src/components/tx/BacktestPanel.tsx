@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -155,10 +156,15 @@ export function BacktestPanel({ weights, locked }: Props) {
           </div>
           {compare ? (
             <div className="rounded-[4px] border border-dashed border-gold/40 bg-gold-bg/30 p-2 text-[11px] text-ink-2">
-              <div className="font-bold text-ink">比較器 stub · 官方 vs Elo</div>
+              <div className="font-bold text-ink">基線 stub · 官方 vs Elo</div>
               <div className="mt-1 font-mono-tx">
                 官方均中 {compare.official?.avgTop4Hits ?? "—"} · Elo 均中 {compare.elo?.avgTop4Hits ?? "—"}
               </div>
+              <p className="mt-1">
+                <Link to="/lab/compare" className="text-gold font-bold">
+                  開完整比較器 →
+                </Link>
+              </p>
             </div>
           ) : null}
           {result.limitations?.length ? (
