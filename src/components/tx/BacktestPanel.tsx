@@ -57,7 +57,7 @@ export function BacktestPanel({ weights, locked }: Props) {
       <div className="rounded-[4px] border border-hairline bg-paper/60 p-3 text-[12px] text-ink-2">
         <p className="font-bold text-ink">回測 · Pro 鎖定</p>
         <p className="mt-1 leading-relaxed">
-          示範（已完場合成窗）：四揀均中約 1.6 匹／場；樣本 < 200 時只出命中唔出 ROI。升級 Pro 後可對自訂權重執行回測，並同官方／Elo 對照。
+          示範（已完場合成窗）：四揀均中約 1.6 匹／場；樣本 {'<'} 200 時只出命中唔出 ROI。升級 Pro 後可對自訂權重執行回測，並同官方／Elo 對照。
         </p>
       </div>
     );
