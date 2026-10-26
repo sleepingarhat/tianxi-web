@@ -204,6 +204,44 @@ export const BACKTEST_RANGE_PRESETS = [
 ] as const;
 
 /** 雲端列 → SavedStrategy（weights／pools 由 versions 或嵌套帶上） */
+const FEATURE_ID_SET = new Set<string>([
+  "h2h",
+  "distance",
+  "draw",
+  "time",
+  "finish",
+  "jt",
+  "form",
+  "track",
+  "rest",
+  "weight",
+  "careerWin",
+  "careerTop3",
+  "distStarts",
+  "drawStarts",
+  "comboTop3",
+  "formSlope",
+  "formTop3",
+  "weightAvg5",
+  "goingTop3",
+]);
+
+/** 將雲端／本機權重正規化成 FeatureWeightSpec（過濾非法 FeatureId；exactOptional 相容）。 */
+export function sanitizeFeatureWeights(raw: unknown): FeatureWeightSpec[] {
+  if (!Array.isArray(raw)) return [];
+  const out: FeatureWeightSpec[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const id = (item as { id?: unknown }).id;
+    const weight = Number((item as { weight?: unknown }).weight);
+    if (typeof id !== "string" || !FEATURE_ID_SET.has(id) || !Number.isFinite(weight)) continue;
+    const spec: FeatureWeightSpec = { id: id as FeatureId, weight };
+    if ((item as { invert?: unknown }).invert === true) spec.invert = true;
+    out.push(spec);
+  }
+  return out;
+}
+
 export function mapCloudStrategyRow(row: {
   id: string;
   name: string;
@@ -213,22 +251,23 @@ export function mapCloudStrategyRow(row: {
   created_at: string;
   updated_at: string;
   last_backtest_hash?: string | null;
-  weights?: FeatureWeightSpec[] | null;
+  weights?: FeatureWeightSpec[] | null | unknown;
 }): SavedStrategy {
   const pools = (row.pools ?? ["FF", "TRIO", "TIERCE", "QUARTET"]).filter(
     (p): p is PoolCode => p === "FF" || p === "TRIO" || p === "TIERCE" || p === "QUARTET",
   );
-  return {
+  const result: SavedStrategy = {
     id: row.id,
     name: row.name,
     note: row.note ?? "",
     version: row.current_version ?? 1,
-    weights: Array.isArray(row.weights) ? row.weights : [],
+    weights: sanitizeFeatureWeights(row.weights),
     pools: pools.length ? pools : ["FF", "TRIO", "TIERCE", "QUARTET"],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    lastBacktestHash: row.last_backtest_hash ?? undefined,
   };
+  if (row.last_backtest_hash) result.lastBacktestHash = row.last_backtest_hash;
+  return result;
 }
 
 export type LocalToCloudPlan = {

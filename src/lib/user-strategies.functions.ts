@@ -7,11 +7,19 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireTier } from "./tier.server";
-import { mapCloudStrategyRow, type PoolCode, type SavedStrategy } from "./lab-backtest";
+import {
+  mapCloudStrategyRow,
+  sanitizeFeatureWeights,
+  type PoolCode,
+  type SavedStrategy,
+} from "./lab-backtest";
+import { FEATURES, type FeatureId } from "./race-data";
+
+const FEATURE_ID_VALUES = FEATURES.map((f) => f.id) as [FeatureId, ...FeatureId[]];
 
 const poolSchema = z.enum(["FF", "TRIO", "TIERCE", "QUARTET"]);
 const weightSchema = z.object({
-  id: z.string().min(1).max(40),
+  id: z.enum(FEATURE_ID_VALUES),
   weight: z.number().min(0).max(3),
   invert: z.boolean().optional(),
 });
@@ -73,10 +81,9 @@ async function loadWeightsFor(
   }
   return rows.map((r) => {
     const v = latest.get(r.id);
-    const weights = Array.isArray(v?.weights) ? (v!.weights as SavedStrategy["weights"]) : [];
     return mapCloudStrategyRow({
       ...r,
-      weights,
+      weights: sanitizeFeatureWeights(v?.weights),
       pools: (v?.pools ?? r.pools) as string[],
     });
   });
@@ -142,7 +149,7 @@ export const upsertUserStrategy = createServerFn({ method: "POST" })
       return {
         strategy: mapCloudStrategyRow({
           ...(upd.data as StrategyRow),
-          weights: data.weights,
+          weights: sanitizeFeatureWeights(data.weights),
           pools,
         }),
         source: "cloud",
@@ -171,7 +178,11 @@ export const upsertUserStrategy = createServerFn({ method: "POST" })
     });
     if (ver.error) throw new Error("策略版本未能寫入");
     return {
-      strategy: mapCloudStrategyRow({ ...row, weights: data.weights, pools }),
+      strategy: mapCloudStrategyRow({
+        ...row,
+        weights: sanitizeFeatureWeights(data.weights),
+        pools,
+      }),
       source: "cloud",
     };
   });
@@ -216,7 +227,7 @@ export const listUserStrategyVersions = createServerFn({ method: "POST" })
       return {
         versions: (vers.data ?? []).map((v: any) => ({
           version: v.version as number,
-          weights: (Array.isArray(v.weights) ? v.weights : []) as SavedStrategy["weights"],
+          weights: sanitizeFeatureWeights(v.weights),
           pools: (v.pools as PoolCode[]) ?? ["FF", "TRIO", "TIERCE", "QUARTET"],
           createdAt: v.created_at as string,
         })),
@@ -280,7 +291,13 @@ export const migrateLocalStrategies = createServerFn({ method: "POST" })
           skipped++;
           continue;
         }
-        migrated.push(mapCloudStrategyRow({ ...row, weights: s.weights, pools }));
+        migrated.push(
+          mapCloudStrategyRow({
+            ...row,
+            weights: sanitizeFeatureWeights(s.weights),
+            pools,
+          }),
+        );
       } catch {
         skipped++;
       }
