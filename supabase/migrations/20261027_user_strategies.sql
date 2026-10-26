@@ -1,0 +1,48 @@
+-- user_strategies / user_strategy_versions：Pro 研究室「我的策略」帳號持久化（研究層）。
+-- 手動喺 Supabase 套用；呢個 PR 唔 auto-apply／唔 Lovable publish。
+-- 未 apply 前：前端仍可用 localStorage guest／離線 fallback。
+
+create table if not exists public.user_strategies (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null check (char_length(name) between 1 and 80),
+  note text not null default '' check (char_length(note) <= 500),
+  current_version int not null default 1 check (current_version >= 1),
+  pools text[] not null default array['FF','TRIO','TIERCE','QUARTET'],
+  last_backtest_hash text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.user_strategy_versions (
+  id uuid primary key default gen_random_uuid(),
+  strategy_id uuid not null references public.user_strategies(id) on delete cascade,
+  version int not null check (version >= 1),
+  weights jsonb not null,
+  pools text[] not null,
+  created_at timestamptz not null default now(),
+  unique (strategy_id, version)
+);
+
+alter table public.user_strategies enable row level security;
+alter table public.user_strategy_versions enable row level security;
+
+create policy user_strategies_own on public.user_strategies
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy user_strategy_versions_own on public.user_strategy_versions
+  for all using (
+    exists (
+      select 1 from public.user_strategies s
+      where s.id = strategy_id and s.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.user_strategies s
+      where s.id = strategy_id and s.user_id = auth.uid()
+    )
+  );
+
+create index if not exists user_strategies_user_updated_idx
+  on public.user_strategies (user_id, updated_at desc);
