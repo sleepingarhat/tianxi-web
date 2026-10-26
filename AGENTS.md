@@ -6,7 +6,7 @@
 
 ## 首頁產品層規則
 
-- Homepage/navigation expose racing only; product-scope.ts and start.ts gate retired paths without executing them.
+- Homepage/navigation expose racing only; product-scope.ts/start.ts gate retired paths without execution; retired sources/journals stay in private research with commits/checksums (redirect/410 only). Why: preserve research, not retired products.
 - Cite final/current homepage data only for verifiable claims.
 - Reuse PageHead/Card/Stat/Table/Seg/AppShell for consistency.
 - Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions to prevent wrapping.
@@ -32,7 +32,6 @@
 - Server today-picks/hit-rate reads use workerFetch, including evidence, prelock and admin/fresh paths; preserve admin authorization and timeouts. It attaches the read-only site token only to Worker URLs; browsers never call hit-rate directly and tier projection runs after shared caches. Why: restricted anonymous modes must not break reads or grant privileges.
 - Racing evidence reads match canonical date/venue/race/horse without requiring settled race rows; pre-race scores need the verified original snapshot (SHA, lock passed, baseline). Pro is authorized server-side and reads no Worker/admin edition; non-Pro also needs the public frozen picks. Isolate browser caches by user; pedigrees stay separate. Why: admin editions are live, not frozen.
 
-- Retired sources/journals live only in private research with commits/checksums; keep only product-scope gates (redirect/410). Why: preserve research, don't ship retired products.
 - Race SSR/canonicals use public entries; sitemap pages by offset, fails incomplete reads and omits generated lastmod. Why: auditable discovery.
 
 - Rebuild journals ≠ live jobs. Cohort tests fix features/Elo/rounds, exclude incomplete races; release requires research evidence, not health PASS.
@@ -65,8 +64,8 @@
 - Managed HTTP schedules use structured Cloud tools only, never embedded credentials or hand-authored cron HTTP SQL; unpublished targets remain unscheduled. Why: platform-owned caller authentication and safe release ordering.
 - Weather and legacy results-dispatch managed callbacks use separate jobs routes and shared server work; legacy routes retain their caller authentication until verified retirement. Why: unmanaged schedules cannot be automatically migrated and Worker callers must not break.
 - Checkout must check the server gate timestamp independently of entitlement kind before provider access. Why: a failed subscription must never bypass a closed charging gate.
-- Current repository summaries must supersede dated historical observations explicitly; never rewrite race evidence or applied migrations. Why: derived knowledge must not revive retired rules.
-- Cross-repository policy audits use docs/repository-policy.json and pinned default-branch commits; the racing repo alone hosts the hourly read-only audit, with explicit historical scopes and fail-closed reads. Why: detect drift without rewriting evidence or running duplicate production jobs in mirrors.
+- Current summaries explicitly supersede dated observations; never rewrite race evidence/applied migrations. Why: history cannot revive retired rules.
+- Cross-repo audits use docs/repository-policy.json, pinned default-branch commits, explicit historical scopes and fail-closed reads; only racing hosts the hourly read-only audit. Why: detect drift without rewriting evidence or duplicate mirror jobs.
 - Results verify displayed 賽事日期 before writes; fallback pages stay pending. RESULT race timeouts always alert; meeting/job suppression requires nonempty valid future starts. Why: fallback pages and missing D1 timing certify neither identity nor pre-race status.
 
-- Reconciliation HTTP/RPC boundaries share server-verified guest result-only allowlists; raw frozen readers stay internal, member reads carry bearer auth, and identity transitions discard private browser caches. Why: alternate endpoints and cached member rows must not bypass hidden-race protection.
+- Reconciliation HTTP/RPC uses server-verified guest result-only allowlists; raw frozen readers stay internal, members send bearer auth, identity changes clear private caches. Why: alternate endpoints/caches cannot bypass hidden-race protection.
