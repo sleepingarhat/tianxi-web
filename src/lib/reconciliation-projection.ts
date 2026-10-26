@@ -45,7 +45,7 @@ function stripMeetingKpis(meeting: Row): Row {
 
 /** Recompute meeting KPIs from races that still carry model scores (never count redacted as zero). */
 export function meetingKpisFromVisibleRaces(races: Row[]): Record<(typeof MEETING_KPI)[number], number | null> {
-  const scored = races.filter(r => !r.redacted && typeof r.top4Intersect === 'number');
+  const scored = races.filter(r => !r['redacted'] && typeof r['top4Intersect'] === 'number');
   const n = scored.length;
   const avg = (pick: (r: Row) => unknown) => {
     const xs = scored.map(pick).filter((x): x is number => typeof x === 'number');
@@ -62,28 +62,28 @@ export function meetingKpisFromVisibleRaces(races: Row[]): Record<(typeof MEETIN
       modelWinLogloss: null, marketWinLogloss: null, favouriteHitPct: null, flatWinRoiPct: null,
     };
   }
-  const top4Avg = avg(r => r.top4Intersect);
-  const placeHits = scored.reduce((s, r) => s + (typeof r.placeHits === 'number' ? r.placeHits : 0), 0);
-  const placeSlots = scored.reduce((s, r) => s + (typeof r.placeSlots === 'number' ? r.placeSlots : 0), 0);
-  const flatPnl = scored.reduce((s, r) => s + (typeof r.flatWinPnl === 'number' ? r.flatWinPnl : 0), 0);
+  const top4Avg = avg(r => r['top4Intersect']);
+  const placeHits = scored.reduce((s, r) => s + (typeof r['placeHits'] === 'number' ? r['placeHits'] : 0), 0);
+  const placeSlots = scored.reduce((s, r) => s + (typeof r['placeSlots'] === 'number' ? r['placeSlots'] : 0), 0);
+  const flatPnl = scored.reduce((s, r) => s + (typeof r['flatWinPnl'] === 'number' ? r['flatWinPnl'] : 0), 0);
   return {
     racesEvaluated: n,
     top4AvgIntersect: top4Avg,
     top4CoveragePct: top4Avg == null ? null : Math.round((top4Avg / 4) * 1000) / 10,
-    top4FullHits: scored.filter(r => r.top4Intersect === 4).length,
-    top3AvgIntersect: avg(r => r.top3Intersect),
-    top3AnyHitPct: pctTrue(r => r.top3AnyHit),
+    top4FullHits: scored.filter(r => r['top4Intersect'] === 4).length,
+    top3AvgIntersect: avg(r => r['top3Intersect']),
+    top3AnyHitPct: pctTrue(r => r['top3AnyHit']),
     placeHitPct: placeSlots ? Math.round((placeHits / placeSlots) * 1000) / 10 : null,
-    winnerHitPct: pctTrue(r => r.winnerHit),
-    modelWinLogloss: avg(r => r.modelWinLogloss),
-    marketWinLogloss: avg(r => r.marketWinLogloss),
-    favouriteHitPct: pctTrue(r => r.favouriteHit),
+    winnerHitPct: pctTrue(r => r['winnerHit']),
+    modelWinLogloss: avg(r => r['modelWinLogloss']),
+    marketWinLogloss: avg(r => r['marketWinLogloss']),
+    favouriteHitPct: pctTrue(r => r['favouriteHit']),
     flatWinRoiPct: Math.round((flatPnl / (n * 10)) * 1000) / 10,
   };
 }
 
 function seasonFromMeetings(meetings: Row[]): Row | undefined {
-  const graded = meetings.filter(m => Number(m.racesEvaluated) > 0);
+  const graded = meetings.filter(m => Number(m['racesEvaluated']) > 0);
   if (!graded.length) {
     return {
       meetings: 0, racesEvaluated: 0, top4AvgIntersect: null, top4CoveragePct: null, top4FullHits: 0,
@@ -91,19 +91,19 @@ function seasonFromMeetings(meetings: Row[]): Row | undefined {
       modelWinLogloss: null, marketWinLogloss: null, favouriteHitPct: null, flatWinRoiPct: null,
     };
   }
-  const races = graded.reduce((s, m) => s + Number(m.racesEvaluated), 0);
+  const races = graded.reduce((s, m) => s + Number(m['racesEvaluated']), 0);
   const weightAvg = (key: string) => {
     const xs = graded.filter(m => typeof m[key] === 'number');
     if (!xs.length) return null;
-    const w = xs.reduce((s, m) => s + Number(m.racesEvaluated), 0);
-    return w ? xs.reduce((s, m) => s + Number(m[key]) * Number(m.racesEvaluated), 0) / w : null;
+    const w = xs.reduce((s, m) => s + Number(m['racesEvaluated']), 0);
+    return w ? xs.reduce((s, m) => s + Number(m[key]) * Number(m['racesEvaluated']), 0) / w : null;
   };
   return {
     meetings: graded.length,
     racesEvaluated: races,
     top4AvgIntersect: weightAvg('top4AvgIntersect'),
     top4CoveragePct: weightAvg('top4CoveragePct'),
-    top4FullHits: graded.reduce((s, m) => s + Number(m.top4FullHits ?? 0), 0),
+    top4FullHits: graded.reduce((s, m) => s + Number(m['top4FullHits'] ?? 0), 0),
     top3AvgIntersect: weightAvg('top3AvgIntersect'),
     top3AnyHitPct: weightAvg('top3AnyHitPct'),
     placeHitPct: weightAvg('placeHitPct'),
