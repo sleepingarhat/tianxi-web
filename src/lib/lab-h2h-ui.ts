@@ -41,6 +41,32 @@ export function buildEloOption(
     .filter((d) => meetSet.has(d) && mapA.has(d))
     .map((d) => ({ coord: [d, mapA.get(d)!] as [string, number] }));
 
+  const seriesA: {
+    name: string;
+    type: "line";
+    showSymbol: false;
+    data: (number | null)[];
+    markPoint?: {
+      symbol: string;
+      symbolSize: number;
+      itemStyle: { color: string };
+      data: { coord: [string, number]; name: string }[];
+    };
+  } = {
+    name: nameA,
+    type: "line",
+    showSymbol: false,
+    data: x.map((d) => mapA.get(d) ?? null),
+  };
+  if (markA.length) {
+    seriesA.markPoint = {
+      symbol: "diamond",
+      symbolSize: 8,
+      itemStyle: { color: "#C45C26" },
+      data: markA.map((m) => ({ coord: m.coord, name: "同場" })),
+    };
+  }
+
   return {
     color: ["#B8860B", "#3D5A80"],
     grid: { left: 44, right: 16, top: 36, bottom: 28 },
@@ -49,20 +75,7 @@ export function buildEloOption(
     xAxis: { type: "category", data: x, axisLabel: { fontSize: 10 } },
     yAxis: { type: "value", scale: true, axisLabel: { fontSize: 10 } },
     series: [
-      {
-        name: nameA,
-        type: "line",
-        showSymbol: false,
-        data: x.map((d) => mapA.get(d) ?? null),
-        markPoint: markA.length
-          ? {
-              symbol: "diamond",
-              symbolSize: 8,
-              itemStyle: { color: "#C45C26" },
-              data: markA.map((m) => ({ coord: m.coord, name: "同場" })),
-            }
-          : undefined,
-      },
+      seriesA,
       {
         name: nameB,
         type: "line",

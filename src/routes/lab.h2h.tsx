@@ -35,15 +35,17 @@ type Search = {
 };
 
 export const Route = createFileRoute("/lab/h2h")({
-  validateSearch: (search: Record<string, unknown>): Search => ({
-    type: search["type"] === "jockey" ? "jockey" : search["type"] === "horse" ? "horse" : undefined,
-    a: typeof search["a"] === "string" ? search["a"] : undefined,
-    b: typeof search["b"] === "string" ? search["b"] : undefined,
-    distance: typeof search["distance"] === "string" ? search["distance"] : undefined,
-    going: typeof search["going"] === "string" ? search["going"] : undefined,
-    venue:
-      search["venue"] === "ST" || search["venue"] === "HV" ? (search["venue"] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): Search => {
+    const out: Search = {};
+    if (search["type"] === "jockey") out.type = "jockey";
+    else if (search["type"] === "horse") out.type = "horse";
+    if (typeof search["a"] === "string") out.a = search["a"];
+    if (typeof search["b"] === "string") out.b = search["b"];
+    if (typeof search["distance"] === "string") out.distance = search["distance"];
+    if (typeof search["going"] === "string") out.going = search["going"];
+    if (search["venue"] === "ST" || search["venue"] === "HV") out.venue = search["venue"];
+    return out;
+  },
   head: () => ({
     meta: [
       { title: "頭對頭比較 · 研究室 · 天喜 TIANXI" },
@@ -196,20 +198,19 @@ function H2hPage() {
     type?: H2hType;
     a?: string | undefined;
     b?: string | undefined;
-    distance?: string;
-    going?: string;
-    venue?: string;
+    distance?: string | undefined;
+    going?: string | undefined;
+    venue?: string | undefined;
   }) {
+    const search: Search = { type: next.type ?? type };
+    if (next.a) search.a = next.a;
+    if (next.b) search.b = next.b;
+    if (next.distance) search.distance = next.distance;
+    if (next.going) search.going = next.going;
+    if (next.venue === "ST" || next.venue === "HV") search.venue = next.venue;
     void navigate({
       to: "/lab/h2h",
-      search: {
-        type: next.type ?? type,
-        a: next.a,
-        b: next.b,
-        distance: next.distance || undefined,
-        going: next.going || undefined,
-        venue: next.venue === "ST" || next.venue === "HV" ? next.venue : undefined,
-      },
+      search,
       replace: true,
     });
   }

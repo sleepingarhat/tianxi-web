@@ -88,7 +88,9 @@ describe("lab-h2h.functions", () => {
     );
     const data = await searchLabEntity({ data: { type: "jockey", q: "潘" } });
     expect(data.items[0]?.id).toBe("jockey_PZ");
-    expect(String(mocks.fetch.mock.calls[0][0])).toContain("/api/lab/search?");
+    const called = mocks.fetch.mock.calls[0]?.[0];
+    expect(called).toBeDefined();
+    expect(String(called)).toContain("/api/lab/search?");
   });
 });
 
