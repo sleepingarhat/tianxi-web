@@ -149,6 +149,11 @@ function RootComponent() {
   useEffect(() => { if ('serviceWorker' in navigator && window.top === window.self) void navigator.serviceWorker.register('/sw.js').catch(() => {}); }, []);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+        const privateReads = new Set(['todayPicksAll','verified-results-audit','pvr-frozen','freezeLedger','prediction-reconciliation','original-race-audit','exotic-trio-verified-original','withdrawal-tracker','topPicks','cmpStyles']);
+        void queryClient.cancelQueries({ predicate: q => privateReads.has(String(q.queryKey[0])) });
+        queryClient.removeQueries({ predicate: q => privateReads.has(String(q.queryKey[0])) });
+      }
       if (event === "SIGNED_OUT") {
         queryClient.removeQueries({ queryKey: ["tier"] });
         queryClient.removeQueries({ queryKey: ["watchlist"] });

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { auth: { getSession: async () => ({ data: { session: null } }) } } }));
 vi.mock('./official-favourites.functions', () => ({ getOfficialFavourites: vi.fn() }));
 vi.mock('./hkjc-changes.functions', () => ({ getHkjcChanges: vi.fn() }));
 import { calcPools, exoticPoolOptions } from './racingPoolAccounting';

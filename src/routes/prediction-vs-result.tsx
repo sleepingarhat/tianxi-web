@@ -27,7 +27,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { frozenComparison } from '@/lib/frozen-comparison';
 import { Button } from '@/components/ui/button';
-import { timeoutSignal } from "@/lib/fetch-timeout";
+import { getViewerFrozenRacing } from "@/lib/frozen-reconciliation.functions";
+import { RedactedNote } from "@/components/tx/RedactedNote";
 
 /** 每個讀取最多等 15 秒（即時重算 20 秒），失敗只重試一次，之後顯示錯誤同重新讀取掣，唔會無限「載入中」。 */
 const PVR_TIMEOUT_MS = 15_000;
@@ -121,7 +122,7 @@ function ComparePage() {
   const picks = useQuery({
     queryKey: ["topPicks", raceId],
     queryFn: () => txApi.topPicks(raceId, PVR_LIVE_TIMEOUT_MS),
-    enabled: !!raceId,
+    enabled: !!raceId && (tier.has("registered") || Number(races.find(r => String(r.id) === raceId)?.raceNumber) === 1),
     retry: 1,
   });
   const raceDetail = useQuery({
@@ -135,17 +136,13 @@ function ComparePage() {
   // 2026-10-21 起同「賽果核對」一樣，只用已核實原始凍結副本；之前嘅賽日照列舊紀錄並標明未核實。
   const legacy = isLegacyEvidenceDate(date);
   const readHitRate = useServerFn(getMeetingHitRate);
+  const readFrozen = useServerFn(getViewerFrozenRacing);
   const { userId: viewerId } = useAuthState();
   const frozen = useQuery({
     queryKey: ["pvr-frozen", viewerId, date, legacy],
     queryFn: async (): Promise<any> => {
       if (legacy) return readHitRate({ data: { date } });
-      const r = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, {
-        cache: "no-store",
-        signal: timeoutSignal(PVR_TIMEOUT_MS),
-      });
-      const d: any = await r.json().catch(() => null);
-      if (!r.ok) throw new Error('原凍結預測暫未能核實；紀錄不變，請稍後重新讀取。');
+      const d = await readFrozen({ data: { date } });
       return frozenComparison(d);
     },
     enabled: !!date,
@@ -170,7 +167,7 @@ function ComparePage() {
 
   const left: Horse[] = frozenTop4.length
     ? frozenTop4
-    : legacy && picks.data?.frozen === true ? (picks.data?.picks || []).slice(0, 4) : [];
+    : !frozenRace?.redacted && (tier.has("registered") || Number(selectedRaceNumber) === 1) && legacy && picks.data?.frozen === true ? (picks.data?.picks || []).slice(0, 4) : [];
   // 首選來源：後端逐匹回傳 scoreSource（lgb = 天喜LGB 融合模型；baseline／elo = 天喜ELO 基準）
   // 同一場可能部分馬匹退回基準，故以整場為準：有任何 lgb 即屬天喜LGB 排序。
   const pickSources = (frozenTop4.length ? frozenTop4 : picks.data?.picks || []).map((p: any) =>
@@ -436,7 +433,7 @@ function ComparePage() {
                   }`}
                 >
                   <span className="block font-mono-tx text-[9px] font-bold leading-none">R{fr.raceNumber}</span>
-                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-extrabold leading-none">{n == null ? '待核' : `${n}/4`}</span>
+                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-extrabold leading-none">{fr.redacted ? '需登入' : n == null ? '待核' : `${n}/4`}</span>
                 </button>
               );
             })}
@@ -471,7 +468,7 @@ function ComparePage() {
           <div className="flex min-w-0 flex-col border-r border-hairline" aria-label="預測首四名">
             {loading ? (
               <Loading />
-            ) : left.length ? (
+            ) : frozenRace?.redacted ? <RedactedNote /> : left.length ? (
               left.map((h, i) => <Cell key={keyOf(h) || i} h={h} rank={i + 1} matched={isMatch(h, rightKeys)} />)
             ) : (
               <><EmptySide title={frozen.isError ? '原凍結暫未能核實，紀錄不變' : '未有可核實預測'} />{frozen.isError ? <Button variant="outline" className="mx-2 mb-3" onClick={()=>void frozen.refetch()}>重新讀取</Button> : null}</>
@@ -525,6 +522,7 @@ function ComparePage() {
         ) : null}
 
         {(() => {
+          if (frozenRace?.redacted || (!tier.has("registered") && Number(selectedRaceNumber) !== 1)) return null;
           const fin: Record<string, number> = {};
           for (const x of (raceDetail.data?.horses || []) as Array<{ horseNumber?: unknown; winOdds?: unknown; finishingPosition?: unknown }>) {
             const f = Number(x?.finishingPosition);

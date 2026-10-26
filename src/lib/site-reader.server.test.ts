@@ -220,7 +220,7 @@ describe("靜態洩漏檢查", () => {
   });
   it("瀏覽器檔案唔直接 import 憑證模組、唔直接讀 hit-rate", () => {
     for (const f of files) {
-      if (/\.(server|functions)\.ts$|\.test\.tsx?$/.test(f)) continue;
+      if (/\.(server|functions)\.ts$|\.test\.tsx?$/.test(f) || f.startsWith('src/routes/api/')) continue;
       const s = readFileSync(f, "utf8");
       expect(/site-reader\.server/.test(s), f).toBe(false);
       expect(/\/api\/analyze\/hit-rate\?/.test(s), f).toBe(false);

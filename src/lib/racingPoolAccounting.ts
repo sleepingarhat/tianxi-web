@@ -6,6 +6,7 @@ import { getOfficialFavourites } from "./official-favourites.functions";
 import { favouriteOrderForSettlement, type OfficialFavourites } from "./official-favourites";
 import { getHkjcChanges } from "./hkjc-changes.functions";
 import { officialWithdrawal } from './hkjc-changes';
+import { supabase } from '@/integrations/supabase/client';
 
 const UNIT = 10;
 
@@ -95,7 +96,8 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
 }
 
 async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venue: string | null; races?: PoolEvidenceRace[]; noArchive?: boolean }> {
-  const res = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store' });
+  const { data: { session } } = await supabase.auth.getSession();
+  const res = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store', headers: session ? { Authorization: `Bearer ${session.access_token}` } : {} });
   // 該日從未建立原始凍結存證：唔係讀取失敗，跨場一律列「缺預測」、不入正式合計
   if (res.status === 503) {
     const body = await res.clone().json().catch(() => null) as { reason?: string } | null;
@@ -104,7 +106,8 @@ async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venu
   if (!res.ok) throw new Error('原始凍結未能核實，跨場原注暫停結算');
   const frozen = await res.json() as { date: string; venue: string; source: string; races: PoolEvidenceRace[] };
   if (frozen.date !== date || frozen.source !== 'verified-original-snapshot' || !['ST','HV'].includes(frozen.venue) || !Array.isArray(frozen.races)) throw new Error('跨場原注來源未能核實');
-  return { legs: frozenPoolLegs(frozen.races), venue: frozen.venue, races: frozen.races };
+  const visible = frozen.races.filter(r => !('redacted' in r && r.redacted));
+  return { legs: frozenPoolLegs(visible), venue: frozen.venue, races: visible };
 }
 
 export const exoticPoolOptions = (date: string) => queryOptions({

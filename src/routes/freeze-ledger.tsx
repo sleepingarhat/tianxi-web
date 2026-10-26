@@ -1,4 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { getViewerFreezeLedger } from "@/lib/frozen-reconciliation.functions";
+import { useAuthState } from "@/lib/useAuthState";
+import { RedactedNote } from "@/components/tx/RedactedNote";
 import { useQuery } from "@tanstack/react-query";
 
 import { AppShell } from "@/components/tx/AppShell";
@@ -19,6 +23,7 @@ import { fmtMeetingDate, num } from "@/lib/tx-api";
 import { isTimeoutError, timeoutSignal } from "@/lib/fetch-timeout";
 
 type LedgerRace = {
+  redacted?: boolean;
   raceNumber: number;
   runners: number;
   predictedTop4: number[];
@@ -118,24 +123,12 @@ export const Route = createFileRoute("/freeze-ledger")({
 });
 
 function FreezeLedgerPage() {
+  const { userId, signedIn } = useAuthState();
+  const readLedger = useServerFn(getViewerFreezeLedger);
   const q = useQuery<Ledger>({
-    queryKey: ["freezeLedger"],
-    queryFn: async () => {
-      let res: Response;
-      try {
-        res = await fetch("/api/public/freeze-ledger?since=2026-10-04", {
-          signal: timeoutSignal(LEDGER_TIMEOUT_MS),
-        });
-      } catch (err) {
-        throw new Error(
-          isTimeoutError(err)
-            ? "對帳表讀取逾時（15 秒），請重新讀取"
-            : "對帳表暫時讀唔到（網絡錯誤）",
-        );
-      }
-      if (!res.ok) throw new Error(`對帳表暫時讀唔到（${res.status}）`);
-      return (await res.json()) as Ledger;
-    },
+    queryKey: ["freezeLedger", userId],
+    queryFn: async () => await readLedger() as Ledger,
+    enabled: signedIn !== null,
     staleTime: 120_000,
     retry: 1,
   });
@@ -250,7 +243,9 @@ function FreezeLedgerPage() {
           ) : null}
           <Scroller>
             <Table head={["場", "四揀", "實際頭四", "相交", "位置", "頭馬", "模型LL", "市場LL", "平注"]}>
-              {m.races.map((r) => (
+              {m.races.map((r) => r.redacted ? (
+                <tr key={r.raceNumber} className="border-b border-hairline"><Td first>{r.raceNumber}</Td><Td><RedactedNote /></Td><Td>{r.actualTop4?.join(" · ") || "—"}</Td><td colSpan={6} /></tr>
+              ) : (
                 <tr key={r.raceNumber} className={`border-b border-hairline ${(r.top4Intersect ?? 0) >= 3 ? "bg-win/5" : ""}`}>
                   <Td first>{r.raceNumber}</Td>
                   <Td>

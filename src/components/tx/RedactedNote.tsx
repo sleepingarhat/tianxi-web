@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 /** 訪客隱藏場次：照列賽果，唔計入命中統計（唔當冇中），提示登入查看全日對帳。 */
-export function RedactedNote({ races }: { races: { race: number; actual: number[] }[] }) {
-  if (!races.length) return null;
+export function RedactedNote({ races = [] }: { races?: { race: number; actual: number[] }[] }) {
   return (
     <div className="mt-2 rounded-[6px] border border-hairline bg-paper px-2 py-2 text-[11px]">
       <ul className="mb-1.5">

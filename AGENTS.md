@@ -68,3 +68,5 @@
 - Current repository summaries must supersede dated historical observations explicitly; never rewrite race evidence or applied migrations. Why: derived knowledge must not revive retired rules.
 - Cross-repository policy audits use docs/repository-policy.json and pinned default-branch commits; the racing repo alone hosts the hourly read-only audit, with explicit historical scopes and fail-closed reads. Why: detect drift without rewriting evidence or running duplicate production jobs in mirrors.
 - Results verify displayed 賽事日期 before writes; fallback pages stay pending. RESULT race timeouts always alert; meeting/job suppression requires nonempty valid future starts. Why: fallback pages and missing D1 timing certify neither identity nor pre-race status.
+
+- Reconciliation HTTP/RPC boundaries share server-verified guest result-only allowlists; raw frozen readers stay internal, member reads carry bearer auth, and identity transitions discard private browser caches. Why: alternate endpoints and cached member rows must not bypass hidden-race protection.

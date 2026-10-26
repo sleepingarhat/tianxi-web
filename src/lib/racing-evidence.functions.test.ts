@@ -28,6 +28,7 @@ describe('賽前解釋實際讀取流程', () => {
     for (const [name, value] of Object.entries({ CLOUDFLARE_API_KEY: 'test-cf', LOVABLE_API_KEY: 'test-lovable', CLOUDFLARE_ACCOUNT_ID: 'test-account', CONNECTOR_GATEWAY_BASE_URL: 'https://gateway.test', TIANXI_ADMIN_TOKEN: 'test-only-private-token' })) vi.stubEnv(name, value);
     vi.stubGlobal('fetch', mocks.fetch);
     mocks.pro.mockResolvedValue(false);
+    mocks.tier.mockResolvedValue("registered");
     body = () => publicBody;
     mocks.fetch.mockImplementation(async (url: string, init?: { body?: string }) => {
       if (String(url).includes('/d1/')) {
@@ -63,6 +64,12 @@ describe('賽前解釋實際讀取流程', () => {
     expect(await read(input(2))).toBeNull();
     expect(workerCalls()).toHaveLength(0);
     expect(mocks.validate).not.toHaveBeenCalled();
+  });
+  it('訪客完賽第2場仍不可讀原分數', async () => {
+    mocks.tier.mockResolvedValue('guest');
+    mocks.query.mockImplementation(async (sql: string) => sql.includes('COUNT(DISTINCT venue)') ? [{count:1}] : sql.includes('FROM race_results') ? [{settled:1}] : [{horseElo:1500}]);
+    expect(await read(input(2))).toBeNull();
+    expect(mocks.query.mock.calls.some(([sql]) => sql.includes('horse_pedigree'))).toBe(false);
   });
   it('免費用戶公開版未凍結即拒絕', async () => {
     body = () => ({ ...publicBody, frozen: false });

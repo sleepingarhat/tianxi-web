@@ -2,6 +2,7 @@ import { summarizeOfficialMetrics, type OfficialMetricInput } from './racing-off
 /** View adapter: verified originals only, never alternative selections for KPI. */
 export function resultsAudit(snapshot: { races: any[] }) {
   const races = snapshot.races.map(r => {
+    if (r.redacted) return { ...r, actualTop4: (r.actualTop4 ?? []).map((n: number, i: number) => ({ ...r.results?.find((p: any) => p.horseNumber === n), horseNumber: n, position: i + 1 })) };
     const input = r.metricInput as OfficialMetricInput;
     const eligible = r.officialMetric.eligible;
     const top3 = new Set(input.actualTop4.slice(0, 3));
@@ -12,8 +13,8 @@ export function resultsAudit(snapshot: { races: any[] }) {
       top3IntersectCount: top3Hits, top3AnyHit: eligible ? Number(top3Hits) > 0 : null,
       trioHit: eligible ? top3Hits === 3 : null, first4Hit: eligible ? r.officialMetric.originalHits === 4 : null };
   });
-  const formal = races.filter(r => r.officialMetric.eligible);
-  const summary = summarizeOfficialMetrics(snapshot.races.map(r => r.metricInput));
+  const formal = races.filter(r => !r.redacted && r.officialMetric.eligible);
+  const summary = summarizeOfficialMetrics(snapshot.races.filter(r => !r.redacted).map(r => r.metricInput));
   const percent = (n: number) => formal.length ? n / formal.length * 100 : null;
   const top3AnyHits = formal.filter(r => r.top3AnyHit).length;
   const trioHits = formal.filter(r => r.trioHit).length;

@@ -19,6 +19,10 @@ import { resultsAudit } from "@/lib/results-audit";
 import { FrozenEvidenceError, frozenEvidenceCodeOf, type FrozenEvidenceCode } from "@/lib/frozen-racing";
 import { Button } from "@/components/ui/button";
 import { isLegacyEvidenceDate } from "@/lib/evidence-cutoff";
+import { useServerFn } from "@tanstack/react-start";
+import { getViewerFrozenRacing } from "@/lib/frozen-reconciliation.functions";
+import { useAuthState } from "@/lib/useAuthState";
+import { RedactedNote } from "@/components/tx/RedactedNote";
 import { RotateCw } from "lucide-react";
 
 /** 彩池代號 → 中文（馬會標準簡稱） */
@@ -67,6 +71,8 @@ function EvidenceNote({ error, date }: { error: unknown; date?: string | undefin
 
 function ResultsPage() {
   const { date } = Route.useSearch();
+  const { userId, signedIn } = useAuthState();
+  const readFrozen = useServerFn(getViewerFrozenRacing);
   const navigate = Route.useNavigate();
 
   const list = useQuery({ queryKey: ["meetings", 12], queryFn: () => txApi.meetings("?limit=12") });
@@ -86,16 +92,14 @@ function ResultsPage() {
   const archived = archive.data;
 
   const hr = useQuery({
-    queryKey: ["verified-results-audit", activeDate],
+    queryKey: ["verified-results-audit", userId, activeDate],
     queryFn: async () => {
       if (!activeDate) throw new Error("未選賽日");
-      const response = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(activeDate)}`, { cache: "no-store" });
-      const data = await response.json();
-      if (!response.ok || !data.frozen) throw new FrozenEvidenceError(data?.reason ?? "verification-failed", data?.error ?? "原凍結未能核實");
+      const data = await readFrozen({ data: { date: activeDate } });
       return resultsAudit(data);
     },
     refetchInterval: 60_000,
-    enabled: !!activeDate,
+    enabled: !!activeDate && signedIn !== null,
   });
 
   const s = hr.data?.summary;
@@ -145,7 +149,7 @@ function ResultsPage() {
         </p>
       ) : null}
 
-      <Card title="當日命中率" en="Hit Rate">
+      <Card title={races.some(r => r.redacted) ? "可見場次命中率" : "當日命中率"} en="Hit Rate">
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (
@@ -196,7 +200,9 @@ function ResultsPage() {
           <div><EvidenceNote error={hr.error} date={activeDate} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
         ) : races.length ? (
           <div className="divide-y divide-hairline">
-            {races.map((r) => (
+            {races.map((r) => r.redacted ? (
+              <article key={r.raceNumber} className="py-2.5"><b className="text-gold">R{r.raceNumber}</b><RedactedNote /><div className="text-sm text-ink-2">{(r.actualTop4 ?? []).map((a: any) => `${a.position}. ${a.horseNumber} ${a.nameCh ?? ""}`).join(" · ")}</div></article>
+            ) : (
               <details key={r.raceNumber} open={Number(r.raceNumber) === 1} className="py-2.5">
                 <summary className="flex cursor-pointer list-none items-center gap-2">
                   <span className="tabnum w-7 font-mono-tx text-[13px] font-bold text-gold">R{r.raceNumber}</span>

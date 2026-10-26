@@ -29,7 +29,11 @@ export const getPredictionReconciliation = createServerFn({ method: "GET" }).inp
     FROM runners k JOIN target t ON t.id=k.race_id LEFT JOIN race_results rr ON rr.race_id=t.id AND rr.horse_id=k.horse_id
     LEFT JOIN prediction_log pl ON pl.date=? AND pl.race_number=t.race_number AND pl.horse_id=k.horse_id AND pl.engine='v12' AND pl.variant='baseline'
     LEFT JOIN horses h ON h.id=k.horse_id ORDER BY t.race_number,pl.predicted_rank IS NULL,pl.predicted_rank,k.horse_id`, [data.date, meetings[0]?.venue, data.date, data.date]);
-  return { date: data.date, unavailable: false, rows: rows.map(row => ({ ...row, timing: predictionTiming(row.generatedAt, data.date, row.startTime) })) };
+  const [{ viewerTier }, { projectReconciliationRows }, { setResponseHeader }] = await Promise.all([
+    import('./picks-entitlement.server'), import('./reconciliation-projection'), import('@tanstack/react-start/server'),
+  ]);
+  setResponseHeader('Cache-Control', 'private, no-store');
+  return { date: data.date, unavailable: false, rows: projectReconciliationRows(rows.map(row => ({ ...row, timing: predictionTiming(row.generatedAt, data.date, row.startTime) })), await viewerTier()) };
 });
 
 export const getEloDailyLog = createServerFn({ method: "GET" }).inputValidator((input: { date: string }) => ({ date: validRacingDate(input.date) })).handler(async ({ data }) => {

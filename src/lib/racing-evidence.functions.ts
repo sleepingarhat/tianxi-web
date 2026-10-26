@@ -33,7 +33,9 @@ export const getLockedEvidence = createServerFn({ method: "GET" })
     // 唔再只靠前端 TierGate。預設 off，同現況一樣。
     const { proEnforcementEnabled, lockedEvidenceAllowed, projectLockedEvidence } = await import('./picks-projection');
     const enforce = proEnforcementEnabled();
-    const tier = enforce ? await (await import('./picks-entitlement.server')).viewerTier() : null;
+    const viewer = await (await import('./picks-entitlement.server')).viewerTier();
+    if (viewer === 'guest' && identity.raceNumber !== 1) return null;
+    const tier = enforce ? viewer : null;
     if (tier && !lockedEvidenceAllowed(tier, settled.length > 0)) return null;
     if (!settled.length) {
       // 會籍單一來源：兩條路都係 loadUserTier → rpc my_entitlement()。PRO_ENFORCEMENT=on 時沿用上面已核實嘅 tier，唔再查第二次。

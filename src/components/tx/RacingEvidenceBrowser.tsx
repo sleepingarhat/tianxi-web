@@ -1,3 +1,5 @@
+import { useAuthState } from "@/lib/useAuthState";
+import { RedactedNote } from "./RedactedNote";
 import { useTier } from "@/lib/useTier";
 import { UpgradeCard } from "./gates/UpgradeCard";
 import { projectMeetingDates } from "@/lib/tier-projection";
@@ -22,6 +24,7 @@ function download(rows: object[], name: string) {
 }
 export function RacingEvidenceBrowser({ mode }: { mode: "prediction" | "elo" }) {
   const tier = useTier();
+  const { userId } = useAuthState();
   const readDates = useServerFn(getReconciliationDates);
   const readPredictions = useServerFn(getPredictionReconciliation);
   const readElo = useServerFn(getEloDailyLog);
@@ -30,7 +33,7 @@ export function RacingEvidenceBrowser({ mode }: { mode: "prediction" | "elo" }) 
   const [entity, setEntity] = useState<"horse" | "jockey" | "trainer">("horse");
   const visibleDays = projectMeetingDates(dates.data?.days ?? [], tier.tier, new Date(Date.now()+8*3600_000).toISOString().slice(0,10));
   const date = (tier.has("registered") ? selected : "") || visibleDays[0]?.date || "";
-  const predictions = useQuery({ queryKey: ["prediction-reconciliation", date], queryFn: () => readPredictions({ data: { date } }), enabled: !tier.loading && mode === "prediction" && Boolean(date), staleTime: 300_000 });
+  const predictions = useQuery({ queryKey: ["prediction-reconciliation", userId, date], queryFn: () => readPredictions({ data: { date } }), enabled: !tier.loading && mode === "prediction" && Boolean(date), staleTime: 300_000 });
   const elo = useQuery({ queryKey: ["elo-daily-log", date], queryFn: () => readElo({ data: { date } }), enabled: !tier.loading && mode === "elo" && Boolean(date), staleTime: 300_000 });
   const q = mode === "prediction" ? predictions : elo;
   const races = [...new Set(predictions.data?.rows.map(r => r.raceNumber) ?? [])];
@@ -50,6 +53,7 @@ export function RacingEvidenceBrowser({ mode }: { mode: "prediction" | "elo" }) 
     </>}
     {dates.error ? <ErrorNote error={dates.error} /> : dates.isLoading || q.isLoading ? <Loading /> : q.error ? <ErrorNote error={q.error} /> : !exportRows.length ? <Empty label="此日未有可公開核對紀錄；不使用即時計算補上。" /> : mode === "prediction" ? races.map(raceNumber => {
       const rows = predictions.data?.rows.filter(r => r.raceNumber === raceNumber) ?? [];
+      if (rows.some(r => "redacted" in r && r.redacted)) return <Card key={raceNumber} title={`第 ${raceNumber} 場`}><RedactedNote /><div className="divide-y divide-hairline">{rows.map(row => <p key={row.horseId} className="py-2 text-sm text-ink-2">{row.horseNumber} {row.name} · {row.finish ?? "未入帳"}</p>)}</div></Card>;
       const picks = rows.filter(r => r.rank != null && r.rank >= 1 && r.rank <= 4);
       const complete = picks.length === 4 && new Set(picks.map(r => r.rank)).size === 4 && rows.every(r => r.rank != null && r.finish != null && (r.predictionHorseNumber == null || r.predictionHorseNumber === r.horseNumber));
       const hit = picks.filter(r => r.finish != null && r.finish >= 1 && r.finish <= 4).length;
