@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
-import { getRacingHealth } from "@/lib/racingOps.functions";
+import { getAdminRacingHealth } from "@/lib/racingOps.functions";
 import { isRacingEngine } from "@/lib/product-scope";
 import { txApi } from "@/lib/tx-api";
 import { racingLanguage } from "./racing-language";
@@ -21,7 +21,7 @@ export function refreshMs() {
 }
 
 export const useRacingHealth = () =>
-  useQuery({ queryKey: ["admin", "racing-health"], queryFn: () => getRacingHealth(), refetchInterval: refreshMs() });
+  useQuery({ queryKey: ["admin", "racing-health"], queryFn: () => getAdminRacingHealth(), refetchInterval: refreshMs() });
 
 export const useEngineHealth = () =>
   useQuery({

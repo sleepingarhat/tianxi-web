@@ -1,5 +1,15 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
+## 2026-10-26 安全掃描修復（PR／Verifier 覆核前不發布）
+- [x] #1 公開 draw-tune 回410且不作上游請求；既有admin RPC保留，不採用臨時限流。
+- [x] #4 公開健康只回安全狀態白名單及告警數量；完整诊斷以獨立登入＋admin role核實RPC供管理員使用。
+- [x] #5 新舊weather-sync-github共用平台 jobs 驗證及香港當日，不接受共享header／date override；不改其他 Worker hooks。
+- [x] 三份安全測試15項通過；全套99檔593項通過，未改資料庫或設定。
+- [x] 預覽真實健康心跳正常、無私有job／Bot資料；draw-tune410、新舊sync未授權401、無pageerror。blueprint／AGENTS／dev-log已同步；讀碼review無新漏洞。
+- [ ] GitHub PR交用戶／Verifier獨立核對及真管理員session驗收；未驗證不發布、不合併。詳見docs/reviews/security-public-boundaries-2026-10-26.md。
+- [ ] 收費閘前修 #2 Stripe returnUrl allowlist，順便覆核 ownership；#3 不單獨修（用戶已核實誤報）。
+- 本輪不改開關、密鑰、凍結或收費閘；不直接同步 GitHub main。
+
 ## 2026-10-26 工作心跳死信監察（job_ticks stale 讀側＋TG告警）
 - [x] 讀側：`job_tick:racing-dividends`（30分鐘預算）加入 `runJobTickAlerts`；心跳停滯或缺失觸發告警，12小時去重＋24小時恢復通知，共用 `alert:*` 鍵令告警紀錄自動入健康頁。fail 狀態心跳視為「工作仍運行」，逐次失敗仍由派彩告警鏈負責，不重複發報。
 - [x] 觸發點：每小時 `telegram-pro-sweep` 工作開頭（閘門／TG設定檢查之前）獨立運行，告警失敗不影響本工作回應；寫側無需改動，派彩工作每5分鐘已寫心跳。
