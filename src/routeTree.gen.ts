@@ -22,6 +22,7 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FreezeLedgerRouteImport } from './routes/freeze-ledger'
 import { Route as HorseRouteImport } from './routes/horse'
 import { Route as LabRouteImport } from './routes/lab'
+import { Route as LabH2hRouteImport } from './routes/lab.h2h'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ManualRouteImport } from './routes/manual'
 import { Route as MediaCreditsRouteImport } from './routes/media-credits'
@@ -171,6 +172,11 @@ const HorseRoute = HorseRouteImport.update({
 const LabRoute = LabRouteImport.update({
   id: '/lab',
   path: '/lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabH2hRoute = LabH2hRouteImport.update({
+  id: '/lab/h2h',
+  path: '/lab/h2h',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -652,6 +658,7 @@ export interface FileRoutesByFullPath {
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
   '/lab': typeof LabRoute
+  '/lab/h2h': typeof LabH2hRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -752,6 +759,7 @@ export interface FileRoutesByTo {
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
   '/lab': typeof LabRoute
+  '/lab/h2h': typeof LabH2hRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -853,6 +861,7 @@ export interface FileRoutesById {
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
   '/lab': typeof LabRoute
+  '/lab/h2h': typeof LabH2hRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -955,6 +964,7 @@ export interface FileRouteTypes {
     | '/freeze-ledger'
     | '/horse'
     | '/lab'
+    | '/lab/h2h'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1055,6 +1065,7 @@ export interface FileRouteTypes {
     | '/freeze-ledger'
     | '/horse'
     | '/lab'
+    | '/lab/h2h'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1155,6 +1166,7 @@ export interface FileRouteTypes {
     | '/freeze-ledger'
     | '/horse'
     | '/lab'
+    | '/lab/h2h'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1257,6 +1269,7 @@ export interface RootRouteChildren {
   FreezeLedgerRoute: typeof FreezeLedgerRoute
   HorseRoute: typeof HorseRoute
   LabRoute: typeof LabRoute
+  LabH2hRoute: typeof LabH2hRoute
   LoginRoute: typeof LoginRoute
   ManualRoute: typeof ManualRoute
   MediaCreditsRoute: typeof MediaCreditsRoute
@@ -1422,6 +1435,13 @@ declare module '@tanstack/react-router' {
       path: '/lab'
       fullPath: '/lab'
       preLoaderRoute: typeof LabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab/h2h': {
+      id: '/lab/h2h'
+      path: '/lab/h2h'
+      fullPath: '/lab/h2h'
+      preLoaderRoute: typeof LabH2hRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -2090,6 +2110,7 @@ const rootRouteChildren: RootRouteChildren = {
   FreezeLedgerRoute: FreezeLedgerRoute,
   HorseRoute: HorseRoute,
   LabRoute: LabRoute,
+  LabH2hRoute: LabH2hRoute,
   LoginRoute: LoginRoute,
   ManualRoute: ManualRoute,
   MediaCreditsRoute: MediaCreditsRoute,
