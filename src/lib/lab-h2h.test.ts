@@ -10,11 +10,12 @@ import {
 } from "./lab-h2h-ui";
 
 describe("lab-tools", () => {
-  it("頭對頭為 ready 並連到 /lab/h2h；其他未假做可用", () => {
+  it("頭對頭為 ready 並連到 /lab/h2h；未開通工具未假做可用", () => {
     const h2h = LAB_TOOLS.find((t) => t.key === "h2h");
     expect(h2h?.status).toBe("ready");
     expect(h2h?.href).toBe("/lab/h2h");
-    expect(LAB_TOOLS.filter((t) => t.key !== "h2h").every((t) => t.status !== "ready")).toBe(true);
+    const opened = new Set(["h2h", "pace"]);
+    expect(LAB_TOOLS.filter((t) => !opened.has(t.key)).every((t) => t.status !== "ready")).toBe(true);
   });
 });
 

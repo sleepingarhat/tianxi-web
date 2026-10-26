@@ -1,4 +1,4 @@
-/** 研究室工具牆（本批只開通頭對頭；其餘仍即將推出／鎖定）。 */
+/** 研究室工具牆（已開通頭對頭、走位節奏；其餘仍即將推出／鎖定）。 */
 
 export type LabTool = {
   key: string;
@@ -36,8 +36,9 @@ export const LAB_TOOLS: readonly LabTool[] = [
     key: "pace",
     title: "走位節奏",
     en: "Pace rhythm",
-    blurb: "走位節奏研究層；即將推出。",
-    status: "soon",
+    blurb: "分段時間、走位 bump chart、今場跑法組成同節奏研究提示。",
+    status: "ready",
+    href: "/lab/pace",
   },
   {
     key: "going",
