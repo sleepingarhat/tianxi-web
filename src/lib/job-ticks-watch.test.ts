@@ -90,3 +90,18 @@ describe('job-ticks-watch', () => {
     expect(state.get('alert:job_tick:racing-dividends')).toBeUndefined();
   });
 });
+
+describe('job tick recovery alignment', () => {
+  it('passing clears state even after 12h+ and failed send', async () => {
+    const { runJobTickAlertsWith } = await import('./job-ticks-watch.server');
+    const now = new Date('2026-10-26T12:00:00Z');
+    const w: Record<string, unknown> = {
+      'job_tick:racing-dividends': makeJobTick('racing-dividends', 'ok', {}, new Date('2026-10-26T11:55:00Z')),
+      'alert:job_tick:racing-dividends': { fail: 'x', sent_at: '2026-10-25T20:00:00Z' },
+    };
+    const writes: string[] = [];
+    const r = await runJobTickAlertsWith({ read: async k => w[k] ?? null, write: async k => { writes.push(k); }, send: async () => ({ sent: false }) }, now);
+    expect(r.sent).toBe(false);
+    expect(writes).toContain('alert:job_tick:racing-dividends');
+  });
+});

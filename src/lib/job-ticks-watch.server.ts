@@ -11,6 +11,7 @@
 import { isJobTickStale, JOB_TICK_WATCHES, jobTickKey, parseJobTick, type JobTickPayload } from './job-ticks';
 
 const DEDUPE_MS = 12 * 60 * 60_000;
+const RECOVERY_MS = 24 * 60 * 60_000;
 
 export type JobTickCheck = { key: string; label: string; fail: string | null; at: string | null };
 
@@ -70,6 +71,7 @@ export async function runJobTickAlertsWith(
   const messages: string[] = [];
   const nowIso = now.toISOString();
   const upserts: { key: string; value: AlertValue }[] = [];
+  const clears: { key: string; value: AlertValue }[] = [];
   for (const c of failing) {
     const p = prev.get(c.key)!;
     const lastSent = p.sent_at ? Date.parse(p.sent_at) : 0;
@@ -80,10 +82,12 @@ export async function runJobTickAlertsWith(
   for (const c of checks.filter(x => !x.fail)) {
     const p = prev.get(c.key)!;
     const lastSent = p.sent_at ? Date.parse(p.sent_at) : 0;
-    if (p.fail && p.sent_at && Number.isFinite(lastSent) && now.getTime() - lastSent <= DEDUPE_MS) {
+    if (p.fail && p.sent_at && Number.isFinite(lastSent) && now.getTime() - lastSent <= RECOVERY_MS) {
       messages.push(`✅ 已恢復 ${c.label}心跳（之前：${p.fail}）`);
     }
-    upserts.push({ key: `alert:${c.key}`, value: { fail: null, sent_at: null } });
+    // Passing always clears state (same as telegramAlert.server), even if the
+    // recovery notice fails to send — the health page must not stay stuck.
+    if (p.fail || p.sent_at) clears.push({ key: `alert:${c.key}`, value: { fail: null, sent_at: null } });
   }
 
   if (messages.length) {
@@ -92,9 +96,10 @@ export async function runJobTickAlertsWith(
     out.sent = sent.sent;
   }
   // Unsuccessful delivery keeps the old sent_at, so the next run retries.
-  if (out.sent) {
+  if (out.sent || !messages.some(m => m.startsWith('🚨'))) {
     for (const u of upserts) await store.write(u.key, u.value).catch(() => undefined);
   }
+  for (const u of clears) await store.write(u.key, u.value).catch(() => undefined);
   return out;
 }
 
