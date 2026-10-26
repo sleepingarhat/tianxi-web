@@ -1,5 +1,8 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
+## 2026-10-26 排位前瞻窗口延長（用戶PR #97，已合併）
+- [x] 核查 tianxi-racing PR #97：capy_racecard.yml 前瞻由4日改7日（合併 b23174a），近季最長賽日間隔6日（12-26→1-1）已覆蓋；其他工作流程及收料行為不變。網站無需改動；dev-log 已記。
+
 ## 2026-10-25 getTodayPicksAll 伺服器投影（本輪未發布）
 - [x] 堵塞未登入直接讀全日完整凍結選馬：getTodayPicksAll 唔再依賴 PRO_ENFORCEMENT，一律 viewerTier() + projectDayPicksForViewer() 伺服器投影（Pro 全日、其他人按 FEATURE_TIERS）。
 - [x] use-today-picks.ts 同 race.tsx 核對：全部欄位可選兼有用投影後資料嘅 fallback，缺欄位唔會報錯或空白。
