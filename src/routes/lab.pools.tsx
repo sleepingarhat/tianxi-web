@@ -15,6 +15,12 @@ import {
 } from "@/components/tx/ui";
 import { Button } from "@/components/ui/button";
 import { optimizeLabPools, type PoolOptimizeResult } from "@/lib/lab-pools.functions";
+import {
+  POOLS_DISCLAIMER_EXTRA,
+  POOLS_PAGE_DESC,
+  POOLS_RESEARCH_BANNER,
+  parseRaceIdsInput,
+} from "@/lib/lab-pools-ui";
 
 type Search = {
   pool?: string;
@@ -60,14 +66,7 @@ function PoolsPage() {
   const [raceIdsText, setRaceIdsText] = useState("race_2026-10-25_ST_1");
   const [result, setResult] = useState<PoolOptimizeResult | null>(null);
 
-  const raceIds = useMemo(
-    () =>
-      raceIdsText
-        .split(/[\s,]+/)
-        .map((s) => s.trim())
-        .filter(Boolean),
-    [raceIdsText],
-  );
+  const raceIds = useMemo(() => parseRaceIdsInput(raceIdsText), [raceIdsText]);
 
   const mut = useMutation({
     mutationFn: () =>
@@ -101,13 +100,13 @@ function PoolsPage() {
         role="note"
         className="sticky top-0 z-40 border-b-2 border-lose/50 bg-lose/15 px-4 py-2 text-center text-[12px] font-bold text-ink"
       >
-        研究用・唔係官方建議・唔入公開戰績
+        {POOLS_RESEARCH_BANNER}
       </div>
 
       <PageHead
         en="Pool optimizer"
         title="彩池組合優化器"
-        desc="凍結 pWin + Harville／PL · 無臨場賠率 · 無落注連結"
+        desc={POOLS_PAGE_DESC}
       />
 
       <p className="mx-4 text-[11px] leading-relaxed text-ink-3">
@@ -235,7 +234,7 @@ function PoolsPage() {
         </>
       ) : null}
 
-      <Disclaimer extra="無一鍵投注、無臨場值博計算。官方凍結四揀唔會被此頁改寫。" />
+      <Disclaimer extra={POOLS_DISCLAIMER_EXTRA} />
     </AppShell>
   );
 }
