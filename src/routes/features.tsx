@@ -4,17 +4,21 @@ import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { CompositeOverview } from "@/components/tx/CompositeOverview";
 import { FeatureRankingTable } from "@/components/tx/FeatureRankingTable";
 import { FeaturePickerSheet } from "@/components/tx/FeaturePickerSheet";
+import { FeatureWeightPanel } from "@/components/tx/FeatureWeightPanel";
+import { BacktestPanel } from "@/components/tx/BacktestPanel";
 import { Card, Disclaimer, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
-import { computeComposite, rankByFeature } from "@/lib/feature-ranking";
+import { computeComposite, computeWeightedComposite, rankByFeature } from "@/lib/feature-ranking";
+import { defaultWeights, loadStrategies, type FeatureWeightSpec } from "@/lib/lab-backtest";
 import { getFeatureRace, listFeatureRaces } from "@/lib/features.functions";
 import { FEATURES, type FeatureId } from "@/lib/race-data";
 import { fmtMeetingDate, txApi } from "@/lib/tx-api";
+import { useTier } from "@/lib/useTier";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -22,7 +26,7 @@ export const Route = createFileRoute("/features")({
       { title: "特徵排序表 · 天喜 TIANXI" },
       {
         name: "description",
-        content: "逐場賽馬特徵排序：同場對賽勝次、最佳同程、檔位、最快時間與末段、騎練合作，可自選組合運算綜合排序。",
+        content: "逐場賽馬特徵排序：同場對賽勝次、最佳同程、檔位、最快時間與末段、騎練合作，可自選組合運算綜合排序；Pro 可調權重同回測。",
       },
       { property: "og:title", content: "特徵排序表 · 天喜 TIANXI" },
       { property: "og:description", content: "全特徵目錄逐場排序與自選綜合排序，全部由歷史賽事資料實時運算。" },
@@ -34,10 +38,21 @@ export const Route = createFileRoute("/features")({
 });
 
 function FeaturesPage() {
+  const tier = useTier();
+  const isPro = tier.has("pro");
   const [date, setDate] = useState<string | undefined>(undefined);
   const [raceId, setRaceId] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureId[]>(["h2h", "distance", "draw", "time"]);
+  const [weights, setWeights] = useState<FeatureWeightSpec[]>(() => defaultWeights(["h2h", "distance", "draw", "time"]));
   const [active, setActive] = useState<FeatureId | null>("h2h");
+  const [strategies, setStrategies] = useState(() => (typeof window !== "undefined" ? loadStrategies() : []));
+
+  useEffect(() => {
+    setWeights((prev) => {
+      const map = new Map(prev.map((w) => [w.id, w]));
+      return features.map((id) => map.get(id) ?? { id, weight: 1, invert: false });
+    });
+  }, [features]);
 
   const listFn = useServerFn(listFeatureRaces);
   const raceFn = useServerFn(getFeatureRace);
@@ -60,7 +75,6 @@ function FeaturesPage() {
 
   const race = detail.data?.race;
 
-  // 即時獨贏賠率：由馬會賠率源（後端 meetings API）補入，排位表本身冇賠率
   const oddsQ = useQuery({
     queryKey: ["meeting", race?.date],
     queryFn: () => { if (!race?.date) throw new Error("未有賽日"); return txApi.meeting(race.date); },
@@ -78,10 +92,20 @@ function FeaturesPage() {
   const horses = (detail.data?.horses ?? []).map((h) =>
     (h.odds ?? 0) > 0 ? h : { ...h, odds: oddsMap.get(Number(h.no)) ?? h.odds },
   );
-  const compositeRows = computeComposite(horses, features);
+
+  const useWeighted = useMemo(() => {
+    if (!isPro) return false;
+    return weights.some((w) => w.weight !== 1 || w.invert) || weights.length !== features.length;
+  }, [isPro, weights, features.length]);
+
+  const compositeRows = useWeighted
+    ? computeWeightedComposite(horses, weights)
+    : computeComposite(horses, features);
+  const selectedForComposite = useWeighted
+    ? weights.filter((w) => w.weight > 0).map((w) => w.id)
+    : features;
   const activeFeature = active && features.includes(active) ? active : (features[0] ?? null);
   const featureRows = activeFeature && horses.length ? rankByFeature(horses, activeFeature) : [];
-
 
   return (
     <AppShell
@@ -95,7 +119,7 @@ function FeaturesPage() {
       <PageHead
         en="Feature Ranking"
         title="特徵排序表"
-        desc="引擎特徵目錄全部列出，可即場排序者逐項排名，全部由該場之前的歷史賽事資料計算；今日排位表一出即可運算。"
+        desc="引擎特徵目錄全部列出，可即場排序者逐項排名；Pro 可調權重、回測組合（研究層，唔入公開戰績）。"
       />
 
       <Card title="選擇賽事" en="Select Race">
@@ -157,7 +181,7 @@ function FeaturesPage() {
 
       <Card title="特徵選項" en="Features">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
-          引擎特徵目錄全部列出，其中可即場排序者可任選組合；綜合分為所選特徵標準化分數的平均值。
+          引擎特徵目錄全部列出，其中可即場排序者可任選組合；綜合分預設為所選特徵標準化分數平均值；Pro 可改為加權。
         </p>
         <FeaturePickerSheet
           selected={features}
@@ -169,6 +193,14 @@ function FeaturesPage() {
         />
       </Card>
 
+      <Card title="調權重（研究層）" en="Weights">
+        <FeatureWeightPanel
+          selected={features}
+          weights={weights}
+          onChange={setWeights}
+          locked={!isPro}
+        />
+      </Card>
 
       {detail.isLoading ? (
         <Loading />
@@ -179,7 +211,7 @@ function FeaturesPage() {
         </div>
       ) : horses.length ? (
         <>
-          <CompositeOverview rows={compositeRows} selected={features} />
+          <CompositeOverview rows={compositeRows} selected={selectedForComposite} />
           <FeatureRankingTable
             selected={features}
             active={activeFeature}
@@ -188,6 +220,50 @@ function FeaturesPage() {
           />
         </>
       ) : null}
+
+      <Card title="回測呢個組合" en="Backtest">
+        <BacktestPanel weights={weights} locked={!isPro} />
+      </Card>
+
+      <Card title="我的策略（本機）" en="My strategies">
+        <p className="mb-2 text-[11px] text-ink-2">
+          本批以瀏覽器 localStorage 暫存；Supabase <code>user_strategies</code> migration 草稿見 PR。研究層，唔入公開戰績。
+        </p>
+        {strategies.length === 0 ? (
+          <p className="text-[12px] text-ink-2">尚未儲存策略。Pro 用戶可喺回測卡命名後儲存。</p>
+        ) : (
+          <ul className="space-y-1 text-[12px]">
+            {strategies.map((s) => (
+              <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-[4px] border border-hairline px-2 py-1">
+                <span className="font-bold">{s.name}</span>
+                <span className="font-mono-tx text-[11px] text-ink-2">v{s.version}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto h-7 text-[11px]"
+                  onClick={() => {
+                    setFeatures(s.weights.map((w) => w.id as FeatureId));
+                    setWeights(s.weights);
+                    setStrategies(loadStrategies());
+                  }}
+                >
+                  載入
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-2"
+          onClick={() => setStrategies(loadStrategies())}
+        >
+          重新整理清單
+        </Button>
+      </Card>
 
       <Disclaimer />
     </AppShell>
