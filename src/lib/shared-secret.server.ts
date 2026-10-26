@@ -2,7 +2,7 @@
 //
 //   WEATHER_CRON_SECRET (+_PREVIOUS)        : 舊天氣／賽果 hooks 入口（舊排程已停用；新排程用 LOVABLE_CRON_SECRET）
 //   ALERT_HOOK_SECRET   (+_PREVIOUS, _NEXT) : Worker → /api/public/telegram-alert（網站係接收方）
-//   WATCH_FEED_SECRET                       : 網站 → Worker /api/watch/events（呢度只負責「發送」）
+//   WATCH_FEED_SECRET                       : 網站 → Worker /api/watch/events 同 /api/notify/events（呢度只負責「發送」；通知事件沿用，唔另開 secret）
 //
 // 舊共用值（WEATHER_CRON_SECRET）後備係「按用途」收窄：
 //   - 某用途一旦設定咗專用「目前值」（ALERT_HOOK_SECRET／WATCH_FEED_SECRET），

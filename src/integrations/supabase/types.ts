@@ -433,34 +433,43 @@ export type Database = {
       }
       notification_prefs: {
         Row: {
+          daily_pnl_enabled: boolean
           last_limit_notice_at: string | null
+          lock_complete_enabled: boolean
           push_enabled: boolean
           raceday_alerts: boolean
           raceday_enabled: boolean
           raceday_opted_in_at: string | null
           telegram_enabled: boolean
+          top4_lock_enabled: boolean
           trackwork_mode: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          daily_pnl_enabled?: boolean
           last_limit_notice_at?: string | null
+          lock_complete_enabled?: boolean
           push_enabled?: boolean
           raceday_alerts?: boolean
           raceday_enabled?: boolean
           raceday_opted_in_at?: string | null
           telegram_enabled?: boolean
+          top4_lock_enabled?: boolean
           trackwork_mode?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          daily_pnl_enabled?: boolean
           last_limit_notice_at?: string | null
+          lock_complete_enabled?: boolean
           push_enabled?: boolean
           raceday_alerts?: boolean
           raceday_enabled?: boolean
           raceday_opted_in_at?: string | null
           telegram_enabled?: boolean
+          top4_lock_enabled?: boolean
           trackwork_mode?: string
           updated_at?: string
           user_id?: string

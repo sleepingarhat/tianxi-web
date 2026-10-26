@@ -89,6 +89,7 @@ import { Route as ApiPublicJobsBillingRemindersRouteImport } from './routes/api/
 import { Route as ApiPublicJobsHkjcChangesRouteImport } from './routes/api/public/jobs/hkjc-changes'
 import { Route as ApiPublicJobsHkjcEvidenceSyncRouteImport } from './routes/api/public/jobs/hkjc-evidence-sync'
 import { Route as ApiPublicJobsHorseWatchRouteImport } from './routes/api/public/jobs/horse-watch'
+import { Route as ApiPublicJobsNotifyEventsRouteImport } from './routes/api/public/jobs/notify-events'
 import { Route as ApiPublicJobsRaceResultsDispatchRouteImport } from './routes/api/public/jobs/race-results-dispatch'
 import { Route as ApiPublicJobsRacecoursePhotosRouteImport } from './routes/api/public/jobs/racecourse-photos'
 import { Route as ApiPublicJobsRacedayAlertsRouteImport } from './routes/api/public/jobs/raceday-alerts'
@@ -526,6 +527,12 @@ const ApiPublicJobsHorseWatchRoute = ApiPublicJobsHorseWatchRouteImport.update({
   path: '/api/public/jobs/horse-watch',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsNotifyEventsRoute =
+  ApiPublicJobsNotifyEventsRouteImport.update({
+    id: '/api/public/jobs/notify-events',
+    path: '/api/public/jobs/notify-events',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsRaceResultsDispatchRoute =
   ApiPublicJobsRaceResultsDispatchRouteImport.update({
     id: '/api/public/jobs/race-results-dispatch',
@@ -707,6 +714,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
+  '/api/public/jobs/notify-events': typeof ApiPublicJobsNotifyEventsRoute
   '/api/public/jobs/race-results-dispatch': typeof ApiPublicJobsRaceResultsDispatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
@@ -804,6 +812,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
+  '/api/public/jobs/notify-events': typeof ApiPublicJobsNotifyEventsRoute
   '/api/public/jobs/race-results-dispatch': typeof ApiPublicJobsRaceResultsDispatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
@@ -904,6 +913,7 @@ export interface FileRoutesById {
   '/api/public/jobs/hkjc-changes': typeof ApiPublicJobsHkjcChangesRoute
   '/api/public/jobs/hkjc-evidence-sync': typeof ApiPublicJobsHkjcEvidenceSyncRoute
   '/api/public/jobs/horse-watch': typeof ApiPublicJobsHorseWatchRoute
+  '/api/public/jobs/notify-events': typeof ApiPublicJobsNotifyEventsRoute
   '/api/public/jobs/race-results-dispatch': typeof ApiPublicJobsRaceResultsDispatchRoute
   '/api/public/jobs/racecourse-photos': typeof ApiPublicJobsRacecoursePhotosRoute
   '/api/public/jobs/raceday-alerts': typeof ApiPublicJobsRacedayAlertsRoute
@@ -1004,6 +1014,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/horse-watch'
+    | '/api/public/jobs/notify-events'
     | '/api/public/jobs/race-results-dispatch'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/raceday-alerts'
@@ -1101,6 +1112,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/horse-watch'
+    | '/api/public/jobs/notify-events'
     | '/api/public/jobs/race-results-dispatch'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/raceday-alerts'
@@ -1200,6 +1212,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/hkjc-changes'
     | '/api/public/jobs/hkjc-evidence-sync'
     | '/api/public/jobs/horse-watch'
+    | '/api/public/jobs/notify-events'
     | '/api/public/jobs/race-results-dispatch'
     | '/api/public/jobs/racecourse-photos'
     | '/api/public/jobs/raceday-alerts'
@@ -1286,6 +1299,7 @@ export interface RootRouteChildren {
   ApiPublicJobsHkjcChangesRoute: typeof ApiPublicJobsHkjcChangesRoute
   ApiPublicJobsHkjcEvidenceSyncRoute: typeof ApiPublicJobsHkjcEvidenceSyncRoute
   ApiPublicJobsHorseWatchRoute: typeof ApiPublicJobsHorseWatchRoute
+  ApiPublicJobsNotifyEventsRoute: typeof ApiPublicJobsNotifyEventsRoute
   ApiPublicJobsRaceResultsDispatchRoute: typeof ApiPublicJobsRaceResultsDispatchRoute
   ApiPublicJobsRacecoursePhotosRoute: typeof ApiPublicJobsRacecoursePhotosRoute
   ApiPublicJobsRacedayAlertsRoute: typeof ApiPublicJobsRacedayAlertsRoute
@@ -1867,6 +1881,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsHorseWatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/notify-events': {
+      id: '/api/public/jobs/notify-events'
+      path: '/api/public/jobs/notify-events'
+      fullPath: '/api/public/jobs/notify-events'
+      preLoaderRoute: typeof ApiPublicJobsNotifyEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/race-results-dispatch': {
       id: '/api/public/jobs/race-results-dispatch'
       path: '/api/public/jobs/race-results-dispatch'
@@ -2104,6 +2125,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicJobsHkjcChangesRoute: ApiPublicJobsHkjcChangesRoute,
   ApiPublicJobsHkjcEvidenceSyncRoute: ApiPublicJobsHkjcEvidenceSyncRoute,
   ApiPublicJobsHorseWatchRoute: ApiPublicJobsHorseWatchRoute,
+  ApiPublicJobsNotifyEventsRoute: ApiPublicJobsNotifyEventsRoute,
   ApiPublicJobsRaceResultsDispatchRoute: ApiPublicJobsRaceResultsDispatchRoute,
   ApiPublicJobsRacecoursePhotosRoute: ApiPublicJobsRacecoursePhotosRoute,
   ApiPublicJobsRacedayAlertsRoute: ApiPublicJobsRacedayAlertsRoute,
