@@ -72,7 +72,7 @@ function LabPage() {
       </section>
 
       <p className="mx-4 mt-4 text-[11px] leading-relaxed text-ink-3">
-        頭對頭、走位節奏已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
+        頭對頭、走位節奏、場地天氣已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
       </p>
       <Disclaimer />
     </AppShell>

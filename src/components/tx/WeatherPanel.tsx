@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { Card, Empty, Loading, Pill, Stat, StatGrid } from "@/components/tx/ui";
+import { Link } from "@tanstack/react-router";
 import { MeterBar } from "@/components/tx/viz";
 import type { VenueWeather } from "@/routes/api/public/hkjc-weather";
 
@@ -112,6 +113,10 @@ export function WeatherPanel({ venue }: { venue?: string | undefined }) {
 
           <p className="mt-2 text-[9px] leading-relaxed text-ink-3">
             資料源：香港賽馬會馬場天氣站（風速追蹤器），每分鐘更新，僅供參考。
+            {" "}
+            <Link to="/lab/going" className="font-bold text-gold hover:underline">
+              場地天氣儀表板 →
+            </Link>
           </p>
         </>
       )}
