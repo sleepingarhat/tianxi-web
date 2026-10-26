@@ -255,6 +255,8 @@ export function Disclaimer({ extra }: { extra?: ReactNode }) {
       <strong className="text-ink-2">天喜為分析平台，不提供投注服務。</strong>
       <br />
       投注請透過合法渠道（HKJC）進行。
+      {" · "}
+      <a href="/developers" className="text-ink-3 underline decoration-hairline hover:text-gold">開發者 API</a>
       {extra ? <div className="mt-1">{extra}</div> : null}
     </footer>
   );
