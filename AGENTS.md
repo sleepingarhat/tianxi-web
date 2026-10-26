@@ -62,7 +62,8 @@
 - Crypto payments use signed SHA-512 IPNs, environment-bound orders and service-only atomic owner-locked grants; membership readers share the verified pass RPC. Why: browser returns, replayed callbacks and sandbox payments cannot independently grant production access.
 - Live payment acceptance uses an admin-only isolated receipt ledger and callback, never the Pro grant ledger. Why: small verification payments cannot grant full membership or open public sales.
 - Managed HTTP schedules use structured Cloud tools only, never embedded credentials or hand-authored cron HTTP SQL; unpublished targets remain unscheduled. Why: platform-owned caller authentication and safe release ordering.
-- Weather and legacy results-dispatch managed callbacks use separate jobs routes and shared server work; legacy routes retain their caller authentication until verified retirement. Why: unmanaged schedules cannot be automatically migrated and Worker callers must not break.
+- Weather/results jobs share work; legacy weather-sync uses managed auth, other Worker hooks retain auth. Why: retired sync cannot retain shared-secret write authority.
+- Health is status-only; diagnostics need admin role. Public draw-tune returns 410; research uses admin RPC. Why: prevent privileged proxying and alert leaks. Read src/lib/AGENTS.md.
 - Checkout must check the server gate timestamp independently of entitlement kind before provider access. Why: a failed subscription must never bypass a closed charging gate.
 - Current summaries explicitly supersede dated observations; never rewrite race evidence/applied migrations. Why: history cannot revive retired rules.
 - Cross-repo audits use docs/repository-policy.json, pinned default-branch commits, explicit historical scopes and fail-closed reads; only racing hosts the hourly read-only audit. Why: detect drift without rewriting evidence or duplicate mirror jobs.

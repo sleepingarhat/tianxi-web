@@ -34,7 +34,7 @@ function RacingHealthPage() {
   const q = useQuery({ queryKey: ["racing-health"], queryFn: () => getRacingHealth(), refetchInterval: 60_000 });
   const d = q.data;
   const fails = d?.workflows.filter((w) => w.state === "fail").length ?? 0;
-  const tgOk = !!d?.telegram.ok && !!d?.telegram.chatLinked;
+  const tgOk = !!d?.telegram.ok;
 
   return (
     <AppShell page="engine" ticker="賽馬後端健康 · 每分鐘自動刷新">
@@ -47,14 +47,14 @@ function RacingHealthPage() {
         <>
           {!tgOk && (
             <div className="mx-4 mt-3 rounded-[8px] border border-lose/40 bg-lose/10 px-3 py-2 text-[12px] font-semibold text-lose">
-              ⚠ Telegram 告警唔通：{d.telegram.ok ? "Bot 正常但未綁定對話，請向 @tianxienginebot 講句嘢" : d.telegram.detail}
+              ⚠ Telegram 告警通道未能確認接通。
             </div>
           )}
           <div className="mx-4 mt-3">
             <StatGrid cols={3}>
               <Stat label="最後派彩收料" value={d.lastDividend?.date.slice(5) ?? "—"} sub={d.lastDividend?.committedAt ? `入倉 ${hk(d.lastDividend.committedAt)}` : "未搵到"} />
               <Stat label="定時任務" value={fails ? `${fails} 項失敗` : "全部正常"} sub={`共 ${d.workflows.length} 項`} />
-              <Stat label="Telegram" value={tgOk ? "接通" : "唔通"} sub={d.telegram.detail} />
+              <Stat label="Telegram" value={tgOk ? "接通" : "唔通"} />
             </StatGrid>
           </div>
 
@@ -85,10 +85,9 @@ function RacingHealthPage() {
                     const tone = t.stale ? "lose" : t.status === "fail" ? "gold" : "win";
                     const txt = t.stale ? "停滯" : t.status === "fail" ? "上次失敗" : "正常";
                     return (
-                      <tr key={t.job} className="border-t border-hairline">
+                      <tr key={t.label} className="border-t border-hairline">
                         <Td first mono={false}>
                           <div>{t.label}</div>
-                          <div className="text-[10px] text-ink-3">{t.job}</div>
                         </Td>
                         <Td mono={false}><Pill tone={tone}>{txt}</Pill></Td>
                         <Td>{t.at ? hk(t.at) : "—"}</Td>
@@ -102,15 +101,8 @@ function RacingHealthPage() {
           ) : null}
 
           <Card title="告警紀錄（未恢復）" en="Open Alerts">
-            {d.telegram.failing.length ? (
-              <ul className="space-y-1.5 text-[11px]">
-                {d.telegram.failing.map((f) => (
-                  <li key={f.key} className="rounded-[6px] border border-hairline bg-paper px-2 py-1.5">
-                    <span className="text-lose">●</span> {f.fail}
-                    <span className="ml-1 text-ink-3">{f.sentAt ? `（已發 ${hk(f.sentAt)}）` : "（未發出）"}</span>
-                  </li>
-                ))}
-              </ul>
+            {d.telegram.openAlerts ? (
+              <p className="text-[11px] text-lose">{d.telegram.openAlerts} 項未恢復告警。</p>
             ) : (
               <p className="text-[11px] text-ink-3">目前冇未恢復告警。</p>
             )}
