@@ -1,4 +1,4 @@
-/** 研究室工具牆（已開通頭對頭、走位節奏；其餘仍即將推出／鎖定）。 */
+/** 研究室工具牆（已開通頭對頭、走位節奏、場地天氣；其餘即將推出／鎖定）。 */
 
 export type LabTool = {
   key: string;
@@ -44,8 +44,9 @@ export const LAB_TOOLS: readonly LabTool[] = [
     key: "going",
     title: "場地天氣",
     en: "Going & weather",
-    blurb: "場地／天氣研究工具；即將推出。",
-    status: "soon",
+    blurb: "地況快照、檔位熱圖、跑法偏差、「今日合地」研究名單。",
+    status: "ready",
+    href: "/lab/going",
   },
   {
     key: "pool-opt",

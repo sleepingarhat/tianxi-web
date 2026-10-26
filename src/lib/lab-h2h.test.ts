@@ -14,7 +14,7 @@ describe("lab-tools", () => {
     const h2h = LAB_TOOLS.find((t) => t.key === "h2h");
     expect(h2h?.status).toBe("ready");
     expect(h2h?.href).toBe("/lab/h2h");
-    const opened = new Set(["h2h", "pace"]);
+    const opened = new Set(["h2h", "pace", "going"]);
     expect(LAB_TOOLS.filter((t) => !opened.has(t.key)).every((t) => t.status !== "ready")).toBe(true);
   });
 });
