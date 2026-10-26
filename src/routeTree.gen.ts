@@ -64,6 +64,7 @@ import { Route as LabH2hRouteImport } from './routes/lab.h2h'
 import { Route as LabPaceRouteImport } from './routes/lab.pace'
 import { Route as AuthenticatedAccountApiRouteImport } from './routes/_authenticated/account.api'
 import { Route as LabPoolsRouteImport } from './routes/lab.pools'
+import { Route as LabCompareRouteImport } from './routes/lab.compare'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminConsoleRouteImport } from './routes/_authenticated/admin.console'
 import { Route as AuthenticatedAdminDataFreshnessRouteImport } from './routes/_authenticated/admin.data-freshness'
@@ -389,6 +390,11 @@ const AuthenticatedAccountApiRoute = AuthenticatedAccountApiRouteImport.update({
 const LabPoolsRoute = LabPoolsRouteImport.update({
   id: '/pools',
   path: '/pools',
+  getParentRoute: () => LabRoute,
+} as any)
+const LabCompareRoute = LabCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => LabRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -734,6 +740,7 @@ export interface FileRoutesByFullPath {
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
+  '/lab/compare': typeof LabCompareRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/account/api': typeof AuthenticatedAccountApiRoute
@@ -840,6 +847,7 @@ export interface FileRoutesByTo {
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
+  '/lab/compare': typeof LabCompareRoute
   '/engine': typeof EngineIndexRoute
   '/explain': typeof ExplainIndexRoute
   '/account/api': typeof AuthenticatedAccountApiRoute
@@ -949,6 +957,7 @@ export interface FileRoutesById {
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
+  '/lab/compare': typeof LabCompareRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/_authenticated/account/api': typeof AuthenticatedAccountApiRoute
@@ -1058,6 +1067,7 @@ export interface FileRouteTypes {
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
+    | '/lab/compare'
     | '/engine/'
     | '/explain/'
     | '/account/api'
@@ -1164,6 +1174,7 @@ export interface FileRouteTypes {
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
+    | '/lab/compare'
     | '/engine'
     | '/explain'
     | '/account/api'
@@ -1272,6 +1283,7 @@ export interface FileRouteTypes {
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
+    | '/lab/compare'
     | '/engine/'
     | '/explain/'
     | '/_authenticated/account/api'
@@ -1805,6 +1817,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LabPoolsRouteImport
       parentRoute: typeof LabRoute
     }
+    '/lab/compare': {
+      id: '/lab/compare'
+      path: '/compare'
+      fullPath: '/lab/compare'
+      preLoaderRoute: typeof LabCompareRouteImport
+      parentRoute: typeof LabRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -2228,6 +2247,7 @@ interface LabRouteChildren {
   LabH2hRoute: typeof LabH2hRoute
   LabPaceRoute: typeof LabPaceRoute
   LabPoolsRoute: typeof LabPoolsRoute
+  LabCompareRoute: typeof LabCompareRoute
 }
 
 const LabRouteChildren: LabRouteChildren = {
@@ -2235,6 +2255,7 @@ const LabRouteChildren: LabRouteChildren = {
   LabH2hRoute: LabH2hRoute,
   LabPaceRoute: LabPaceRoute,
   LabPoolsRoute: LabPoolsRoute,
+  LabCompareRoute: LabCompareRoute,
 }
 
 const LabRouteWithChildren = LabRoute._addFileChildren(LabRouteChildren)

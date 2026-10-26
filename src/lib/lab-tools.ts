@@ -1,4 +1,4 @@
-/** 研究室工具牆（頭對頭、走位、場地天氣、彩池優化、回測入口）。 */
+/** 研究室工具牆（已開通回測、比較器、頭對頭、走位節奏、場地天氣、彩池優化）。 */
 
 export type LabTool = {
   key: string;
@@ -14,7 +14,7 @@ export const LAB_TOOLS: readonly LabTool[] = [
     key: "backtest",
     title: "自訂回測",
     en: "Custom backtest",
-    blurb: "自訂窗口同條件重播凍結預測；已喺特徵頁提供。",
+    blurb: "自訂特徵權重回測、訓練／驗證分段、官方／Elo 基線對照。",
     status: "ready",
     href: "/features",
   },
@@ -22,8 +22,9 @@ export const LAB_TOOLS: readonly LabTool[] = [
     key: "compare",
     title: "比較器",
     en: "Comparator",
-    blurb: "模型對模型／市場對照；即將推出。",
-    status: "soon",
+    blurb: "官方四揀／純 Elo／我的策略並列 KPI、累計盈虧同逐日差異（研究層）。",
+    status: "ready",
+    href: "/lab/compare",
   },
   {
     key: "h2h",

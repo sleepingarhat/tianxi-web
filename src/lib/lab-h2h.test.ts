@@ -10,17 +10,20 @@ import {
 } from "./lab-h2h-ui";
 
 describe("lab-tools", () => {
-  it("頭對頭／彩池／回測入口為 ready；其餘未假做可用", () => {
+  it("頭對頭／比較器／彩池／回測入口為 ready；其餘未假做可用", () => {
     const h2h = LAB_TOOLS.find((t) => t.key === "h2h");
     expect(h2h?.status).toBe("ready");
     expect(h2h?.href).toBe("/lab/h2h");
+    const compare = LAB_TOOLS.find((t) => t.key === "compare");
+    expect(compare?.status).toBe("ready");
+    expect(compare?.href).toBe("/lab/compare");
     const pool = LAB_TOOLS.find((t) => t.key === "pool-opt");
     expect(pool?.status).toBe("ready");
     expect(pool?.href).toBe("/lab/pools");
     const bt = LAB_TOOLS.find((t) => t.key === "backtest");
     expect(bt?.status).toBe("ready");
     expect(bt?.href).toBe("/features");
-    const opened = new Set(["h2h", "pace", "going", "pool-opt", "backtest"]);
+    const opened = new Set(["h2h", "pace", "going", "pool-opt", "backtest", "compare"]);
     expect(LAB_TOOLS.filter((t) => !opened.has(t.key)).every((t) => t.status !== "ready")).toBe(true);
   });
 });

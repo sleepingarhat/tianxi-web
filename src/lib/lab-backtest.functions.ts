@@ -27,6 +27,23 @@ const compareInput = z.object({
   to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
+const compareFullInput = z.object({
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  pools: z.array(z.enum(["FF", "TRIO", "TIERCE", "QUARTET"])).min(1).max(4).optional(),
+  strategies: z
+    .array(
+      z.object({
+        key: z.string().min(1).max(64),
+        label: z.string().min(1).max(80),
+        kind: z.enum(["official", "elo", "custom"]),
+        features: z.array(featureWeightSchema).max(24).optional(),
+      }),
+    )
+    .min(2)
+    .max(4),
+});
+
 /** Pro：觸發自訂特徵回測（Worker /api/lab/backtest）。 */
 export const runLabBacktest = createServerFn({ method: "POST" })
   .middleware([requireTier("pro")])
@@ -92,5 +109,36 @@ export const getLabBaselines = createServerFn({ method: "GET" })
     });
     if (r.status === 401) throw new Error("研究室服務憑證未就緒，請稍後再試");
     if (!r.ok) throw new Error(`基線對照暫時未能讀取（${r.status}）`);
+    return await r.json();
+  });
+
+/** Pro：完整策略比較器（Worker POST /api/lab/compare）。 */
+export const runLabCompare = createServerFn({ method: "POST" })
+  .middleware([requireTier("pro")])
+  .inputValidator((data: unknown) => compareFullInput.parse(data))
+  .handler(async ({ data }) => {
+    const { workerFetch, WORKER_BASE } = await import("./site-reader.server");
+    const r = await workerFetch(`${WORKER_BASE}/api/lab/compare`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        from: data.from,
+        to: data.to,
+        pools: data.pools ?? ["FF", "TRIO", "TIERCE", "QUARTET"],
+        strategies: data.strategies,
+      }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(60_000),
+    });
+    if (r.status === 401) throw new Error("研究室服務憑證未就緒，請稍後再試");
+    if (r.status === 400) {
+      const body = (await r.json().catch(() => null)) as { message?: string } | null;
+      throw new Error(body?.message ?? "比較參數唔啱");
+    }
+    if (r.status === 503) {
+      const body = (await r.json().catch(() => null)) as { message?: string } | null;
+      throw new Error(body?.message ?? "特徵矩陣未就緒（R2 待開）");
+    }
+    if (!r.ok) throw new Error(`比較器暫時未能執行（${r.status}）`);
     return await r.json();
   });
