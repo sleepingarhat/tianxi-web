@@ -1,5 +1,11 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
+## 2026-10-26 工作心跳死信監察（job_ticks stale 讀側＋TG告警，未發布）
+- [x] 讀側：`job_tick:racing-dividends`（30分鐘預算）加入 `runJobTickAlerts`；心跳停滯或缺失觸發告警，12小時去重＋24小時恢復通知，共用 `alert:*` 鍵令告警紀錄自動入健康頁。fail 狀態心跳視為「工作仍運行」，逐次失敗仍由派彩告警鏈負責，不重複發報。
+- [x] 觸發點：每小時 `telegram-pro-sweep` 工作開頭（閘門／TG設定檢查之前）獨立運行，告警失敗不影響本工作回應；寫側無需改動，派彩工作每5分鐘已寫心跳。
+- [x] 健康頁：`getRacingHealth` 加 `jobTicks`，新增「工作心跳（每五分鐘任務）」卡；預覽真實讀到 racing-dividends 心跳「正常、6分鐘前」。5項新測試，全套97檔583項通過，TypeScript通過。
+- [ ] 發布後核對 sweep 首次運行帶 `jobTickAlerts` 欄位；未發布前心跳告警只在預覽環境生效。開關、密鑰、凍結及收費設定不變。
+
 ## 2026-10-26 匿名四揀洩漏修補（未發布；本節取代下方過時驗收狀態）
 - [x] 核查：frozen-racing、freeze-ledger公開JSON及逐匹對帳函數未分級；共用伺服器白名單只留訪客R1完整、R2起官方賽果，會員按核實身份保留完整。移除對帳表共享完整快取，回private,no-store。
 - [x] results／prediction-vs-result／freeze-ledger／prediction-reconciliation及原注核對容忍隱藏行；命中計算只計可見場次，不當零命中；補封完賽解釋及退出追蹤原選欄位，帳戶切換清除相關快取。

@@ -17,6 +17,12 @@ export type JobTickPayload = {
 
 export const LOCAL_VENUES = new Set(['ST', 'HV']);
 
+/** Watch registry: jobs whose heartbeat must stay fresh. Read side lives in job-ticks-watch.server.ts. */
+export type JobTickWatch = { job: string; label: string; maxAgeMs: number };
+export const JOB_TICK_WATCHES: JobTickWatch[] = [
+  { job: 'racing-dividends', label: '官方派彩自動核對', maxAgeMs: 30 * 60_000 },
+];
+
 /** jeffincn LOCAL_VENUES filter — skip overseas simulcast meeting keys. */
 export function isLocalVenue(venue: string | null | undefined): boolean {
   const v = (venue || '').trim().toUpperCase();

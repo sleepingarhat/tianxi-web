@@ -14,7 +14,7 @@
 - After publish run python3 scripts/sync-frontend-repo.py; tianxi-web mirrors source, Lovable hosts production.
 
 ## 監控端規則
-- Before admin edits read src/components/admin/AGENTS.md.
+- Read nested AGENTS.md before edits: src/components/admin (admin panels), src/lib (libs).
 - Ops logs use the shared read-only current-incident projection: latest gate evidence and live checks supersede history; API events are scoped to the Hong Kong day. Suppress stale odds alerts only with explicit live out-of-window evidence. Why: history is not current health and failed reads must stay visible.
 
 - Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.

@@ -9,9 +9,9 @@ export const Route = createFileRoute("/racing-health")({
   head: () => ({
     meta: [
       { title: "賽馬後端健康 · 天喜 TIANXI" },
-      { name: "description", content: "賽馬後端一頁睇晒：最後一次派彩收料時間、各定時任務狀態、Telegram 告警通道是否接通。" },
+      { name: "description", content: "賽馬後端一頁睇晒：最後一次派彩收料時間、各定時任務狀態、工作心跳、Telegram 告警通道是否接通。" },
       { property: "og:title", content: "賽馬後端健康 · 天喜 TIANXI" },
-      { property: "og:description", content: "派彩收料、定時任務、告警通道即時狀態。" },
+      { property: "og:description", content: "派彩收料、定時任務、工作心跳、告警通道即時狀態。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -75,6 +75,31 @@ function RacingHealthPage() {
               </Table>
             </Scroller>
           </Card>
+
+          {d.jobTicks.length ? (
+            <Card title="工作心跳（每五分鐘任務）" en="Job Heartbeats">
+              <Scroller>
+                <Table head={["任務", "狀態", "最後心跳（香港）", "距今"]}>
+                  {d.jobTicks.map((t) => {
+                    const atMs = t.at ? Date.parse(t.at) : NaN;
+                    const tone = t.stale ? "lose" : t.status === "fail" ? "gold" : "win";
+                    const txt = t.stale ? "停滯" : t.status === "fail" ? "上次失敗" : "正常";
+                    return (
+                      <tr key={t.job} className="border-t border-hairline">
+                        <Td first mono={false}>
+                          <div>{t.label}</div>
+                          <div className="text-[10px] text-ink-3">{t.job}</div>
+                        </Td>
+                        <Td mono={false}><Pill tone={tone}>{txt}</Pill></Td>
+                        <Td>{t.at ? hk(t.at) : "—"}</Td>
+                        <Td>{Number.isFinite(atMs) ? age((Date.now() - atMs) / 3600_000) : "—"}</Td>
+                      </tr>
+                    );
+                  })}
+                </Table>
+              </Scroller>
+            </Card>
+          ) : null}
 
           <Card title="告警紀錄（未恢復）" en="Open Alerts">
             {d.telegram.failing.length ? (

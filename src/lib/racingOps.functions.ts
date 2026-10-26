@@ -1,6 +1,7 @@
 // 賽馬後端健康 + 回測（唯讀）。只讀倉庫／Worker，唔改任何凍結數值。
 import { createServerFn } from "@tanstack/react-start";
 import { requireTier } from "./tier.server";
+import { JOB_TICK_WATCHES, parseJobTick } from "./job-ticks";
 
 const GH = "https://api.github.com/repos/sleepingarhat/tianxi-racing";
 const RAW = "https://raw.githubusercontent.com/sleepingarhat/tianxi-racing/main";
@@ -80,6 +81,7 @@ export const getRacingHealth = createServerFn({ method: "GET" }).handler(async (
   );
 
   // 3. Telegram 通道（只驗 Bot 身份，唔發訊息）＋最近告警狀態
+  const jobTicks: { job: string; label: string; at: string | null; status: "ok" | "fail"; stale: boolean }[] = [];
   let telegram: { ok: boolean; detail: string; chatLinked: boolean; failing: { key: string; fail: string; sentAt: string | null }[] } = {
     ok: false,
     detail: "未檢查",
@@ -106,12 +108,25 @@ export const getRacingHealth = createServerFn({ method: "GET" }).handler(async (
     for (const r of (data ?? []) as { key: string; value: { id?: number; fail?: string | null; sent_at?: string | null } }[]) {
       if (r.key === "chat_id" && r.value?.id) telegram.chatLinked = true;
       if (r.key.startsWith("alert:") && r.value?.fail) telegram.failing.push({ key: r.key.slice(6), fail: r.value.fail, sentAt: r.value.sent_at ?? null });
+      if (r.key.startsWith("job_tick:")) {
+        const job = r.key.slice(9);
+        const watch = JOB_TICK_WATCHES.find((w) => w.job === job);
+        const tick = parseJobTick(r.value);
+        const atMs = tick ? Date.parse(tick.at) : NaN;
+        jobTicks.push({
+          job,
+          label: watch?.label ?? job,
+          at: tick?.at ?? null,
+          status: tick?.status ?? "fail",
+          stale: !Number.isFinite(atMs) || Date.now() - atMs > (watch?.maxAgeMs ?? 30 * 60_000),
+        });
+      }
     }
   } catch (e) {
     telegram = { ...telegram, ok: false, detail: `檢查失敗：${String(e).slice(0, 120)}` };
   }
 
-  return { checkedAt: new Date().toISOString(), lastDividend, workflows, telegram };
+  return { checkedAt: new Date().toISOString(), lastDividend, workflows, telegram, jobTicks: jobTicks.slice().sort((a, b) => a.job.localeCompare(b.job)) };
 });
 
 /* ---------------- 回測：引擎 vs 隨機 vs 市場 ---------------- */
