@@ -85,15 +85,15 @@ describe("computeWeightedComposite", () => {
 
     const eq = computeWeightedComposite(horses, equal);
     // equal: both ~50 → tie broken stably; both composites ~50
-    expect(eq[0].composite).toBeCloseTo(50, 5);
+    expect(eq[0]!.composite).toBeCloseTo(50, 5);
 
     const heavy = computeWeightedComposite(horses, heavyH2h);
-    expect(heavy[0].horse.no).toBe(1);
+    expect(heavy[0]!.horse.no).toBe(1);
 
     const inv = computeWeightedComposite(horses, invDraw);
     // invert draw: horse1 gets 90 + (100-10)=180/2=90; horse2 10+(100-90)=20/2=10
-    expect(inv[0].horse.no).toBe(1);
-    expect(inv[0].composite).toBeCloseTo(90, 5);
+    expect(inv[0]!.horse.no).toBe(1);
+    expect(inv[0]!.composite).toBeCloseTo(90, 5);
   });
 
   it("ignores zero-weight features", () => {
@@ -102,7 +102,7 @@ describe("computeWeightedComposite", () => {
       { id: "h2h", weight: 2 },
       { id: "draw", weight: 0 },
     ]);
-    expect(rows[0].horse.no).toBe(1);
-    expect(rows[0].composite).toBeCloseTo(80, 5);
+    expect(rows[0]!.horse.no).toBe(1);
+    expect(rows[0]!.composite).toBeCloseTo(80, 5);
   });
 });

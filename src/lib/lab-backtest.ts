@@ -147,6 +147,9 @@ export function upsertStrategy(input: {
     const idx = list.findIndex((s) => s.id === input.id);
     if (idx >= 0) {
       const prev = list[idx];
+      if (!prev) {
+        throw new Error(`strategy index ${idx} missing`);
+      }
       const next: SavedStrategy = {
         ...prev,
         name: input.name.trim() || prev.name,
