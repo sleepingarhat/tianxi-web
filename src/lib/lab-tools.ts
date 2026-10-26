@@ -1,4 +1,4 @@
-/** 研究室工具牆（已開通頭對頭、走位節奏、場地天氣；其餘即將推出／鎖定）。 */
+/** 研究室工具牆（頭對頭、走位、場地天氣、彩池優化、回測入口）。 */
 
 export type LabTool = {
   key: string;
@@ -14,8 +14,9 @@ export const LAB_TOOLS: readonly LabTool[] = [
     key: "backtest",
     title: "自訂回測",
     en: "Custom backtest",
-    blurb: "自訂窗口同條件重播凍結預測；即將推出。",
-    status: "soon",
+    blurb: "自訂窗口同條件重播凍結預測；已喺特徵頁提供。",
+    status: "ready",
+    href: "/features",
   },
   {
     key: "compare",
@@ -52,7 +53,8 @@ export const LAB_TOOLS: readonly LabTool[] = [
     key: "pool-opt",
     title: "彩池優化器",
     en: "Pool optimizer",
-    blurb: "彩池組合優化；刻意未做。",
-    status: "locked",
+    blurb: "凍結 pWin + Harville 組合機率；研究層・唔入公開戰績。",
+    status: "ready",
+    href: "/lab/pools",
   },
 ] as const;
