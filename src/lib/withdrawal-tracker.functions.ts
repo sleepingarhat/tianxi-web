@@ -8,6 +8,7 @@ export const getWithdrawalTracker = createServerFn({method:'GET'})
     const { frozenEvidenceCodeOf } = await import('./frozen-racing');
     const { summarizeOfficialMetrics } = await import('./racing-official-metrics');
     const { horseDisplayName } = await import('./horse-name');
+    const { isGuestVisibleRace } = await import('./reconciliation-projection');
     const snap = await readLatestHkjcChanges(data.date);
     let frozen: Awaited<ReturnType<typeof readFrozenRacing>> | null = null;
     let evidence = 'available';
@@ -15,13 +16,16 @@ export const getWithdrawalTracker = createServerFn({method:'GET'})
     const withdrawals = ((snap?.changes as import('./hkjc-changes').HkjcChange[] | undefined) ?? []).filter(c=>c.kind==='scratched'||c.kind==='replaced');
     const { viewerTier } = await import('./picks-entitlement.server');
     const tier = await viewerTier();
+    const metricInputs = (frozen?.races ?? [])
+      .filter(r => tier !== 'guest' || isGuestVisibleRace(r.raceNumber))
+      .map(r => r.metricInput);
     return {
       date:data.date, source:snap?.source_url ?? null, sha256:snap?.sha256 ?? null, fetchedAt:snap?.fetched_at ?? null,
       frozenEvidence:evidence, frozenSha:frozen?.snapshot.sha256 ?? null, lockAt:frozen?.lockAt ?? null,
-      summary:frozen ? summarizeOfficialMetrics(frozen.races.map(r=>r.metricInput)) : null,
+      summary:frozen ? summarizeOfficialMetrics(metricInputs) : null,
       withdrawals:withdrawals.map(c=>{
         const race=frozen?.races.find(r=>r.raceNumber===c.raceNumber);
-        const visible = tier !== 'guest' || Number(c.raceNumber) === 1;
+        const visible = tier !== 'guest' || isGuestVisibleRace(c.raceNumber);
         const pick=visible ? race?.picks.find(p=>p.horseNumber===c.horseNumber&&horseDisplayName(p.nameCh,p.horseId)===c.horseName) : null;
         return {...c, originalRank:pick?.rank ?? null,
           beforeLock:frozen && c.announcedAtIso ? Date.parse(c.announcedAtIso)<=Date.parse(frozen.lockAt) : null,

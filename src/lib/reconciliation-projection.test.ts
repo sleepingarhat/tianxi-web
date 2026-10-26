@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { projectFreezeLedger, projectFrozenReconciliation, projectReconciliationRows } from './reconciliation-projection';
+import { isGuestVisibleRace, projectFreezeLedger, projectFrozenReconciliation, projectReconciliationRows } from './reconciliation-projection';
 import { resultsAudit } from './results-audit';
 import { frozenComparison } from './frozen-comparison';
-import { officialRaceMetric } from './racing-official-metrics';
+import { officialRaceMetric, summarizeOfficialMetrics } from './racing-official-metrics';
 
 const race = (raceNumber: number) => {
   const metricInput = { original: [8,13,6,2], actualTop4: [8,13,7,6], status: 'valid', hasWithdrawal: false, postLockJockeyChange: false };
@@ -54,5 +54,41 @@ describe('訪客只見第1場完整、其餘只見賽果', () => {
     expect(out.every(r=>r.rank===null && r.score===null)).toBe(true);
     expect(out[0]).not.toHaveProperty('secretNested');
     expect(out.map(r=>r.finish)).toEqual([1,2]);
+  });
+
+  it('對帳表訪客唔見全日 meeting／season KPI，只由可見場重計', () => {
+    const out = projectFreezeLedger({
+      meetings: [{
+        date: body.date, venue: 'ST', locked: true, source: 'prediction_log',
+        racesEvaluated: 11, top4AvgIntersect: 1.909, top4CoveragePct: 47.7, top4FullHits: 0,
+        top3AvgIntersect: 1.364, top3AnyHitPct: 81.8, placeHitPct: 40.9, winnerHitPct: 18.2,
+        modelWinLogloss: 2.305, marketWinLogloss: 1.51, favouriteHitPct: 45.5, flatWinRoiPct: -59.1,
+        races: [
+          { raceNumber: 1, runners: 10, predictedTop4: [2,1,10,6], actualTop4: [6,8,1,9], top4Intersect: 2, top3Intersect: 1, top3AnyHit: true, placeSlots: 3, placeHits: 2, winnerHit: false, modelWinLogloss: 3.015, marketWinLogloss: 1.696, favouriteHit: false, flatWinPnl: -10 },
+          { raceNumber: 2, runners: 14, predictedTop4: [1,2,3,4], actualTop4: [2,6,10,14], top4Intersect: 1, placeHits: 1, flatWinPnl: 20 },
+        ],
+      }],
+      season: { meetings: 1, racesEvaluated: 11, top4AvgIntersect: 1.909, top4CoveragePct: 47.7, top4FullHits: 0, top3AvgIntersect: 1.364, top3AnyHitPct: 81.8, placeHitPct: 40.9, winnerHitPct: 18.2, modelWinLogloss: 2.305, marketWinLogloss: 1.51, favouriteHitPct: 45.5, flatWinRoiPct: -59.1 },
+    }, 'guest');
+    const m = out.meetings?.[0];
+    expect(m?.racesEvaluated).toBe(1);
+    expect(m?.top4AvgIntersect).toBe(2);
+    expect(m?.top4CoveragePct).toBe(50);
+    expect(m?.races[1]).toMatchObject({ redacted: true, actualTop4: [2,6,10,14] });
+    expect(m?.races[1]).not.toHaveProperty('predictedTop4');
+    expect(out.season).toMatchObject({ meetings: 1, racesEvaluated: 1, top4AvgIntersect: 2 });
+    expect(out.season?.top4AvgIntersect).not.toBe(1.909);
+  });
+  it.each(['registered','pro'] as const)('對帳表 %s 保留全日 meeting KPI', tier => {
+    const bodyIn = { meetings: [{ date: body.date, racesEvaluated: 11, top4AvgIntersect: 1.909, races: [race(1), race(2)] }], season: { meetings: 1, racesEvaluated: 11, top4AvgIntersect: 1.909 } };
+    expect(projectFreezeLedger(bodyIn, tier)).toBe(bodyIn);
+  });
+
+  it('退出摘要訪客只計可見場，唔把隱藏場當全日分母', () => {
+    const guest = summarizeOfficialMetrics(body.races.filter(r => isGuestVisibleRace(r.raceNumber)).map(r => r.metricInput));
+    const full = summarizeOfficialMetrics(body.races.map(r => r.metricInput));
+    expect(guest).toMatchObject({ races: 1, excluded: 0 });
+    expect(full).toMatchObject({ races: 11, excluded: 0 });
+    expect(guest.races).toBeLessThan(full.races);
   });
 });

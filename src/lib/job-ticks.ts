@@ -44,13 +44,13 @@ export function makeJobTick(
 export function parseJobTick(value: unknown): JobTickPayload | null {
   if (!value || typeof value !== 'object') return null;
   const v = value as Record<string, unknown>;
-  if (typeof v.job !== 'string' || (v.status !== 'ok' && v.status !== 'fail')) return null;
-  if (typeof v.at !== 'string') return null;
+  if (typeof v['job'] !== 'string' || (v['status'] !== 'ok' && v['status'] !== 'fail')) return null;
+  if (typeof v['at'] !== 'string') return null;
   return {
-    job: v.job,
-    status: v.status,
-    at: v.at,
-    meta: (v.meta && typeof v.meta === 'object' ? (v.meta as JobTickPayload['meta']) : {}) ?? {},
+    job: v['job'] as string,
+    status: v['status'] as 'ok' | 'fail',
+    at: v['at'] as string,
+    meta: (v['meta'] && typeof v['meta'] === 'object' ? (v['meta'] as JobTickPayload['meta']) : {}) ?? {},
   };
 }
 
