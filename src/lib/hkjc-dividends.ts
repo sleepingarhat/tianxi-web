@@ -11,7 +11,12 @@ export function parseOfficialDividends(html: string, date: string, venue: string
   const links = $('a[href*="localresults"]').toArray().map(a => $(a).attr('href') ?? '');
   if (!links.some(h => h.includes(`Racecourse=${venue}`) && h.toLowerCase().includes(`racedate=${year}/${month}/${day}`))) throw new Error('dividend-venue-mismatch');
   const rows: DividendRow[] = [], trios: Record<number, string> = {};
-  const sections = $('.race_result > div').toArray().filter(el => /第\s*\d+\s*場/.test($(el).text()) && $(el).find('table.dividends').length);
+  // Local meetings start with 第 N 場; overseas simulcasts are labeled 海外賽事… and reuse 第 N 場.
+  const sections = $('.race_result > div').toArray().filter(el => {
+    const text = $(el).text().replace(/\s+/g, ' ').trim();
+    if (/^海外賽事/.test(text)) return false;
+    return /^第\s*\d+\s*場/.test(text) && $(el).find('table.dividends').length > 0;
+  });
   const seen = new Set<number>();
   for (const section of sections) {
     const race = Number(/第\s*(\d+)\s*場/.exec($(section).text())?.[1]);
