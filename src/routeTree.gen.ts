@@ -16,15 +16,13 @@ import { Route as CardsRouteImport } from './routes/cards'
 import { Route as CrossRacePoolsRouteImport } from './routes/cross-race-pools'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DevLogRouteImport } from './routes/dev-log'
+import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as EloLogRouteImport } from './routes/elo-log'
 import { Route as EncyclopediaRouteImport } from './routes/encyclopedia'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FreezeLedgerRouteImport } from './routes/freeze-ledger'
 import { Route as HorseRouteImport } from './routes/horse'
 import { Route as LabRouteImport } from './routes/lab'
-import { Route as LabH2hRouteImport } from './routes/lab.h2h'
-import { Route as LabPaceRouteImport } from './routes/lab.pace'
-import { Route as LabGoingRouteImport } from './routes/lab.going'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ManualRouteImport } from './routes/manual'
 import { Route as MediaCreditsRouteImport } from './routes/media-credits'
@@ -61,6 +59,10 @@ import { Route as EngineMonitorRouteImport } from './routes/engine.monitor'
 import { Route as EngineResidualsRouteImport } from './routes/engine.residuals'
 import { Route as ExplainIndexRouteImport } from './routes/explain.index'
 import { Route as ExplainDateRouteImport } from './routes/explain.$date'
+import { Route as LabGoingRouteImport } from './routes/lab.going'
+import { Route as LabH2hRouteImport } from './routes/lab.h2h'
+import { Route as LabPaceRouteImport } from './routes/lab.pace'
+import { Route as AuthenticatedAccountApiRouteImport } from './routes/_authenticated/account.api'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminConsoleRouteImport } from './routes/_authenticated/admin.console'
 import { Route as AuthenticatedAdminDataFreshnessRouteImport } from './routes/_authenticated/admin.data-freshness'
@@ -147,6 +149,11 @@ const DevLogRoute = DevLogRouteImport.update({
   path: '/dev-log',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EloLogRoute = EloLogRouteImport.update({
   id: '/elo-log',
   path: '/elo-log',
@@ -175,21 +182,6 @@ const HorseRoute = HorseRouteImport.update({
 const LabRoute = LabRouteImport.update({
   id: '/lab',
   path: '/lab',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabH2hRoute = LabH2hRouteImport.update({
-  id: '/lab/h2h',
-  path: '/lab/h2h',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabPaceRoute = LabPaceRouteImport.update({
-  id: '/lab/pace',
-  path: '/lab/pace',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LabGoingRoute = LabGoingRouteImport.update({
-  id: '/lab/going',
-  path: '/lab/going',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -372,6 +364,26 @@ const ExplainDateRoute = ExplainDateRouteImport.update({
   id: '/explain/$date',
   path: '/explain/$date',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LabGoingRoute = LabGoingRouteImport.update({
+  id: '/going',
+  path: '/going',
+  getParentRoute: () => LabRoute,
+} as any)
+const LabH2hRoute = LabH2hRouteImport.update({
+  id: '/h2h',
+  path: '/h2h',
+  getParentRoute: () => LabRoute,
+} as any)
+const LabPaceRoute = LabPaceRouteImport.update({
+  id: '/pace',
+  path: '/pace',
+  getParentRoute: () => LabRoute,
+} as any)
+const AuthenticatedAccountApiRoute = AuthenticatedAccountApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => AuthenticatedAccountRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
@@ -671,15 +683,13 @@ export interface FileRoutesByFullPath {
   '/cross-race-pools': typeof CrossRacePoolsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
+  '/developers': typeof DevelopersRoute
   '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
-  '/lab': typeof LabRoute
-  '/lab/h2h': typeof LabH2hRoute
-  '/lab/pace': typeof LabPaceRoute
-  '/lab/going': typeof LabGoingRoute
+  '/lab': typeof LabRouteWithChildren
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -705,7 +715,7 @@ export interface FileRoutesByFullPath {
   '/value-trend': typeof ValueTrendRoute
   '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
-  '/account': typeof AuthenticatedAccountRoute
+  '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -714,8 +724,12 @@ export interface FileRoutesByFullPath {
   '/engine/monitor': typeof EngineMonitorRoute
   '/engine/residuals': typeof EngineResidualsRoute
   '/explain/$date': typeof ExplainDateRoute
+  '/lab/going': typeof LabGoingRoute
+  '/lab/h2h': typeof LabH2hRoute
+  '/lab/pace': typeof LabPaceRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
+  '/account/api': typeof AuthenticatedAccountApiRoute
   '/admin/console': typeof AuthenticatedAdminConsoleRoute
   '/admin/data-freshness': typeof AuthenticatedAdminDataFreshnessRoute
   '/admin/engine-health': typeof AuthenticatedAdminEngineHealthRoute
@@ -775,15 +789,13 @@ export interface FileRoutesByTo {
   '/cross-race-pools': typeof CrossRacePoolsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
+  '/developers': typeof DevelopersRoute
   '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
-  '/lab': typeof LabRoute
-  '/lab/h2h': typeof LabH2hRoute
-  '/lab/pace': typeof LabPaceRoute
-  '/lab/going': typeof LabGoingRoute
+  '/lab': typeof LabRouteWithChildren
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -809,7 +821,7 @@ export interface FileRoutesByTo {
   '/value-trend': typeof ValueTrendRoute
   '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
-  '/account': typeof AuthenticatedAccountRoute
+  '/account': typeof AuthenticatedAccountRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
   '/engine/backtest': typeof EngineBacktestRoute
@@ -817,8 +829,12 @@ export interface FileRoutesByTo {
   '/engine/monitor': typeof EngineMonitorRoute
   '/engine/residuals': typeof EngineResidualsRoute
   '/explain/$date': typeof ExplainDateRoute
+  '/lab/going': typeof LabGoingRoute
+  '/lab/h2h': typeof LabH2hRoute
+  '/lab/pace': typeof LabPaceRoute
   '/engine': typeof EngineIndexRoute
   '/explain': typeof ExplainIndexRoute
+  '/account/api': typeof AuthenticatedAccountApiRoute
   '/admin/console': typeof AuthenticatedAdminConsoleRoute
   '/admin/data-freshness': typeof AuthenticatedAdminDataFreshnessRoute
   '/admin/engine-health': typeof AuthenticatedAdminEngineHealthRoute
@@ -880,15 +896,13 @@ export interface FileRoutesById {
   '/cross-race-pools': typeof CrossRacePoolsRoute
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
+  '/developers': typeof DevelopersRoute
   '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
-  '/lab': typeof LabRoute
-  '/lab/h2h': typeof LabH2hRoute
-  '/lab/pace': typeof LabPaceRoute
-  '/lab/going': typeof LabGoingRoute
+  '/lab': typeof LabRouteWithChildren
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -914,7 +928,7 @@ export interface FileRoutesById {
   '/value-trend': typeof ValueTrendRoute
   '/watchlist': typeof WatchlistRoute
   '/withdrawals': typeof WithdrawalsRoute
-  '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
   '/engine/audit': typeof EngineAuditRoute
@@ -923,8 +937,12 @@ export interface FileRoutesById {
   '/engine/monitor': typeof EngineMonitorRoute
   '/engine/residuals': typeof EngineResidualsRoute
   '/explain/$date': typeof ExplainDateRoute
+  '/lab/going': typeof LabGoingRoute
+  '/lab/h2h': typeof LabH2hRoute
+  '/lab/pace': typeof LabPaceRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
+  '/_authenticated/account/api': typeof AuthenticatedAccountApiRoute
   '/_authenticated/admin/console': typeof AuthenticatedAdminConsoleRoute
   '/_authenticated/admin/data-freshness': typeof AuthenticatedAdminDataFreshnessRoute
   '/_authenticated/admin/engine-health': typeof AuthenticatedAdminEngineHealthRoute
@@ -986,15 +1004,13 @@ export interface FileRouteTypes {
     | '/cross-race-pools'
     | '/dashboard'
     | '/dev-log'
+    | '/developers'
     | '/elo-log'
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
     | '/horse'
     | '/lab'
-    | '/lab/h2h'
-    | '/lab/pace'
-    | '/lab/going'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1029,8 +1045,12 @@ export interface FileRouteTypes {
     | '/engine/monitor'
     | '/engine/residuals'
     | '/explain/$date'
+    | '/lab/going'
+    | '/lab/h2h'
+    | '/lab/pace'
     | '/engine/'
     | '/explain/'
+    | '/account/api'
     | '/admin/console'
     | '/admin/data-freshness'
     | '/admin/engine-health'
@@ -1090,15 +1110,13 @@ export interface FileRouteTypes {
     | '/cross-race-pools'
     | '/dashboard'
     | '/dev-log'
+    | '/developers'
     | '/elo-log'
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
     | '/horse'
     | '/lab'
-    | '/lab/h2h'
-    | '/lab/pace'
-    | '/lab/going'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1132,8 +1150,12 @@ export interface FileRouteTypes {
     | '/engine/monitor'
     | '/engine/residuals'
     | '/explain/$date'
+    | '/lab/going'
+    | '/lab/h2h'
+    | '/lab/pace'
     | '/engine'
     | '/explain'
+    | '/account/api'
     | '/admin/console'
     | '/admin/data-freshness'
     | '/admin/engine-health'
@@ -1194,15 +1216,13 @@ export interface FileRouteTypes {
     | '/cross-race-pools'
     | '/dashboard'
     | '/dev-log'
+    | '/developers'
     | '/elo-log'
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
     | '/horse'
     | '/lab'
-    | '/lab/h2h'
-    | '/lab/pace'
-    | '/lab/going'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1237,8 +1257,12 @@ export interface FileRouteTypes {
     | '/engine/monitor'
     | '/engine/residuals'
     | '/explain/$date'
+    | '/lab/going'
+    | '/lab/h2h'
+    | '/lab/pace'
     | '/engine/'
     | '/explain/'
+    | '/_authenticated/account/api'
     | '/_authenticated/admin/console'
     | '/_authenticated/admin/data-freshness'
     | '/_authenticated/admin/engine-health'
@@ -1300,15 +1324,13 @@ export interface RootRouteChildren {
   CrossRacePoolsRoute: typeof CrossRacePoolsRoute
   DashboardRoute: typeof DashboardRoute
   DevLogRoute: typeof DevLogRoute
+  DevelopersRoute: typeof DevelopersRoute
   EloLogRoute: typeof EloLogRoute
   EncyclopediaRoute: typeof EncyclopediaRoute
   FeaturesRoute: typeof FeaturesRoute
   FreezeLedgerRoute: typeof FreezeLedgerRoute
   HorseRoute: typeof HorseRoute
-  LabRoute: typeof LabRoute
-  LabH2hRoute: typeof LabH2hRoute
-  LabPaceRoute: typeof LabPaceRoute
-  LabGoingRoute: typeof LabGoingRoute
+  LabRoute: typeof LabRouteWithChildren
   LoginRoute: typeof LoginRoute
   ManualRoute: typeof ManualRoute
   MediaCreditsRoute: typeof MediaCreditsRoute
@@ -1435,6 +1457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevLogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/elo-log': {
       id: '/elo-log'
       path: '/elo-log'
@@ -1475,27 +1504,6 @@ declare module '@tanstack/react-router' {
       path: '/lab'
       fullPath: '/lab'
       preLoaderRoute: typeof LabRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/h2h': {
-      id: '/lab/h2h'
-      path: '/lab/h2h'
-      fullPath: '/lab/h2h'
-      preLoaderRoute: typeof LabH2hRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/pace': {
-      id: '/lab/pace'
-      path: '/lab/pace'
-      fullPath: '/lab/pace'
-      preLoaderRoute: typeof LabPaceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lab/going': {
-      id: '/lab/going'
-      path: '/lab/going'
-      fullPath: '/lab/going'
-      preLoaderRoute: typeof LabGoingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1749,6 +1757,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/explain/$date'
       preLoaderRoute: typeof ExplainDateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/lab/going': {
+      id: '/lab/going'
+      path: '/going'
+      fullPath: '/lab/going'
+      preLoaderRoute: typeof LabGoingRouteImport
+      parentRoute: typeof LabRoute
+    }
+    '/lab/h2h': {
+      id: '/lab/h2h'
+      path: '/h2h'
+      fullPath: '/lab/h2h'
+      preLoaderRoute: typeof LabH2hRouteImport
+      parentRoute: typeof LabRoute
+    }
+    '/lab/pace': {
+      id: '/lab/pace'
+      path: '/pace'
+      fullPath: '/lab/pace'
+      preLoaderRoute: typeof LabPaceRouteImport
+      parentRoute: typeof LabRoute
+    }
+    '/_authenticated/account/api': {
+      id: '/_authenticated/account/api'
+      path: '/api'
+      fullPath: '/account/api'
+      preLoaderRoute: typeof AuthenticatedAccountApiRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -2110,6 +2146,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAccountRouteChildren {
+  AuthenticatedAccountApiRoute: typeof AuthenticatedAccountApiRoute
+}
+
+const AuthenticatedAccountRouteChildren: AuthenticatedAccountRouteChildren = {
+  AuthenticatedAccountApiRoute: AuthenticatedAccountApiRoute,
+}
+
+const AuthenticatedAccountRouteWithChildren =
+  AuthenticatedAccountRoute._addFileChildren(AuthenticatedAccountRouteChildren)
+
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminConsoleRoute: typeof AuthenticatedAdminConsoleRoute
   AuthenticatedAdminDataFreshnessRoute: typeof AuthenticatedAdminDataFreshnessRoute
@@ -2145,17 +2192,31 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedAccountRoute: AuthenticatedAccountRouteWithChildren,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface LabRouteChildren {
+  LabGoingRoute: typeof LabGoingRoute
+  LabH2hRoute: typeof LabH2hRoute
+  LabPaceRoute: typeof LabPaceRoute
+}
+
+const LabRouteChildren: LabRouteChildren = {
+  LabGoingRoute: LabGoingRoute,
+  LabH2hRoute: LabH2hRoute,
+  LabPaceRoute: LabPaceRoute,
+}
+
+const LabRouteWithChildren = LabRoute._addFileChildren(LabRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -2165,15 +2226,13 @@ const rootRouteChildren: RootRouteChildren = {
   CrossRacePoolsRoute: CrossRacePoolsRoute,
   DashboardRoute: DashboardRoute,
   DevLogRoute: DevLogRoute,
+  DevelopersRoute: DevelopersRoute,
   EloLogRoute: EloLogRoute,
   EncyclopediaRoute: EncyclopediaRoute,
   FeaturesRoute: FeaturesRoute,
   FreezeLedgerRoute: FreezeLedgerRoute,
   HorseRoute: HorseRoute,
-  LabRoute: LabRoute,
-  LabH2hRoute: LabH2hRoute,
-  LabPaceRoute: LabPaceRoute,
-  LabGoingRoute: LabGoingRoute,
+  LabRoute: LabRouteWithChildren,
   LoginRoute: LoginRoute,
   ManualRoute: ManualRoute,
   MediaCreditsRoute: MediaCreditsRoute,

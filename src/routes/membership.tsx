@@ -123,6 +123,7 @@ function MembershipPage() {
         </p>
       </Card>
 
+      <p className="mx-4 mt-2 text-[10px] text-ink-3">Pro 開發者只讀 API 文件：<Link to="/developers" className="text-gold">/developers</Link></p>
       <Disclaimer extra="天喜為分析平台，不提供投注服務，亦不保證任何回報。" />
     </AppShell>
   );
