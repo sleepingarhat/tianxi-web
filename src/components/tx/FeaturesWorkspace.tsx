@@ -30,7 +30,7 @@ export function FeaturesWorkspace() {
   useEffect(() => {
     setWeights((prev) => {
       const map = new Map(prev.map((w) => [w.id, w]));
-      return features.map((id) => map.get(id) ?? { id, weight: 1, invert: false });
+      return features.map((id) => map.get(id) ?? { id, weight: 1 });
     });
   }, [features]);
 
@@ -81,7 +81,7 @@ export function FeaturesWorkspace() {
 
   const useWeighted = useMemo(() => {
     if (!isPro) return false;
-    return weights.some((w) => w.weight !== 1 || w.invert) || weights.length !== features.length;
+    return weights.some((w) => w.weight !== 1) || weights.length !== features.length;
   }, [isPro, weights, features.length]);
 
   const compositeRows = useWeighted
@@ -106,7 +106,7 @@ export function FeaturesWorkspace() {
       <PageHead
         en="Feature Ranking"
         title="特徵排序表"
-        desc="引擎特徵目錄全部列出，可即場排序者逐項排名；Pro 可調權重即場重排綜合分。"
+        desc="引擎特徵目錄全部列出。可即場排序唔等於未採用；Pro 可調權重（愈高愈好）即場重排綜合分。"
       />
 
       <Card title="選擇賽事" en="Select Race">
@@ -173,7 +173,7 @@ export function FeaturesWorkspace() {
 
       <Card title="特徵選項" en="Features">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
-          引擎特徵目錄全部列出，其中可即場排序者可任選組合；綜合分預設為所選特徵標準化分數平均值；Pro 可改為加權。
+          引擎特徵目錄全部列出。可即場排序唔等於引擎「未採用」；可排序者可任選組合。綜合分預設為所選特徵標準化分數平均值；Pro 可改權重，分數愈高愈好。
         </p>
         <FeaturePickerSheet
           selected={features}

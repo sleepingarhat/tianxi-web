@@ -47,3 +47,73 @@ export function parseVenueInput(raw: string): "ST" | "HV" | null {
   if (raw.trim() === "跑馬地" || raw.trim() === "快活谷") return "HV";
   return null;
 }
+
+/** 賽道清單對齊賽果 course 原文，避免用戶打「C+3」對唔上「草地 - "C+3" 賽道」。 */
+export const GOING_COURSE_OPTIONS = [
+  { id: "", label: "全部賽道" },
+  { id: '草地 - "A" 賽道', label: "草地 A" },
+  { id: '草地 - "A+2" 賽道', label: "草地 A+2" },
+  { id: '草地 - "A+3" 賽道', label: "草地 A+3" },
+  { id: '草地 - "B" 賽道', label: "草地 B" },
+  { id: '草地 - "B+2" 賽道', label: "草地 B+2" },
+  { id: '草地 - "C" 賽道', label: "草地 C" },
+  { id: '草地 - "C+3" 賽道', label: "草地 C+3" },
+  { id: "全天候跑道", label: "全天候" },
+] as const;
+
+export const GOING_DISTANCE_OPTIONS = [
+  { id: "", label: "全部途程" },
+  ...([1000, 1200, 1400, 1600, 1650, 1800, 2000, 2200, 2400] as const).map((d) => ({
+    id: String(d),
+    label: `${d}m`,
+  })),
+];
+
+/** 地況桶同後端 normalizeGoingBucket 中文桶對齊。空＝待公佈／沿用上次同場。 */
+export const GOING_CONDITION_OPTIONS = [
+  { id: "", label: "待公佈／沿用上次" },
+  { id: "好地", label: "好地" },
+  { id: "好地至快地", label: "好地至快地" },
+  { id: "快地", label: "快地" },
+  { id: "好地至黏地", label: "好地至黏地" },
+  { id: "黏地", label: "黏地" },
+  { id: "黏地至軟地", label: "黏地至軟地" },
+  { id: "軟地", label: "軟地" },
+  { id: "濕快地", label: "濕快地" },
+  { id: "濕慢地", label: "濕慢地" },
+  { id: "濕地", label: "濕地" },
+  { id: "大爛地", label: "大爛地" },
+  { id: "封地", label: "封地" },
+] as const;
+
+export type MeetingPickSource = {
+  id: string;
+  date: string;
+  venue?: string | null;
+  venueName?: string | null;
+  trackCondition?: string | null;
+};
+
+export function meetingListOptions(rows: readonly MeetingPickSource[]): { id: string; label: string; hint?: string }[] {
+  const out: { id: string; label: string; hint?: string }[] = [{ id: "", label: "不限賽日" }];
+  for (const m of rows) {
+    if (!m.id || !m.date) continue;
+    const venue =
+      m.venueName ||
+      (m.venue === "HV" ? "跑馬地" : m.venue === "ST" ? "沙田" : m.venue || "");
+    const item: { id: string; label: string; hint?: string } = {
+      id: m.id,
+      label: venue ? `${m.date} · ${venue}` : m.date,
+    };
+    if (m.trackCondition) item.hint = m.trackCondition;
+    out.push(item);
+  }
+  return out;
+}
+
+export function parseDistanceChoice(raw: string): number | undefined {
+  if (!raw.trim()) return undefined;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 800 || n > 3200) return undefined;
+  return n;
+}

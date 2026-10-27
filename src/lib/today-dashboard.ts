@@ -202,9 +202,9 @@ export type LabTool = {
 export const LAB_TOOLS: readonly LabTool[] = [
   {
     key: "h2h",
-    title: "頭對頭",
-    en: "Head-to-head",
-    blurb: "馬匹／騎練頭對頭研究；留第二批（需 Worker API）。",
+    title: "馬匹或騎師數據獨立比較",
+    en: "Independent comparison",
+    blurb: "分開比較兩匹馬或兩位騎師；留第二批（需 Worker API）。",
     status: "soon",
   },
   {

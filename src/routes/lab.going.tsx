@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import { GoingHeatmap } from "@/components/tx/GoingHeatmap";
+import { OptionListPicker } from "@/components/tx/OptionListPicker";
 import { WeatherPanel } from "@/components/tx/WeatherPanel";
 import { AppShell } from "@/components/tx/AppShell";
 import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
@@ -19,12 +20,19 @@ import {
 } from "@/components/tx/ui";
 import { getLabGoing, getLabWeather } from "@/lib/lab-going.functions";
 import {
+  GOING_CONDITION_OPTIONS,
+  GOING_COURSE_OPTIONS,
   GOING_DISCLAIMER,
+  GOING_DISTANCE_OPTIONS,
   GOING_RESEARCH_NOTE,
   formatPp,
   formatRate,
+  meetingListOptions,
+  parseDistanceChoice,
   parseVenueInput,
 } from "@/lib/lab-going-ui";
+import { ensureListOption, filterListOptions } from "@/lib/option-list";
+import { txApi } from "@/lib/tx-api";
 
 type Search = {
   venue?: string;
@@ -79,7 +87,18 @@ function GoingPage() {
   );
   const [goingDraft, setGoingDraft] = useState(search.going ?? "");
   const [meetingDraft, setMeetingDraft] = useState(search.meetingId ?? "");
+  const [courseQuery, setCourseQuery] = useState("");
+  const [distanceQuery, setDistanceQuery] = useState("");
+  const [goingQuery, setGoingQuery] = useState("");
+  const [meetingQuery, setMeetingQuery] = useState("");
   const [focusDistance, setFocusDistance] = useState<number | null>(search.distance ?? null);
+
+  const meetingsQ = useQuery({
+    queryKey: ["lab-going-meetings"],
+    queryFn: () => txApi.meetings("?limit=40"),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
 
   const venue = useMemo(() => parseVenueInput(search.venue ?? "ST") ?? "ST", [search.venue]);
 
@@ -111,8 +130,8 @@ function GoingPage() {
     const v = parseVenueInput(venueDraft) ?? "ST";
     const next: Search = { venue: v };
     if (courseDraft.trim()) next.course = courseDraft.trim();
-    const dist = distanceDraft.trim() ? Number(distanceDraft.trim()) : undefined;
-    if (dist != null && Number.isFinite(dist)) next.distance = Math.trunc(dist);
+    const dist = parseDistanceChoice(distanceDraft);
+    if (dist != null) next.distance = dist;
     if (goingDraft.trim()) next.going = goingDraft.trim();
     if (meetingDraft.trim()) next.meetingId = meetingDraft.trim();
     setFocusDistance(next.distance ?? null);
@@ -137,48 +156,76 @@ function GoingPage() {
       </p>
 
       <Card title="過濾條件" en="Filters">
-        <div className="flex flex-wrap gap-2">
+        <p className="mb-2 text-[11px] leading-relaxed text-ink-3">
+          賽道、途程、地況同賽日都係清單揀選，唔使打內部編號。
+        </p>
+        <div className="mb-3">
+          <label className="mb-1 block text-[11px] font-bold text-ink-2">馬場</label>
           <select
             value={venueDraft}
             onChange={(e) => setVenueDraft(e.target.value)}
             className="rounded-[4px] border border-hairline bg-paper px-2 py-1.5 text-[12px]"
             aria-label="馬場"
           >
-            <option value="ST">沙田 ST</option>
-            <option value="HV">跑馬地 HV</option>
+            <option value="ST">沙田</option>
+            <option value="HV">跑馬地</option>
           </select>
-          <input
-            value={courseDraft}
-            onChange={(e) => setCourseDraft(e.target.value)}
-            placeholder="賽道 e.g. C+3"
-            className="w-28 rounded-[4px] border border-hairline bg-paper px-2 py-1.5 text-[12px]"
-          />
-          <input
-            value={distanceDraft}
-            onChange={(e) => setDistanceDraft(e.target.value)}
-            placeholder="途程 m"
-            className="w-24 rounded-[4px] border border-hairline bg-paper px-2 py-1.5 text-[12px]"
-          />
-          <input
-            value={goingDraft}
-            onChange={(e) => setGoingDraft(e.target.value)}
-            placeholder="地況（空＝待公佈）"
-            className="w-36 rounded-[4px] border border-hairline bg-paper px-2 py-1.5 text-[12px]"
-          />
-          <input
-            value={meetingDraft}
-            onChange={(e) => setMeetingDraft(e.target.value)}
-            placeholder="meetingId（合地名單）"
-            className="min-w-[160px] flex-1 rounded-[4px] border border-hairline bg-paper px-2 py-1.5 text-[12px]"
-          />
-          <button
-            type="button"
-            onClick={submit}
-            className="rounded-[4px] border border-gold-strong/40 bg-gold-bg px-3 py-1.5 text-[12px] font-bold text-gold"
-          >
-            查詢
-          </button>
         </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <OptionListPicker
+            label="賽道"
+            query={courseQuery}
+            onQueryChange={setCourseQuery}
+            placeholder="搜賽道"
+            options={filterListOptions(ensureListOption([...GOING_COURSE_OPTIONS], courseDraft), courseQuery)}
+            selectedId={courseDraft}
+            onSelect={setCourseDraft}
+          />
+          <OptionListPicker
+            label="途程"
+            query={distanceQuery}
+            onQueryChange={setDistanceQuery}
+            placeholder="搜途程"
+            options={filterListOptions(
+              distanceDraft
+                ? ensureListOption([...GOING_DISTANCE_OPTIONS], distanceDraft, `${distanceDraft}m`)
+                : [...GOING_DISTANCE_OPTIONS],
+              distanceQuery,
+            )}
+            selectedId={distanceDraft}
+            onSelect={setDistanceDraft}
+          />
+          <OptionListPicker
+            label="地況"
+            query={goingQuery}
+            onQueryChange={setGoingQuery}
+            placeholder="搜地況"
+            options={filterListOptions(ensureListOption([...GOING_CONDITION_OPTIONS], goingDraft), goingQuery)}
+            selectedId={goingDraft}
+            onSelect={setGoingDraft}
+          />
+          <OptionListPicker
+            label="賽日"
+            query={meetingQuery}
+            onQueryChange={setMeetingQuery}
+            placeholder="搜日期或馬場"
+            options={filterListOptions(
+              ensureListOption(meetingListOptions(meetingsQ.data?.meetings ?? []), meetingDraft),
+              meetingQuery,
+            )}
+            selectedId={meetingDraft}
+            onSelect={setMeetingDraft}
+            loading={meetingsQ.isLoading}
+            emptyLabel={meetingsQ.isError ? "賽日清單暫時讀唔到" : "冇符合賽日"}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={submit}
+          className="mt-3 rounded-[4px] border border-gold-strong/40 bg-gold-bg px-3 py-1.5 text-[12px] font-bold text-gold"
+        >
+          查詢
+        </button>
       </Card>
 
       {/* 快照 */}
@@ -237,7 +284,7 @@ function GoingPage() {
           <WeatherPanel venue={venue} />
           <p className="mt-1 text-[10px] text-ink-3">
             即時天氣失敗時只保留上方歷史統計。
-            {search.meetingId ? " 下方為該賽日 D1 快照序列（若有）。" : " 填 meetingId 可睇賽日快照序列。"}
+            {search.meetingId ? " 下方為該賽日快照序列（若有）。" : " 揀賽日可睇該日快照序列。"}
           </p>
         </div>
       </div>
@@ -389,7 +436,13 @@ function GoingPage() {
             ))}
           </ul>
         ) : (
-          <Empty label={data?.suitedNote ?? "未有合地名單（可填 meetingId）"} />
+          <Empty
+            label={
+              !data?.suitedNote || data.suitedNote.includes("meetingId")
+                ? "未有合地名單（可揀賽日）"
+                : data.suitedNote
+            }
+          />
         )}
       </Card>
 

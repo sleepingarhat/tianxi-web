@@ -218,6 +218,19 @@ describe("user-strategies.functions handlers", () => {
     expect(mocks.state.versions[0]?.['version']).toBe(1);
   });
 
+  it("upsertUserStrategy 唔再寫入 invert", async () => {
+    const out = await (upsertUserStrategy as any)({
+      data: {
+        name: "no-invert",
+        weights: [{ id: "form", weight: 2, invert: true }],
+        pools: ["FF"],
+      },
+      context: ctx(),
+    });
+    expect(out.strategy.weights).toEqual([{ id: "form", weight: 2 }]);
+    expect(mocks.state.versions[0]?.["weights"]).toEqual([{ id: "form", weight: 2 }]);
+  });
+
   it("upsertUserStrategy 拒絕非法 FeatureId", () => {
     expect(() =>
       (upsertUserStrategy as any)({

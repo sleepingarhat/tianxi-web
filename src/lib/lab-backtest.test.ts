@@ -1,9 +1,10 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   defaultWeights,
   stepWeight,
-  WEIGHT_TEMPLATES,
   BACKTEST_RANGE_PRESETS,
+  sanitizeFeatureWeights,
 } from "./lab-backtest";
 import { computeWeightedComposite, type FeatureWeightSpec } from "./feature-ranking";
 import type { FeatureId, Horse } from "./race-data";
@@ -40,23 +41,36 @@ describe("lab-backtest helpers", () => {
     expect(stepWeight(1.25, 0)).toBe(1.5); // rounds to nearest 0.5 then +0 → actually Math.round(1.25*2)/2 = 1.5
   });
 
-  it("defaultWeights maps selected ids to weight 1", () => {
+  it("defaultWeights maps selected ids to weight 1 without invert", () => {
     const w = defaultWeights(["h2h", "draw"]);
     expect(w).toEqual([
-      { id: "h2h", weight: 1, invert: false },
-      { id: "draw", weight: 1, invert: false },
+      { id: "h2h", weight: 1 },
+      { id: "draw", weight: 1 },
     ]);
   });
 
-  it("templates only use known FeatureIds and weight in range", () => {
-    for (const t of WEIGHT_TEMPLATES) {
-      expect(t.weights.length).toBeGreaterThan(0);
-      for (const w of t.weights) {
-        expect(w.weight).toBeGreaterThanOrEqual(0);
-        expect(w.weight).toBeLessThanOrEqual(3);
-        expect(w.id).toBeTruthy();
-      }
-    }
+  it("sanitizeFeatureWeights 丟棄舊 invert，權重愈高愈好", () => {
+    expect(
+      sanitizeFeatureWeights([
+        { id: "draw", weight: 2, invert: true },
+        { id: "form", weight: 1, invert: false },
+      ]),
+    ).toEqual([
+      { id: "draw", weight: 2 },
+      { id: "form", weight: 1 },
+    ]);
+  });
+
+  it("權重介面冇模板同反向，可排序文案唔再等同未採用", () => {
+    const panel = readFileSync("src/components/tx/FeatureWeightPanel.tsx", "utf8");
+    const picker = readFileSync("src/components/tx/FeaturePickerSheet.tsx", "utf8");
+    const backtest = readFileSync("src/lib/lab-backtest.ts", "utf8");
+    expect(panel).not.toContain("WEIGHT_TEMPLATES");
+    expect(panel).not.toContain("反向");
+    expect(panel).toContain("愈高愈好");
+    expect(backtest).not.toContain("WEIGHT_TEMPLATES");
+    expect(picker).toContain("唔等於");
+    expect(picker).toContain("可即場排序，唔等於引擎未採用");
   });
 
   it("range presets include demo window", () => {
@@ -65,7 +79,7 @@ describe("lab-backtest helpers", () => {
 });
 
 describe("computeWeightedComposite", () => {
-  it("weights and invert change ranking vs equal average", () => {
+  it("weights change ranking vs equal average; legacy invert is ignored", () => {
     const horses = [
       fakeHorse(1, { h2h: 90, draw: 10 }),
       fakeHorse(2, { h2h: 10, draw: 90 }),
@@ -78,22 +92,21 @@ describe("computeWeightedComposite", () => {
       { id: "h2h", weight: 3 },
       { id: "draw", weight: 0.5 },
     ];
-    const invDraw: FeatureWeightSpec[] = [
-      { id: "h2h", weight: 1 },
-      { id: "draw", weight: 1, invert: true },
-    ];
+    const legacyInvert = [
+      { id: "h2h" as const, weight: 1 },
+      { id: "draw" as const, weight: 1, invert: true },
+    ] as FeatureWeightSpec[];
 
     const eq = computeWeightedComposite(horses, equal);
-    // equal: both ~50 → tie broken stably; both composites ~50
     expect(eq[0]!.composite).toBeCloseTo(50, 5);
+    expect(eq[1]!.composite).toBeCloseTo(50, 5);
 
     const heavy = computeWeightedComposite(horses, heavyH2h);
     expect(heavy[0]!.horse.no).toBe(1);
 
-    const inv = computeWeightedComposite(horses, invDraw);
-    // invert draw: horse1 gets 90 + (100-10)=180/2=90; horse2 10+(100-90)=20/2=10
-    expect(inv[0]!.horse.no).toBe(1);
-    expect(inv[0]!.composite).toBeCloseTo(90, 5);
+    const kept = computeWeightedComposite(horses, legacyInvert);
+    expect(kept[0]!.composite).toBeCloseTo(50, 5);
+    expect(kept[1]!.composite).toBeCloseTo(50, 5);
   });
 
   it("ignores zero-weight features", () => {

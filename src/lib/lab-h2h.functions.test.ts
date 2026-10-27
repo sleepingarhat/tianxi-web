@@ -92,6 +92,44 @@ describe("lab-h2h.functions", () => {
     expect(called).toBeDefined();
     expect(String(called)).toContain("/api/lab/search?");
   });
+
+  it("中文騎師 id 通過驗證並送到 Worker", async () => {
+    mocks.fetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          type: "jockey",
+          a: "jockey_潘頓",
+          b: "jockey_莫雷拉",
+          filters: { distance: null, going: null, venue: null },
+          entities: {
+            a: { id: "jockey_潘頓", nameCh: "潘頓", nameEn: null, code: null, status: "active" },
+            b: { id: "jockey_莫雷拉", nameCh: "莫雷拉", nameEn: null, code: null, status: "active" },
+          },
+          elo: { a: [], b: [], meetings: [] },
+          conditions: [],
+          runningStyle: {
+            a: { sample: 0, lowSample: true, buckets: [], earlyMedian: null, last400Avg: null },
+            b: { sample: 0, lowSample: true, buckets: [], earlyMedian: null, last400Avg: null },
+          },
+          meetings: [],
+          warnings: [],
+        }),
+        { status: 200 },
+      ),
+    );
+    const data = await getLabH2h({ data: { type: "jockey", a: "jockey_潘頓", b: "jockey_莫雷拉" } });
+    expect(data.entities.a.id).toBe("jockey_潘頓");
+    const url = String(mocks.fetch.mock.calls[0]?.[0]);
+    expect(url).toContain(encodeURIComponent("jockey_潘頓"));
+    expect(url).toContain(encodeURIComponent("jockey_莫雷拉"));
+  });
+
+  it("拒收唔符合騎師 id 嘅字串", () => {
+    expect(() =>
+      getLabH2h({ data: { type: "jockey", a: "潘頓", b: "jockey_莫雷拉" } }),
+    ).toThrow(/格式唔啱/);
+    expect(mocks.fetch).not.toHaveBeenCalled();
+  });
 });
 
 // silence unused

@@ -1,4 +1,4 @@
-/** 研究室工具牆（已開通頭對頭、場地天氣）。 */
+/** 研究室工具牆（已開通馬匹或騎師數據獨立比較、場地天氣）。 */
 
 export type LabTool = {
   key: string;
@@ -12,9 +12,9 @@ export type LabTool = {
 export const LAB_TOOLS: readonly LabTool[] = [
   {
     key: "h2h",
-    title: "頭對頭",
-    en: "Head-to-head",
-    blurb: "馬匹／騎師 Elo、條件切片、跑法同直接交手對照。",
+    title: "馬匹或騎師數據獨立比較",
+    en: "Independent comparison",
+    blurb: "分開比較兩匹馬或兩位騎師：Elo、條件切片、跑法同直接交手。",
     status: "ready",
     href: "/lab/h2h",
   },
