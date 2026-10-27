@@ -111,9 +111,9 @@ describe("user-strategies mapping", () => {
 });
 
 describe("user-strategies UI wiring（features 帳號卡）", () => {
-  it("features.tsx 有雲端遷移／list／migrate serverFn", async () => {
+  it("FeaturesWorkspace.tsx 有雲端遷移／list／migrate serverFn", async () => {
     const { readFileSync } = await import("node:fs");
-    const src = readFileSync("src/routes/features.tsx", "utf8");
+    const src = readFileSync("src/components/tx/FeaturesWorkspace.tsx", "utf8");
     expect(src).toContain("listUserStrategies");
     expect(src).toContain("migrateLocalStrategies");
     expect(src).toContain("我的策略（帳號）");

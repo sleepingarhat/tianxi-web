@@ -22,7 +22,7 @@ describe("lab-tools", () => {
     expect(pool?.href).toBe("/lab/pools");
     const bt = LAB_TOOLS.find((t) => t.key === "backtest");
     expect(bt?.status).toBe("ready");
-    expect(bt?.href).toBe("/features");
+    expect(bt?.href).toBe("/lab/backtest");
     const opened = new Set(["h2h", "pace", "going", "pool-opt", "backtest", "compare"]);
     expect(LAB_TOOLS.filter((t) => !opened.has(t.key)).every((t) => t.status !== "ready")).toBe(true);
   });

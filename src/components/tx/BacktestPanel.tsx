@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import {
   BACKTEST_RANGE_PRESETS,
+  isDemoMatrixSource,
   upsertStrategy,
   type BacktestResultPayload,
+  type BacktestSummary,
   type FeatureWeightSpec,
   type PoolCode,
 } from "@/lib/lab-backtest";
@@ -19,19 +21,40 @@ type Props = {
 
 const ALL_POOLS: PoolCode[] = ["FF", "TRIO", "TIERCE", "QUARTET"];
 
-function SummaryRow({ title, s }: { title: string; s: BacktestResultPayload["overall"] | null | undefined }) {
+const DEMO_BANNER =
+  "示範數據 · 非真賽果 · 勿作投注依據（矩陣 demo-fixture／demo-v1；命中僅供介面示範）";
+
+function SummaryRow({
+  title,
+  s,
+  demo,
+}: {
+  title: string;
+  s: BacktestSummary | null | undefined;
+  demo: boolean;
+}) {
   if (!s) return null;
+  const showMoney = !demo && s.showRoi;
   return (
     <div className="rounded-[4px] border border-hairline bg-paper p-2 text-[11px]">
-      <div className="font-bold text-ink">{title}</div>
+      <div className="font-bold text-ink">
+        {title}
+        {demo ? <span className="ml-1 font-mono-tx text-[10px] text-lose">· 示範</span> : null}
+      </div>
       <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono-tx text-ink-2">
         <span>場數 {s.raceCount}</span>
-        <span>四揀均中 {s.avgTop4Hits}</span>
-        {s.showRoi ? (
+        <span>四揀均中 {s.avgTop4Hits}{demo ? "（示範）" : ""}</span>
+        {showMoney ? (
           <>
             <span>ROI {s.roiPct ?? "—"}%</span>
             <span>淨 {(s.net ?? 0).toLocaleString()}</span>
             <span>回撤 {s.maxDrawdown ?? "—"}</span>
+          </>
+        ) : demo ? (
+          <>
+            <span>ROI —（示範）</span>
+            <span>淨 —（示範）</span>
+            <span className="col-span-2">回撤 —（示範）</span>
           </>
         ) : (
           <span className="col-span-2">樣本不足 200，只顯示命中</span>
@@ -54,6 +77,9 @@ export function BacktestPanel({ weights, locked }: Props) {
   const [name, setName] = useState("");
 
   const range = BACKTEST_RANGE_PRESETS.find((p) => p.key === preset) ?? BACKTEST_RANGE_PRESETS[2];
+  const demo = result
+    ? isDemoMatrixSource(result.matrixSource, result.matrixVersion, result.demo)
+    : false;
 
   if (locked) {
     return (
@@ -98,7 +124,6 @@ export function BacktestPanel({ weights, locked }: Props) {
         data: { name: label, weights: active, pools },
       });
       setName(res.strategy.name);
-      // 成功上雲後同步一份本機副本（離線備援；唔取代雲端真相）
       upsertStrategy({
         name: res.strategy.name,
         note: res.strategy.note,
@@ -121,6 +146,14 @@ export function BacktestPanel({ weights, locked }: Props) {
 
   return (
     <div className="space-y-3">
+      {demo ? (
+        <div
+          role="alert"
+          className="rounded-[4px] border border-lose/40 bg-lose/10 px-3 py-2 text-[12px] font-bold leading-relaxed text-lose"
+        >
+          {DEMO_BANNER}
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-1.5">
         {BACKTEST_RANGE_PRESETS.map((p) => (
           <Button
@@ -161,20 +194,23 @@ export function BacktestPanel({ weights, locked }: Props) {
       {result ? (
         <div className="space-y-2">
           <p className="text-[11px] text-ink-2">
-            hash {result.hash.slice(0, 12)}… · 矩陣 {result.matrixSource}/{result.matrixVersion} · 研究層
+            hash {result.hash.slice(0, 12)}… · 矩陣 {result.matrixSource}/{result.matrixVersion}
+            {demo ? " · 示範" : ""} · 研究層
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
-            <SummaryRow title="整體（自訂）" s={result.overall} />
-            <SummaryRow title="驗證段" s={result.validation} />
-            <SummaryRow title="訓練段" s={result.train} />
-            <SummaryRow title="官方基線" s={result.officialBaseline} />
-            <SummaryRow title="純 Elo 基線" s={result.eloBaseline} />
+            <SummaryRow title="整體（自訂）" s={result.overall} demo={demo} />
+            <SummaryRow title="驗證段" s={result.validation} demo={demo} />
+            <SummaryRow title="訓練段" s={result.train} demo={demo} />
+            <SummaryRow title="官方基線" s={result.officialBaseline} demo={demo} />
+            <SummaryRow title="純 Elo 基線" s={result.eloBaseline} demo={demo} />
           </div>
           {compare ? (
             <div className="rounded-[4px] border border-dashed border-gold/40 bg-gold-bg/30 p-2 text-[11px] text-ink-2">
-              <div className="font-bold text-ink">基線 stub · 官方 vs Elo</div>
+              <div className="font-bold text-ink">基線 stub · 官方 vs Elo{demo ? " · 示範" : ""}</div>
               <div className="mt-1 font-mono-tx">
-                官方均中 {compare.official?.avgTop4Hits ?? "—"} · Elo 均中 {compare.elo?.avgTop4Hits ?? "—"}
+                官方均中 {compare.official?.avgTop4Hits ?? "—"}
+                {demo ? "（示範）" : ""} · Elo 均中 {compare.elo?.avgTop4Hits ?? "—"}
+                {demo ? "（示範）" : ""}
               </div>
               <p className="mt-1">
                 <Link to="/lab/compare" className="text-gold font-bold">

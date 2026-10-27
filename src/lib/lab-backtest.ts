@@ -37,6 +37,23 @@ export type BacktestSummary = {
   showRoi: boolean;
 };
 
+/** 後端 demo-fixture／demo-v1 或 API demo=true → UI 必須橫幅隱藏 ROI */
+export function isDemoMatrixSource(
+  matrixSource?: string | null,
+  matrixVersion?: string | null,
+  demoFlag?: boolean | null,
+): boolean {
+  if (demoFlag === true) return true;
+  const src = (matrixSource ?? "").toLowerCase();
+  const ver = (matrixVersion ?? "").toLowerCase();
+  return (
+    src.includes("demo") ||
+    src === "demo-fixture" ||
+    ver === "demo-v1" ||
+    ver.startsWith("demo-")
+  );
+}
+
 export type BacktestResultPayload = {
   hash: string;
   status: "ready";
@@ -59,6 +76,7 @@ export type BacktestResultPayload = {
   bySeason: { season: string; summary: BacktestSummary }[];
   computedAt: string;
   limitations: string[];
+  demo?: boolean;
 };
 
 export const WEIGHT_TEMPLATES: {
