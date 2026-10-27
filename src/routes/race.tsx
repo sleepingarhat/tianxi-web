@@ -157,7 +157,7 @@ function RacePage() {
                 ["負磅", h.weight ?? h.declaredWeight ?? "—"],
                 ["獨贏", liveWin(h.horseNumber) ?? h.winOdds ?? "—"],
                 ["位置", livePla(h.horseNumber) ?? "—"],
-                [hasResult ? "名次" : "評分", hasResult ? h.finishingPosition ?? "—" : h.rating ?? "—"],
+                [hasResult ? "名次" : "官方評分", hasResult ? h.finishingPosition ?? "—" : h.rating ?? "—"],
                 [hasResult ? "時間" : "配備", hasResult ? finishTime(h.finishTime) || "—" : h.gear || "—"],
               ];
               return (

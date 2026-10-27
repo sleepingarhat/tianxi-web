@@ -583,6 +583,8 @@
 
 ## 2026-10-27 交接：馬會官網公開數據面全覆蓋（Grok Bot 移交）
 - [ ] 前端／API 消費新表：（已完成 /today 場次頭：賽事名、跑道、評分範圍、獎金、途程，2026-10-27）賽事卡用場次頭（entries_upcoming）；排位反映更易；official_* 及 raceday companion 表按產品需要展示（research 表不作凍結預測輸入）
-- [ ] tianxi-racing Wave4 爬蟲（draft PR）：drawadvsearch、馬匹頁評分／體重／名次曲線、途程成績、搬遷、overoar、horse-former-name、jkcresult／tncresult
+- [x] tianxi-racing Wave4 爬蟲：draft PR #120 已開（2026-10-27，經 GitHub API；drawadvsearch、評分／體重／名次、途程成績、搬遷、overoar、jkcresult／tncresult；horse-former-name 仍待處理）
 - [ ] 缺口：王坐騎／出馬表、終點相、賽日頭條、上仗備忘、全彩池、海外；舊賽果 D1 再 sync 補 rating_range／track
 - 限制：不轉 secret、不改 GraphQL 白名單；每次 web 改動／publish 對齊 olive-river 預覽
+- [ ] 舊賽果補 rating_range／track：draft PR #121 已開（2026-10-27，經 GitHub API；backfill-race-meta.ts 讀存檔官方賽果 CSV 出 UPDATE-only 只填 NULL SQL，唔重爬馬會；工作流預設 dry run；全範圍試跑 945 CSV／8,933 場／0 跳過）。等 review 合併後先手動 dry run，再正式補 D1
+- [x] 官方評分標記（2026-10-27）：/today 場次頭「官方評分 40-0」、馬匹檔案「本場官方評分」、單場排位「官方評分」，有天喜Elo 嘅地方保留原名；684 項測試通過，待發布

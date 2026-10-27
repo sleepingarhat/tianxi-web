@@ -484,7 +484,7 @@ function HorsePage() {
                     ["完成時間", finishTime(f.finishTimeSec != null ? f.finishTimeSec : f.finishTime)],
                     ["獨贏賠率", f.winOdds],
                     ["配備", listText(f.gear)],
-                    ["本場評分", f.rating],
+                    ["本場官方評分", f.rating],
                   ].filter((r) => has(r[1])) as [string, unknown][];
                   return (
                     <details

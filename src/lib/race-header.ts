@@ -48,7 +48,7 @@ export function trackText(h: Pick<RaceHeaderRow, "track" | "course">): string | 
   return [h.track, course].filter(Boolean).join(" · ");
 }
 
-/** 評分範圍顯示「評分 40-0」 */
+/** 評分範圍顯示「官方評分 40-0」（馬會官方評分，唔係天喜系統評分，必須標明來源） */
 export function ratingText(range: string | null): string | null {
-  return range && /^\d+\s*-\s*\d+$/.test(range) ? `評分 ${range.replace(/\s+/g, "")}` : null;
+  return range && /^\d+\s*-\s*\d+$/.test(range) ? `官方評分 ${range.replace(/\s+/g, "")}` : null;
 }

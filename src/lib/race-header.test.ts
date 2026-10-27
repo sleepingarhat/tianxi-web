@@ -6,7 +6,7 @@ describe("race header", () => {
     const [r] = normalizeRaceHeaders([{ raceNumber: 1, raceName: "畫眉山讓賽", prize: "875000", ratingRange: "40-0", track: "全天候", course: null, distance: 1650 }]);
     expect(r?.prize).toBe(875000);
     expect(prizeText(r!.prize)).toBe("HK$875,000");
-    expect(ratingText(r!.ratingRange)).toBe("評分 40-0");
+    expect(ratingText(r!.ratingRange)).toBe("官方評分 40-0");
     expect(trackText(r!)).toBe("全天候");
   });
   it("drops invalid race numbers and blank prize", () => {
