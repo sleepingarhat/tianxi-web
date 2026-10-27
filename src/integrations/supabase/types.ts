@@ -1226,6 +1226,77 @@ export type Database = {
         }
         Relationships: []
       }
+      user_strategies: {
+        Row: {
+          created_at: string
+          current_version: number
+          id: string
+          last_backtest_hash: string | null
+          name: string
+          note: string
+          pools: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_version?: number
+          id?: string
+          last_backtest_hash?: string | null
+          name: string
+          note?: string
+          pools?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_version?: number
+          id?: string
+          last_backtest_hash?: string | null
+          name?: string
+          note?: string
+          pools?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_strategy_versions: {
+        Row: {
+          created_at: string
+          id: string
+          pools: string[]
+          strategy_id: string
+          version: number
+          weights: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pools: string[]
+          strategy_id: string
+          version: number
+          weights: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pools?: string[]
+          strategy_id?: string
+          version?: number
+          weights?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_strategy_versions_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "user_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       watch_job_runs: {
         Row: {
           error: string | null

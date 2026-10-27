@@ -6,12 +6,12 @@
 
 ## 首頁產品層規則
 
-- Homepage/navigation expose racing only; product-scope.ts/start.ts gate retired paths without execution; retired sources/journals stay in private research with commits/checksums (redirect/410 only). Why: preserve research, not retired products.
+- Racing-only nav; product-scope.ts/start.ts block retired execution (redirect/410); research stays private with commit/SHA. Why: preserve research.
 - Cite final/current homepage data only for verifiable claims.
 - Reuse PageHead/Card/Stat/Table/Seg/AppShell for consistency.
 - Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions to prevent wrapping.
 - Desktop density; mobile one column.
-- After publish run python3 scripts/sync-frontend-repo.py; tianxi-web mirrors source, Lovable hosts production.
+- Publish: run python3 scripts/sync-frontend-repo.py. Import pinned code without deletes; preserve env/generated files; no implicit migration/publish. Why: protect secrets/release.
 
 ## 監控端規則
 - Read nested AGENTS.md before edits: src/components/admin (admin panels), src/lib (libs).

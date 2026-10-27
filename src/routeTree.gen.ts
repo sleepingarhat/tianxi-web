@@ -59,13 +59,13 @@ import { Route as EngineMonitorRouteImport } from './routes/engine.monitor'
 import { Route as EngineResidualsRouteImport } from './routes/engine.residuals'
 import { Route as ExplainIndexRouteImport } from './routes/explain.index'
 import { Route as ExplainDateRouteImport } from './routes/explain.$date'
+import { Route as LabBacktestRouteImport } from './routes/lab.backtest'
+import { Route as LabCompareRouteImport } from './routes/lab.compare'
 import { Route as LabGoingRouteImport } from './routes/lab.going'
 import { Route as LabH2hRouteImport } from './routes/lab.h2h'
 import { Route as LabPaceRouteImport } from './routes/lab.pace'
-import { Route as AuthenticatedAccountApiRouteImport } from './routes/_authenticated/account.api'
 import { Route as LabPoolsRouteImport } from './routes/lab.pools'
-import { Route as LabCompareRouteImport } from './routes/lab.compare'
-import { Route as LabBacktestRouteImport } from './routes/lab.backtest'
+import { Route as AuthenticatedAccountApiRouteImport } from './routes/_authenticated/account.api'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminConsoleRouteImport } from './routes/_authenticated/admin.console'
 import { Route as AuthenticatedAdminDataFreshnessRouteImport } from './routes/_authenticated/admin.data-freshness'
@@ -368,6 +368,16 @@ const ExplainDateRoute = ExplainDateRouteImport.update({
   path: '/explain/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LabBacktestRoute = LabBacktestRouteImport.update({
+  id: '/backtest',
+  path: '/backtest',
+  getParentRoute: () => LabRoute,
+} as any)
+const LabCompareRoute = LabCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => LabRoute,
+} as any)
 const LabGoingRoute = LabGoingRouteImport.update({
   id: '/going',
   path: '/going',
@@ -383,25 +393,15 @@ const LabPaceRoute = LabPaceRouteImport.update({
   path: '/pace',
   getParentRoute: () => LabRoute,
 } as any)
-const AuthenticatedAccountApiRoute = AuthenticatedAccountApiRouteImport.update({
-  id: '/api',
-  path: '/api',
-  getParentRoute: () => AuthenticatedAccountRoute,
-} as any)
 const LabPoolsRoute = LabPoolsRouteImport.update({
   id: '/pools',
   path: '/pools',
   getParentRoute: () => LabRoute,
 } as any)
-const LabCompareRoute = LabCompareRouteImport.update({
-  id: '/compare',
-  path: '/compare',
-  getParentRoute: () => LabRoute,
-} as any)
-const LabBacktestRoute = LabBacktestRouteImport.update({
-  id: '/backtest',
-  path: '/backtest',
-  getParentRoute: () => LabRoute,
+const AuthenticatedAccountApiRoute = AuthenticatedAccountApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => AuthenticatedAccountRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
@@ -742,12 +742,12 @@ export interface FileRoutesByFullPath {
   '/engine/monitor': typeof EngineMonitorRoute
   '/engine/residuals': typeof EngineResidualsRoute
   '/explain/$date': typeof ExplainDateRoute
+  '/lab/backtest': typeof LabBacktestRoute
+  '/lab/compare': typeof LabCompareRoute
   '/lab/going': typeof LabGoingRoute
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
-  '/lab/compare': typeof LabCompareRoute
-  '/lab/backtest': typeof LabBacktestRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/account/api': typeof AuthenticatedAccountApiRoute
@@ -850,12 +850,12 @@ export interface FileRoutesByTo {
   '/engine/monitor': typeof EngineMonitorRoute
   '/engine/residuals': typeof EngineResidualsRoute
   '/explain/$date': typeof ExplainDateRoute
+  '/lab/backtest': typeof LabBacktestRoute
+  '/lab/compare': typeof LabCompareRoute
   '/lab/going': typeof LabGoingRoute
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
-  '/lab/compare': typeof LabCompareRoute
-  '/lab/backtest': typeof LabBacktestRoute
   '/engine': typeof EngineIndexRoute
   '/explain': typeof ExplainIndexRoute
   '/account/api': typeof AuthenticatedAccountApiRoute
@@ -961,12 +961,12 @@ export interface FileRoutesById {
   '/engine/monitor': typeof EngineMonitorRoute
   '/engine/residuals': typeof EngineResidualsRoute
   '/explain/$date': typeof ExplainDateRoute
+  '/lab/backtest': typeof LabBacktestRoute
+  '/lab/compare': typeof LabCompareRoute
   '/lab/going': typeof LabGoingRoute
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
-  '/lab/compare': typeof LabCompareRoute
-  '/lab/backtest': typeof LabBacktestRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/_authenticated/account/api': typeof AuthenticatedAccountApiRoute
@@ -1072,12 +1072,12 @@ export interface FileRouteTypes {
     | '/engine/monitor'
     | '/engine/residuals'
     | '/explain/$date'
+    | '/lab/backtest'
+    | '/lab/compare'
     | '/lab/going'
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
-    | '/lab/compare'
-    | '/lab/backtest'
     | '/engine/'
     | '/explain/'
     | '/account/api'
@@ -1180,12 +1180,12 @@ export interface FileRouteTypes {
     | '/engine/monitor'
     | '/engine/residuals'
     | '/explain/$date'
+    | '/lab/backtest'
+    | '/lab/compare'
     | '/lab/going'
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
-    | '/lab/compare'
-    | '/lab/backtest'
     | '/engine'
     | '/explain'
     | '/account/api'
@@ -1290,12 +1290,12 @@ export interface FileRouteTypes {
     | '/engine/monitor'
     | '/engine/residuals'
     | '/explain/$date'
+    | '/lab/backtest'
+    | '/lab/compare'
     | '/lab/going'
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
-    | '/lab/compare'
-    | '/lab/backtest'
     | '/engine/'
     | '/explain/'
     | '/_authenticated/account/api'
@@ -1794,6 +1794,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExplainDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lab/backtest': {
+      id: '/lab/backtest'
+      path: '/backtest'
+      fullPath: '/lab/backtest'
+      preLoaderRoute: typeof LabBacktestRouteImport
+      parentRoute: typeof LabRoute
+    }
+    '/lab/compare': {
+      id: '/lab/compare'
+      path: '/compare'
+      fullPath: '/lab/compare'
+      preLoaderRoute: typeof LabCompareRouteImport
+      parentRoute: typeof LabRoute
+    }
     '/lab/going': {
       id: '/lab/going'
       path: '/going'
@@ -1815,13 +1829,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LabPaceRouteImport
       parentRoute: typeof LabRoute
     }
-    '/_authenticated/account/api': {
-      id: '/_authenticated/account/api'
-      path: '/api'
-      fullPath: '/account/api'
-      preLoaderRoute: typeof AuthenticatedAccountApiRouteImport
-      parentRoute: typeof AuthenticatedAccountRoute
-    }
     '/lab/pools': {
       id: '/lab/pools'
       path: '/pools'
@@ -1829,19 +1836,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LabPoolsRouteImport
       parentRoute: typeof LabRoute
     }
-    '/lab/compare': {
-      id: '/lab/compare'
-      path: '/compare'
-      fullPath: '/lab/compare'
-      preLoaderRoute: typeof LabCompareRouteImport
-      parentRoute: typeof LabRoute
-    }
-    '/lab/backtest': {
-      id: '/lab/backtest'
-      path: '/backtest'
-      fullPath: '/lab/backtest'
-      preLoaderRoute: typeof LabBacktestRouteImport
-      parentRoute: typeof LabRoute
+    '/_authenticated/account/api': {
+      id: '/_authenticated/account/api'
+      path: '/api'
+      fullPath: '/account/api'
+      preLoaderRoute: typeof AuthenticatedAccountApiRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -2262,21 +2262,21 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface LabRouteChildren {
+  LabBacktestRoute: typeof LabBacktestRoute
+  LabCompareRoute: typeof LabCompareRoute
   LabGoingRoute: typeof LabGoingRoute
   LabH2hRoute: typeof LabH2hRoute
   LabPaceRoute: typeof LabPaceRoute
   LabPoolsRoute: typeof LabPoolsRoute
-  LabCompareRoute: typeof LabCompareRoute
-  LabBacktestRoute: typeof LabBacktestRoute
 }
 
 const LabRouteChildren: LabRouteChildren = {
+  LabBacktestRoute: LabBacktestRoute,
+  LabCompareRoute: LabCompareRoute,
   LabGoingRoute: LabGoingRoute,
   LabH2hRoute: LabH2hRoute,
   LabPaceRoute: LabPaceRoute,
   LabPoolsRoute: LabPoolsRoute,
-  LabCompareRoute: LabCompareRoute,
-  LabBacktestRoute: LabBacktestRoute,
 }
 
 const LabRouteWithChildren = LabRoute._addFileChildren(LabRouteChildren)
