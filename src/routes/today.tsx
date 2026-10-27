@@ -14,6 +14,10 @@ import { useTodayPicks } from "@/lib/use-today-picks";
 import { useWatchSet } from "@/lib/useWatchSet";
 import { getMeetingHitRate } from "@/lib/hit-rate.functions";
 import { getRaceDayCardDisplay } from "@/lib/race-day-card.functions";
+import { getRaceHeaders } from "@/lib/race-header.functions";
+import { prizeText, ratingText, trackText, type RaceHeaderRow } from "@/lib/race-header";
+import { getRacedayOfficial } from "@/lib/raceday-official.functions";
+import { bestDraws, changeCountByRace, type DrawStatRow, type RankingRow } from "@/lib/raceday-official";
 import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import {
   classDistanceLine,
@@ -169,6 +173,26 @@ function TodayPage() {
     return map;
   }, [cardDisplay.data]);
   const going = storedGoing || goingText(cardDisplay.data?.meetingGoing) || null;
+  const headerFn = useServerFn(getRaceHeaders);
+  const headers = useQuery({
+    queryKey: ["raceHeaders", date, venue],
+    queryFn: () => headerFn({ data: { date: date!, venue: venue as "ST" | "HV" } }),
+    enabled: !!date && (venue === "ST" || venue === "HV") && !tp.cancellation,
+    staleTime: 10 * 60_000,
+  });
+  const headerByRace = useMemo(() => {
+    const map = new Map<number, RaceHeaderRow>();
+    for (const h of headers.data?.races ?? []) map.set(h.raceNumber, h);
+    return map;
+  }, [headers.data]);
+  const officialFn = useServerFn(getRacedayOfficial);
+  const official = useQuery({
+    queryKey: ["racedayOfficial", date, venue],
+    queryFn: () => officialFn({ data: { date: date!, venue: venue as "ST" | "HV" } }),
+    enabled: !!date && (venue === "ST" || venue === "HV") && !tp.cancellation,
+    staleTime: 10 * 60_000,
+  });
+  const changeCounts = useMemo(() => changeCountByRace(official.data?.changes ?? []), [official.data]);
 
   const hitByRace = useMemo(() => {
     const map = new Map<number, { count: number | null; redacted: boolean }>();
@@ -293,8 +317,9 @@ function TodayPage() {
               venueName={venueName}
               nowMs={nowMs}
               needUpgrade={focusAccess !== "full"}
-              distanceM={focusRace ? positiveDistance(focusRace) ?? cardByRace.get(Number(focusRace.raceNumber))?.distance ?? null : null}
+              distanceM={focusRace ? positiveDistance(focusRace) ?? cardByRace.get(Number(focusRace.raceNumber))?.distance ?? headerByRace.get(Number(focusRace.raceNumber))?.distance ?? null : null}
               goingLabel={focusRace ? goingText(focusRace.going) || goingText(cardByRace.get(Number(focusRace.raceNumber))?.going) || going : null}
+              header={focusRace ? headerByRace.get(Number(focusRace.raceNumber)) ?? null : null}
             />
 
             <Card title="全日場次" en="All races" action={<Link to="/cards" className="text-[11px] font-bold text-gold">逐場預測 →</Link>}>
@@ -310,7 +335,7 @@ function TodayPage() {
                     hitCount: hit,
                     countdownLabel: start ? countdown(r.startTime, new Date(nowMs), date) : "",
                   });
-                  const meters = positiveDistance(r) ?? cardByRace.get(Number(r.raceNumber))?.distance ?? null;
+                  const meters = positiveDistance(r) ?? cardByRace.get(Number(r.raceNumber))?.distance ?? headerByRace.get(Number(r.raceNumber))?.distance ?? null;
                   return (
                     <li key={r.raceNumber} className="py-2.5">
                       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -321,6 +346,8 @@ function TodayPage() {
                         {showPreliminaryUnlocked(phase, status) ? <Pill tone="gold">{PRELIMINARY_UNLOCKED_LABEL}</Pill> : null}
                         {typeof hit === "number" ? <Pill tone="win">命中 {hit}/4</Pill> : null}
                       </div>
+                      <RaceHeaderLine header={headerByRace.get(Number(r.raceNumber))} />
+                      {changeCounts.get(Number(r.raceNumber)) ? <p className="mt-0.5 text-[11px] text-lose">馬會更易 {changeCounts.get(Number(r.raceNumber))} 項（已存檔）</p> : null}
                       {access === "full" ? (
                         <div className="mt-1.5 flex flex-wrap gap-1">
                           {top.map((p) => (
@@ -346,9 +373,11 @@ function TodayPage() {
                 })}
               </ul>
             </Card>
+            <OfficialDrawCard data={official.data} raceNumber={focusRace ? Number(focusRace.raceNumber) : null} />
           </div>
 
           <aside className="min-w-0 lg:sticky lg:top-[72px] lg:pb-6">
+            <OfficialRankingCard data={official.data} />
             <Card title="今日累計命中" en="Day hits">
               {dayHits.racesCounted ? (
                 <>
@@ -444,6 +473,7 @@ function NowCard({
   needUpgrade,
   distanceM,
   goingLabel,
+  header = null,
 }: {
   race: any;
   access: "full" | "name" | "locked";
@@ -454,6 +484,7 @@ function NowCard({
   needUpgrade: boolean;
   distanceM: number | null;
   goingLabel: string | null;
+  header?: RaceHeaderRow | null;
 }) {
   if (!race) {
     return (
@@ -501,8 +532,17 @@ function NowCard({
           <Pill>{race.className || race.class || "班次待公布"}</Pill>
           <Pill>{distanceText(distanceM)}</Pill>
           <Pill>{goingPill(goingLabel)}</Pill>
+          {trackText(header ?? { track: null, course: null }) ? <Pill>{trackText(header!)}</Pill> : null}
+          {ratingText(header?.ratingRange ?? null) ? <Pill>{ratingText(header!.ratingRange)}</Pill> : null}
         </div>
       </div>
+      {header?.raceName || header?.prize ? (
+        <p className="-mt-1 mb-3 text-[12px] text-ink-2">
+          <b className="font-serif-tc">{header.raceName || ""}</b>
+          {header.prize ? <span className="ml-2 tabnum font-mono-tx text-[11px] text-ink-3">獎金 {prizeText(header.prize)}</span> : null}
+          <span className="ml-2 text-[10px] text-ink-3">來源：馬會排位表</span>
+        </p>
+      ) : null}
 
       {access === "full" ? (
         <>
@@ -544,6 +584,67 @@ function NowCard({
       ) : (
         <div>{!tierLoading && needUpgrade ? <UpgradeCard inline need="registered" feature="其他場次首選" /> : null}</div>
       )}
+    </Card>
+  );
+}
+
+function RaceHeaderLine({ header }: { header?: RaceHeaderRow | undefined }) {
+  if (!header) return null;
+  const parts = [header.raceName, trackText(header), ratingText(header.ratingRange), prizeText(header.prize)].filter(Boolean);
+  if (!parts.length) return null;
+  return <p className="mt-0.5 text-[11px] text-ink-3">{parts.join(" · ")}</p>;
+}
+
+type OfficialData = { ranking: { jockey: RankingRow[]; trainer: RankingRow[]; asOf: string | null; season: string | null }; draws: DrawStatRow[]; failed: string[] } | undefined;
+
+function OfficialRankingCard({ data }: { data: OfficialData }) {
+  if (!data || (!data.ranking.jockey.length && !data.ranking.trainer.length)) return null;
+  const list = (title: string, rows: RankingRow[]) => (
+    <div className="min-w-0">
+      <p className="text-[11px] font-bold text-ink-3">{title}</p>
+      <ol className="mt-1 space-y-0.5">
+        {rows.map((r) => (
+          <li key={r.name} className="grid grid-cols-[18px_minmax(0,1fr)_auto] gap-1 text-[12px]">
+            <span className="tabnum font-mono-tx text-ink-3">{r.rank}</span>
+            <span className="truncate font-serif-tc">{r.name}</span>
+            <span className="tabnum font-mono-tx">{r.wins}W/{r.starts}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+  return (
+    <Card title="騎練榜" en="Season table">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+        {list("騎師", data.ranking.jockey)}
+        {list("練馬師", data.ranking.trainer)}
+      </div>
+      <p className="mt-2 text-[10px] text-ink-3">來源：馬會騎練排名（{data.ranking.season ?? "本"}馬季，截至 {data.ranking.asOf ?? "—"}）；只作參考，不計入預測。</p>
+    </Card>
+  );
+}
+
+function OfficialDrawCard({ data, raceNumber }: { data: OfficialData; raceNumber: number | null }) {
+  if (!data || !raceNumber) return null;
+  const rows = data.draws.filter((d) => d.raceNumber === raceNumber);
+  if (!rows.length) return null;
+  const best = new Set(bestDraws(data.draws, raceNumber).map((d) => d.draw));
+  const max = Math.max(1, ...rows.map((r) => r.placePct));
+  return (
+    <Card title={`第 ${raceNumber} 場檔位統計`} en="Draw stats">
+      <ul className="space-y-1">
+        {rows.map((r) => (
+          <li key={r.draw} className="grid grid-cols-[28px_minmax(0,1fr)_96px] items-center gap-2 text-[11px]">
+            <span className={`tabnum font-mono-tx font-bold ${best.has(r.draw) ? "text-gold" : "text-ink"}`}>{r.draw}檔</span>
+            <span className="relative h-2 rounded-full bg-paper-2">
+              <span className="absolute inset-y-0 left-0 rounded-full bg-ink-3/40" style={{ width: `${(r.placePct / max) * 100}%` }} />
+              <span className="absolute inset-y-0 left-0 rounded-full bg-gold" style={{ width: `${(r.winPct / max) * 100}%` }} />
+            </span>
+            <span className="tabnum text-right font-mono-tx text-ink-3">勝{r.winPct}% 位{r.placePct}% · {r.starts}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[10px] text-ink-3">來源：馬會檔位統計（三季同跑道同途程）；金色為樣本20次以上勝出率最高三檔。只作參考，不計入預測。</p>
     </Card>
   );
 }

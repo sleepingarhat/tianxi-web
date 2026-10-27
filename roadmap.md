@@ -580,3 +580,9 @@
 - [ ] racing-evidence.functions.ts 解釋資料讀取器 import 失敗後重設快取（下次一併修）
 
 - [ ] PR #5 上線次序：合併 #5 → Lovable 套用 0044 並查證 my_entitlement()／is_pro() 存在 → 先 Publish；套用前禁止 Publish（等用戶 PR 及憑證規格）
+
+## 2026-10-27 交接：馬會官網公開數據面全覆蓋（Grok Bot 移交）
+- [ ] 前端／API 消費新表：（已完成 /today 場次頭：賽事名、跑道、評分範圍、獎金、途程，2026-10-27）賽事卡用場次頭（entries_upcoming）；排位反映更易；official_* 及 raceday companion 表按產品需要展示（research 表不作凍結預測輸入）
+- [ ] tianxi-racing Wave4 爬蟲（draft PR）：drawadvsearch、馬匹頁評分／體重／名次曲線、途程成績、搬遷、overoar、horse-former-name、jkcresult／tncresult
+- [ ] 缺口：王坐騎／出馬表、終點相、賽日頭條、上仗備忘、全彩池、海外；舊賽果 D1 再 sync 補 rating_range／track
+- 限制：不轉 secret、不改 GraphQL 白名單；每次 web 改動／publish 對齊 olive-river 預覽
