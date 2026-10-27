@@ -37,10 +37,9 @@ function LabPage() {
 
       <section className="mx-4 mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {LAB_TOOLS.map((tool) => {
-          const ready = tool.status === "ready" && tool.href;
-          const body = (
+          const ready = tool.status === "ready" && !!tool.href;
+          const card = (
             <Card
-              key={tool.key}
               title={tool.title}
               en={tool.en}
               action={
@@ -48,24 +47,27 @@ function LabPage() {
                   {ready ? "可用" : tool.status === "locked" ? "鎖定" : "即將推出"}
                 </Pill>
               }
+              className={ready ? "mx-0 my-0 h-full transition-transform hover:-translate-y-0.5" : "mx-0 my-0"}
             >
               <p className="text-[12px] leading-relaxed text-ink-2">{tool.blurb}</p>
               {ready ? (
-                <p className="mt-2">
-                  <Link to={tool.href as "/"} className="text-[11px] font-bold text-gold">
-                    進入 →
-                  </Link>
-                </p>
+                <p className="mt-2 text-[11px] font-bold text-gold">進入 →</p>
               ) : (
                 <p className="mt-2 text-[10px] text-ink-3">研究層預告 · 功能本體未上線</p>
               )}
             </Card>
           );
           return ready ? (
-            body
+            <Link
+              key={tool.key}
+              to={tool.href as "/lab/backtest" | "/lab/compare" | "/lab/h2h" | "/lab/pace" | "/lab/going" | "/lab/pools"}
+              className="block rounded-[8px] outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              {card}
+            </Link>
           ) : (
             <div key={tool.key} className="relative opacity-90">
-              {body}
+              {card}
             </div>
           );
         })}

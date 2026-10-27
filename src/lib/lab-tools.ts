@@ -16,7 +16,7 @@ export const LAB_TOOLS: readonly LabTool[] = [
     en: "Custom backtest",
     blurb: "自訂特徵權重回測、訓練／驗證分段、官方／Elo 基線對照。",
     status: "ready",
-    href: "/features",
+    href: "/lab/backtest",
   },
   {
     key: "compare",
