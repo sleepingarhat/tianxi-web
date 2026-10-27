@@ -183,8 +183,6 @@ function StrategyPnlPage() {
           </>
         }
       />
-      <p className="mx-4 mt-1 text-[11px] text-ink-3">研究層策略並列請用 <Link to="/lab/compare" className="text-gold font-bold">比較器</Link>（唔入公開戰績）。</p>
-
       <div className="mx-4 mt-3 rounded-[12px] border border-gold-strong bg-gradient-to-b from-gold-bg to-paper-2 px-3.5 py-3 font-serif-tc text-[11.5px] leading-[1.6] text-ink-2">
         <b className="font-extrabold text-ink">⚠ 此為透明回溯紀錄，並非投注策略。</b>
         每場每池全數落注屬結構性負期望值（−EV），累計線長線預期向下；天喜唔會挑選或修飾數字，蝕都照列。模型強項在於

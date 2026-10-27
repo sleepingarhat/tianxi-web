@@ -111,19 +111,12 @@ describe("user-strategies mapping", () => {
 });
 
 describe("user-strategies UI wiring（features 帳號卡）", () => {
-  it("FeaturesWorkspace.tsx 有雲端遷移／list／migrate serverFn", async () => {
-    const { readFileSync } = await import("node:fs");
+  it("FeaturesWorkspace 已移除回測／策略雲端卡（表可留空）", async () => {
+    const { readFileSync, existsSync } = await import("node:fs");
     const src = readFileSync("src/components/tx/FeaturesWorkspace.tsx", "utf8");
-    expect(src).toContain("listUserStrategies");
-    expect(src).toContain("migrateLocalStrategies");
-    expect(src).toContain("我的策略（帳號）");
-    expect(src).toContain("planLocalStrategiesMigration");
-  });
-
-  it("BacktestPanel 雲端 upsert save", async () => {
-    const { readFileSync } = await import("node:fs");
-    const src = readFileSync("src/components/tx/BacktestPanel.tsx", "utf8");
-    expect(src).toContain("upsertUserStrategy");
-    expect(src).toContain("useServerFn");
+    expect(src).not.toContain("listUserStrategies");
+    expect(src).not.toContain("BacktestPanel");
+    expect(src).not.toContain("我的策略（帳號）");
+    expect(existsSync("src/components/tx/BacktestPanel.tsx")).toBe(false);
   });
 });

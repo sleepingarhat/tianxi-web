@@ -198,22 +198,8 @@ export type LabTool = {
   href?: string;
 };
 
-/** 研究室六個工具位（P1 外殼；功能本體分批）。 */
+/** 研究室工具位外殼（P1；自訂回測／比較器已下架）。 */
 export const LAB_TOOLS: readonly LabTool[] = [
-  {
-    key: "backtest",
-    title: "自訂回測",
-    en: "Custom backtest",
-    blurb: "自訂窗口同條件重播凍結預測；本批未實作。",
-    status: "soon",
-  },
-  {
-    key: "compare",
-    title: "比較器",
-    en: "Comparator",
-    blurb: "模型對模型／市場對照；本批未實作。",
-    status: "soon",
-  },
   {
     key: "h2h",
     title: "頭對頭",

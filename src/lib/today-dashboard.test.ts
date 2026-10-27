@@ -102,11 +102,12 @@ describe("today-dashboard", () => {
     expect(actualTop4FromPicks(picks)).toEqual([1, 7, 9, 3]);
   });
 
-  it("venueLabel 同研究室六工具位外殼", () => {
+  it("venueLabel 同研究室工具位外殼（無回測／比較器）", () => {
     expect(venueLabel("ST")).toBe("沙田");
     expect(venueLabel("HV")).toBe("跑馬地");
-    expect(LAB_TOOLS).toHaveLength(6);
+    expect(LAB_TOOLS).toHaveLength(4);
     expect(LAB_TOOLS.every((t) => t.status === "soon" || t.status === "locked")).toBe(true);
     expect(LAB_TOOLS.some((t) => t.status === "ready")).toBe(false);
+    expect(LAB_TOOLS.some((t) => t.key === "backtest" || t.key === "compare")).toBe(false);
   });
 });
