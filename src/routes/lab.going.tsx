@@ -58,13 +58,13 @@ export const Route = createFileRoute("/lab/going")({
   },
   head: () => ({
     meta: [
-      { title: "場地天氣 · 研究室 · 天喜 TIANXI" },
+      { title: "場地天氣 · 功能 · 天喜 TIANXI" },
       {
         name: "description",
         content: "地況快照、檔位熱圖、跑法偏差、「今日合地」研究名單（Pro；歷史統計・唔入官方四揀）。",
       },
       { property: "og:title", content: "場地天氣 · 天喜 TIANXI" },
-      { property: "og:description", content: "Pro 研究室場地／天氣影響儀表板。" },
+      { property: "og:description", content: "Pro 功能場地／天氣影響儀表板。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -151,7 +151,7 @@ function GoingPage() {
 
       <p className="mx-4 mb-2 text-[11px]">
         <Link to="/lab" className="text-ink-3 hover:text-gold">
-          ← 研究室
+          ← 功能
         </Link>
       </p>
 

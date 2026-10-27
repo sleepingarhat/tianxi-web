@@ -67,7 +67,7 @@ const BOTNAV: { to: string; key: NavKey; label: string; icon: ReactNode }[] = [
   {
     to: "/lab",
     key: "lab",
-    label: "研究室",
+    label: "功能",
     icon: (
       <>
         <path d="M9 3h6" />

@@ -102,7 +102,7 @@ export const getLabH2h = createServerFn({ method: "GET" })
       cache: "no-store",
       signal: AbortSignal.timeout(20_000),
     });
-    if (r.status === 401) throw new Error("研究室服務憑證未就緒，請稍後再試");
+    if (r.status === 401) throw new Error("功能服務憑證未就緒，請稍後再試");
     if (r.status === 404) throw new Error("搵唔到其中一個對象");
     if (r.status === 400) {
       const body = (await r.json().catch(() => null)) as { error?: string } | null;
@@ -112,7 +112,7 @@ export const getLabH2h = createServerFn({ method: "GET" })
     return (await r.json()) as LabH2hPayload;
   });
 
-/** Pro 研究室搜尋（馬／騎師）。 */
+/** Pro 功能頁搜尋（馬／騎師）。 */
 export const searchLabEntity = createServerFn({ method: "GET" })
   .middleware([requireTier("pro")])
   .inputValidator((data: unknown) => searchInput.parse(data))
@@ -123,7 +123,7 @@ export const searchLabEntity = createServerFn({ method: "GET" })
       cache: "no-store",
       signal: AbortSignal.timeout(12_000),
     });
-    if (r.status === 401) throw new Error("研究室服務憑證未就緒，請稍後再試");
+    if (r.status === 401) throw new Error("功能服務憑證未就緒，請稍後再試");
     if (!r.ok) throw new Error(`搜尋暫時未能完成（${r.status}）`);
     return (await r.json()) as { type: "horse" | "jockey"; items: LabSearchItem[] };
   });

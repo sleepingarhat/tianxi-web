@@ -198,7 +198,7 @@ export type LabTool = {
   href?: string;
 };
 
-/** 研究室工具位外殼（P1；回測、比較器、走位節奏、彩池優化器已下架）。 */
+/** 功能頁工具位外殼（P1；回測、比較器、走位節奏、彩池優化器已下架）。 */
 export const LAB_TOOLS: readonly LabTool[] = [
   {
     key: "h2h",

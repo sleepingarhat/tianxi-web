@@ -102,7 +102,7 @@ describe("today-dashboard", () => {
     expect(actualTop4FromPicks(picks)).toEqual([1, 7, 9, 3]);
   });
 
-  it("venueLabel 同研究室工具位外殼（無回測／比較器／走位／彩池）", () => {
+  it("venueLabel 同功能頁工具位外殼（無回測／比較器／走位／彩池）", () => {
     expect(venueLabel("ST")).toBe("沙田");
     expect(venueLabel("HV")).toBe("跑馬地");
     expect(LAB_TOOLS.map((t) => t.key).sort()).toEqual(["going", "h2h"]);
