@@ -1,4 +1,4 @@
-/** 功能頁工具牆（已開通馬匹或騎師數據獨立比較、場地天氣）。路徑仍係 /lab。 */
+/** 功能頁工具牆（已開通馬騎練數據獨立比較）。路徑仍係 /lab。 */
 
 export type LabTool = {
   key: string;
@@ -12,18 +12,10 @@ export type LabTool = {
 export const LAB_TOOLS: readonly LabTool[] = [
   {
     key: "h2h",
-    title: "馬匹或騎師數據獨立比較",
+    title: "馬騎練數據獨立比較",
     en: "Independent comparison",
-    blurb: "分開比較兩匹馬或兩位騎師：Elo、條件切片、跑法同直接交手。",
+    blurb: "分開比較兩匹馬、兩位騎師或兩位練馬師：Elo、條件切片、跑法同直接交手。",
     status: "ready",
     href: "/lab/h2h",
-  },
-  {
-    key: "going",
-    title: "場地天氣",
-    en: "Going & weather",
-    blurb: "地況快照、檔位熱圖、跑法偏差、「今日合地」研究名單。",
-    status: "ready",
-    href: "/lab/going",
   },
 ] as const;

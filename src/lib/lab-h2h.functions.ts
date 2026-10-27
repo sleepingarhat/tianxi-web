@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-import { validateEntityId } from "./lab-entity-id";
+import { validateEntityId, type LabEntityType } from "./lab-entity-id";
 import { requireTier } from "./tier.server";
 
-const typeSchema = z.enum(["horse", "jockey"]);
+const typeSchema = z.enum(["horse", "jockey", "trainer"]);
 
 const h2hInput = z
   .object({
@@ -30,13 +30,25 @@ const searchInput = z.object({
 });
 
 export type LabH2hPayload = {
-  type: "horse" | "jockey";
+  type: LabEntityType;
   a: string;
   b: string;
   filters: { distance: number | null; going: string | null; venue: string | null };
   entities: {
-    a: { id: string; nameCh: string | null; nameEn: string | null; code: string | null; status: string | null };
-    b: { id: string; nameCh: string | null; nameEn: string | null; code: string | null; status: string | null };
+    a: {
+      id: string;
+      nameCh: string | null;
+      nameEn: string | null;
+      code: string | null;
+      status: string | null;
+    };
+    b: {
+      id: string;
+      nameCh: string | null;
+      nameEn: string | null;
+      code: string | null;
+      status: string | null;
+    };
   };
   elo: {
     a: { date: string; rating: number }[];
@@ -46,8 +58,22 @@ export type LabH2hPayload = {
   conditions: {
     key: string;
     label: string;
-    a: { starts: number; wins: number; top3: number; avgPlace: number | null; sample: number; lowSample: boolean };
-    b: { starts: number; wins: number; top3: number; avgPlace: number | null; sample: number; lowSample: boolean };
+    a: {
+      starts: number;
+      wins: number;
+      top3: number;
+      avgPlace: number | null;
+      sample: number;
+      lowSample: boolean;
+    };
+    b: {
+      starts: number;
+      wins: number;
+      top3: number;
+      avgPlace: number | null;
+      sample: number;
+      lowSample: boolean;
+    };
   }[];
   runningStyle: {
     a: {
@@ -104,19 +130,26 @@ export const getLabH2h = createServerFn({ method: "GET" })
     });
     if (r.status === 401) throw new Error("功能服務憑證未就緒，請稍後再試");
     if (r.status === 404) throw new Error("搵唔到其中一個對象");
-    if (r.status === 400) {
-      const body = (await r.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(body?.error ?? "參數唔啱");
+    if (!r.ok) {
+      const body =
+        r.status === 400 ? ((await r.json().catch(() => null)) as { error?: string } | null) : null;
+      const detail = body?.error?.trim();
+      if (data.type === "trainer") {
+        throw new Error(
+          detail ? `練馬師比較暫時未能讀取：${detail}` : "練馬師比較暫時未能讀取，請稍後再試",
+        );
+      }
+      if (r.status === 400) throw new Error(detail || "參數唔啱");
+      throw new Error(`頭對頭資料暫時未能讀取（${r.status}）`);
     }
-    if (!r.ok) throw new Error(`頭對頭資料暫時未能讀取（${r.status}）`);
     return (await r.json()) as LabH2hPayload;
   });
 
-/** Pro 功能頁搜尋（馬／騎師）。 */
+/** Pro 功能頁搜尋（馬／騎師／練馬師）。 */
 export const searchLabEntity = createServerFn({ method: "GET" })
   .middleware([requireTier("pro")])
   .inputValidator((data: unknown) => searchInput.parse(data))
-  .handler(async ({ data }): Promise<{ type: "horse" | "jockey"; items: LabSearchItem[] }> => {
+  .handler(async ({ data }): Promise<{ type: LabEntityType; items: LabSearchItem[] }> => {
     const { workerFetch, WORKER_BASE } = await import("./site-reader.server");
     const qs = new URLSearchParams({ type: data.type, q: data.q });
     const r = await workerFetch(`${WORKER_BASE}/api/lab/search?${qs}`, {
@@ -124,6 +157,9 @@ export const searchLabEntity = createServerFn({ method: "GET" })
       signal: AbortSignal.timeout(12_000),
     });
     if (r.status === 401) throw new Error("功能服務憑證未就緒，請稍後再試");
-    if (!r.ok) throw new Error(`搜尋暫時未能完成（${r.status}）`);
-    return (await r.json()) as { type: "horse" | "jockey"; items: LabSearchItem[] };
+    if (!r.ok) {
+      if (data.type === "trainer") throw new Error("練馬師搜尋暫時未能完成，請稍後再試");
+      throw new Error(`搜尋暫時未能完成（${r.status}）`);
+    }
+    return (await r.json()) as { type: LabEntityType; items: LabSearchItem[] };
   });

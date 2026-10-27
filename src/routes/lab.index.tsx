@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/tx/AppShell";
 import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { Card, Disclaimer, PageHead, Pill } from "@/components/tx/ui";
+import { H2H_PRODUCT_LABEL } from "@/lib/lab-h2h-ui";
 import { LAB_TOOLS } from "@/lib/lab-tools";
 
 export const Route = createFileRoute("/lab/")({
@@ -11,10 +12,10 @@ export const Route = createFileRoute("/lab/")({
       { title: "功能 · 天喜 TIANXI" },
       {
         name: "description",
-        content: "Pro 功能：馬匹或騎師數據獨立比較、場地天氣。",
+        content: `Pro 功能：${H2H_PRODUCT_LABEL}。`,
       },
       { property: "og:title", content: "功能 · 天喜 TIANXI" },
-      { property: "og:description", content: "Pro 功能；未上線工具標明即將推出。" },
+      { property: "og:description", content: `Pro 功能：${H2H_PRODUCT_LABEL}。` },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,15 +30,11 @@ export const Route = createFileRoute("/lab/")({
 function LabPage() {
   return (
     <AppShell page="lab" columns={false} wide ticker="功能 · 研究層工具 · 非投注建議">
-      <PageHead
-        en="Features"
-        title="功能"
-        desc="Pro 功能 · 工具分批上線；未實作者標「即將推出」"
-      />
+      <PageHead en="Features" title="功能" desc={`Pro 功能 · ${H2H_PRODUCT_LABEL}`} />
 
       <section className="mx-4 mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {LAB_TOOLS.map((tool) => {
-          const ready = tool.status === "ready" && !!tool.href;
+          const ready = tool.status === "ready" && tool.href === "/lab/h2h";
           const card = (
             <Card
               title={tool.title}
@@ -47,7 +44,9 @@ function LabPage() {
                   {ready ? "可用" : tool.status === "locked" ? "鎖定" : "即將推出"}
                 </Pill>
               }
-              className={ready ? "mx-0 my-0 h-full transition-transform hover:-translate-y-0.5" : "mx-0 my-0"}
+              className={
+                ready ? "mx-0 my-0 h-full transition-transform hover:-translate-y-0.5" : "mx-0 my-0"
+              }
             >
               <p className="text-[12px] leading-relaxed text-ink-2">{tool.blurb}</p>
               {ready ? (
@@ -60,7 +59,7 @@ function LabPage() {
           return ready ? (
             <Link
               key={tool.key}
-              to={tool.href as "/lab/h2h" | "/lab/going"}
+              to="/lab/h2h"
               className="block rounded-[8px] outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {card}
@@ -74,7 +73,7 @@ function LabPage() {
       </section>
 
       <p className="mx-4 mt-4 text-[11px] leading-relaxed text-ink-3">
-        馬匹或騎師數據獨立比較、場地天氣已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
+        {H2H_PRODUCT_LABEL}已開放。內容僅供研究參考，唔構成投注建議。
       </p>
       <Disclaimer />
     </AppShell>

@@ -1,4 +1,19 @@
-/** 清單揀選（場地天氣／頭對頭共用）。空 id 代表「不限」，搜尋時仍釘在頂。 */
+/** 清單揀選。空 id 代表未揀／不限，搜尋時仍釘在頂。 */
+
+/**
+ * 清單只喺未揀、輸入框有焦點、或搜尋字非空時打開。
+ * 已揀而且搜尋清空、失焦（揀完會清空並 blur）就收起，避免手機鍵盤開住時成個表吊住。
+ */
+export function shouldShowOptionList(input: {
+  selectedId: string;
+  query: string;
+  focused: boolean;
+}): boolean {
+  if (input.focused) return true;
+  if (input.query.trim().length > 0) return true;
+  if (!input.selectedId) return true;
+  return false;
+}
 
 export type ListOption = {
   id: string;
@@ -18,7 +33,11 @@ export function filterListOptions(options: readonly ListOption[], query: string)
 }
 
 /** 深連結嘅舊值唔喺目錄時仍可顯示，避免揀選狀態消失。 */
-export function ensureListOption(options: readonly ListOption[], id: string, label?: string): ListOption[] {
+export function ensureListOption(
+  options: readonly ListOption[],
+  id: string,
+  label?: string,
+): ListOption[] {
   if (!id || options.some((o) => o.id === id)) return [...options];
   const extra: ListOption = label ? { id, label } : { id, label: id };
   return [...options, extra];
