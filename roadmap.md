@@ -1,9 +1,10 @@
 # 天喜香港賽馬路線圖（2026-10-13）
 
-## 2026-10-27 研究室下架走位節奏及彩池優化器（未發布；本節為現行研究室範圍）
+## 2026-10-27 研究室下架走位節奏及彩池優化器（已發布；本節為現行研究室範圍）
 - [x] 工具牆只保留頭對頭／場地天氣。`/lab/pace` 及 `/lab/pools` 以 replace redirect 去 `/lab`，與回測／比較器同一模式。
 - [x] 排位頁走位／節奏分頁、走位面板、彩池優化器產品 UI 及對應 Worker 呼叫已移除。特徵排序權重／模板／invert 不變。
-- [ ] 配對 tianxi-racing Worker：`/api/lab/pace*` 及 `/api/lab/pools*` 回 410。本輪不 migrate、不轉密鑰、不發布。
+- [x] 已發布至正式站（main `636a32ae`）：首頁 200、`/lab/h2h` 及 `/lab/going` 真內容顯示、`/lab/pace` 及 `/lab/pools` 轉回 `/lab`、`/today` 顯示 28/10 沙田下一賽日、無頁面錯誤。
+- [ ] 配對 tianxi-racing Worker：`/api/lab/pace*` 及 `/api/lab/pools*` 回 410。本輪不 migrate、不轉密鑰。
 
 ## 2026-10-27 PR #22 程式碼對齊（未發布；取代舊回測／比較器上線待辦）
 - [x] 固定 GitHub main `740a2b9d8a71e223bfc5b87c6eb13c7d5345031d`，同步12個差異檔及5個該PR明確刪除的回測／比較器檔；其他功能及本專案獨有檔不動。
