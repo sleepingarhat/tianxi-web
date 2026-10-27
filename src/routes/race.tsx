@@ -13,10 +13,8 @@ import { racePicksFromDay } from "@/lib/race-picks";
 
 
 import { AppShell } from "@/components/tx/AppShell";
-import { RacePacePanel } from "@/components/tx/RacePacePanel";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } from "@/components/tx/ui";
 import { canonicalRaceId, finishTime, fmtMeetingDate, txApi } from "@/lib/tx-api";
-import { useState } from "react";
 
 type Search = { id?: string | undefined };
 const racePageQuery = (id: string) => queryOptions({
@@ -125,8 +123,6 @@ function RacePage() {
   dayRacePicks.forEach((p: any) => pickRank.set(Number(p.horseNumber), Number(p.rank)));
   const hasResult = horses.some((h) => h.finishingPosition);
   const loading = !horses.length && (race.isLoading || meeting.isLoading);
-  const [tab, setTab] = useState<"entries" | "pace">("entries");
-  const canPace = Boolean(tier.has("pro"));
 
 
   return (
@@ -144,40 +140,6 @@ function RacePage() {
         desc={d ? `${d.class || ""} · ${d.distance || d.distanceM || ""}m · ${d.course || ""}` : undefined}
       />
 
-      <div className="mx-0 mb-3 flex gap-1 border-b border-hairline px-0">
-        {(
-          [
-            ["entries", "排位"],
-            ["pace", "走位／節奏"],
-          ] as const
-        ).map(([k, label]) => (
-          <button
-            key={k}
-            type="button"
-            onClick={() => setTab(k)}
-            className={`-mb-px border-b-2 px-3 py-2 text-[12px] font-bold ${
-              tab === k ? "border-gold text-ink" : "border-transparent text-ink-3"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "pace" ? (
-        canPace ? (
-          <RacePacePanel raceId={raceId} finished={hasResult} />
-        ) : (
-          <Card title="走位／節奏" en="Pace">
-            <p className="text-[12px] text-ink-2">此分頁為 Pro 研究室功能；升級後可睇分段、走位圖同今場節奏研究提示。</p>
-            <p className="mt-2 text-[10px] text-ink-3">研究提示・唔入排名</p>
-            {!tier.loading ? <UpgradeCard need={tier.has("registered") ? "pro" : "registered"} feature="走位節奏研究室" /> : null}
-          </Card>
-        )
-      ) : null}
-
-      {tab === "entries" ? (
-      <>
       <Card title="排位" en="Entries">
         {loading ? (
           <Loading />
@@ -267,10 +229,8 @@ function RacePage() {
           <Empty label="尚未產生預測" />
         )}
       </Card>
-      </>
-      ) : null}
 
-      {tab === "entries" && !tier.loading && !tier.has("pro") ? <UpgradeCard need={tier.has("registered") ? "pro" : "registered"} feature={tier.has("registered") ? "完整引擎排名及機率" : "每場引擎首選及機率"} /> : null}
+      {!tier.loading && !tier.has("pro") ? <UpgradeCard need={tier.has("registered") ? "pro" : "registered"} feature={tier.has("registered") ? "完整引擎排名及機率" : "每場引擎首選及機率"} /> : null}
       <Disclaimer />
     </AppShell>
   );

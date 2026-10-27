@@ -1,4 +1,4 @@
-/** 研究室工具牆（已開通頭對頭、走位節奏、場地天氣、彩池優化）。 */
+/** 研究室工具牆（已開通頭對頭、場地天氣）。 */
 
 export type LabTool = {
   key: string;
@@ -19,27 +19,11 @@ export const LAB_TOOLS: readonly LabTool[] = [
     href: "/lab/h2h",
   },
   {
-    key: "pace",
-    title: "走位節奏",
-    en: "Pace rhythm",
-    blurb: "分段時間、走位 bump chart、今場跑法組成同節奏研究提示。",
-    status: "ready",
-    href: "/lab/pace",
-  },
-  {
     key: "going",
     title: "場地天氣",
     en: "Going & weather",
     blurb: "地況快照、檔位熱圖、跑法偏差、「今日合地」研究名單。",
     status: "ready",
     href: "/lab/going",
-  },
-  {
-    key: "pool-opt",
-    title: "彩池優化器",
-    en: "Pool optimizer",
-    blurb: "凍結 pWin + Harville 組合機率；研究層・唔入公開戰績。",
-    status: "ready",
-    href: "/lab/pools",
   },
 ] as const;

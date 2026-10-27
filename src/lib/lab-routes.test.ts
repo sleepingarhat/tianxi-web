@@ -23,9 +23,9 @@ describe("研究室路由結構", () => {
     expect(index).toContain("LAB_TOOLS");
   });
 
-  it("四張研究卡子頁存在並以 /lab 為父", () => {
+  it("頭對頭／場地天氣子頁同已下架轉址仍登記於 /lab 之下", () => {
     const tree = readFileSync(join(__dirname, "..", "routeTree.gen.ts"), "utf8");
-    for (const path of ["/lab/h2h", "/lab/pace", "/lab/going", "/lab/pools"]) {
+    for (const path of ["/lab/h2h", "/lab/going", "/lab/pace", "/lab/pools", "/lab/backtest", "/lab/compare"]) {
       expect(tree).toContain(`'${path}'`);
     }
     expect(tree).toContain("'/lab/'");

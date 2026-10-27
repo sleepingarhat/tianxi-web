@@ -4,9 +4,8 @@ import { describe, expect, it } from "vitest";
 import { LAB_TOOLS } from "./lab-tools";
 
 describe("lab backtest/compare decommission", () => {
-  it("LAB_TOOLS 不再列出回測／比較器；其餘四工具保留", () => {
+  it("LAB_TOOLS 不再列出回測／比較器", () => {
     expect(LAB_TOOLS.some((t) => t.key === "backtest" || t.key === "compare")).toBe(false);
-    expect(LAB_TOOLS.map((t) => t.key).sort()).toEqual(["going", "h2h", "pace", "pool-opt"].sort());
   });
 
   it("/lab/backtest 與 /lab/compare 只做 replace 轉去 /lab", () => {
@@ -30,5 +29,50 @@ describe("lab backtest/compare decommission", () => {
     expect(existsSync("src/lib/lab-backtest.functions.ts")).toBe(false);
     expect(existsSync("src/lib/lab-compare-ui.ts")).toBe(false);
     expect(existsSync("src/lib/lab-compare-ui.test.ts")).toBe(false);
+  });
+});
+
+describe("lab pace/pools decommission", () => {
+  it("LAB_TOOLS 只保留頭對頭同場地天氣", () => {
+    expect(LAB_TOOLS.map((t) => t.key).sort()).toEqual(["going", "h2h"]);
+    expect(LAB_TOOLS.every((t) => t.status === "ready" && !!t.href)).toBe(true);
+    expect(LAB_TOOLS.find((t) => t.key === "pace")).toBeUndefined();
+    expect(LAB_TOOLS.find((t) => t.key === "pool-opt")).toBeUndefined();
+  });
+
+  it("/lab/pace 與 /lab/pools 只做 replace 轉去 /lab", () => {
+    for (const path of ["src/routes/lab.pace.tsx", "src/routes/lab.pools.tsx"]) {
+      const src = readFileSync(path, "utf8");
+      expect(src).toContain('redirect({ to: "/lab", replace: true })');
+      expect(src).not.toContain("FeaturePageGate");
+      expect(src).not.toContain("getLabPace");
+      expect(src).not.toContain("optimizeLabPools");
+      expect(src).not.toContain("PaceBumpChart");
+    }
+  });
+
+  it("走位節奏／彩池優化器產品 UI 已刪", () => {
+    for (const path of [
+      "src/components/tx/RacePacePanel.tsx",
+      "src/components/tx/PaceBumpChart.tsx",
+      "src/lib/lab-pace.functions.ts",
+      "src/lib/lab-pace-ui.ts",
+      "src/lib/lab-pace-ui.test.ts",
+      "src/lib/lab-pools.functions.ts",
+      "src/lib/lab-pools.functions.test.ts",
+      "src/lib/lab-pools-ui.ts",
+      "src/lib/lab-pools.test.ts",
+    ]) {
+      expect(existsSync(path)).toBe(false);
+    }
+    const race = readFileSync("src/routes/race.tsx", "utf8");
+    expect(race).not.toContain("RacePacePanel");
+    expect(race).not.toContain("走位／節奏");
+    expect(race).not.toContain("/lab/pace");
+    const index = readFileSync("src/routes/lab.index.tsx", "utf8");
+    expect(index).not.toContain("走位節奏");
+    expect(index).not.toContain("彩池優化");
+    expect(index).not.toContain("/lab/pace");
+    expect(index).not.toContain("/lab/pools");
   });
 });

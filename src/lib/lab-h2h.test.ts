@@ -10,16 +10,19 @@ import {
 } from "./lab-h2h-ui";
 
 describe("lab-tools", () => {
-  it("頭對頭／走位／場地／彩池入口為 ready；自訂回測與比較器已下架", () => {
+  it("頭對頭／場地入口為 ready；走位節奏、彩池優化器、自訂回測與比較器已下架", () => {
     const h2h = LAB_TOOLS.find((t) => t.key === "h2h");
     expect(h2h?.status).toBe("ready");
     expect(h2h?.href).toBe("/lab/h2h");
-    const pool = LAB_TOOLS.find((t) => t.key === "pool-opt");
-    expect(pool?.status).toBe("ready");
-    expect(pool?.href).toBe("/lab/pools");
+    const going = LAB_TOOLS.find((t) => t.key === "going");
+    expect(going?.status).toBe("ready");
+    expect(going?.href).toBe("/lab/going");
+    expect(LAB_TOOLS).toHaveLength(2);
+    expect(LAB_TOOLS.find((t) => t.key === "pace")).toBeUndefined();
+    expect(LAB_TOOLS.find((t) => t.key === "pool-opt")).toBeUndefined();
     expect(LAB_TOOLS.find((t) => t.key === "backtest")).toBeUndefined();
     expect(LAB_TOOLS.find((t) => t.key === "compare")).toBeUndefined();
-    const opened = new Set(["h2h", "pace", "going", "pool-opt"]);
+    const opened = new Set(["h2h", "going"]);
     expect(LAB_TOOLS.filter((t) => !opened.has(t.key)).every((t) => t.status !== "ready")).toBe(true);
   });
 });
