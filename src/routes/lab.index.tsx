@@ -11,7 +11,7 @@ export const Route = createFileRoute("/lab/")({
       { title: "研究室 · 天喜 TIANXI" },
       {
         name: "description",
-        content: "Pro 研究層工具牆：頭對頭、走位、場地天氣、彩池優化。",
+        content: "Pro 研究層工具牆：頭對頭、場地天氣。",
       },
       { property: "og:title", content: "研究室 · 天喜 TIANXI" },
       { property: "og:description", content: "Pro 研究層工具牆；未上線工具標明即將推出。" },
@@ -60,7 +60,7 @@ function LabPage() {
           return ready ? (
             <Link
               key={tool.key}
-              to={tool.href as "/lab/h2h" | "/lab/pace" | "/lab/going" | "/lab/pools"}
+              to={tool.href as "/lab/h2h" | "/lab/going"}
               className="block rounded-[8px] outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {card}
@@ -74,7 +74,7 @@ function LabPage() {
       </section>
 
       <p className="mx-4 mt-4 text-[11px] leading-relaxed text-ink-3">
-        頭對頭、走位節奏、場地天氣、彩池優化已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
+        頭對頭、場地天氣已開放；其餘工具分批上線。內容僅供研究參考，唔構成投注建議。
       </p>
       <Disclaimer />
     </AppShell>

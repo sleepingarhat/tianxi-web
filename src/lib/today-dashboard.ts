@@ -198,7 +198,7 @@ export type LabTool = {
   href?: string;
 };
 
-/** 研究室工具位外殼（P1；自訂回測／比較器已下架）。 */
+/** 研究室工具位外殼（P1；回測、比較器、走位節奏、彩池優化器已下架）。 */
 export const LAB_TOOLS: readonly LabTool[] = [
   {
     key: "h2h",
@@ -208,24 +208,10 @@ export const LAB_TOOLS: readonly LabTool[] = [
     status: "soon",
   },
   {
-    key: "pace",
-    title: "走位節奏",
-    en: "Pace rhythm",
-    blurb: "走位節奏研究層；本批未實作。",
-    status: "soon",
-  },
-  {
     key: "going",
     title: "場地天氣",
     en: "Going & weather",
     blurb: "場地／天氣研究工具；本批未實作。",
     status: "soon",
-  },
-  {
-    key: "pool-opt",
-    title: "彩池優化器",
-    en: "Pool optimizer",
-    blurb: "彩池組合優化（#9）；本批刻意未做。",
-    status: "locked",
   },
 ] as const;
