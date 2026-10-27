@@ -307,20 +307,13 @@ export type LabTool = {
   href?: string;
 };
 
-/** 功能頁工具位外殼（P1；回測、比較器、走位節奏、彩池優化器已下架）。 */
+/** 功能頁工具位外殼（P1；回測、比較器、走位節奏、彩池優化器、場地工具已下架）。 */
 export const LAB_TOOLS: readonly LabTool[] = [
   {
     key: "h2h",
-    title: "馬匹或騎師數據獨立比較",
+    title: "馬騎練數據獨立比較",
     en: "Independent comparison",
-    blurb: "分開比較兩匹馬或兩位騎師；留第二批（需 Worker API）。",
-    status: "soon",
-  },
-  {
-    key: "going",
-    title: "場地天氣",
-    en: "Going & weather",
-    blurb: "場地／天氣研究工具；本批未實作。",
+    blurb: "分開比較兩匹馬、兩位騎師或兩位練馬師；留第二批（需 Worker API）。",
     status: "soon",
   },
 ] as const;

@@ -178,9 +178,10 @@ describe("today-dashboard", () => {
   it("venueLabel 同功能頁工具位外殼（無回測／比較器／走位／彩池）", () => {
     expect(venueLabel("ST")).toBe("沙田");
     expect(venueLabel("HV")).toBe("跑馬地");
-    expect(LAB_TOOLS.map((t) => t.key).sort()).toEqual(["going", "h2h"]);
+    expect(LAB_TOOLS.map((t) => t.key)).toEqual(["h2h"]);
+    expect(LAB_TOOLS[0]?.title).toBe("馬騎練數據獨立比較");
     expect(LAB_TOOLS.every((t) => t.status === "soon" || t.status === "locked")).toBe(true);
     expect(LAB_TOOLS.some((t) => t.status === "ready")).toBe(false);
-    expect(LAB_TOOLS.some((t) => t.key === "backtest" || t.key === "compare" || t.key === "pace" || t.key === "pool-opt")).toBe(false);
+    expect(LAB_TOOLS.some((t) => t.key === "going" || t.key === "backtest" || t.key === "compare" || t.key === "pace" || t.key === "pool-opt")).toBe(false);
   });
 });

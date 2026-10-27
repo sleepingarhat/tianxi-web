@@ -23,9 +23,16 @@ describe("功能頁路由結構", () => {
     expect(index).toContain("LAB_TOOLS");
   });
 
-  it("頭對頭／場地天氣子頁同已下架轉址仍登記於 /lab 之下", () => {
+  it("頭對頭子頁同已下架轉址仍登記於 /lab 之下", () => {
     const tree = readFileSync(join(__dirname, "..", "routeTree.gen.ts"), "utf8");
-    for (const path of ["/lab/h2h", "/lab/going", "/lab/pace", "/lab/pools", "/lab/backtest", "/lab/compare"]) {
+    for (const path of [
+      "/lab/h2h",
+      "/lab/going",
+      "/lab/pace",
+      "/lab/pools",
+      "/lab/backtest",
+      "/lab/compare",
+    ]) {
       expect(tree).toContain(`'${path}'`);
     }
     expect(tree).toContain("'/lab/'");
@@ -38,7 +45,6 @@ describe("功能頁路由結構", () => {
       join(routesDir, "lab.h2h.tsx"),
       join(routesDir, "lab.going.tsx"),
       join(__dirname, "lab-h2h.functions.ts"),
-      join(__dirname, "lab-going.functions.ts"),
       join(__dirname, "lab-tools.ts"),
     ];
     for (const path of files) {
@@ -61,10 +67,15 @@ describe("功能頁路由結構", () => {
     expect(h2h).toContain('createFileRoute("/lab/h2h")');
     expect(h2h).not.toContain("對調");
     const going = readFileSync(join(routesDir, "lab.going.tsx"), "utf8");
-    expect(going).toContain("← 功能");
-    expect(going).toContain("場地天氣 · 功能 · 天喜 TIANXI");
+    expect(going).toContain('redirect({ to: "/lab", replace: true })');
     expect(going).toContain('createFileRoute("/lab/going")');
-    expect(readFileSync(join(__dirname, "lab-h2h.functions.ts"), "utf8")).toContain("功能服務憑證未就緒，請稍後再試");
-    expect(readFileSync(join(__dirname, "lab-going.functions.ts"), "utf8")).toContain("功能服務憑證未就緒，請稍後再試");
+    expect(going).not.toContain("場地天氣");
+    expect(going).not.toContain("FeaturePageGate");
+    expect(readFileSync(join(__dirname, "lab-h2h.functions.ts"), "utf8")).toContain(
+      "功能服務憑證未就緒，請稍後再試",
+    );
+    expect(readFileSync(join(__dirname, "lab-h2h.functions.ts"), "utf8")).toContain(
+      "練馬師比較暫時未能讀取，請稍後再試",
+    );
   });
 });
