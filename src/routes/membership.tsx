@@ -4,14 +4,13 @@ import { useAuthState } from "@/lib/useAuthState";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { FreeStageRoadmap } from "@/components/tx/FreeStageRoadmap";
-import { Button } from "@/components/ui/button";
 import { FoundingMemberOffer } from "@/components/tx/FoundingMemberOffer";
 import { MembershipStatus } from "@/components/tx/MembershipStatus";
 import {CryptoPasses} from '@/components/tx/CryptoPasses';
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { FREE_STAGE_GOAL_MEMBERS, PRO_WEEKLY_PRICE_HKD } from "@/lib/freeStage";
 import { useFoundingInfo } from "@/lib/founding-info";
-import { Card, Disclaimer, PageHead, Pill } from "@/components/tx/ui";
+import { Card, Disclaimer, PageHead, Pill, TxCta } from "@/components/tx/ui";
 
 export const Route = createFileRoute("/membership")({
   head: () => ({
@@ -69,12 +68,12 @@ function MembershipPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 px-4 py-5">
-        <Button asChild variant="outline" className="h-11 border-hairline bg-paper text-ink hover:bg-paper-2"><Link to="/track-record">公開戰績 →</Link></Button>
+        <TxCta asChild variant="outline" className="h-11 rounded-[8px]"><Link to="/track-record">公開戰績 →</Link></TxCta>
         {signedIn ? (
-          <Button asChild className="h-11 bg-deep text-deep-fg hover:bg-deep/90"><Link to="/predictor">睇今日四揀 →</Link></Button>
+          <TxCta asChild variant="deep" className="h-11 rounded-[8px]"><Link to="/predictor">睇今日四揀 →</Link></TxCta>
         ) : signedIn === false ? (
           <>
-            <Button asChild className="h-11 bg-deep text-deep-fg hover:bg-deep/90"><Link to="/auth" search={{ mode: "signup" }}>現在註冊 →</Link></Button>
+            <TxCta asChild variant="deep" className="h-11 rounded-[8px]"><Link to="/auth" search={{ mode: "signup" }}>現在註冊 →</Link></TxCta>
             <Link to="/auth" className="col-span-2 text-center text-[12px] text-ink-3 underline underline-offset-4">已有帳戶？登入</Link>
           </>
         ) : null}
