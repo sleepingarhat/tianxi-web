@@ -59,6 +59,7 @@ import { Route as EngineMonitorRouteImport } from './routes/engine.monitor'
 import { Route as EngineResidualsRouteImport } from './routes/engine.residuals'
 import { Route as ExplainIndexRouteImport } from './routes/explain.index'
 import { Route as ExplainDateRouteImport } from './routes/explain.$date'
+import { Route as LabIndexRouteImport } from './routes/lab.index'
 import { Route as LabBacktestRouteImport } from './routes/lab.backtest'
 import { Route as LabCompareRouteImport } from './routes/lab.compare'
 import { Route as LabGoingRouteImport } from './routes/lab.going'
@@ -367,6 +368,11 @@ const ExplainDateRoute = ExplainDateRouteImport.update({
   id: '/explain/$date',
   path: '/explain/$date',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LabIndexRoute = LabIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LabRoute,
 } as any)
 const LabBacktestRoute = LabBacktestRouteImport.update({
   id: '/backtest',
@@ -750,6 +756,7 @@ export interface FileRoutesByFullPath {
   '/lab/pools': typeof LabPoolsRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
+  '/lab/': typeof LabIndexRoute
   '/account/api': typeof AuthenticatedAccountApiRoute
   '/admin/console': typeof AuthenticatedAdminConsoleRoute
   '/admin/data-freshness': typeof AuthenticatedAdminDataFreshnessRoute
@@ -816,7 +823,6 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
   '/horse': typeof HorseRoute
-  '/lab': typeof LabRouteWithChildren
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
   '/media-credits': typeof MediaCreditsRoute
@@ -858,6 +864,7 @@ export interface FileRoutesByTo {
   '/lab/pools': typeof LabPoolsRoute
   '/engine': typeof EngineIndexRoute
   '/explain': typeof ExplainIndexRoute
+  '/lab': typeof LabIndexRoute
   '/account/api': typeof AuthenticatedAccountApiRoute
   '/admin/console': typeof AuthenticatedAdminConsoleRoute
   '/admin/data-freshness': typeof AuthenticatedAdminDataFreshnessRoute
@@ -969,6 +976,7 @@ export interface FileRoutesById {
   '/lab/pools': typeof LabPoolsRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
+  '/lab/': typeof LabIndexRoute
   '/_authenticated/account/api': typeof AuthenticatedAccountApiRoute
   '/_authenticated/admin/console': typeof AuthenticatedAdminConsoleRoute
   '/_authenticated/admin/data-freshness': typeof AuthenticatedAdminDataFreshnessRoute
@@ -1080,6 +1088,7 @@ export interface FileRouteTypes {
     | '/lab/pools'
     | '/engine/'
     | '/explain/'
+    | '/lab/'
     | '/account/api'
     | '/admin/console'
     | '/admin/data-freshness'
@@ -1146,7 +1155,6 @@ export interface FileRouteTypes {
     | '/features'
     | '/freeze-ledger'
     | '/horse'
-    | '/lab'
     | '/login'
     | '/manual'
     | '/media-credits'
@@ -1188,6 +1196,7 @@ export interface FileRouteTypes {
     | '/lab/pools'
     | '/engine'
     | '/explain'
+    | '/lab'
     | '/account/api'
     | '/admin/console'
     | '/admin/data-freshness'
@@ -1298,6 +1307,7 @@ export interface FileRouteTypes {
     | '/lab/pools'
     | '/engine/'
     | '/explain/'
+    | '/lab/'
     | '/_authenticated/account/api'
     | '/_authenticated/admin/console'
     | '/_authenticated/admin/data-freshness'
@@ -1794,6 +1804,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExplainDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lab/': {
+      id: '/lab/'
+      path: '/'
+      fullPath: '/lab/'
+      preLoaderRoute: typeof LabIndexRouteImport
+      parentRoute: typeof LabRoute
+    }
     '/lab/backtest': {
       id: '/lab/backtest'
       path: '/backtest'
@@ -2268,6 +2285,7 @@ interface LabRouteChildren {
   LabH2hRoute: typeof LabH2hRoute
   LabPaceRoute: typeof LabPaceRoute
   LabPoolsRoute: typeof LabPoolsRoute
+  LabIndexRoute: typeof LabIndexRoute
 }
 
 const LabRouteChildren: LabRouteChildren = {
@@ -2277,6 +2295,7 @@ const LabRouteChildren: LabRouteChildren = {
   LabH2hRoute: LabH2hRoute,
   LabPaceRoute: LabPaceRoute,
   LabPoolsRoute: LabPoolsRoute,
+  LabIndexRoute: LabIndexRoute,
 }
 
 const LabRouteWithChildren = LabRoute._addFileChildren(LabRouteChildren)
