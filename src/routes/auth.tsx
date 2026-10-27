@@ -3,7 +3,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { AppShell } from "@/components/tx/AppShell";
-import { Card, PageHead } from "@/components/tx/ui";
+import { Card, PageHead, TxCta } from "@/components/tx/ui";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/track";
 import { Button } from "@/components/ui/button";
@@ -230,13 +230,14 @@ function AuthPage() {
             />
             {mode === "signup" && <PasswordMeter pw={password} />}
           </label>
-          <Button
+          <TxCta
             type="submit"
+            variant="deep"
             disabled={busy}
-            className="w-full rounded-[8px] bg-deep px-3 py-2 font-serif-tc text-[13px] text-deep-fg disabled:opacity-50"
+            className="w-full rounded-[8px] font-serif-tc"
           >
             {busy ? "處理中…" : mode === "signin" ? "登入" : "免費建立帳戶"}
-          </Button>
+          </TxCta>
         </form>
 
         <Button

@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthState } from "@/lib/useAuthState";
 import tianxiLogo from "@/assets/tianxi-racing-logo-v10.jpg";
+import { TxCta } from "./ui";
 import { OverflowTicker } from "./OverflowTicker";
 import { WatchNotificationsBell } from "./WatchNotificationsBell";
 import { TierBadge } from "./gates/TierBadge";
@@ -192,22 +193,20 @@ export function AppShell({
                 >
                   登入
                 </Link>
-                <Link
-                  to="/membership"
-                  aria-label="升級 Pro"
-                  className="flex h-8 items-center whitespace-nowrap rounded-full border border-gold bg-gradient-to-b from-gold-strong to-gold px-3.5 font-serif-tc text-[12px] font-bold tracking-[0.03em] text-[#3a2a08] shadow-[0_1px_2px_rgba(0,0,0,0.2)] transition-transform active:scale-95 max-[380px]:px-2.5"
-                >
-                  <span className="max-[380px]:hidden">升級 Pro</span>
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="hidden h-4 w-4 max-[380px]:block"
-                    fill="currentColor"
-                    stroke="none"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5z" />
-                  </svg>
-                </Link>
+                <TxCta asChild variant="gold" size="sm" className="max-[380px]:px-2.5">
+                  <Link to="/membership" aria-label="升級 Pro">
+                    <span className="max-[380px]:hidden">升級 Pro</span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="hidden h-4 w-4 max-[380px]:block"
+                      fill="currentColor"
+                      stroke="none"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5L2.6 9.3l6.5-.9L12 2.5z" />
+                    </svg>
+                  </Link>
+                </TxCta>
               </>
             )}
           </div>

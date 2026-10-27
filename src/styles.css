@@ -157,6 +157,7 @@
   --tx-gold: oklch(0.6760 0.1211 86.15);
   --tx-gold-strong: oklch(0.7372 0.1444 84.44);
   --tx-gold-bg: oklch(0.9580 0.0419 92.20);
+  --tx-gold-ink: oklch(0.2950 0.0550 75.00); /* dark ink on gold CTA (~#3a2a08) */
   --tx-win: oklch(0.5364 0.1457 150.58);
   --tx-lose: oklch(0.5304 0.2074 22.32);
   --tx-brown: oklch(0.3823 0.0636 58.68);
@@ -180,6 +181,7 @@
   --color-gold: var(--tx-gold);
   --color-gold-strong: var(--tx-gold-strong);
   --color-gold-bg: var(--tx-gold-bg);
+  --color-gold-ink: var(--tx-gold-ink);
   --color-win: var(--tx-win);
   --color-lose: var(--tx-lose);
   --color-brown: var(--tx-brown);
@@ -189,6 +191,28 @@
   --font-serif-tc: "Noto Serif TC", serif;
   --font-sans-tc: "Noto Sans TC", system-ui, sans-serif;
   --font-mono-tx: "JetBrains Mono", ui-monospace, monospace;
+}
+
+
+/* ── Phase 1: shadcn semantic → 紙/墨/金（--tx-* 為準；.tx-admin 仍用自己嘅 --tx-*） ── */
+:root {
+  --primary: var(--tx-deep);
+  --primary-foreground: var(--tx-deep-fg);
+  --muted: var(--tx-paper-3);
+  --muted-foreground: var(--tx-ink-3);
+  --border: var(--tx-hairline);
+  --input: var(--tx-hairline);
+  --ring: var(--tx-gold);
+  --background: var(--tx-paper);
+  --foreground: var(--tx-ink);
+  --card: var(--tx-paper);
+  --card-foreground: var(--tx-ink);
+  --popover: var(--tx-paper);
+  --popover-foreground: var(--tx-ink);
+  --secondary: var(--tx-paper-2);
+  --secondary-foreground: var(--tx-ink);
+  --accent: var(--tx-gold-bg);
+  --accent-foreground: var(--tx-ink);
 }
 
 @utility tabnum {
@@ -434,6 +458,7 @@
   --tx-gold: #d4a11e;
   --tx-gold-strong: #d4a11e;
   --tx-gold-bg: rgba(212, 161, 30, 0.12);
+  --tx-gold-ink: #3a2a08;
   --tx-tan: #b8912f;
   --tx-win: #00843d;
   --tx-market: #2fb3d4;

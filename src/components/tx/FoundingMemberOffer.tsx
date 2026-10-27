@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Gift } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { TxCta } from "./ui";
 import { MemberCountdown } from "./MemberCountdown";
 import { ShareButton } from "./ShareCard";
 import { useAuthState } from "@/lib/useAuthState";
@@ -33,9 +33,9 @@ export function FoundingMemberOffer() {
           <MemberCountdown />
         </div>
         {signedIn === false ? (
-          <Button asChild size="lg" className="h-12 w-full bg-gold-strong font-bold text-ink hover:bg-gold md:w-auto">
+          <TxCta asChild variant="gold" size="lg" className="w-full md:w-auto">
             <Link to="/auth" search={{ mode: "signup" }}>現在註冊<ArrowRight aria-hidden /></Link>
-          </Button>
+          </TxCta>
         ) : null}
       </div>
     </section>

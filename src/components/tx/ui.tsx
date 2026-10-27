@@ -1,6 +1,10 @@
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef } from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { silksCodeOf, silksGifUrl, silksHdUrl } from "@/lib/tx-api";
+import { cn } from "@/lib/utils";
 
 import { LemniLoader } from "./LemniLoader";
 
@@ -143,19 +147,67 @@ export function SkeletonRows({ rows = 3 }: { rows?: number }) {
   return (
     <div className="space-y-2" aria-hidden="true">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 rounded-[10px] border border-border/60 p-3">
-          <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-muted" />
+        <div key={i} className="flex items-center gap-3 rounded-[10px] border border-hairline p-3">
+          <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-paper-3" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
-            <div className="h-2.5 w-1/3 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-2/3 animate-pulse rounded bg-paper-3" />
+            <div className="h-2.5 w-1/3 animate-pulse rounded bg-paper-3" />
           </div>
-          <div className="h-5 w-10 animate-pulse rounded bg-muted" />
+          <div className="h-5 w-10 animate-pulse rounded bg-paper-3" />
         </div>
       ))}
     </div>
   );
 }
 
+
+
+/** 天喜公開 CTA：Gold / Deep / Outline（紙墨金語言） */
+const txCtaVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        gold:
+          "rounded-full border border-gold bg-gradient-to-b from-gold-strong to-gold text-gold-ink shadow-[0_1px_2px_color-mix(in_oklab,var(--tx-ink)_20%,transparent)] hover:brightness-[1.03]",
+        deep:
+          "rounded-full border border-deep bg-deep text-deep-fg shadow-sm hover:bg-deep/90",
+        outline:
+          "rounded-full border border-hairline bg-paper text-ink shadow-sm hover:bg-paper-2",
+      },
+      size: {
+        sm: "h-8 px-3.5 font-serif-tc text-[12px] tracking-[0.03em]",
+        md: "h-10 px-5 text-[13px]",
+        lg: "h-12 px-6 text-[14px]",
+      },
+    },
+    defaultVariants: {
+      variant: "deep",
+      size: "md",
+    },
+  },
+);
+
+export interface TxCtaProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof txCtaVariants> {
+  asChild?: boolean;
+}
+
+/** Brand CTA button. Prefer this over shadcn Button for public Gold/Deep/Outline actions. */
+export const TxCta = forwardRef<HTMLButtonElement, TxCtaProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return (
+      <Comp
+        className={cn(txCtaVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+TxCta.displayName = "TxCta";
 
 export function ErrorNote({ error }: { error: unknown }) {
   return (

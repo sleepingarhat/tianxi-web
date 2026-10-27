@@ -4,6 +4,7 @@ import { WeeklyRacecoursePosters } from "./RacecoursePhoto";
 import { Check } from "lucide-react";
 import type { ReactNode } from "react";
 import { FoundingMemberOffer } from "./FoundingMemberOffer";
+import { TxCta } from "./ui";
 
 /** 首頁：分段講解天喜賽馬預測引擎（參考「一段一功能 + 手機示意 + 編號標註」版式）。示意畫面唔係真實預測。 */
 
@@ -96,8 +97,8 @@ export function EngineLanding() {
             </h1>
             <p className="mt-3 max-w-md text-[14px] leading-relaxed text-ink-2">天喜專注沙田、跑馬地。由賽前資料到凍結預測、官方派彩對帳同六彩池盈虧，每一步都公開俾你核對。</p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link to="/predictor" className="rounded-full bg-gold px-5 py-2.5 text-[13px] font-bold text-ink shadow-md">睇今日四揀 →</Link>
-              <Link to="/strategy-pnl" className="rounded-full border border-hairline bg-paper-2 px-5 py-2.5 text-[13px] font-bold text-ink">策略盈虧紀錄</Link>
+              <TxCta asChild variant="gold"><Link to="/predictor">睇今日四揀 →</Link></TxCta>
+              <TxCta asChild variant="outline"><Link to="/strategy-pnl">策略盈虧紀錄</Link></TxCta>
             </div>
             <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-3">
               {["限時免費 · Pro 全站功能", "凍結預測唔改", "負數照實列"].map((t) => <li key={t} className="flex items-center gap-1"><Check className="h-3.5 w-3.5 text-win" aria-hidden />{t}</li>)}
