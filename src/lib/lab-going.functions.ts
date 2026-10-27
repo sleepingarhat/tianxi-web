@@ -134,7 +134,7 @@ export const getLabGoing = createServerFn({ method: "GET" })
       cache: "no-store",
       signal: AbortSignal.timeout(25_000),
     });
-    if (r.status === 401) throw new Error("研究室服務憑證未就緒，請稍後再試");
+    if (r.status === 401) throw new Error("功能服務憑證未就緒，請稍後再試");
     if (r.status === 400) {
       const body = (await r.json().catch(() => null)) as { error?: string } | null;
       throw new Error(body?.error ?? "參數唔啱");
@@ -156,7 +156,7 @@ export const getLabWeather = createServerFn({ method: "GET" })
         signal: AbortSignal.timeout(15_000),
       },
     );
-    if (r.status === 401) throw new Error("研究室服務憑證未就緒，請稍後再試");
+    if (r.status === 401) throw new Error("功能服務憑證未就緒，請稍後再試");
     if (r.status === 404) {
       const body = (await r.json().catch(() => null)) as { message?: string; error?: string } | null;
       throw new Error(body?.message ?? body?.error ?? "搵唔到該賽日");

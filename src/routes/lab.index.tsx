@@ -8,19 +8,19 @@ import { LAB_TOOLS } from "@/lib/lab-tools";
 export const Route = createFileRoute("/lab/")({
   head: () => ({
     meta: [
-      { title: "研究室 · 天喜 TIANXI" },
+      { title: "功能 · 天喜 TIANXI" },
       {
         name: "description",
-        content: "Pro 研究層工具牆：馬匹或騎師數據獨立比較、場地天氣。",
+        content: "Pro 功能：馬匹或騎師數據獨立比較、場地天氣。",
       },
-      { property: "og:title", content: "研究室 · 天喜 TIANXI" },
-      { property: "og:description", content: "Pro 研究層工具牆；未上線工具標明即將推出。" },
+      { property: "og:title", content: "功能 · 天喜 TIANXI" },
+      { property: "og:description", content: "Pro 功能；未上線工具標明即將推出。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
-    <FeaturePageGate min="pro" title="研究室">
+    <FeaturePageGate min="pro" title="功能">
       <LabPage />
     </FeaturePageGate>
   ),
@@ -28,11 +28,11 @@ export const Route = createFileRoute("/lab/")({
 
 function LabPage() {
   return (
-    <AppShell page="lab" columns={false} wide ticker="研究室 · 研究層工具 · 非投注建議">
+    <AppShell page="lab" columns={false} wide ticker="功能 · 研究層工具 · 非投注建議">
       <PageHead
-        en="Research lab"
-        title="研究室"
-        desc="Pro 研究層 · 工具分批上線；未實作者標「即將推出」"
+        en="Features"
+        title="功能"
+        desc="Pro 功能 · 工具分批上線；未實作者標「即將推出」"
       />
 
       <section className="mx-4 mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -53,7 +53,7 @@ function LabPage() {
               {ready ? (
                 <p className="mt-2 text-[11px] font-bold text-gold">進入 →</p>
               ) : (
-                <p className="mt-2 text-[10px] text-ink-3">研究層預告 · 功能本體未上線</p>
+                <p className="mt-2 text-[10px] text-ink-3">尚未上線</p>
               )}
             </Card>
           );

@@ -55,13 +55,13 @@ export const Route = createFileRoute("/lab/h2h")({
   },
   head: () => ({
     meta: [
-      { title: `${H2H_PRODUCT_LABEL} · 研究室 · 天喜 TIANXI` },
+      { title: `${H2H_PRODUCT_LABEL} · 功能 · 天喜 TIANXI` },
       {
         name: "description",
         content: "分開比較兩匹馬或兩位騎師：Elo 走勢、條件切片、跑法分佈同直接交手紀錄（Pro）。",
       },
       { property: "og:title", content: `${H2H_PRODUCT_LABEL} · 天喜 TIANXI` },
-      { property: "og:description", content: "Pro 研究室：馬匹或騎師數據獨立比較。" },
+      { property: "og:description", content: "Pro 功能：馬匹或騎師數據獨立比較。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -280,7 +280,7 @@ function H2hPage() {
         desc={
           <>
             <Link to="/lab" className="text-gold font-bold">
-              ← 研究室
+              ← 功能
             </Link>
             <span className="mx-2 text-ink-3">·</span>
             分開比較兩匹馬或兩位騎師嘅 Elo、條件、跑法同直接交手

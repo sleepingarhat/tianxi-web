@@ -17,7 +17,7 @@ export function FeaturePageGate({
   preview?: ReactNode;
 }) {
   const tier = useTier();
-  // loading 時唔好誤顯 Membership eyebrow（會令研究室工具「入唔到」）
+  // loading 時唔好誤顯 Membership eyebrow（會令功能頁工具「入唔到」）
   if (tier.loading) {
     return (
       <AppShell columns={false}>
