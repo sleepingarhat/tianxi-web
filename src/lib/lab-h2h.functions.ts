@@ -1,18 +1,28 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { validateEntityId } from "./lab-entity-id";
 import { requireTier } from "./tier.server";
 
 const typeSchema = z.enum(["horse", "jockey"]);
 
-const h2hInput = z.object({
-  type: typeSchema,
-  a: z.string().min(1).max(64),
-  b: z.string().min(1).max(64),
-  distance: z.number().positive().optional(),
-  going: z.string().max(40).optional(),
-  venue: z.enum(["ST", "HV"]).optional(),
-});
+const h2hInput = z
+  .object({
+    type: typeSchema,
+    a: z.string().trim().min(1).max(64),
+    b: z.string().trim().min(1).max(64),
+    distance: z.number().positive().optional(),
+    going: z.string().max(40).optional(),
+    venue: z.enum(["ST", "HV"]).optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (!validateEntityId(val.type, val.a)) {
+      ctx.addIssue({ code: "custom", path: ["a"], message: "對象 id 格式唔啱" });
+    }
+    if (!validateEntityId(val.type, val.b)) {
+      ctx.addIssue({ code: "custom", path: ["b"], message: "對象 id 格式唔啱" });
+    }
+  });
 
 const searchInput = z.object({
   type: typeSchema,

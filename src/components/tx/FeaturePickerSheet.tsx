@@ -25,7 +25,7 @@ const STATUS_TONE: Record<string, string> = {
   never: "bg-paper-3 text-lose border-hairline",
 };
 
-/** 可排序但唔屬於 74 項引擎目錄嘅特徵（網站自算） */
+/** 可即場排序但唔屬於引擎目錄嘅特徵（網站自算）。可排序 ≠ 未採用。 */
 const EXTRA_RANKABLE = FEATURES.filter((f) => !f.catalogId);
 
 export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }: Props) {
@@ -102,6 +102,7 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
             特徵目錄 · 全部 {FEATURE_STATS.total} 項
           </SheetTitle>
           <p className="text-[11px] leading-relaxed text-ink-3">
+            「已採用／未採用／永不採用」係引擎訓練狀態，「可排序」只代表呢頁可以即場排名，兩者唔係同一回事。未採用因子都可以排序，已採用因子亦未必全部開放。
             引擎目錄 {FEATURE_STATS.total} 項（已採用 {FEATURE_STATS.adopted}、未採用 {FEATURE_STATS.pending}
             、永不採用 {FEATURE_STATS.never}），其中 {FEATURES.length - EXTRA_RANKABLE.length}{" "}
             項可即場排序；另有 {EXTRA_RANKABLE.length} 項網站自算特徵。灰色鎖圖示者屬引擎內部訓練特徵，唔可以單獨排序。
@@ -184,7 +185,10 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
                             </span>
                           )}
                           {rankId && (
-                            <span className="rounded-full border border-gold-strong/40 bg-gold-bg px-1.5 py-[1px] text-[9px] font-bold text-gold">
+                            <span
+                              title="可即場排序，唔等於引擎未採用"
+                              className="rounded-full border border-gold-strong/40 bg-gold-bg px-1.5 py-[1px] text-[9px] font-bold text-gold"
+                            >
                               可排序
                             </span>
                           )}

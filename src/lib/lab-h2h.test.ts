@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 
+import { readFileSync } from "node:fs";
+
+import { validateEntityId } from "./lab-entity-id";
 import { LAB_TOOLS } from "./lab-tools";
 import {
+  H2H_PRODUCT_LABEL,
   aheadLabel,
   buildEloOption,
   entityLabel,
+  filterEntities,
   parseOptionalDistance,
+  selectableEntities,
   venueLabel,
 } from "./lab-h2h-ui";
 
@@ -14,6 +20,7 @@ describe("lab-tools", () => {
     const h2h = LAB_TOOLS.find((t) => t.key === "h2h");
     expect(h2h?.status).toBe("ready");
     expect(h2h?.href).toBe("/lab/h2h");
+    expect(h2h?.title).toBe(H2H_PRODUCT_LABEL);
     const going = LAB_TOOLS.find((t) => t.key === "going");
     expect(going?.status).toBe("ready");
     expect(going?.href).toBe("/lab/going");
@@ -24,6 +31,44 @@ describe("lab-tools", () => {
     expect(LAB_TOOLS.find((t) => t.key === "compare")).toBeUndefined();
     const opened = new Set(["h2h", "going"]);
     expect(LAB_TOOLS.filter((t) => !opened.has(t.key)).every((t) => t.status !== "ready")).toBe(true);
+  });
+});
+
+describe("validateEntityId", () => {
+  it("接受中文騎師 id，舊 ASCII 正則會拒絕", () => {
+    expect(validateEntityId("jockey", "jockey_潘頓")).toBe(true);
+    expect(validateEntityId("jockey", "jockey_莫雷拉")).toBe(true);
+    expect(validateEntityId("jockey", "jockey_郭能")).toBe(true);
+    expect(validateEntityId("jockey", "jockey_PZ")).toBe(true);
+    expect(validateEntityId("jockey", "jockey_---")).toBe(true);
+    expect(validateEntityId("jockey", "潘頓")).toBe(false);
+    expect(validateEntityId("jockey", "jockey_潘 頓")).toBe(false);
+    expect(validateEntityId("jockey", "jockey_潘.頓")).toBe(false);
+    expect(validateEntityId("jockey", "jockey_")).toBe(false);
+    expect(validateEntityId("horse", "horse_E061")).toBe(true);
+    expect(validateEntityId("horse", "horse_金鎗六十")).toBe(true);
+    expect(validateEntityId("horse", "jockey_潘頓")).toBe(false);
+    expect(/^jockey_[A-Za-z0-9_-]+$/.test("jockey_潘頓")).toBe(false);
+  });
+
+  it("清單只留通過驗證嘅對象，搜尋可篩中文名", () => {
+    const rows = selectableEntities("jockey", [
+      { id: "jockey_潘頓", nameCh: "潘頓", nameEn: null, code: null, status: "active" },
+      { id: "not-an-id", nameCh: "壞", nameEn: null, code: null, status: null },
+    ]);
+    expect(rows.map((r) => r.id)).toEqual(["jockey_潘頓"]);
+    expect(filterEntities(rows, "潘").map((r) => r.nameCh)).toEqual(["潘頓"]);
+    expect(filterEntities(rows, "zzz")).toEqual([]);
+  });
+});
+
+describe("h2h picker UX", () => {
+  it("頁面用清單揀選、產品名已改、冇對調", () => {
+    const src = readFileSync("src/routes/lab.h2h.tsx", "utf8");
+    expect(src).toContain("OptionListPicker");
+    expect(src).toContain(H2H_PRODUCT_LABEL);
+    expect(src).not.toContain("對調");
+    expect(src).not.toContain("searchLabEntity");
   });
 });
 

@@ -1,6 +1,30 @@
 import type { EChartsOption } from "echarts";
 
-import type { LabH2hPayload } from "./lab-h2h.functions";
+import type { LabH2hPayload, LabSearchItem } from "./lab-h2h.functions";
+import { validateEntityId } from "./lab-entity-id";
+
+export const H2H_PRODUCT_LABEL = "馬匹或騎師數據獨立比較";
+
+export { validateEntityId };
+
+export function selectableEntities(
+  type: "horse" | "jockey",
+  items: readonly LabSearchItem[],
+): LabSearchItem[] {
+  return items.filter((item) => validateEntityId(type, item.id));
+}
+
+export function filterEntities(items: readonly LabSearchItem[], query: string): LabSearchItem[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [...items];
+  return items.filter((item) =>
+    [item.nameCh, item.nameEn, item.code, item.id]
+      .filter((part): part is string => !!part)
+      .join(" ")
+      .toLowerCase()
+      .includes(q),
+  );
+}
 
 export function entityLabel(e: {
   nameCh: string | null;

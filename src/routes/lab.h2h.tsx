@@ -14,14 +14,21 @@ import {
   PageHead,
   Pill,
 } from "@/components/tx/ui";
-import { getLabH2h, searchLabEntity, type LabSearchItem } from "@/lib/lab-h2h.functions";
+import { OptionListPicker } from "@/components/tx/OptionListPicker";
+import { getLabH2h, type LabSearchItem } from "@/lib/lab-h2h.functions";
+import { validateEntityId } from "@/lib/lab-entity-id";
 import {
+  H2H_PRODUCT_LABEL,
   aheadLabel,
   buildEloOption,
   entityLabel,
+  filterEntities,
   parseOptionalDistance,
+  selectableEntities,
   venueLabel,
 } from "@/lib/lab-h2h-ui";
+import type { ListOption } from "@/lib/option-list";
+import { txApi } from "@/lib/tx-api";
 
 type H2hType = "horse" | "jockey";
 
@@ -48,23 +55,40 @@ export const Route = createFileRoute("/lab/h2h")({
   },
   head: () => ({
     meta: [
-      { title: "頭對頭比較 · 研究室 · 天喜 TIANXI" },
+      { title: `${H2H_PRODUCT_LABEL} · 研究室 · 天喜 TIANXI` },
       {
         name: "description",
-        content: "馬匹／騎師頭對頭：Elo 走勢、條件切片、跑法分佈同直接交手紀錄（Pro）。",
+        content: "分開比較兩匹馬或兩位騎師：Elo 走勢、條件切片、跑法分佈同直接交手紀錄（Pro）。",
       },
-      { property: "og:title", content: "頭對頭比較 · 天喜 TIANXI" },
-      { property: "og:description", content: "Pro 研究室頭對頭比較。" },
+      { property: "og:title", content: `${H2H_PRODUCT_LABEL} · 天喜 TIANXI` },
+      { property: "og:description", content: "Pro 研究室：馬匹或騎師數據獨立比較。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
-    <FeaturePageGate min="pro" title="頭對頭">
+    <FeaturePageGate min="pro" title={H2H_PRODUCT_LABEL}>
       <H2hPage />
     </FeaturePageGate>
   ),
 });
+
+function toSearchItem(raw: {
+  id?: string;
+  nameCh?: string | null;
+  nameEn?: string | null;
+  code?: string | null;
+  status?: string | null;
+}): LabSearchItem | null {
+  if (!raw.id) return null;
+  return {
+    id: raw.id,
+    nameCh: raw.nameCh ?? null,
+    nameEn: raw.nameEn ?? null,
+    code: raw.code ?? null,
+    status: raw.status ?? null,
+  };
+}
 
 function EntityPicker({
   label,
@@ -78,71 +102,85 @@ function EntityPicker({
   onSelect: (item: LabSearchItem | null) => void;
 }) {
   const [q, setQ] = useState("");
-  const search = useQuery({
-    queryKey: ["lab-search", type, q],
-    queryFn: () => searchLabEntity({ data: { type, q } }),
-    enabled: q.trim().length >= 1,
+  const jockeys = useQuery({
+    queryKey: ["lab-jockey-list"],
+    queryFn: () => txApi.jockeys() as Promise<{ jockeys?: Array<Record<string, unknown>> }>,
+    enabled: type === "jockey",
+    staleTime: 5 * 60_000,
+  });
+  const horses = useQuery({
+    queryKey: ["lab-horse-search", q.trim()],
+    queryFn: () => txApi.horseSearch(q.trim()) as Promise<{ horses?: Array<Record<string, unknown>> }>,
+    enabled: type === "horse" && q.trim().length >= 1,
     staleTime: 30_000,
   });
 
+  const catalog = useMemo(() => {
+    if (type === "jockey") {
+      const rows = (jockeys.data?.jockeys ?? [])
+        .map((row) =>
+          toSearchItem({
+            id: typeof row["id"] === "string" ? row["id"] : "",
+            nameCh: typeof row["nameCh"] === "string" ? row["nameCh"] : null,
+            nameEn: typeof row["nameEn"] === "string" ? row["nameEn"] : null,
+          }),
+        )
+        .filter((row): row is LabSearchItem => !!row);
+      return selectableEntities("jockey", rows);
+    }
+    const rows = (horses.data?.horses ?? [])
+      .map((row) =>
+        toSearchItem({
+          id: typeof row["id"] === "string" ? row["id"] : "",
+          nameCh: typeof row["nameCh"] === "string" ? row["nameCh"] : null,
+          nameEn: typeof row["nameEn"] === "string" ? row["nameEn"] : null,
+          code: typeof row["code"] === "string" ? row["code"] : null,
+          status: typeof row["status"] === "string" ? row["status"] : null,
+        }),
+      )
+      .filter((row): row is LabSearchItem => !!row);
+    return selectableEntities("horse", rows);
+  }, [type, jockeys.data, horses.data]);
+
+  const options: ListOption[] = filterEntities(catalog, q).map((item) => {
+    const opt: ListOption = { id: item.id, label: entityLabel(item) };
+    if (item.code) opt.hint = item.code;
+    return opt;
+  });
+  const byId = new Map(catalog.map((item) => [item.id, item]));
+
   return (
-    <div className="flex-1 min-w-[140px]">
-      <label className="mb-1 block text-[11px] font-bold text-ink-2">{label}</label>
+    <div className="min-w-0 flex-1">
+      <OptionListPicker
+        label={label}
+        query={q}
+        onQueryChange={setQ}
+        placeholder={type === "horse" ? "搜馬名或編號" : "搜騎師名"}
+        options={options}
+        selectedId={selected?.id ?? ""}
+        onSelect={(id) => {
+          const item = byId.get(id);
+          if (!item || !validateEntityId(type, item.id)) return;
+          onSelect(item);
+        }}
+        loading={type === "jockey" ? jockeys.isLoading : horses.isLoading}
+        emptyLabel={
+          type === "horse" && q.trim().length < 1
+            ? "輸入馬名或編號，喺清單揀"
+            : horses.isError || jockeys.isError
+              ? "清單暫時讀唔到"
+              : "冇符合項目"
+        }
+      />
       {selected ? (
-        <div className="flex items-center gap-2 rounded-md border border-hairline bg-paper-2 px-2 py-1.5">
-          <span className="flex-1 truncate text-[13px] font-serif-tc font-bold">
-            {entityLabel(selected)}
-            {selected.code ? (
-              <span className="ml-1 text-[10px] font-sans-tc font-normal text-ink-3">
-                {selected.code}
-              </span>
-            ) : null}
-          </span>
-          <button
-            type="button"
-            className="text-[11px] text-gold font-bold"
-            onClick={() => {
-              onSelect(null);
-              setQ("");
-            }}
-          >
-            清除
-          </button>
-        </div>
-      ) : (
-        <>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder={type === "horse" ? "搜馬名／編號" : "搜騎師名／代號"}
-            className="w-full rounded-md border border-hairline bg-paper px-2 py-1.5 text-[13px]"
-          />
-          {q.trim() ? (
-            <ul className="mt-1 max-h-40 overflow-auto rounded-md border border-hairline bg-paper text-[12px]">
-              {search.isLoading ? (
-                <li className="px-2 py-1.5 text-ink-3">搜緊…</li>
-              ) : search.error ? (
-                <li className="px-2 py-1.5 text-lose">搜尋失敗</li>
-              ) : (search.data?.items.length ?? 0) === 0 ? (
-                <li className="px-2 py-1.5 text-ink-3">冇結果</li>
-              ) : (
-                search.data!.items.map((item) => (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-2 px-2 py-1.5 text-left hover:bg-paper-2"
-                      onClick={() => onSelect(item)}
-                    >
-                      <span className="font-serif-tc font-bold">{entityLabel(item)}</span>
-                      {item.code ? <span className="text-[10px] text-ink-3">{item.code}</span> : null}
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
-          ) : null}
-        </>
-      )}
+        <button
+          type="button"
+          className="mt-1 text-[11px] font-bold text-gold"
+          onClick={() => onSelect(null)}
+        >
+          清除已揀：{entityLabel(selected)}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -164,7 +202,13 @@ function H2hPage() {
 
   const aId = pickA?.id ?? search.a;
   const bId = pickB?.id ?? search.b;
-  const canFetch = !!(aId && bId && aId !== bId);
+  const canFetch = !!(
+    aId &&
+    bId &&
+    aId !== bId &&
+    validateEntityId(type, aId) &&
+    validateEntityId(type, bId)
+  );
 
   const distNum = parseOptionalDistance(distance);
 
@@ -225,29 +269,21 @@ function H2hPage() {
     });
   }
 
-  function swap() {
-    const na = pickB;
-    const nb = pickA;
-    setPickA(na);
-    setPickB(nb);
-    syncUrl({ a: na?.id, b: nb?.id, distance: distance.trim(), going: going.trim(), venue });
-  }
-
   const nameA = q.data ? entityLabel(q.data.entities.a) : pickA ? entityLabel(pickA) : "A";
   const nameB = q.data ? entityLabel(q.data.entities.b) : pickB ? entityLabel(pickB) : "B";
 
   return (
-    <AppShell page="lab" columns={false} wide ticker="頭對頭 · 研究參考 · 非投注建議">
+    <AppShell page="lab" columns={false} wide ticker={`${H2H_PRODUCT_LABEL} · 研究參考 · 非投注建議`}>
       <PageHead
-        en="Head-to-head"
-        title="頭對頭比較"
+        en="Independent comparison"
+        title={H2H_PRODUCT_LABEL}
         desc={
           <>
             <Link to="/lab" className="text-gold font-bold">
               ← 研究室
             </Link>
             <span className="mx-2 text-ink-3">·</span>
-            馬／騎師 Elo、條件、跑法同直接交手
+            分開比較兩匹馬或兩位騎師嘅 Elo、條件、跑法同直接交手
           </>
         }
       />
@@ -272,9 +308,9 @@ function H2hPage() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <div className="grid gap-3 sm:grid-cols-2">
           <EntityPicker
-            label="對象 A"
+            label={type === "horse" ? "馬匹 A" : "騎師 A"}
             type={type}
             selected={pickA}
             onSelect={(item) => {
@@ -288,16 +324,8 @@ function H2hPage() {
               });
             }}
           />
-          <button
-            type="button"
-            onClick={swap}
-            className="mt-5 self-center rounded-md border border-hairline px-2 py-1 text-[11px] font-bold text-gold"
-            aria-label="對調"
-          >
-            對調 ⇄
-          </button>
           <EntityPicker
-            label="對象 B"
+            label={type === "horse" ? "馬匹 B" : "騎師 B"}
             type={type}
             selected={pickB}
             onSelect={(item) => {
@@ -361,7 +389,7 @@ function H2hPage() {
           <Empty label="揀兩個唔同對象開始比較" />
         </div>
       ) : q.isLoading ? (
-        <Loading label="讀緊頭對頭資料…" />
+        <Loading label="讀緊比較資料…" />
       ) : q.error ? (
         <div>
           <ErrorNote error={q.error} />
@@ -491,7 +519,7 @@ function H2hPage() {
       ) : null}
 
       <p className="mx-4 mt-4 text-[11px] leading-relaxed text-ink-3">
-        頭對頭只整理歷史表現同 Elo，唔預測勝負，亦唔構成投注建議。
+        {H2H_PRODUCT_LABEL}只整理歷史表現同 Elo，唔預測勝負，亦唔構成投注建議。
       </p>
       <Disclaimer />
     </AppShell>

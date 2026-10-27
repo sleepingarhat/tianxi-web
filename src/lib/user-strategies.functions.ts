@@ -21,7 +21,6 @@ const poolSchema = z.enum(["FF", "TRIO", "TIERCE", "QUARTET"]);
 const weightSchema = z.object({
   id: z.enum(FEATURE_ID_VALUES),
   weight: z.number().min(0).max(3),
-  invert: z.boolean().optional(),
 });
 
 const upsertInput = z.object({

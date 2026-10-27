@@ -82,10 +82,8 @@ export function computeComposite(horses: Horse[], selected: FeatureId[]): Compos
 
 export type FeatureWeightSpec = {
   id: FeatureId;
-  /** 0–3, step 0.5；0＝唔用 */
+  /** 0–3, step 0.5；0＝唔用。分數愈高愈好，冇反向。 */
   weight: number;
-  /** 反向：用 100−score */
-  invert?: boolean;
 };
 
 function clampWeight(w: number): number {
@@ -118,8 +116,7 @@ export function computeWeightedComposite(
       for (const w of active) {
         const raw = horse.stats[w.id]?.score;
         if (raw == null || !Number.isFinite(raw)) continue;
-        const v = w.invert ? 100 - raw : raw;
-        sum += v * w.weight;
+        sum += raw * w.weight;
         wSum += w.weight;
       }
       const composite = wSum > 0 ? sum / wSum : 0;

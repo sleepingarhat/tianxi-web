@@ -79,57 +79,8 @@ export type BacktestResultPayload = {
   demo?: boolean;
 };
 
-export const WEIGHT_TEMPLATES: {
-  key: string;
-  label: string;
-  weights: FeatureWeightSpec[];
-}[] = [
-  {
-    key: "elo",
-    label: "純 Elo（近似）",
-    weights: [
-      { id: "careerWin", weight: 2 },
-      { id: "careerTop3", weight: 1 },
-      { id: "form", weight: 1 },
-    ],
-  },
-  {
-    key: "draw-dist",
-    label: "檔位＋同程",
-    weights: [
-      { id: "draw", weight: 2 },
-      { id: "distance", weight: 2 },
-      { id: "distStarts", weight: 1 },
-      { id: "form", weight: 1 },
-    ],
-  },
-  {
-    key: "form-time",
-    label: "狀態＋時間",
-    weights: [
-      { id: "form", weight: 2 },
-      { id: "formTop3", weight: 1.5 },
-      { id: "time", weight: 2 },
-      { id: "finish", weight: 1 },
-    ],
-  },
-  {
-    key: "balanced",
-    label: "均衡四揀",
-    weights: [
-      { id: "h2h", weight: 1 },
-      { id: "distance", weight: 1 },
-      { id: "draw", weight: 1 },
-      { id: "time", weight: 1 },
-      { id: "form", weight: 1 },
-      { id: "jt", weight: 0.5 },
-    ],
-  },
-];
-
-
 export function defaultWeights(selected: FeatureId[]): FeatureWeightSpec[] {
-  return selected.map((id) => ({ id, weight: 1, invert: false }));
+  return selected.map((id) => ({ id, weight: 1 }));
 }
 
 export function stepWeight(current: number, delta: number): number {
@@ -253,9 +204,7 @@ export function sanitizeFeatureWeights(raw: unknown): FeatureWeightSpec[] {
     const id = (item as { id?: unknown }).id;
     const weight = Number((item as { weight?: unknown }).weight);
     if (typeof id !== "string" || !FEATURE_ID_SET.has(id) || !Number.isFinite(weight)) continue;
-    const spec: FeatureWeightSpec = { id: id as FeatureId, weight };
-    if ((item as { invert?: unknown }).invert === true) spec.invert = true;
-    out.push(spec);
+    out.push({ id: id as FeatureId, weight });
   }
   return out;
 }

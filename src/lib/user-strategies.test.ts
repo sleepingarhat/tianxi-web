@@ -60,9 +60,10 @@ describe("user-strategies mapping", () => {
       { id: "nope", weight: 9 },
     ]);
     expect(w).toEqual([
-      { id: "careerWin", weight: 2, invert: true },
+      { id: "careerWin", weight: 2 },
       { id: "form", weight: 1 },
     ]);
+    expect(w.some((row) => "invert" in row)).toBe(false);
   });
 
   it("planLocalStrategiesMigration 略過雲端已有同名", () => {
