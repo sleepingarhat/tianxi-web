@@ -10,6 +10,7 @@ import {
   type PoolCode,
 } from "@/lib/lab-backtest";
 import { runLabBacktest, getLabBaselines } from "@/lib/lab-backtest.functions";
+import { upsertUserStrategy } from "@/lib/user-strategies.functions";
 
 type Props = {
   weights: FeatureWeightSpec[];
@@ -43,6 +44,7 @@ function SummaryRow({ title, s }: { title: string; s: BacktestResultPayload["ove
 export function BacktestPanel({ weights, locked }: Props) {
   const runFn = useServerFn(runLabBacktest);
   const baselnFn = useServerFn(getLabBaselines);
+  const upsertCloudFn = useServerFn(upsertUserStrategy);
   const [preset, setPreset] = useState<(typeof BACKTEST_RANGE_PRESETS)[number]["key"]>("demo");
   const [pools, setPools] = useState<PoolCode[]>([...ALL_POOLS]);
   const [busy, setBusy] = useState(false);
@@ -88,15 +90,29 @@ export function BacktestPanel({ weights, locked }: Props) {
     }
   }
 
-  function save() {
+  async function save() {
     const active = weights.filter((w) => w.weight > 0);
-    const s = upsertStrategy({
-      name: name || `策略 ${new Date().toLocaleDateString("zh-HK")}`,
-      weights: active,
-      pools,
-    });
-    setName(s.name);
-    alert(`已儲存「${s.name}」v${s.version}（本機；Supabase 持久化見 migration 草稿）`);
+    const label = name || `策略 ${new Date().toLocaleDateString("zh-HK")}`;
+    try {
+      const res = await upsertCloudFn({
+        data: { name: label, weights: active, pools },
+      });
+      setName(res.strategy.name);
+      // 成功上雲後同步一份本機副本（離線備援；唔取代雲端真相）
+      upsertStrategy({
+        name: res.strategy.name,
+        note: res.strategy.note,
+        weights: res.strategy.weights,
+        pools: res.strategy.pools,
+      });
+      alert(`已儲存「${res.strategy.name}」v${res.strategy.version}（帳號／研究層）`);
+    } catch (e: any) {
+      const s = upsertStrategy({ name: label, weights: active, pools });
+      setName(s.name);
+      alert(
+        `雲端儲存失敗（${e?.message ?? e}）。已改存本機「${s.name}」v${s.version}；登入 Pro 且 migration 套用後可明示遷移。`,
+      );
+    }
   }
 
   function togglePool(p: PoolCode) {
@@ -137,7 +153,7 @@ export function BacktestPanel({ weights, locked }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <Button type="button" variant="outline" size="sm" onClick={save}>
+        <Button type="button" variant="outline" size="sm" onClick={() => void save()}>
           儲存我的策略
         </Button>
       </div>

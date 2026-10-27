@@ -14,7 +14,8 @@ import { FeatureWeightPanel } from "@/components/tx/FeatureWeightPanel";
 import { BacktestPanel } from "@/components/tx/BacktestPanel";
 import { Card, Disclaimer, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
 import { computeComposite, computeWeightedComposite, rankByFeature } from "@/lib/feature-ranking";
-import { defaultWeights, loadStrategies, type FeatureWeightSpec } from "@/lib/lab-backtest";
+import { defaultWeights, loadStrategies, planLocalStrategiesMigration, type FeatureWeightSpec, type SavedStrategy } from "@/lib/lab-backtest";
+import { listUserStrategies, migrateLocalStrategies } from "@/lib/user-strategies.functions";
 import { getFeatureRace, listFeatureRaces } from "@/lib/features.functions";
 import { FEATURES, type FeatureId } from "@/lib/race-data";
 import { fmtMeetingDate, txApi } from "@/lib/tx-api";
@@ -45,7 +46,33 @@ function FeaturesPage() {
   const [features, setFeatures] = useState<FeatureId[]>(["h2h", "distance", "draw", "time"]);
   const [weights, setWeights] = useState<FeatureWeightSpec[]>(() => defaultWeights(["h2h", "distance", "draw", "time"]));
   const [active, setActive] = useState<FeatureId | null>("h2h");
-  const [strategies, setStrategies] = useState(() => (typeof window !== "undefined" ? loadStrategies() : []));
+  const [strategies, setStrategies] = useState<SavedStrategy[]>(() =>
+    typeof window !== "undefined" ? loadStrategies() : [],
+  );
+  const [strategySource, setStrategySource] = useState<"local" | "cloud">("local");
+  const listStrategiesFn = useServerFn(listUserStrategies);
+  const migrateFn = useServerFn(migrateLocalStrategies);
+
+  async function refreshStrategies() {
+    if (!isPro) {
+      setStrategies(loadStrategies());
+      setStrategySource("local");
+      return;
+    }
+    try {
+      const res = await listStrategiesFn();
+      setStrategies(res.strategies);
+      setStrategySource("cloud");
+    } catch {
+      setStrategies(loadStrategies());
+      setStrategySource("local");
+    }
+  }
+
+  useEffect(() => {
+    void refreshStrategies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPro]);
 
   useEffect(() => {
     setWeights((prev) => {
@@ -225,9 +252,11 @@ function FeaturesPage() {
         <BacktestPanel weights={weights} locked={!isPro} />
       </Card>
 
-      <Card title="我的策略（本機）" en="My strategies">
+      <Card title="我的策略（帳號）" en="My strategies">
         <p className="mb-2 text-[11px] text-ink-2">
-          本批以瀏覽器 localStorage 暫存；Supabase <code>user_strategies</code> migration 草稿見 PR。研究層，唔入公開戰績。
+          Pro 登入後存帳號（Supabase <code>user_strategies</code>，研究層，唔入公開戰績）。
+          未登入／雲端失敗時用本機暫存；首次成功登入可明示「遷移本機→雲端」，唔會 silently 丟資料。
+          而家來源：{strategySource === "cloud" ? "帳號" : "本機"}。
         </p>
         {strategies.length === 0 ? (
           <p className="text-[12px] text-ink-2">尚未儲存策略。Pro 用戶可喺回測卡命名後儲存。</p>
@@ -245,7 +274,6 @@ function FeaturesPage() {
                   onClick={() => {
                     setFeatures(s.weights.map((w) => w.id as FeatureId));
                     setWeights(s.weights);
-                    setStrategies(loadStrategies());
                   }}
                 >
                   載入
@@ -254,15 +282,61 @@ function FeaturesPage() {
             ))}
           </ul>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-2"
-          onClick={() => setStrategies(loadStrategies())}
-        >
-          重新整理清單
-        </Button>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => void refreshStrategies()}
+          >
+            重新整理清單
+          </Button>
+          {isPro ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                void (async () => {
+                  const local = loadStrategies();
+                  const cloudNames = new Set(
+                    strategySource === "cloud" ? strategies.map((s) => s.name.trim()) : [],
+                  );
+                  const plan = planLocalStrategiesMigration(local, cloudNames);
+                  if (!plan.toUpsert.length) {
+                    alert("冇需要遷移嘅本機策略（空白或名稱已喺雲端）。本機副本會保留。");
+                    return;
+                  }
+                  if (
+                    !confirm(
+                      `會將 ${plan.toUpsert.length} 條本機策略複製上雲端（唔刪本機、唔覆蓋同名雲端）。確認？`,
+                    )
+                  ) {
+                    return;
+                  }
+                  try {
+                    const res = await migrateFn({
+                      data: {
+                        strategies: plan.toUpsert.map((s) => ({
+                          name: s.name,
+                          note: s.note,
+                          weights: s.weights,
+                          pools: s.pools,
+                        })),
+                      },
+                    });
+                    alert(`已遷移 ${res.migrated.length} 條；略過 ${res.skipped}。本機仍保留。`);
+                    await refreshStrategies();
+                  } catch (e: any) {
+                    alert(`遷移失敗：${e?.message ?? e}`);
+                  }
+                })();
+              }}
+            >
+              遷移本機→雲端
+            </Button>
+          ) : null}
+        </div>
       </Card>
 
       <Disclaimer />

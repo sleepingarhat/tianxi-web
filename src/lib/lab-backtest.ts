@@ -1,6 +1,7 @@
 /**
  * 自訂策略／回測前端輔助（研究層）。
- * 策略 CRUD 本批用 localStorage；Supabase migration 見草稿。
+ * Pro 登入：Supabase user_strategies；未登入／失敗：localStorage fallback。
+ * 本機→雲端需明示 migrate（唔 silent 丟資料）。
  */
 import type { FeatureId } from "./race-data";
 import type { FeatureWeightSpec } from "./feature-ranking";
@@ -201,3 +202,90 @@ export const BACKTEST_RANGE_PRESETS = [
   { key: "3q", label: "近 3 季", from: "2024-09-01", to: "2026-10-04" },
   { key: "demo", label: "示範窗", from: "2025-09-07", to: "2026-10-04" },
 ] as const;
+
+/** 雲端列 → SavedStrategy（weights／pools 由 versions 或嵌套帶上） */
+const FEATURE_ID_SET = new Set<string>([
+  "h2h",
+  "distance",
+  "draw",
+  "time",
+  "finish",
+  "jt",
+  "form",
+  "track",
+  "rest",
+  "weight",
+  "careerWin",
+  "careerTop3",
+  "distStarts",
+  "drawStarts",
+  "comboTop3",
+  "formSlope",
+  "formTop3",
+  "weightAvg5",
+  "goingTop3",
+]);
+
+/** 將雲端／本機權重正規化成 FeatureWeightSpec（過濾非法 FeatureId；exactOptional 相容）。 */
+export function sanitizeFeatureWeights(raw: unknown): FeatureWeightSpec[] {
+  if (!Array.isArray(raw)) return [];
+  const out: FeatureWeightSpec[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const id = (item as { id?: unknown }).id;
+    const weight = Number((item as { weight?: unknown }).weight);
+    if (typeof id !== "string" || !FEATURE_ID_SET.has(id) || !Number.isFinite(weight)) continue;
+    const spec: FeatureWeightSpec = { id: id as FeatureId, weight };
+    if ((item as { invert?: unknown }).invert === true) spec.invert = true;
+    out.push(spec);
+  }
+  return out;
+}
+
+export function mapCloudStrategyRow(row: {
+  id: string;
+  name: string;
+  note?: string | null;
+  current_version?: number | null;
+  pools?: string[] | null;
+  created_at: string;
+  updated_at: string;
+  last_backtest_hash?: string | null;
+  weights?: FeatureWeightSpec[] | null | unknown;
+}): SavedStrategy {
+  const pools = (row.pools ?? ["FF", "TRIO", "TIERCE", "QUARTET"]).filter(
+    (p): p is PoolCode => p === "FF" || p === "TRIO" || p === "TIERCE" || p === "QUARTET",
+  );
+  const result: SavedStrategy = {
+    id: row.id,
+    name: row.name,
+    note: row.note ?? "",
+    version: row.current_version ?? 1,
+    weights: sanitizeFeatureWeights(row.weights),
+    pools: pools.length ? pools : ["FF", "TRIO", "TIERCE", "QUARTET"],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+  if (row.last_backtest_hash) result.lastBacktestHash = row.last_backtest_hash;
+  return result;
+}
+
+export type LocalToCloudPlan = {
+  local: SavedStrategy[];
+  /** 建議 upsert 嘅本機策略（全部；呼叫端決定 skip 已存在名稱） */
+  toUpsert: SavedStrategy[];
+};
+
+/** 計劃本機 → 雲端遷移（純函式；唔寫 storage／唔打 API） */
+export function planLocalStrategiesMigration(
+  local: SavedStrategy[],
+  cloudNames: Set<string> = new Set(),
+): LocalToCloudPlan {
+  const toUpsert = local.filter((s) => s.name.trim() && !cloudNames.has(s.name.trim()));
+  return { local, toUpsert };
+}
+
+export const STRATEGY_STORAGE_BACKEND = {
+  local: "localStorage",
+  cloud: "supabase",
+} as const;
