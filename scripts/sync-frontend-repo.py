@@ -44,7 +44,7 @@ for p in remote:
         changes.append({"path": p, "mode": "100644", "type": "blob", "sha": None})
 if not changes: print("no changes"); raise SystemExit
 tree = req("POST", f"{API}/git/trees", json={"base_tree": base_tree, "tree": changes})
-msg = "sync: 正式站發布 " + time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())
+msg = os.environ.get("SYNC_COMMIT_MESSAGE") or "sync: 正式站發布 " + time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())
 c = req("POST", f"{API}/git/commits", json={"message": msg, "tree": tree["sha"], "parents": [head]})
 req("PATCH", f"{API}/git/refs/heads/main", json={"sha": c["sha"]})
 print(f"pushed {c['sha'][:7]} ({len(changes)} files)")
