@@ -10,6 +10,7 @@ import { OverflowTicker } from "./OverflowTicker";
 import { WatchNotificationsBell } from "./WatchNotificationsBell";
 import { TierBadge } from "./gates/TierBadge";
 import { useTier, useFoundingInfo } from "@/lib/useTier";
+import { RACE_DAY_NAV_LABEL } from "@/lib/today-dashboard";
 
 
 
@@ -42,7 +43,7 @@ const BOTNAV: { to: string; key: NavKey; label: string; icon: ReactNode }[] = [
   {
     to: "/today",
     key: "today",
-    label: "今日",
+    label: RACE_DAY_NAV_LABEL,
     icon: (
       <>
         <circle cx="12" cy="12" r="9" />

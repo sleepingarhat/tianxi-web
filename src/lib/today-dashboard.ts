@@ -189,6 +189,115 @@ export function venueLabel(venue?: string | null): string {
   return venue || "—";
 }
 
+export const RACE_DAY_NAV_LABEL = "賽日";
+export const RACE_DAY_PAGE_TITLE = "賽日";
+export const PRELIMINARY_UNLOCKED_LABEL = "初版.未鎖";
+export const DAY_HITS_EMPTY = "每一場完結並核實後即顯示該場命中；未完場唔預估。";
+export const DAY_HITS_PARTIAL = "已核實場次先計入；未完場唔預估。";
+export const STRATEGY_PNL_CARD_TITLE = "策略累計盈虧";
+/** 今日卡只加總策略 API 嘅四個單場彩池；孖T／三T 喺詳情頁另計，呢度唔估。 */
+export const STRATEGY_PNL_NOTE = "單場四個彩池累計（孖T／三T 喺詳情按已核實組口另計）· 非投資建議";
+export const DISTANCE_PENDING = "途程待公布";
+export const GOING_PENDING = "地況待公布";
+export const CLASS_PENDING = "班次待公布";
+
+/** 焦點卡標題：`28/10/26 18:45HKT 沙田馬場`。日期、開跑、馬場都係傳入值。 */
+export function focusRaceHeading(input: {
+  date?: string | null | undefined;
+  startTime?: string | null | undefined;
+  venueName?: string | null | undefined;
+}): string {
+  const d = String(input.date ?? "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const dateLabel = d ? `${d[3]}/${d[2]}/${d[1]!.slice(2)}` : "日期待定";
+  const clock = String(input.startTime ?? "").trim().match(/^(\d{1,2}):(\d{2})/);
+  const hh = clock ? Number(clock[1]) : NaN;
+  const mm = clock ? Number(clock[2]) : NaN;
+  const timeLabel = clock && hh <= 23 && mm <= 59 ? `${String(hh).padStart(2, "0")}:${clock[2]}HKT` : "時間待定";
+  return `${dateLabel} ${timeLabel} ${venueRacecourse(input.venueName)}`;
+}
+
+export function venueRacecourse(name?: string | null): string {
+  const n = String(name ?? "").trim();
+  if (!n || n === "—") return "馬場待定";
+  return n.endsWith("馬場") ? n : `${n}馬場`;
+}
+
+export function positiveDistance(race: { distance?: unknown; distanceM?: unknown } | null | undefined): number | null {
+  for (const value of [race?.distance, race?.distanceM]) {
+    const n = typeof value === "number" ? value : typeof value === "string" && /^\d{3,4}$/.test(value.trim()) ? Number(value.trim()) : NaN;
+    if (Number.isInteger(n) && n >= 800 && n <= 4000) return n;
+  }
+  return null;
+}
+
+export function distanceText(meters: number | null | undefined): string {
+  return meters != null ? `${meters}米` : DISTANCE_PENDING;
+}
+
+export function goingText(going: string | null | undefined): string | null {
+  const g = String(going ?? "").trim();
+  if (!g || g === "—" || g === "-" || g === "–") return null;
+  return g;
+}
+
+export function goingPill(going: string | null | undefined): string {
+  const g = goingText(going);
+  return g ? `地況 ${g}` : GOING_PENDING;
+}
+
+export function classDistanceLine(className: string | null | undefined, meters: number | null | undefined): string {
+  const klass = String(className ?? "").trim();
+  return `${klass || CLASS_PENDING} · ${distanceText(meters)}`;
+}
+
+export type RaceRunStatus = "完場" | "進行中" | "待開";
+
+/** 有已核實命中先當完場；未核實唔靠開跑倒數預估命中。 */
+export function raceRunStatus(input: {
+  settled?: boolean;
+  hasResult?: boolean;
+  hitCount?: number | null;
+  countdownLabel?: string | null;
+}): RaceRunStatus {
+  if (input.settled === true || input.hasResult === true || typeof input.hitCount === "number") return "完場";
+  if (input.countdownLabel === "已開跑") return "進行中";
+  return "待開";
+}
+
+/** 只喺初版仍未鎖、而且該場未開跑時標「初版.未鎖」。凍結、進行中、完場唔再標。 */
+export function showPreliminaryUnlocked(phase: LockPhase, status: RaceRunStatus): boolean {
+  if (status !== "待開") return false;
+  return phase === "draft" || phase === "countdown";
+}
+
+/**
+ * 逐場命中：會籍被隱藏嘅場次唔顯示。
+ * hit-rate 有數字就用；否則用凍結投影嘅 verifiedHitCount。兩者都冇就唔估。
+ */
+export function displayedRaceHit(input: {
+  redactedByHitRate?: boolean;
+  hitRateCount?: number | null | undefined;
+  verifiedHitCount?: number | null | undefined;
+}): number | null {
+  if (input.redactedByHitRate) return null;
+  if (typeof input.hitRateCount === "number") return input.hitRateCount;
+  if (typeof input.verifiedHitCount === "number") return input.verifiedHitCount;
+  return null;
+}
+
+/** 累計只加已核實場次。未有命中嘅場唔入分母，唔使等全日完。 */
+export function sumVerifiedHits(counts: readonly (number | null | undefined)[]): { hits: number; racesCounted: number } {
+  let hits = 0;
+  let racesCounted = 0;
+  for (const value of counts) {
+    if (typeof value === "number") {
+      hits += value;
+      racesCounted += 1;
+    }
+  }
+  return { hits, racesCounted };
+}
+
 export type LabTool = {
   key: string;
   title: string;
