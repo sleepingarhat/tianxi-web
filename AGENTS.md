@@ -11,7 +11,7 @@
 - Reuse PageHead/Card/Stat/Table/Seg/AppShell for consistency.
 - Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions to prevent wrapping.
 - Desktop density; mobile one column.
-- Publish: run python3 scripts/sync-frontend-repo.py. Import pinned code without deletes; preserve env/generated files; no implicit migration/publish. Why: protect secrets/release.
+- Publish: run scripts/sync-frontend-repo.py. Pinned imports: approved removals only; preserve env/generated; no implicit migration/publish. Retired lab routes redirect /lab. Why: safe sync.
 
 ## 監控端規則
 - Read nested AGENTS.md before edits: src/components/admin (admin panels), src/lib (libs).
