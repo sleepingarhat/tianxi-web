@@ -3,39 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 
-import { AppShell, type NavKey } from "@/components/tx/AppShell";
+import { AppShell } from "@/components/tx/AppShell";
 import { CompositeOverview } from "@/components/tx/CompositeOverview";
 import { FeatureRankingTable } from "@/components/tx/FeatureRankingTable";
 import { FeaturePickerSheet } from "@/components/tx/FeaturePickerSheet";
 import { FeatureWeightPanel } from "@/components/tx/FeatureWeightPanel";
-import { BacktestPanel } from "@/components/tx/BacktestPanel";
 import { Card, Disclaimer, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
 import { computeComposite, computeWeightedComposite, rankByFeature } from "@/lib/feature-ranking";
-import {
-  defaultWeights,
-  loadStrategies,
-  planLocalStrategiesMigration,
-  type FeatureWeightSpec,
-  type SavedStrategy,
-} from "@/lib/lab-backtest";
-import { listUserStrategies, migrateLocalStrategies } from "@/lib/user-strategies.functions";
+import { defaultWeights, type FeatureWeightSpec } from "@/lib/lab-backtest";
 import { getFeatureRace, listFeatureRaces } from "@/lib/features.functions";
 import { featureReadDeadline } from "@/lib/feature-read-deadline";
 import { FEATURES, type FeatureId } from "@/lib/race-data";
 import { fmtMeetingDate, txApi } from "@/lib/tx-api";
 import { useTier } from "@/lib/useTier";
 
-export type FeaturesWorkspaceVariant = "features" | "lab";
-
-type Props = {
-  /** features＝選馬特徵表；lab＝研究室自訂回測（AppShell NavKey＝lab） */
-  variant?: FeaturesWorkspaceVariant;
-};
-
-export function FeaturesWorkspace({ variant = "features" }: Props) {
-  const fromLab = variant === "lab";
-  const shellPage: NavKey = fromLab ? "lab" : "predictor";
-
+/** 特徵排序表工作區（無回測／策略比較器）。 */
+export function FeaturesWorkspace() {
   const tier = useTier();
   const isPro = tier.has("pro");
   const [date, setDate] = useState<string | undefined>(undefined);
@@ -43,33 +26,6 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
   const [features, setFeatures] = useState<FeatureId[]>(["h2h", "distance", "draw", "time"]);
   const [weights, setWeights] = useState<FeatureWeightSpec[]>(() => defaultWeights(["h2h", "distance", "draw", "time"]));
   const [active, setActive] = useState<FeatureId | null>("h2h");
-  const [strategies, setStrategies] = useState<SavedStrategy[]>(() =>
-    typeof window !== "undefined" ? loadStrategies() : [],
-  );
-  const [strategySource, setStrategySource] = useState<"local" | "cloud">("local");
-  const listStrategiesFn = useServerFn(listUserStrategies);
-  const migrateFn = useServerFn(migrateLocalStrategies);
-
-  async function refreshStrategies() {
-    if (!isPro) {
-      setStrategies(loadStrategies());
-      setStrategySource("local");
-      return;
-    }
-    try {
-      const res = await listStrategiesFn();
-      setStrategies(res.strategies);
-      setStrategySource("cloud");
-    } catch {
-      setStrategies(loadStrategies());
-      setStrategySource("local");
-    }
-  }
-
-  useEffect(() => {
-    void refreshStrategies();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPro]);
 
   useEffect(() => {
     setWeights((prev) => {
@@ -92,7 +48,10 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
 
   const detail = useQuery({
     queryKey: ["featureRace", currentId],
-    queryFn: () => { if (!currentId) throw new Error("未有場次"); return featureReadDeadline(raceFn({ data: { raceId: currentId } })); },
+    queryFn: () => {
+      if (!currentId) throw new Error("未有場次");
+      return featureReadDeadline(raceFn({ data: { raceId: currentId } }));
+    },
     retry: false,
     enabled: !!currentId,
   });
@@ -101,7 +60,10 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
 
   const oddsQ = useQuery({
     queryKey: ["meeting", race?.date],
-    queryFn: () => { if (!race?.date) throw new Error("未有賽日"); return txApi.meeting(race.date); },
+    queryFn: () => {
+      if (!race?.date) throw new Error("未有賽日");
+      return txApi.meeting(race.date);
+    },
     enabled: !!race?.date,
     refetchInterval: 60_000,
   });
@@ -131,12 +93,32 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
   const activeFeature = active && features.includes(active) ? active : (features[0] ?? null);
   const featureRows = activeFeature && horses.length ? rankByFeature(horses, activeFeature) : [];
 
-  const selectRaceCard = (
+  return (
+    <AppShell
+      page="predictor"
+      columns={false}
+      ticker={
+        race
+          ? `${fmtMeetingDate(race.date)} · ${race.venueLabel} · 第 ${race.raceNumber} 場 · ${race.distance ?? "?"}m`
+          : "載入賽事資料…"
+      }
+    >
+      <PageHead
+        en="Feature Ranking"
+        title="特徵排序表"
+        desc="引擎特徵目錄全部列出，可即場排序者逐項排名；Pro 可調權重即場重排綜合分。"
+      />
+
       <Card title="選擇賽事" en="Select Race">
         {list.isLoading ? (
           <Loading />
         ) : list.error ? (
-          <><ErrorNote error={list.error} /><Button variant="outline" size="sm" onClick={() => void list.refetch()}>重新讀取</Button></>
+          <>
+            <ErrorNote error={list.error} />
+            <Button variant="outline" size="sm" onClick={() => void list.refetch()}>
+              重新讀取
+            </Button>
+          </>
         ) : (
           <div className="space-y-2">
             <div className="no-scrollbar flex gap-1 overflow-x-auto">
@@ -188,10 +170,7 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
           </div>
         )}
       </Card>
-  );
 
-
-  const featuresCard = (
       <Card title="特徵選項" en="Features">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
           引擎特徵目錄全部列出，其中可即場排序者可任選組合；綜合分預設為所選特徵標準化分數平均值；Pro 可改為加權。
@@ -206,9 +185,6 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
         />
       </Card>
 
-  );
-
-  const weightsCard = (
       <Card title="調權重（研究層）" en="Weights">
         <FeatureWeightPanel
           selected={features}
@@ -218,16 +194,14 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
         />
       </Card>
 
-  );
-
-  const rankingBlock = (
-    <>
       {detail.isLoading ? (
         <Loading />
       ) : detail.error ? (
         <div className="px-4">
           <ErrorNote error={detail.error} />
-          <Button variant="outline" size="sm" onClick={() => void detail.refetch()}>重新讀取</Button>
+          <Button variant="outline" size="sm" onClick={() => void detail.refetch()}>
+            重新讀取
+          </Button>
         </div>
       ) : horses.length ? (
         <>
@@ -240,157 +214,6 @@ export function FeaturesWorkspace({ variant = "features" }: Props) {
           />
         </>
       ) : null}
-
-    </>
-  );
-
-  const backtestCard = (
-      <Card title="回測呢個組合" en="Backtest">
-        <BacktestPanel weights={weights} locked={!isPro} />
-      </Card>
-
-  );
-
-  const strategiesCard = (
-      <Card title="我的策略（帳號）" en="My strategies">
-        <p className="mb-2 text-[11px] text-ink-2">
-          Pro 登入後存帳號（Supabase <code>user_strategies</code>，研究層，唔入公開戰績）。
-          未登入／雲端失敗時用本機暫存；首次成功登入可明示「遷移本機→雲端」，唔會 silently 丟資料。
-          而家來源：{strategySource === "cloud" ? "帳號" : "本機"}。
-        </p>
-        {strategies.length === 0 ? (
-          <p className="text-[12px] text-ink-2">尚未儲存策略。Pro 用戶可喺回測卡命名後儲存。</p>
-        ) : (
-          <ul className="space-y-1 text-[12px]">
-            {strategies.map((s) => (
-              <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-[4px] border border-hairline px-2 py-1">
-                <span className="font-bold">{s.name}</span>
-                <span className="font-mono-tx text-[11px] text-ink-2">v{s.version}</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="ml-auto h-7 text-[11px]"
-                  onClick={() => {
-                    setFeatures(s.weights.map((w) => w.id as FeatureId));
-                    setWeights(s.weights);
-                  }}
-                >
-                  載入
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void refreshStrategies()}
-          >
-            重新整理清單
-          </Button>
-          {isPro ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                void (async () => {
-                  const local = loadStrategies();
-                  const cloudNames = new Set(
-                    strategySource === "cloud" ? strategies.map((s) => s.name.trim()) : [],
-                  );
-                  const plan = planLocalStrategiesMigration(local, cloudNames);
-                  if (!plan.toUpsert.length) {
-                    alert("冇需要遷移嘅本機策略（空白或名稱已喺雲端）。本機副本會保留。");
-                    return;
-                  }
-                  if (
-                    !confirm(
-                      `會將 ${plan.toUpsert.length} 條本機策略複製上雲端（唔刪本機、唔覆蓋同名雲端）。確認？`,
-                    )
-                  ) {
-                    return;
-                  }
-                  try {
-                    const res = await migrateFn({
-                      data: {
-                        strategies: plan.toUpsert.map((s) => ({
-                          name: s.name,
-                          note: s.note,
-                          weights: s.weights,
-                          pools: s.pools,
-                        })),
-                      },
-                    });
-                    alert(`已遷移 ${res.migrated.length} 條；略過 ${res.skipped}。本機仍保留。`);
-                    await refreshStrategies();
-                  } catch (e: any) {
-                    alert(`遷移失敗：${e?.message ?? e}`);
-                  }
-                })();
-              }}
-            >
-              遷移本機→雲端
-            </Button>
-          ) : null}
-        </div>
-      </Card>
-
-  );
-
-  return (
-    <AppShell
-      page={shellPage}
-      columns={false}
-      wide={fromLab}
-      ticker={
-        fromLab
-          ? "研究室 · 自訂回測 · 研究層 · 非投注建議"
-          : race
-            ? `${fmtMeetingDate(race.date)} · ${race.venueLabel} · 第 ${race.raceNumber} 場 · ${race.distance ?? "?"}m`
-            : "載入賽事資料…"
-      }
-    >
-      <PageHead
-        en={fromLab ? "Lab backtest" : "Feature Ranking"}
-        title={fromLab ? "自訂回測" : "特徵排序表"}
-        desc={
-          fromLab
-            ? "研究室 · 自訂特徵權重、訓練／驗證回測、官方／Elo 基線（研究層，唔入公開戰績）。示範矩陣唔代表真賽。"
-            : "引擎特徵目錄全部列出，可即場排序者逐項排名；Pro 可調權重、回測組合（研究層，唔入公開戰績）。"
-        }
-      />
-
-      {fromLab ? (
-        <div
-          role="alert"
-          className="mx-4 mt-3 rounded-[4px] border border-lose/40 bg-lose/10 px-3 py-2.5 text-[13px] font-bold leading-relaxed text-lose"
-        >
-          示範數據 · 非真賽果 · 勿作投注依據
-          <span className="mt-0.5 block text-[11px] font-normal text-lose/90">
-            預設示範窗／Worker 回退 demo-fixture 時，命中僅供介面示範；ROI／淨／回撤會隱藏或顯示為 —。
-          </span>
-        </div>
-      ) : null}
-
-      {selectRaceCard}
-      {featuresCard}
-      {weightsCard}
-      {fromLab ? (
-        <>
-          {backtestCard}
-          {rankingBlock}
-        </>
-      ) : (
-        <>
-          {rankingBlock}
-          {backtestCard}
-        </>
-      )}
-      {strategiesCard}
 
       <Disclaimer />
     </AppShell>
