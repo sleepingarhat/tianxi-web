@@ -60,6 +60,8 @@ export type RaceRow = {
   ensembleAlpha?: number | null;
   settled?: boolean;
   hasResult?: boolean;
+  /** 該場已核實原四揀命中數（0–4）。只喺會籍可見完整場次先附上，唔包含賽果馬號。 */
+  verifiedHitCount?: number | null;
   officialChange?: OfficialChange | null;
   picks?: PickRow[];
 };

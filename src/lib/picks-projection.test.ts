@@ -214,6 +214,28 @@ describe("全日預測伺服器投影（PRO_ENFORCEMENT）", () => {
     expect(projectDayPicksForViewer(shuffled, "registered").races![0]!.picks![0]!.rank).toBe(1);
   });
 
+  it("已核實命中只回數字，完整權限先見，唔抄賽果", () => {
+    const src = {
+      races: [
+        { raceNumber: 1, officialMetric: { eligible: true, originalHits: 2 }, results: [{ horseNumber: 8 }], actualTop4: [1, 2, 3, 4] },
+        { raceNumber: 2, settled: true, hasResult: true, officialMetric: { eligible: true, originalHits: 0 }, results: [{ horseNumber: 9 }] },
+        { raceNumber: 3, officialMetric: { eligible: false, originalHits: 4 }, results: [{ horseNumber: 7 }] },
+      ],
+    } as unknown as DayPicks;
+    const guest = projectDayPicksForViewer(src, "guest");
+    expect(guest.races?.[0]?.verifiedHitCount).toBe(2);
+    expect(guest.races?.[1]).not.toHaveProperty("verifiedHitCount");
+    expect(guest.races?.[2]).not.toHaveProperty("verifiedHitCount");
+    const registered = projectDayPicksForViewer(src, "registered");
+    expect(registered.races?.map((r) => r.verifiedHitCount ?? null)).toEqual([2, 0, null]);
+    const pro = projectDayPicksForViewer(src, "pro");
+    expect(pro.races?.map((r) => r.verifiedHitCount ?? null)).toEqual([2, 0, null]);
+    const json = JSON.stringify(pro);
+    expect(json).not.toContain("actualTop4");
+    expect(json).not.toContain("originalHits");
+    expect(json).not.toContain("horseNumber");
+  });
+
   it("壞輸入唔會爆", () => {
     expect(projectDayPicksForViewer(null as unknown as DayPicks, "guest")).toEqual({ races: [] });
     expect(projectDayPicksForViewer({ races: [null, 1, { raceNumber: 1 }] } as unknown as DayPicks, "guest").races).toEqual([{ raceNumber: 1, picks: [] }]);

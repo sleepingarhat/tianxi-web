@@ -13,6 +13,8 @@ import { changeRevision, verifiedUpdate } from './racing-change-progress';
 import { liveWithdrawal } from './live-racing-changes';
 import { horseDisplayName } from './horse-name';
 import { freezePublicationPending } from './freeze-publication-window';
+import { mergeMeetingMetadata } from './racing-meeting-metadata';
+import { positiveDistance } from './today-dashboard';
 
 export type MergedPick = {
   horseNumber: number;
@@ -104,12 +106,46 @@ export function useTodayPicks() {
   }
 
   const races = (picks.data?.races || []).map((r: any) => {
-    const info = (meeting.data?.races || []).find((x: any) => Number(x.raceNumber) === Number(r.raceNumber));
+    const info = (meeting.data?.races || []).find((x: any) => Number(x.raceNumber) === Number(r.raceNumber)) as
+      | { id?: string; title?: string | null; class?: string | null; className?: string | null; distance?: number | null; distanceM?: number | null; going?: string | null; track?: string | null; course?: string | null; startTime?: string | null }
+      | undefined;
+    // 途程／地況／班次只作顯示：預測冇欄就用排位表，唔寫返凍結。
+    const meta = mergeMeetingMetadata(
+      {
+        raceId: r.raceId,
+        startTime: r.startTime ?? null,
+        title: r.title ?? null,
+        class: r.className || r.class || null,
+        distance: positiveDistance(r),
+        going: r.going ?? null,
+        track: r.track ?? null,
+        course: r.course ?? null,
+      },
+      info
+        ? {
+            raceId: info.id,
+            startTime: info.startTime ?? null,
+            title: info.title ?? null,
+            class: info.className || info.class || null,
+            distance: positiveDistance(info),
+            going: info.going ?? null,
+            track: info.track ?? null,
+            course: info.course ?? null,
+          }
+        : undefined,
+    );
     return {
       ...r,
-      raceId: r.raceId || (date ? `race_${date}_${picks.data?.venue}_${r.raceNumber}` : ""),
-      title: r.title || (info as { title?: string } | undefined)?.title || `第 ${r.raceNumber} 場`,
-      startTime: (info as { startTime?: string } | undefined)?.startTime ?? r.startTime ?? null,
+      raceId: r.raceId || meta.raceId || (date ? `race_${date}_${picks.data?.venue}_${r.raceNumber}` : ""),
+      title: meta.title || r.title || `第 ${r.raceNumber} 場`,
+      startTime: meta.startTime ?? r.startTime ?? null,
+      class: r.class || meta.class || null,
+      className: r.className || meta.class || null,
+      distance: meta.distance ?? positiveDistance(r),
+      distanceM: positiveDistance({ distance: r.distanceM }) ?? meta.distance ?? null,
+      going: meta.going,
+      track: meta.track ?? r.track ?? null,
+      course: meta.course ?? r.course ?? null,
       picks: (r.picks || []).map((p: any): MergedPick => {
         const candidate = entryIndex.get(`${r.raceNumber}-${p.horseNumber}`);
         // Never attach another runner's draw, silks, names or connections by number alone.

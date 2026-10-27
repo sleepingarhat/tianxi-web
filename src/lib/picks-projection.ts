@@ -227,24 +227,38 @@ export function raceAccess(tier: Tier, race: RaceRow): RaceAccess {
   return "locked";
 }
 
+/** 只抄已核實命中數。賽果、原四揀馬號同 officialMetric 本體唔進入投影。 */
+function verifiedHitCountForViewer(race: Json, tier: Tier): number | null {
+  const row = race as RaceRow;
+  if (raceAccess(tier, row) !== "full") return null;
+  const metric = race["officialMetric"];
+  if (!isPlainObject(metric) || metric["eligible"] !== true) return null;
+  const hits = metric["originalHits"];
+  if (typeof hits !== "number" || !Number.isInteger(hits) || hits < 0 || hits > 4) return null;
+  return hits;
+}
+
 function projectRace(race: unknown, tier: Tier): Json | null {
   if (!isPlainObject(race)) return null;
   const row = race as RaceRow;
   const ctx: Ctx = { tier, finished: raceFinished(row) };
   const access = raceAccess(tier, row);
+  let out: Json;
   if (access === "full") {
-    const full = copyAllowed(race, RACE_FULL_SPEC, ctx);
-    if (!Array.isArray(full["picks"])) full["picks"] = [];
-    return full;
-  }
-  const out = copyAllowed(race, RACE_META_SPEC, ctx);
-  if (access === "top1") {
-    const picks = (Array.isArray(row.picks) ? row.picks : []).filter(isPlainObject);
-    const top = [...picks].sort((a, b) => Number(a["rank"] ?? 99) - Number(b["rank"] ?? 99))[0];
-    out["picks"] = top ? [copyAllowed(top, PICK_TOP1_SPEC, ctx)] : [];
+    out = copyAllowed(race, RACE_FULL_SPEC, ctx);
+    if (!Array.isArray(out["picks"])) out["picks"] = [];
   } else {
-    out["picks"] = [];
+    out = copyAllowed(race, RACE_META_SPEC, ctx);
+    if (access === "top1") {
+      const picks = (Array.isArray(row.picks) ? row.picks : []).filter(isPlainObject);
+      const top = [...picks].sort((a, b) => Number(a["rank"] ?? 99) - Number(b["rank"] ?? 99))[0];
+      out["picks"] = top ? [copyAllowed(top, PICK_TOP1_SPEC, ctx)] : [];
+    } else {
+      out["picks"] = [];
+    }
   }
+  const hit = verifiedHitCountForViewer(race, tier);
+  if (hit != null) out["verifiedHitCount"] = hit;
   return out;
 }
 

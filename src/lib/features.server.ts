@@ -49,11 +49,11 @@ query wt_WeatherMeeting( $localSim: LocalSim, $status: [MeetingStatus!])  {
 }
 `;
 
-export async function fetchOfficialGoing(
+/** 同一白名單查詢一次讀晒該賽日各地況；加欄位會被馬會拒（WHITELIST_ERROR）。 */
+export async function fetchOfficialMeetingCard(
   date: string,
   venue: string,
-  raceNumber: number,
-): Promise<string | null> {
+): Promise<{ track: string | null; goings: Record<number, string> }> {
   try {
     const r = await fetch("https://info.cld.hkjc.com/graphql/base/", {
       method: "POST",
@@ -73,12 +73,27 @@ export async function fetchOfficialGoing(
     const json: any = await r.json();
     const meetings: any[] = json?.data?.commonMeetings ?? [];
     const m = meetings.find((x) => x?.date === date && x?.venueCode === venue);
-    if (!m) return null;
-    const race = (m.races ?? []).find((x: any) => Number(x?.no) === raceNumber);
-    return (race?.go_ch as string | undefined) || (m.races?.[0]?.go_ch as string | undefined) || null;
+    if (!m) return { track: null, goings: {} };
+    const goings: Record<number, string> = {};
+    for (const race of m.races ?? []) {
+      const n = Number(race?.no);
+      const going = typeof race?.go_ch === "string" ? race.go_ch.trim() : "";
+      if (Number.isInteger(n) && n > 0 && going) goings[n] = going;
+    }
+    const track = typeof m.meetingTrack_ch === "string" ? m.meetingTrack_ch.trim() : "";
+    return { track: track || null, goings };
   } catch {
-    return null;
+    return { track: null, goings: {} };
   }
+}
+
+export async function fetchOfficialGoing(
+  date: string,
+  venue: string,
+  raceNumber: number,
+): Promise<string | null> {
+  const card = await fetchOfficialMeetingCard(date, venue);
+  return card.goings[raceNumber] ?? Object.values(card.goings)[0] ?? null;
 }
 
 

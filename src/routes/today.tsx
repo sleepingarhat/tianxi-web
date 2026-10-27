@@ -13,16 +13,31 @@ import { useTier } from "@/lib/useTier";
 import { useTodayPicks } from "@/lib/use-today-picks";
 import { useWatchSet } from "@/lib/useWatchSet";
 import { getMeetingHitRate } from "@/lib/hit-rate.functions";
+import { getRaceDayCardDisplay } from "@/lib/race-day-card.functions";
 import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import {
-  actualTop4FromPicks,
+  classDistanceLine,
+  DAY_HITS_EMPTY,
+  DAY_HITS_PARTIAL,
+  displayedRaceHit,
+  distanceText,
+  focusRaceHeading,
+  goingPill,
+  goingText,
   isMeetingToday,
   lockPhase,
   lockStatusLabel,
   modelMarketGapPp,
   pickFocusRace,
+  positiveDistance,
+  PRELIMINARY_UNLOCKED_LABEL,
+  RACE_DAY_PAGE_TITLE,
+  raceRunStatus,
   rankedPicks,
-  top4HitCount,
+  showPreliminaryUnlocked,
+  STRATEGY_PNL_CARD_TITLE,
+  STRATEGY_PNL_NOTE,
+  sumVerifiedHits,
   venueLabel,
 } from "@/lib/today-dashboard";
 import type { VenueWeather } from "@/routes/api/public/hkjc-weather";
@@ -32,9 +47,9 @@ type WeatherResponse = { venues: VenueWeather[] };
 export const Route = createFileRoute("/today")({
   head: () => ({
     meta: [
-      { title: "今日賽日 · 天喜 TIANXI" },
-      { name: "description", content: "賽日儀表板：鎖定狀態、而家場次四揀、全日清單、命中暫計與愛駒出賽。" },
-      { property: "og:title", content: "今日賽日 · 天喜 TIANXI" },
+      { title: "賽日 · 天喜 TIANXI" },
+      { name: "description", content: "賽日儀表板：鎖定狀態、而家場次四揀、全日清單、逐場命中與愛駒出賽。" },
+      { property: "og:title", content: "賽日 · 天喜 TIANXI" },
       { property: "og:description", content: "賽日儀表板：而家場次、全日四揀與鎖定狀態。" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -48,6 +63,7 @@ function TodayPage() {
   const tp = useTodayPicks();
   const watch = useWatchSet();
   const hitFn = useServerFn(getMeetingHitRate);
+  const cardFn = useServerFn(getRaceDayCardDisplay);
   const [nowMs, setNowMs] = useState(() => Date.now());
 
   useEffect(() => {
@@ -91,7 +107,7 @@ function TodayPage() {
   const races = tp.races ?? [];
   const venueName =
     tp.meeting?.venueName || smart.data?.venueName || nextMeeting.data?.venueName || venueLabel(venue);
-  const going = tp.trackCondition || smart.data?.trackCondition || "—";
+  const storedGoing = goingText(tp.trackCondition) || goingText(smart.data?.trackCondition);
 
   const venueWeather = (weather.data?.venues || []).find((item) => item.venue === venue);
   const weatherMini = venueWeather
@@ -128,50 +144,69 @@ function TodayPage() {
     refetchInterval: 60_000,
   });
 
+  const missingDistance = useMemo(
+    () => races.filter((r) => positiveDistance(r) == null).map((r) => Number(r.raceNumber)),
+    [races],
+  );
+  const racesHaveGoing = races.some((r) => goingText(r.going));
+  const needCardDisplay = !!date && (venue === "ST" || venue === "HV") && (missingDistance.length > 0 || (!storedGoing && !racesHaveGoing));
+  const cardDisplay = useQuery({
+    queryKey: ["raceDayCardDisplay", date, venue, missingDistance.join(","), !storedGoing && !racesHaveGoing],
+    queryFn: () => cardFn({
+      data: {
+        date: date!,
+        venue: venue as "ST" | "HV",
+        raceNumbers: missingDistance,
+        needGoing: !storedGoing && !racesHaveGoing,
+      },
+    }),
+    enabled: needCardDisplay && !tp.cancellation,
+    staleTime: 10 * 60_000,
+  });
+  const cardByRace = useMemo(() => {
+    const map = new Map<number, { distance: number | null; going: string | null }>();
+    for (const row of cardDisplay.data?.races ?? []) map.set(Number(row.raceNumber), row);
+    return map;
+  }, [cardDisplay.data]);
+  const going = storedGoing || goingText(cardDisplay.data?.meetingGoing) || null;
+
   const hitByRace = useMemo(() => {
-    const map = new Map<number, number | null>();
+    const map = new Map<number, { count: number | null; redacted: boolean }>();
     for (const r of hitRate.data?.races ?? []) {
       const n = Number(r.raceNumber);
       if (r.redacted) {
-        map.set(n, null);
+        map.set(n, { count: null, redacted: true });
         continue;
       }
       if (typeof r.top4IntersectCount === "number") {
-        map.set(n, r.top4IntersectCount);
+        map.set(n, { count: r.top4IntersectCount, redacted: false });
         continue;
       }
-      const pred = (r.predictedTop4 ?? []).map((p: { horseNumber?: number }) => ({ horseNumber: p.horseNumber }));
-      const actual = (r.actualTop4 ?? []).map((a: { horseNumber?: number } | number) =>
-        typeof a === "number" ? a : Number(a.horseNumber),
-      );
-      map.set(n, top4HitCount(pred, actual));
+      map.set(n, { count: null, redacted: false });
     }
     return map;
   }, [hitRate.data]);
 
-  const dayHits = useMemo(() => {
-    let hits = 0;
-    let racesCounted = 0;
-    for (const v of hitByRace.values()) {
-      if (typeof v === "number") {
-        hits += v;
-        racesCounted += 1;
-      }
-    }
-    // 後備：由今日 picks 嘅 finishingPosition 計（僅 full access 場）
-    if (!racesCounted) {
-      for (const r of races) {
-        if (cardAccess(tier.tier, Number(r.raceNumber)) !== "full") continue;
-        const actual = actualTop4FromPicks(r.picks);
-        const n = top4HitCount(rankedPicks(r.picks, 4), actual);
-        if (n != null) {
-          hits += n;
-          racesCounted += 1;
-        }
-      }
-    }
-    return { hits, racesCounted };
-  }, [hitByRace, races, tier.tier]);
+  const raceHit = (race: { raceNumber?: number; verifiedHitCount?: number | null }) => {
+    const row = hitByRace.get(Number(race.raceNumber));
+    return displayedRaceHit({
+      redactedByHitRate: row?.redacted === true,
+      hitRateCount: row ? row.count : undefined,
+      verifiedHitCount: race.verifiedHitCount,
+    });
+  };
+
+  const dayHits = useMemo(
+    () => sumVerifiedHits(races.map((race) => {
+      const row = hitByRace.get(Number(race.raceNumber));
+      return displayedRaceHit({
+        redactedByHitRate: row?.redacted === true,
+        hitRateCount: row ? row.count : undefined,
+        verifiedHitCount: race.verifiedHitCount,
+      });
+    })),
+    [hitByRace, races],
+  );
 
   const watchedIds = useMemo(() => new Set(watch.data?.rows.map((r) => r.horse_id) ?? []), [watch.data]);
   const watchedToday = useMemo(() => {
@@ -201,10 +236,10 @@ function TodayPage() {
     <AppShell page="today" columns={false} wide ticker={ticker}>
       <PageHead
         en="Race day"
-        title="今日"
+        title={RACE_DAY_PAGE_TITLE}
         desc={
           meetingToday
-            ? "賽日儀表板 · 鎖定狀態、而家場次、全日四揀與命中暫計（研究層資訊，唔催促投注）"
+            ? "賽日儀表板 · 鎖定狀態、而家場次、全日四揀與逐場命中。"
             : "非賽日顯示下一個賽日 · 資料以凍結／官方來源為準"
         }
       />
@@ -215,7 +250,7 @@ function TodayPage() {
       <section className="mx-4 mt-3 flex flex-wrap items-center gap-1.5 border-b border-hairline pb-3">
         <Pill tone="gold">{date ? fmtMeetingDate(date) : "日期待定"}</Pill>
         <Pill>{venueName}</Pill>
-        <Pill>地況 {going}</Pill>
+        <Pill>{goingPill(going)}</Pill>
         <Pill>天氣 {weatherMini}</Pill>
         <Pill tone={phase === "locked" ? "win" : phase === "unavailable" ? "lose" : "gold"}>{lockLabel}</Pill>
         {!meetingToday && date ? <Pill tone="ink">非今日 · 顯示下一賽日</Pill> : null}
@@ -241,7 +276,7 @@ function TodayPage() {
       ) : tp.publicationPending ? (
         <Card title="正在建立凍結副本" en="Freeze publication">
           <p className="text-[12px] leading-relaxed text-ink-2">
-            原四揀已停止更新；副本核實後會自動顯示。倒數只係資訊，唔催促操作。
+            原四揀已停止更新；副本核實後會自動顯示。
           </p>
           <Loading label="正在建立凍結副本…" />
         </Card>
@@ -251,13 +286,15 @@ function TodayPage() {
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-2">
           <div className="min-w-0">
             <NowCard
-              focusKind={focus?.kind ?? "next"}
               race={focusRace}
               access={focusAccess}
               tierLoading={tier.loading}
               meetingDate={date}
+              venueName={venueName}
               nowMs={nowMs}
               needUpgrade={focusAccess !== "full"}
+              distanceM={focusRace ? positiveDistance(focusRace) ?? cardByRace.get(Number(focusRace.raceNumber))?.distance ?? null : null}
+              goingLabel={focusRace ? goingText(focusRace.going) || goingText(cardByRace.get(Number(focusRace.raceNumber))?.going) || going : null}
             />
 
             <Card title="全日場次" en="All races" action={<Link to="/cards" className="text-[11px] font-bold text-gold">逐場預測 →</Link>}>
@@ -266,20 +303,22 @@ function TodayPage() {
                   const access = cardAccess(tier.tier, Number(r.raceNumber));
                   const start = cleanTime(r.startTime);
                   const top = rankedPicks(r.picks, 4);
-                  const hit = hitByRace.get(Number(r.raceNumber));
-                  const finished = r.settled === true || r.hasResult === true || hit != null;
-                  const status =
-                    finished ? "完場" : start && countdown(r.startTime, new Date(nowMs), date) === "已開跑" ? "進行中" : "待開";
+                  const hit = raceHit(r);
+                  const status = raceRunStatus({
+                    settled: r.settled === true,
+                    hasResult: r.hasResult === true,
+                    hitCount: hit,
+                    countdownLabel: start ? countdown(r.startTime, new Date(nowMs), date) : "",
+                  });
+                  const meters = positiveDistance(r) ?? cardByRace.get(Number(r.raceNumber))?.distance ?? null;
                   return (
                     <li key={r.raceNumber} className="py-2.5">
                       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                         <b className="font-serif-tc text-[14px]">第 {r.raceNumber} 場</b>
                         <span className="tabnum font-mono-tx text-[11px] text-ink-3">{start || "時間待定"}</span>
-                        <span className="text-[11px] text-ink-3">
-                          {r.className || r.class || "—"} · {r.distance || r.distanceM || "—"}
-                          {r.distance || r.distanceM ? "m" : ""}
-                        </span>
+                        <span className="text-[11px] text-ink-3">{classDistanceLine(r.className || r.class, meters)}</span>
                         <Pill tone={status === "完場" ? "ink" : status === "進行中" ? "gold" : "ink"}>{status}</Pill>
+                        {showPreliminaryUnlocked(phase, status) ? <Pill tone="gold">{PRELIMINARY_UNLOCKED_LABEL}</Pill> : null}
                         {typeof hit === "number" ? <Pill tone="win">命中 {hit}/4</Pill> : null}
                       </div>
                       {access === "full" ? (
@@ -312,19 +351,22 @@ function TodayPage() {
           <aside className="min-w-0 lg:sticky lg:top-[72px] lg:pb-6">
             <Card title="今日累計命中" en="Day hits">
               {dayHits.racesCounted ? (
-                <p className="tabnum font-mono-tx text-[22px] font-bold text-ink">
-                  {dayHits.hits}
-                  <span className="ml-1 text-[12px] font-medium text-ink-3">／{dayHits.racesCounted * 4} 匹位</span>
-                </p>
+                <>
+                  <p className="tabnum font-mono-tx text-[22px] font-bold text-ink">
+                    {dayHits.hits}
+                    <span className="ml-1 text-[12px] font-medium text-ink-3">／{dayHits.racesCounted * 4} 匹位</span>
+                  </p>
+                  <p className="mt-1 text-[11px] text-ink-3">已核實 {dayHits.racesCounted} 場 · {DAY_HITS_PARTIAL}</p>
+                </>
               ) : (
-                <p className="text-[12px] text-ink-3">完場並核實後顯示；未完場唔預估。</p>
+                <p className="text-[12px] text-ink-3">{DAY_HITS_EMPTY}</p>
               )}
               <p className="mt-1 text-[10px] leading-relaxed text-ink-3">正式凍結／戰績起計 2026-10-04 · 研究層統計</p>
             </Card>
 
-            <Card title="策略盈虧暫計" en="Strategy PnL" action={<Link to="/strategy-pnl" className="text-[11px] font-bold text-gold">詳情 →</Link>}>
+            <Card title={STRATEGY_PNL_CARD_TITLE} en="Cumulative PnL" action={<Link to="/strategy-pnl" className="text-[11px] font-bold text-gold">詳情 →</Link>}>
               {!tier.has("pro") ? (
-                <UpgradeCard inline need="pro" feature="策略盈虧" />
+                <UpgradeCard inline need="pro" feature="策略累計盈虧" />
               ) : pnl.isLoading ? (
                 <Loading label="讀取盈虧…" />
               ) : pnl.isError ? (
@@ -347,7 +389,7 @@ function TodayPage() {
                       {Math.abs(totalNet).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                     </p>
                     <p className="mt-1 text-[10px] text-ink-3">
-                      起計 {pnl.data?.from ? fmtMeetingDate(pnl.data.from) : "—"} · 單場彩池暫計（未含孖T／三T）· 非投資建議
+                      起計 {pnl.data?.from ? fmtMeetingDate(pnl.data.from) : "—"} · {STRATEGY_PNL_NOTE}
                     </p>
                   </>
                 );
@@ -393,21 +435,25 @@ function TodayPage() {
 }
 
 function NowCard({
-  focusKind,
   race,
   access,
   tierLoading,
   meetingDate,
+  venueName,
   nowMs,
   needUpgrade,
+  distanceM,
+  goingLabel,
 }: {
-  focusKind: "current" | "next" | "last";
   race: any;
   access: "full" | "name" | "locked";
   tierLoading: boolean;
   meetingDate?: string | undefined;
+  venueName?: string | null;
   nowMs: number;
   needUpgrade: boolean;
+  distanceM: number | null;
+  goingLabel: string | null;
 }) {
   if (!race) {
     return (
@@ -416,7 +462,6 @@ function NowCard({
       </Card>
     );
   }
-  const kindLabel = focusKind === "current" ? "當前場" : focusKind === "next" ? "下一場" : "最近一場";
   const start = cleanTime(race.startTime);
   const cd = countdown(race.startTime, new Date(nowMs), meetingDate);
   const top = rankedPicks(race.picks, 5);
@@ -436,7 +481,7 @@ function NowCard({
 
   return (
     <Card
-      title={`而家 · ${kindLabel} 第 ${race.raceNumber} 場`}
+      title={focusRaceHeading({ date: meetingDate, startTime: race.startTime, venueName })}
       en="Focus race"
       action={
         race.raceId ? (
@@ -450,12 +495,12 @@ function NowCard({
         <div>
           <p className="text-[10px] uppercase tracking-[0.16em] text-ink-3">開跑倒數</p>
           <p className="tabnum font-mono-tx text-[28px] font-bold leading-none text-ink">{cd || "—"}</p>
-          <p className="mt-1 text-[11px] text-ink-3">{start ? `${start} HKT` : "時間待定"} · 資訊用，唔催促</p>
+          <p className="mt-1 text-[11px] text-ink-3">{start ? `${start} HKT` : "時間待定"}</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          <Pill>{race.className || race.class || "班次—"}</Pill>
-          <Pill>{race.distance || race.distanceM ? `${race.distance || race.distanceM}m` : "途程—"}</Pill>
-          {race.going ? <Pill>{race.going}</Pill> : null}
+          <Pill>{race.className || race.class || "班次待公布"}</Pill>
+          <Pill>{distanceText(distanceM)}</Pill>
+          <Pill>{goingPill(goingLabel)}</Pill>
         </div>
       </div>
 
