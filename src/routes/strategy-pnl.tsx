@@ -1,6 +1,6 @@
 import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { useStrategyAccounting } from "@/lib/useStrategyAccounting";
 import { useState } from "react";
 
 import { AppShell } from "@/components/tx/AppShell";
@@ -8,9 +8,9 @@ import { EChart } from "@/components/tx/EChart";
 import { ExoticTrioPools } from "@/components/tx/ExoticTrioPools";
 import { SinglePoolDaily } from "@/components/tx/SinglePoolDaily";
 import { OfficialRaceAudit } from '@/components/tx/OfficialRaceAudit';
-import { exoticPoolOptions } from "@/lib/racingPoolAccounting";
+
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Scroller, Seg, Table, Td } from "@/components/tx/ui";
-import { fmtMeetingDate, txApi } from "@/lib/tx-api";
+import { fmtMeetingDate } from "@/lib/tx-api";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/strategy-pnl")({
@@ -133,40 +133,12 @@ function CumChart({ points }: { points: { date: string; cum: number }[] }) {
 function StrategyPnlPage() {
   const [days, setDays] = useState<30 | 90 | 180>(90);
   const [dayPick, setDayPick] = useState("");
-  const pnl = useQuery({
-    queryKey: ["strategyPnl", days],
-    queryFn: () => txApi.strategyPnl(`?days=${days}`),
-  });
-
-  const base: any = pnl.data || {};
-  // 後端唔理 days 參數（一律回全期），喺前端按香港日期截取
-  const cutoff = new Date(Date.now() + 8 * 3600e3 - days * 864e5).toISOString().slice(0, 10);
-  const allPoints: any[] = Array.isArray(base.points) ? base.points : [];
-  const rawPoints: any[] = allPoints.filter((p) => String(p.date) >= cutoff);
-  const filtered = rawPoints.length < allPoints.length;
-  const exoticQueries = useQueries({ queries: rawPoints.map((p) => exoticPoolOptions(p.date)) });
-  const crossLoading = exoticQueries.some((q) => q.isLoading);
-  const crossError = exoticQueries.some((q) => q.isError);
-  let supplemented = 0, missing = 0;
-  const cross: Record<string, any> = { DT: { cost: 0, payout: 0, net: 0, wins: 0, cons: 0, bets: 0 }, TT: { cost: 0, payout: 0, net: 0, wins: 0, cons: 0, bets: 0 } };
-  let cumulative = 0;
-  const points = rawPoints.map((p, i) => {
-    let cost = Number(p.cost), payout = Number(p.payout);
-    const data = exoticQueries[i]?.data;
-    for (const pool of data?.pools ?? []) {
-      if (pool.missing) { missing++; continue; }
-      const b = cross[pool.name.includes("孖T") ? "DT" : "TT"];
-      const ret = pool.payout + pool.consPayout;
-      b.cost += pool.cost; b.payout += ret; b.net += ret - pool.cost; b.bets++; if (pool.mainHit) b.wins++; else if (pool.consPayout > 0) b.cons++;
-      if (pool.races.some((r) => data?.legs[r]?.fifthFromLive)) supplemented++;
-      cost += pool.cost; payout += ret;
-    }
-    cumulative += payout - cost;
-    return { ...p, cost, payout, net: payout - cost, cum: cumulative };
-  });
-  const totalCost = points.reduce((a, p) => a + p.cost, 0);
-  const totalPayout = points.reduce((a, p) => a + p.payout, 0);
-  const d = { ...base, totalCost, totalPayout, totalNet: totalPayout - totalCost, roiPct: totalCost ? (totalPayout / totalCost - 1) * 100 : null };
+  const accounting = useStrategyAccounting(days);
+  const { pnl, base, rawPoints, filtered, points, cross, missing, totalCost, totalPayout } = accounting;
+  const supplemented = 0;
+  const crossLoading = accounting.loading;
+  const crossError = !!accounting.error;
+  const d = { ...base, totalCost, totalPayout, totalNet: accounting.totalNet, roiPct: accounting.roiPct };
   const fourPool = filtered ? {} : base.poolBreakdown;
   const breakdown: Record<string, any> = { ...fourPool, ...cross };
   const sortedDesc = [...points].sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -212,7 +184,8 @@ function StrategyPnlPage() {
         </div>
       ) : pnl.error || crossError ? (
         <div className="mx-4 mt-3">
-          <ErrorNote error={pnl.error || new Error("跨場彩池未能讀齊，暫不顯示不完整累計，請稍後重試。")} />
+          <ErrorNote error={accounting.error || new Error("跨場彩池未能讀齊，暫不顯示不完整累計，請稍後重試。")} />
+          <Button variant="outline" size="sm" className="mt-2" onClick={accounting.retry}>重新核對六彩池</Button>
         </div>
       ) : (
         <>
@@ -320,13 +293,13 @@ function StrategyPnlPage() {
         <section className="mx-4 mt-3.5 space-y-3" aria-label="逐場彩池核對">
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="pool-day" className="text-[12px] font-bold text-ink">逐場中唔中 · 賽馬日</label>
-            <select id="pool-day" value={dayPick || sortedDesc[0].date} onChange={(e) => setDayPick(e.target.value)} className="rounded-[6px] border border-hairline bg-paper-2 px-2 py-1 text-[12px] text-ink">
+            <select id="pool-day" value={dayPick || (sortedDesc[0]?.date ?? "")} onChange={(e) => setDayPick(e.target.value)} className="rounded-[6px] border border-hairline bg-paper-2 px-2 py-1 text-[12px] text-ink">
               {sortedDesc.map((p) => <option key={p.date} value={p.date}>{p.date}</option>)}
             </select>
           </div>
-          <SinglePoolDaily date={dayPick || sortedDesc[0].date} />
-          <ExoticTrioPools date={dayPick || sortedDesc[0].date} />
-          <Button variant="outline" size="sm" asChild><Link to="/cross-race-pools" search={{ date: dayPick || sortedDesc[0].date }}>查看當日跨場明細</Link></Button>
+          <SinglePoolDaily date={dayPick || (sortedDesc[0]?.date ?? "")} />
+          <ExoticTrioPools date={dayPick || (sortedDesc[0]?.date ?? "")} />
+          <Button variant="outline" size="sm" asChild><Link to="/cross-race-pools" search={{ date: dayPick || (sortedDesc[0]?.date ?? "") }}>查看當日跨場明細</Link></Button>
         </section>
       ) : null}
 

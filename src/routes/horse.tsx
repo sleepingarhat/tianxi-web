@@ -1,3 +1,4 @@
+import { HorseOfficialResearch } from "@/components/tx/OfficialResearchPanels";
 import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { useTier } from "@/lib/useTier";
 import { TierGate } from "@/components/tx/gates/TierGate";
@@ -264,7 +265,7 @@ function HorsePage() {
       page=""
       ticker={
         h.nameCh
-          ? `${h.nameCh} · ${h.code} · 天喜Elo ${tier.has("registered") ? num(latestElo.rating, 0) : "—"} · 現評 ${has(h.currentRating) ? h.currentRating : "—"}`
+          ? `${h.nameCh} · ${h.code} · 天喜Elo ${tier.has("registered") ? num(latestElo.rating, 0) : "—"} · 馬會官方評分 ${has(h.currentRating) ? h.currentRating : "—"}`
           : "載入馬匹資料…"
       }
     >
@@ -302,7 +303,7 @@ function HorsePage() {
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {statusText(h.status) ? <Pill>{statusText(h.status)}</Pill> : null}
                   {has(h.lastRaceDate) ? <Pill>最近出賽 {fmtMeetingDate(h.lastRaceDate)}</Pill> : null}
-                  {has(h.currentRating) ? <Pill tone="gold">現評 {h.currentRating}</Pill> : null}
+                  {has(h.currentRating) ? <Pill tone="gold">馬會官方評分 {h.currentRating}</Pill> : null}
                 </div>
               </div>
               <div className="text-right">
@@ -329,10 +330,12 @@ function HorsePage() {
           </section>
 
           <nav aria-label="馬匹檔案分段" className="no-scrollbar sticky top-0 z-20 flex gap-1 overflow-x-auto border-b border-hairline bg-paper/95 px-4 py-2 backdrop-blur-sm">
-            {[["overview", "概覽"], ["elo", "天喜ELO"], ["splits", "表現"], ["form", "近績"], ["pedigree", "血統"], ["training", "晨操試閘"], ["source", "資料來源"]].map(([to, label]) => (
+            {[["overview", "概覽"], ["official", "馬會官方"], ["elo", "天喜ELO"], ["splits", "表現"], ["form", "近績"], ["pedigree", "血統"], ["training", "晨操試閘"], ["source", "資料來源"]].map(([to, label]) => (
               <a key={to} href={`#${to}`} className="shrink-0 rounded-[4px] border border-hairline bg-paper px-2 py-1 text-[10px] font-bold text-ink-2">{label}</a>
             ))}
           </nav>
+
+          <HorseOfficialResearch horseId={horseId} />
 
           {/* 身份及現況 */}
           <div id="pedigree" className="scroll-mt-12"><Card title="身份、血統及現況" en="Identity · Pedigree">
@@ -348,7 +351,7 @@ function HorsePage() {
                 ["母系", h.dam || h.pedigree?.dam],
                 ["外祖父", h.damSire || h.pedigree?.damSire],
                 ["半兄弟姊妹", listText(h.halfSiblings)],
-                ["現評", h.currentRating],
+                ["馬會官方評分", h.currentRating],
                 ["季內獎金", money(h.seasonStakes)],
                 ["生涯獎金", money(h.totalStakes)],
                 ["最後出賽", has(h.lastRaceDate) ? fmtMeetingDate(h.lastRaceDate) : ""],

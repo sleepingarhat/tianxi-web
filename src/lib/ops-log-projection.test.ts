@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { currentOpsHistory, isInactiveOddsAlert, type OpsHistoryRow } from './ops-log-projection';
+import { currentOpsHistory, isInactiveOddsAlert, projectCurrentOps, type OpsHistoryRow } from './ops-log-projection';
 const now = Date.parse('2026-10-24T05:10:00Z');
 const gate = (overrides: Partial<OpsHistoryRow> = {}): OpsHistoryRow => ({ kind: 'model_gate', source: 'engine-health', severity: 'error', message: '未完成鎖點核實', occurred_at: '2026-10-21T09:15:00Z', gate_key: 'freeze_recovery', gate_status: 'FAIL', model_version: 'v3.2', ...overrides });
 describe('現時日誌投影', () => {
+  it('總覽與日誌均計入四項獨立失敗，不僅計單一已登記任務', () => {
+    const logs = projectCurrentOps({ now, history: [], telegram: [], readErrors: [], checks: [],
+      workflows: [{ state: 'fail', label: '賽果', file: 'capy_race_daily.yml', conclusion: 'failure', startedAt: '2026-10-24T04:00:00Z' }],
+      alerts: ['完整性', '四倉政策', 'Wave4'].map(title => ({ title, severity: 'critical' })),
+    });
+    expect(logs.filter(log => log.level === 'fail')).toHaveLength(4);
+  });
+  it('讀取失敗保持可見，不以舊PASS或空資料當正常', () => {
+    const logs = projectCurrentOps({ now, history: [], telegram: [], workflows: [], alerts: [],
+      checks: [{ key: 'a', status: 'PASS' }, { key: 'b', status: 'FAIL' }], readErrors: [{ source: '日誌', message: '讀取失敗' }] });
+    expect(logs.filter(log => log.level === 'fail')).toHaveLength(2);
+    expect(logs.some(log => log.source === '日誌')).toBe(true);
+  });
   it('後來PASS取代7項舊失敗中嘅凍結事故，不修改原始紀錄', () => {
     const rows = [gate(), gate({ occurred_at: '2026-10-21T09:20:00Z', severity: 'info', gate_status: 'PASS' })];
     expect(currentOpsHistory(rows, [], now)).toEqual([]);

@@ -2,6 +2,8 @@
 export type PrelockState = {
   warned?: string[] | undefined; recovered?: string[] | undefined; requestedAt?: string | undefined; runId?: number | undefined;
   phase?: string | undefined; dispatchedRunId?: number | undefined; checkedAt?: string | undefined; stale?: string[] | undefined; error?: string | undefined; changeRevision?: string | undefined; recomputedAt?: string | undefined; generatedAt?: string | undefined; cardFailures?: number | undefined; cardFailureNotified?: boolean | undefined;
+  /** 連續讀取失敗次數：單次瞬時故障唔告警，但仍即時 fail-closed。 */
+  unreadableCount?: number | undefined;
 };
 export type CardRun = { id: number; created_at: string; status: string; conclusion: string | null };
 export type PrelockDeps = {
@@ -27,7 +29,7 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
     state.changeRevision = deps.changeRevision;
     state.requestedAt = undefined; state.dispatchedRunId = undefined; state.runId = undefined; state.phase = undefined;
     state.recomputedAt = undefined; state.generatedAt = undefined;
-    state.cardFailures = undefined; state.cardFailureNotified = undefined;
+    state.cardFailures = undefined; state.cardFailureNotified = undefined; state.unreadableCount = undefined;
   }
   const persist = async () => { await deps.save(state); };
   const alert = async (ids: string[]) => {
@@ -39,10 +41,20 @@ export async function advancePrelock(date: string, state: PrelockState, deps: Pr
   if (!await deps.unlocked()) { state.phase = 'lock-unknown-or-closed'; await persist(); return state; }
   const current = await deps.read(false);
   const before = newRevision && deps.pendingChanges?.length ? deps.pendingChanges : current ?? deps.pendingChanges ?? [];
-  if (current === null && !before.length) { state.phase = 'picks-unreadable'; await alert(['預測讀取未能核實']); await persist(); return state; }
+  if (current === null && !before.length) {
+    state.phase = 'picks-unreadable';
+    state.unreadableCount = (state.unreadableCount ?? 0) + 1;
+    // 工作每分鐘運行：連續3次（約3分鐘）讀取失敗先告警，單次瞬時故障唔騷擾；由第一次失敗起已 fail-closed，唔會凍結。
+    if (state.unreadableCount >= 3) await alert(['預測讀取未能核實']);
+    await persist(); return state;
+  }
+  state.unreadableCount = undefined;
   state.stale = before;
   await alert(before);
   if (!before.length) {
+    // 讀取失敗警告有專屬恢復通知：之前單次告警後就算讀取返正常都永遠唔報恢復，睇落似未解決。
+    const readRecovered = (state.warned ?? []).includes('預測讀取未能核實') && !state.recovered?.includes('預測讀取未能核實');
+    if (readRecovered && await deps.notify(`✅ 預測讀取已恢復：${date}。早前嘅讀取失敗屬暫時性；凍結仍須獨立來源及鎖點核對。`)) state.recovered = [...(state.recovered ?? []), '預測讀取未能核實'];
     const recovered = (state.warned ?? []).filter(id => id !== '預測讀取未能核實' && !state.recovered?.includes(id));
     if (recovered.length || (state.dispatchedRunId && !state.recomputedAt)) {
       // A cached clean body alone is not repair evidence. Require a completed card job and fresh read.

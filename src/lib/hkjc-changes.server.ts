@@ -45,7 +45,7 @@ export async function recomputeIfStaleBeforeLock(changes: import('./hkjc-changes
   const claimed = await sb.rpc('claim_racing_prelock', { _date: date, _token: lease });
   if (claimed.error) throw new Error('退出追蹤狀態未能核實，停止派送');
   if (claimed.data === null) return { action: 'lease-active' as const };
-  const stateSchema = z.object({ warned: z.array(z.string()).optional(), recovered: z.array(z.string()).optional(), requestedAt: z.string().optional(), runId: z.number().optional(), phase: z.string().optional(), checkedAt: z.string().optional(), stale: z.array(z.string()).optional(), dispatchedRunId: z.number().optional(), error: z.string().optional(), changeRevision: z.string().optional(), recomputedAt: z.string().optional(), generatedAt: z.string().optional(), cardFailures: z.number().optional(), cardFailureNotified: z.boolean().optional() });
+  const stateSchema = z.object({ warned: z.array(z.string()).optional(), recovered: z.array(z.string()).optional(), requestedAt: z.string().optional(), runId: z.number().optional(), phase: z.string().optional(), checkedAt: z.string().optional(), stale: z.array(z.string()).optional(), dispatchedRunId: z.number().optional(), error: z.string().optional(), changeRevision: z.string().optional(), recomputedAt: z.string().optional(), generatedAt: z.string().optional(), cardFailures: z.number().optional(), cardFailureNotified: z.boolean().optional(), unreadableCount: z.number().int().nonnegative().optional() });
   let state = stateSchema.parse(claimed.data);
   let freshGeneratedAt: string | undefined;
   const save = async (next: import('./prelock-workflow').PrelockState, release = false) => {

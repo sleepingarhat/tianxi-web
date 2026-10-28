@@ -195,8 +195,8 @@ export const PRELIMINARY_UNLOCKED_LABEL = "初版.未鎖";
 export const DAY_HITS_EMPTY = "每一場完結並核實後即顯示該場命中；未完場唔預估。";
 export const DAY_HITS_PARTIAL = "已核實場次先計入；未完場唔預估。";
 export const STRATEGY_PNL_CARD_TITLE = "策略累計盈虧";
-/** 今日卡只加總策略 API 嘅四個單場彩池；孖T／三T 喺詳情頁另計，呢度唔估。 */
-export const STRATEGY_PNL_NOTE = "單場四個彩池累計（孖T／三T 喺詳情按已核實組口另計）· 非投資建議";
+/** 與策略詳情共用近90日六彩池核實合計。 */
+export const STRATEGY_PNL_NOTE = "六彩池累計（含19/10/2026起已核實孖T／三T）· 非投資建議";
 export const DISTANCE_PENDING = "途程待公布";
 export const GOING_PENDING = "地況待公布";
 export const CLASS_PENDING = "班次待公布";

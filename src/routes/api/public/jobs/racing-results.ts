@@ -14,7 +14,7 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
         const { readOfficialResultMeetings } = await import('@/lib/racing-results-official.server');
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
         const { sendTelegramAlert } = await import('@/lib/telegramAlert.server');
-        const { alertOnce, collectPendingRaces, raceFailureAlertKey, raceFailureAlertText, resultErrorCode, raceStartTimingMap, suppressMeetingTimeoutAlert, suppressRaceFailureAlert } = await import('@/lib/racing-results-failures');
+        const { alertOnce, collectPendingRaces, raceFailureAlertKey, raceFailureAlertText, resultErrorCode, raceStartTimingMap, suppressMeetingTimeoutAlert, suppressRaceFailureAlert, workerMeetingTimingMap } = await import('@/lib/racing-results-failures');
         const alertStore = {
           read: async (key: string) => {
             const r = await supabaseAdmin.from('telegram_alert_state').select('value').eq('key', key).maybeSingle();
@@ -42,16 +42,27 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
           const { meetings, sha256 } = await readOfficialResultMeetings();
           const { collectOfficialRace } = await import('@/lib/hkjc-results-collector.server');
           const candidates = meetings.filter(m => [today, yesterday].includes(m.date) && ['ST','HV'].includes(m.venueCode));
-          // Best-effort race start times (D1) for alert-noise control. Unknown
-          // timing never suppresses an alert.
+          // Best-effort race start times for alert-noise control. D1 races rows
+          // only exist after results ingest, so pre-race the map falls back to
+          // the Worker's public meeting projection. Unknown timing never
+          // suppresses an alert.
           const startedMaps = new Map<string, ReadonlyMap<number, number> | null>();
           {
             const { publicRacingQuery } = await import('@/lib/public-racing-evidence.server');
+            const { workerFetch, WORKER_BASE } = await import('@/lib/site-reader.server');
             for (const m of candidates) {
+              let timing: ReadonlyMap<number, number> | null = null;
               try {
                 const rows = await publicRacingQuery<{ raceNumber: number; startTime: string | null }>(`SELECT r.race_number raceNumber,r.start_time startTime FROM races r JOIN race_meetings mt ON mt.id=r.meeting_id WHERE mt.date=? AND mt.venue=?`, [m.date, m.venueCode]);
-                startedMaps.set(`${m.date}:${m.venueCode}`, raceStartTimingMap(rows, m.date));
-              } catch { /* timing unknown → never suppress */ }
+                timing = raceStartTimingMap(rows, m.date);
+              } catch { /* fall through to the Worker projection */ }
+              if (!timing) {
+                try {
+                  const res = await workerFetch(`${WORKER_BASE}/api/meetings/${m.date}`, { signal: AbortSignal.timeout(9000) });
+                  if (res.ok) timing = workerMeetingTimingMap(await res.json(), m.date, m.venueCode);
+                } catch { /* timing unknown → never suppress */ }
+              }
+              startedMaps.set(`${m.date}:${m.venueCode}`, timing);
             }
           }
           let liveResult: { raceNumber: number; action: string; sha256?: string } | null = null;

@@ -9,6 +9,7 @@ import {
   resultErrorCode,
   suppressMeetingTimeoutAlert,
   suppressRaceFailureAlert,
+  workerMeetingTimingMap,
   type AlertStore,
 } from "./racing-results-failures";
 
@@ -106,18 +107,41 @@ describe("race start times", () => {
   });
 });
 
+describe("worker meeting timing fallback", () => {
+  const payload = {
+    venue: "ST",
+    races: [
+      { raceNumber: 1, startTime: "18:45" },
+      { raceNumber: 2, startTime: "19:15" },
+    ],
+  };
+  it("builds HKT start times from the public meeting projection", () => {
+    const map = workerMeetingTimingMap(payload, "2026-10-28", "ST");
+    expect(map?.get(1)).toBe(Date.parse("2026-10-28T18:45:00+08:00"));
+    expect(map?.get(2)).toBe(Date.parse("2026-10-28T19:15:00+08:00"));
+  });
+  it("a different venue or missing times can never certify timing", () => {
+    expect(workerMeetingTimingMap(payload, "2026-10-28", "HV")).toBeNull();
+    expect(workerMeetingTimingMap({ venue: "ST", races: [{ raceNumber: 1, startTime: null }] }, "2026-10-28", "ST")).toBeNull();
+    expect(workerMeetingTimingMap({ venue: "ST" }, "2026-10-28", "ST")).toBeNull();
+    expect(workerMeetingTimingMap(null, "2026-10-28", "ST")).toBeNull();
+  });
+});
+
 describe("transient alert suppression", () => {
   const started = new Map([[3, Date.parse("2026-10-25T14:30:00+08:00")]]);
   const within = new Date(Date.parse("2026-10-25T14:40:00+08:00"));
   const after = new Date(Date.parse("2026-10-25T14:55:00+08:00"));
   const failure = (code: string, raceNumber = 3) => ({ date: "2026-10-25", venue: "ST", raceNumber, code });
-  it("table-missing and columns-incomplete are suppressed within 20 minutes of the off", () => {
+  it("table-missing, columns-incomplete and race-mismatch are suppressed within 20 minutes of the off", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), started, within)).toBe(true);
     expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, within)).toBe(true);
+    expect(suppressRaceFailureAlert(failure("official-result-race-mismatch"), started, within)).toBe(true);
   });
   it("the same codes alert again after the grace window", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), started, after)).toBe(false);
     expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, after)).toBe(false);
+    expect(suppressRaceFailureAlert(failure("official-result-race-mismatch"), started, after)).toBe(false);
   });
   it("RESULT-status race timeouts always alert, including an empty timing map", () => {
     expect(suppressRaceFailureAlert(failure("official-result-timeout", 1), new Map(), within)).toBe(false);
@@ -129,6 +153,7 @@ describe("transient alert suppression", () => {
   });
   it("unknown timing never suppresses", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), null, within)).toBe(false);
+    expect(suppressRaceFailureAlert(failure("official-result-race-mismatch"), null, within)).toBe(false);
     expect(suppressRaceFailureAlert(failure("official-result-timeout"), null, within)).toBe(false);
   });
   it("other failure codes always alert", () => {

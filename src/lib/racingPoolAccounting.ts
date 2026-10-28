@@ -7,6 +7,7 @@ import { favouriteOrderForSettlement, type OfficialFavourites } from "./official
 import { getHkjcChanges } from "./hkjc-changes.functions";
 import { officialWithdrawal } from './hkjc-changes';
 import { supabase } from '@/integrations/supabase/client';
+import { CROSS_POOL_START } from './strategy-accounting';
 
 const UNIT = 10;
 
@@ -99,7 +100,7 @@ async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venu
   const { data: { session } } = await supabase.auth.getSession();
   const res = await fetch(`/api/public/frozen-racing?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(25_000), cache: 'no-store', headers: session ? { Authorization: `Bearer ${session.access_token}` } : {} });
   // 該日從未建立原始凍結存證：唔係讀取失敗，跨場一律列「缺預測」、不入正式合計
-  if (res.status === 503) {
+  if (res.status === 404 || res.status === 503) {
     const body = await res.clone().json().catch(() => null) as { reason?: string } | null;
     if (body?.reason === 'no-archive') return { legs: {}, venue: null, noArchive: true };
   }
@@ -113,6 +114,7 @@ async function loadLegs(date: string): Promise<{ legs: Record<number, Leg>; venu
 export const exoticPoolOptions = (date: string) => queryOptions({
   queryKey: ["exotic-trio-verified-original", date], enabled: !!date, staleTime: 30_000, refetchInterval:60_000, retry:2,
   queryFn: async () => {
+    if (date < CROSS_POOL_START) return { pools: [] as PoolCalc[], legs: {} as Record<number, Leg>, favourites: {} as Record<number, number[] | undefined>, evidence: {} as Record<number, OfficialFavourites>, venue: null, noArchive: true };
     const { legs, venue, noArchive, races } = await loadLegs(date);
     // 無原注可核對就唔再讀其他來源，避免無關網絡失敗蓋過「無存證」。
     if (noArchive) return { pools: [] as PoolCalc[], legs, favourites: {} as Record<number, number[] | undefined>, evidence: {} as Record<number, OfficialFavourites>, venue, noArchive: true };

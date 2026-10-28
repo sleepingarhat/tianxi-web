@@ -71,7 +71,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section className={`tx-card mx-4 my-3 overflow-hidden rounded-[8px] border border-hairline bg-paper-2 shadow-sm transition-shadow hover:shadow-md ${className}`}>
+    <section className={`tx-card mx-4 my-3 min-w-0 overflow-hidden rounded-[8px] border border-hairline bg-paper-2 shadow-sm ${className}`}>
       {title ? (
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-hairline bg-paper/50 px-3 py-3">
           <h2 className="min-w-0 font-serif-tc text-[15px] font-bold leading-relaxed text-ink">

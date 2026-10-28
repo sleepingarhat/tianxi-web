@@ -15,7 +15,7 @@
 
 ## 監控端規則
 - Read nested AGENTS.md before edits: src/components/admin (admin panels), src/lib (libs).
-- Ops logs use the shared read-only current-incident projection: latest gate evidence and live checks supersede history; API events are scoped to the Hong Kong day. Suppress stale odds alerts only with explicit live out-of-window evidence. Why: history is not current health and failed reads must stay visible.
+- Overview/logs share current-incident projection: workflows, alerts, checks and read errors; live gate evidence supersedes history; API events use HK day; stale odds suppression needs live out-of-window evidence. Why: one visible failure scope.
 
 - Run break-ui-matrix at 320/390/1280, RTL, slow API and 1000 members; ignore explanatory NaN/undefined copy. Why: repeatable checks without false positives.
 - Images need commercial-free rights and /media-credits; URLs are not licences.

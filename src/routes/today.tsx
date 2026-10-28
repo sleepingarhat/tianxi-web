@@ -3,11 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
+import { MeetingOfficialResearch } from "@/components/tx/OfficialResearchPanels";
+import { useStrategyAccounting } from "@/lib/useStrategyAccounting";
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNotice";
 import { RacingChangesNotice } from "@/components/tx/RacingChangesNotice";
 import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
-import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
+import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, TxCta } from "@/components/tx/ui";
 import { cardAccess } from "@/lib/tier-projection";
 import { useTier } from "@/lib/useTier";
 import { useTodayPicks } from "@/lib/use-today-picks";
@@ -98,12 +100,7 @@ function TodayPage() {
     refetchInterval: 60_000,
   });
 
-  const pnl = useQuery({
-    queryKey: ["strategyPnl", "today-page"],
-    enabled: tier.has("pro"),
-    queryFn: () => txApi.strategyPnl(),
-    staleTime: 5 * 60_000,
-  });
+  const accounting = useStrategyAccounting(90);
 
   const date = tp.date ?? smart.data?.date ?? nextMeeting.data?.date;
   const venue = tp.venue ?? smart.data?.venue ?? nextMeeting.data?.venue;
@@ -374,6 +371,7 @@ function TodayPage() {
               </ul>
             </Card>
             <OfficialDrawCard data={official.data} raceNumber={focusRace ? Number(focusRace.raceNumber) : null} />
+            {date && (venue === "ST" || venue === "HV") ? <MeetingOfficialResearch date={date} venue={venue} /> : null}
           </div>
 
           <aside className="min-w-0 lg:sticky lg:top-[72px] lg:pb-6">
@@ -396,17 +394,12 @@ function TodayPage() {
             <Card title={STRATEGY_PNL_CARD_TITLE} en="Cumulative PnL" action={<Link to="/strategy-pnl" className="text-[11px] font-bold text-gold">詳情 →</Link>}>
               {!tier.has("pro") ? (
                 <UpgradeCard inline need="pro" feature="策略累計盈虧" />
-              ) : pnl.isLoading ? (
+              ) : accounting.loading ? (
                 <Loading label="讀取盈虧…" />
-              ) : pnl.isError ? (
-                <p className="text-[12px] text-ink-3">暫時未能讀取策略盈虧</p>
+              ) : accounting.error ? (
+                <div><p className="text-[12px] text-lose">六彩池未能讀齊，暫不展示不完整累計。</p><TxCta size="sm" variant="outline" className="mt-2" onClick={accounting.retry}>重新核對</TxCta></div>
               ) : (() => {
-                const points = Array.isArray(pnl.data?.points) ? pnl.data.points : [];
-                const totalNet = points.reduce(
-                  (a: number, row: { cost?: number; payout?: number }) =>
-                    a + (Number(row.payout) || 0) - (Number(row.cost) || 0),
-                  0,
-                );
+                const totalNet = accounting.totalNet;
                 return (
                   <>
                     <p
@@ -418,7 +411,7 @@ function TodayPage() {
                       {Math.abs(totalNet).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                     </p>
                     <p className="mt-1 text-[10px] text-ink-3">
-                      起計 {pnl.data?.from ? fmtMeetingDate(pnl.data.from) : "—"} · {STRATEGY_PNL_NOTE}
+                      近90日 · {accounting.points[0]?.date ? fmtMeetingDate(accounting.points[0].date) : "—"}起計 · {STRATEGY_PNL_NOTE}
                     </p>
                   </>
                 );
@@ -619,7 +612,7 @@ function OfficialRankingCard({ data }: { data: OfficialData }) {
         {list("騎師", data.ranking.jockey)}
         {list("練馬師", data.ranking.trainer)}
       </div>
-      <p className="mt-2 text-[10px] text-ink-3">來源：馬會騎練排名（{data.ranking.season ?? "本"}馬季，截至 {data.ranking.asOf ?? "—"}）；只作參考，不計入預測。</p>
+      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：騎練排名（{data.ranking.season ?? "本"}馬季，截至 {data.ranking.asOf ?? "—"}）；只作參考，不計入預測。</p>
     </Card>
   );
 }
@@ -634,17 +627,17 @@ function OfficialDrawCard({ data, raceNumber }: { data: OfficialData; raceNumber
     <Card title={`第 ${raceNumber} 場檔位統計`} en="Draw stats">
       <ul className="space-y-1">
         {rows.map((r) => (
-          <li key={r.draw} className="grid grid-cols-[28px_minmax(0,1fr)_96px] items-center gap-2 text-[11px]">
+          <li key={r.draw} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-x-2 gap-y-1 py-1 text-[11px] sm:grid-cols-[28px_minmax(0,1fr)_auto]">
             <span className={`tabnum font-mono-tx font-bold ${best.has(r.draw) ? "text-gold" : "text-ink"}`}>{r.draw}檔</span>
             <span className="relative h-2 rounded-full bg-paper-2">
               <span className="absolute inset-y-0 left-0 rounded-full bg-ink-3/40" style={{ width: `${(r.placePct / max) * 100}%` }} />
               <span className="absolute inset-y-0 left-0 rounded-full bg-gold" style={{ width: `${(r.winPct / max) * 100}%` }} />
             </span>
-            <span className="tabnum text-right font-mono-tx text-ink-3">勝{r.winPct}% 位{r.placePct}% · {r.starts}</span>
+            <span className="tabnum col-start-2 grid grid-cols-3 gap-2 whitespace-nowrap font-mono-tx text-ink-3 sm:col-start-auto sm:flex sm:justify-end"><span>勝 {r.winPct}%</span><span>位 {r.placePct}%</span><span className="text-right">{r.starts} 次</span></span>
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-[10px] text-ink-3">來源：馬會檔位統計（三季同跑道同途程）；金色為樣本20次以上勝出率最高三檔。只作參考，不計入預測。</p>
+      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：檔位統計（三季同跑道同途程）；金色為樣本20次以上勝出率最高三檔。只作參考，不計入預測。</p>
     </Card>
   );
 }

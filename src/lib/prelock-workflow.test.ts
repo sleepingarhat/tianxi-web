@@ -37,6 +37,38 @@ describe('退出警告與排位更新', () => {
     const f=fixture(); f.setStale(null); const s=await advancePrelock('2026-10-21',{},f.deps);
     expect(s.phase).toBe('picks-unreadable'); expect(s.recovered ?? []).toEqual([]);
   });
+  it('單次瞬時讀取失敗唔告警，連續3次先告警一次', async () => {
+    const f=fixture(); f.setStale(null); let s: PrelockState={};
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.messages).toEqual([]); expect(s.phase).toBe('picks-unreadable'); expect(s.unreadableCount).toBe(2);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.messages.length).toBe(1); expect(f.messages[0]).toContain('預測讀取未能核實');
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.messages.length).toBe(1);
+  });
+  it('讀取恢復後發一次恢復通知，唔會重複', async () => {
+    const f=fixture(); f.setStale(null); let s: PrelockState={};
+    for(let n=0;n<3;n++) s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.messages.length).toBe(1);
+    f.setStale([]);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.messages.length).toBe(2); expect(f.messages[1]).toContain('預測讀取已恢復');
+    expect(s.recovered).toContain('預測讀取未能核實'); expect(s.unreadableCount).toBeUndefined();
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(f.messages.length).toBe(2);
+  });
+  it('讀取失敗中途恢復會重設連續計數', async () => {
+    const f=fixture(); f.setStale(null); let s: PrelockState={};
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    f.setStale(['R1 #9 創科群英']);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(s.unreadableCount).toBeUndefined();
+    f.setStale(null);
+    s=await advancePrelock('2026-10-21',s,f.deps);
+    expect(s.unreadableCount).toBe(1); expect(f.messages.filter(m=>m.includes('預測讀取未能核實'))).toEqual([]);
+  });
   it('GitHub失敗限次重試，達上限3次後停止並通知一次', async () => {
     const f=fixture(); f.setRuns([{id:21,created_at:'2026-10-20T12:20:00Z',status:'completed',conclusion:'failure'}]);
     let s=await advancePrelock('2026-10-21',{},f.deps);

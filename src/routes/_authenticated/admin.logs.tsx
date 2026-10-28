@@ -1,15 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 
 import { AdminHead, DataTable, Panel, StatusBadge, useMemoCols, type Status } from "@/components/admin/kit";
-import { ago, refreshMs, useEngineHealth, useRacingHealth } from "@/components/admin/data";
+import { ago } from "@/components/admin/data";
+import { useCurrentOps } from "@/components/admin/useCurrentOps";
 import { Button } from "@/components/ui/button";
-import { currentOpsHistory, isInactiveOddsAlert } from "@/lib/ops-log-projection";
-import { adminGet } from "@/lib/admin.functions";
-import { getOpsEventHistory } from "@/lib/ops-history.functions";
-import { isArchivedProductEvent } from "@/lib/product-scope";
+import type { OpsLog } from "@/lib/ops-log-projection";
 import { hkDateTime } from "@/lib/hkTime";
 
 export const Route = createFileRoute("/_authenticated/admin/logs")({
@@ -17,48 +13,14 @@ export const Route = createFileRoute("/_authenticated/admin/logs")({
   component: Logs,
 });
 
-type Log = { kind: string; level: Status; source: string; message: string; at: string | null };
+type Log = OpsLog;
 
 function Logs() {
-  const get = useServerFn(adminGet);
-  const getHistory = useServerFn(getOpsEventHistory);
-  const alerts = useQuery({ queryKey: ["admin", "alerts"], queryFn: async () => {
-    const result = await get({ data: { path: "/admin/api/alerts" } });
-    if (!result.ok) throw new Error(`資料完整性讀取失敗（${result.status}）`);
-    return result;
-  }, refetchInterval: refreshMs() });
-  const history = useQuery({ queryKey: ["admin", "ops-history"], queryFn: () => getHistory({ data: { days: 90, limit: 1000 } }), refetchInterval: refreshMs() });
-  const rh = useRacingHealth();
-  const eh = useEngineHealth();
-
   const [showOk, setShowOk] = useState(false);
   const [lv, setLv] = useState<"all" | Status>("all");
   const [kw, setKw] = useState("");
-  const logs: Log[] = [];
-  const checks = eh.isError ? [] : eh.data?.checks ?? [];
-  for (const event of currentOpsHistory(history.data ?? [], checks, Date.now())) logs.push({
-    kind: event.kind === "model_gate" ? "模型閘歷史" : "API 錯誤歷史",
-    level: event.severity === "error" ? "fail" : event.severity === "warning" ? "warn" : "ok",
-    source: String(event.source), message: String(event.message), at: event.occurred_at,
-  });
-  const a = alerts.data?.payload;
-  const list: any[] = Array.isArray(a) ? a : a?.["alerts"] ?? a?.["items"] ?? [];
-  for (const x of list) {
-    const message = String(x.message ?? x.msg ?? x.title ?? JSON.stringify(x)).slice(0, 300);
-    if (isInactiveOddsAlert(message, checks)) continue;
-    logs.push({ kind: "資料完整性", level: x.severity === "critical" || x.level === "error" || x.level === "red" ? "fail" : "warn", source: String(x.source ?? x.key ?? "後端"), message, at: x.created_at ?? x.at ?? null });
-  }
-  for (const w of rh.data?.workflows ?? []) if (w.state === "fail") logs.push({ kind: "定時任務失敗", level: "fail", source: `賽馬 · ${w.label}`, message: `${w.file} 結果 ${w.conclusion}`, at: w.startedAt });
-  for (const t of rh.data?.telegram?.failing ?? []) logs.push({ kind: "告警", level: "warn", source: `Telegram · ${t.key}`, message: t.fail, at: t.sentAt });
-  for (const c of (eh.data?.checks ?? []) as import('@/lib/racing-shapes').EngineCheck[]) if (String(c.status).toUpperCase() !== "PASS") logs.push({ kind: "模型閘", level: String(c.status).toUpperCase() === "FAIL" ? "fail" : "warn", source: String(c.label ?? c.key), message: String(c.note ?? c.detail ?? ""), at: null });
-  for (const [n, q] of [["賽馬健康", rh], ["引擎健康", eh]] as const) if (q.isError) logs.push({ kind: "API 錯誤", level: "fail", source: n, message: String((q.error as Error)?.message ?? q.error), at: new Date().toISOString() });
-  if (showOk) {
-    for (const w of rh.data?.workflows ?? []) if (w.state !== "fail") logs.push({ kind: "定時任務成功", level: "ok", source: `賽馬 · ${w.label}`, message: `${w.file} 結果 ${w.conclusion ?? "—"}`, at: w.startedAt });
-  }
-  if (alerts.isError) logs.push({ kind: "API 錯誤", level: "fail", source: "/admin/api/alerts", message: String((alerts.error as Error)?.message ?? alerts.error), at: new Date().toISOString() });
-  if (history.isError) logs.push({ kind: "API 錯誤", level: "fail", source: "事件紀錄", message: "日誌暫時讀取唔到", at: new Date().toISOString() });
-  logs.sort((x, y) => (y.at ?? "").localeCompare(x.at ?? ""));
-  const current = logs.filter((l) => !isArchivedProductEvent(l.source, l.message) && (!kw || `${l.kind}${l.source}${l.message}`.toLowerCase().includes(kw.toLowerCase())));
+  const ops = useCurrentOps(showOk);
+  const current = ops.logs.filter(l => !kw || `${l.kind}${l.source}${l.message}`.toLowerCase().includes(kw.toLowerCase()));
   const shown = current.filter((l) => lv === "all" || l.level === lv);
   const cnt = (s: Status) => current.filter((l) => l.level === s).length;
 
@@ -72,7 +34,7 @@ function Logs() {
 
   return (
     <>
-      <AdminHead title="日誌" en="Logs" desc="現時異常及今日事件" onRefresh={() => { history.refetch(); alerts.refetch(); rh.refetch(); eh.refetch(); }} refreshing={alerts.isFetching || history.isFetching || rh.isFetching || eh.isFetching} />
+      <AdminHead title="日誌" en="Logs" desc="現時異常及今日事件" onRefresh={ops.refresh} refreshing={ops.refreshing} />
       <Panel title="事件" en="Events">
         <div className="mb-2 flex flex-wrap items-center gap-1.5">
           {(["all", "fail", "warn", "ok"] as const).map((k) => (
@@ -84,7 +46,7 @@ function Logs() {
           <input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="搜尋來源／內容" className="ml-auto w-44 rounded-[6px] border border-hairline bg-paper-3 px-2 py-1 text-[11px] text-ink" />
         </div>
         {shown.length === 0 ? (
-          <p className="py-5 text-center text-[11px] text-ink-3">{alerts.isLoading || history.isLoading || eh.isLoading || rh.isLoading ? "讀取中…" : "冇異常紀錄"}</p>
+          <p className="py-5 text-center text-[11px] text-ink-3">{ops.loading ? "讀取中…" : "冇異常紀錄"}</p>
         ) : (
           <>
             {/* 手機：逐條堆疊，時間同級別照顯示，舊事故唔會睇落似即時失敗。 */}

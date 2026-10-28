@@ -91,9 +91,12 @@ export function suppressMeetingTimeoutAlert(
 }
 
 /**
- * Noise control: right after the off, HKJC's result table is legitimately
- * absent or incomplete. A RESULT-status race timeout always alerts.
- * startedMap: raceNumber → start epoch ms; null = timing unknown (never suppress).
+ * Noise control: right after the off, HKJC's result page is legitimately not
+ * yet updated — the table is absent or incomplete, or the page still shows
+ * the previous race (race-mismatch). Archiving still fails closed and retries
+ * next tick; only the alert is muted. A RESULT-status race timeout always
+ * alerts. startedMap: raceNumber → start epoch ms; null = timing unknown
+ * (never suppress).
  */
 export function suppressRaceFailureAlert(
   f: RaceFailure,
@@ -101,12 +104,36 @@ export function suppressRaceFailureAlert(
   now = new Date(),
 ): boolean {
   if (!startedMap) return false;
-  if (f.code === "official-result-table-missing" || f.code === "official-result-columns-incomplete") {
+  if (
+    f.code === "official-result-table-missing" ||
+    f.code === "official-result-columns-incomplete" ||
+    f.code === "official-result-race-mismatch"
+  ) {
     const started = startedMap.get(f.raceNumber);
     const elapsed = started == null ? NaN : now.getTime() - started;
     return elapsed >= 0 && elapsed < EARLY_RESULT_GRACE_MS;
   }
   return false;
+}
+
+/**
+ * Pre-race D1 has no races rows, so start times come from the Worker's public
+ * meeting projection (same data the site displays). Venue must match exactly;
+ * any missing/invalid time yields null → never suppress.
+ */
+export function workerMeetingTimingMap(
+  payload: { venue?: unknown; races?: unknown } | null,
+  date: string,
+  venue: string,
+): ReadonlyMap<number, number> | null {
+  if (!payload || payload.venue !== venue || !Array.isArray(payload.races)) return null;
+  const rows: { raceNumber: number; startTime: string | null }[] = [];
+  for (const r of payload.races as { raceNumber?: unknown; startTime?: unknown }[]) {
+    const raceNumber = Number(r?.raceNumber);
+    if (!Number.isInteger(raceNumber) || raceNumber < 1) return null;
+    rows.push({ raceNumber, startTime: typeof r?.startTime === "string" ? r.startTime : null });
+  }
+  return raceStartTimingMap(rows, date);
 }
 
 export const raceFailureAlertText = (f: RaceFailure) =>

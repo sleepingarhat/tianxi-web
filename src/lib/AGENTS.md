@@ -1,5 +1,9 @@
 # src/lib rules
 
+- Strategy page and today PnL share useStrategyAccounting and combineStrategyAccounting; cross pools start at CROSS_POOL_START, only explicit no-archive HTTP responses skip reads, and failed reads suppress full totals. Why: avoid missing DT/TT or treating verification failure as zero.
+
+- Official research uses fixed server-side D1 field allowlists and separate public DTOs with unavailable states; never prediction fields. Why: references cannot bypass membership or certify frozen inputs.
+
 - Full racing health reads live in racing-health.server.ts; racingOps exposes only an allowlisted public projection and a role-checked admin RPC. Why: keep private diagnostics out of public responses and client modules.
 - Weather sync URLs share handleWeatherSyncJob with managed auth and Hong Kong current date only. Why: prevent legacy shared secrets or query overrides from re-authorizing writes.
 

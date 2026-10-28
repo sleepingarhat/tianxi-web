@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { AdminHead, CountUp, Kpi, Panel, StatusBadge, type Status } from "@/components/admin/kit";
 import { ago, useEngineHealth, useLockState, useModelVersions, useRacingHealth, useRollup } from "@/components/admin/data";
+import { useCurrentOps } from "@/components/admin/useCurrentOps";
 import { hkDateTime } from "@/lib/hkTime";
 
 export const Route = createFileRoute("/_authenticated/admin/overview")({
@@ -10,35 +11,35 @@ export const Route = createFileRoute("/_authenticated/admin/overview")({
 });
 
 function Overview() {
-  const eh = useEngineHealth();
-  const rh = useRacingHealth();
+  const ops = useCurrentOps();
+  const { eh, rh } = ops;
   const lock = useLockState();
   const roll = useRollup();
   const mv = useModelVersions();
 
   const wf = rh.data?.workflows ?? [];
-  const wfFail = wf.filter((w) => w.state === "fail").length;
+  const wfFail = ops.logs.filter(log => log.level === "fail").length;
   const active = (mv.data ?? []).filter((v) => v.status === "active");
 
   const modules: { name: string; s: Status; detail: string; to: string }[] = [
     {
       name: "賽馬",
       s: eh.data?.overall === "PASS" && wfFail === 0 ? "ok" : eh.data?.overall === "FAIL" || wfFail > 1 ? "fail" : eh.isLoading ? "unknown" : "warn",
-      detail: `引擎 ${eh.data?.overall ?? "—"} · 定時任務失敗 ${wfFail}`,
+      detail: `引擎 ${eh.data?.overall ?? "—"} · 現時失敗 ${wfFail}`,
       to: "/admin/engine-health",
     },
   ];
 
-  const refresh = () => { eh.refetch(); rh.refetch(); lock.refetch(); };
+  const refresh = () => { ops.refresh(); lock.refetch(); };
 
   return (
     <>
-      <AdminHead title="系統總覽" en="Overview" desc="香港賽馬引擎、鎖定、派彩與定時任務狀態。" onRefresh={refresh} refreshing={eh.isFetching || rh.isFetching} updatedAt={eh.data?.generatedHKT ?? null} />
+      <AdminHead title="系統總覽" en="Overview" desc="香港賽馬引擎、鎖定、派彩與定時任務狀態。" onRefresh={refresh} refreshing={ops.refreshing} updatedAt={eh.data?.generatedHKT ?? null} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="賽馬引擎守門" value={eh.data?.overall ?? "—"} tone={eh.data?.overall === "PASS" ? "win" : "gold"} sub={`${eh.data?.counts?.pass ?? "—"} 過 · ${eh.data?.counts?.watch ?? 0} 留意 · ${eh.data?.counts?.fail ?? 0} 失敗`} />
         <Kpi label="四揀平均中匹數（90 日）" value={<CountUp value={roll.data?.top4AvgIntersect} digits={2} />} tone="gold" sub={`${roll.data?.racesEvaluated ?? "—"} 場`} />
         <Kpi label="今日賽馬鎖定" value={lock.data?.locked ? "已鎖" : lock.data ? "未鎖" : "—"} tone={lock.data?.locked ? "win" : undefined} sub={lock.data ? `${lock.data.date} · ${lock.data.frozenRows ?? 0} 行凍結` : "—"} />
-        <Kpi label="定時任務失敗" value={<CountUp value={wfFail} />} tone={wfFail ? "lose" : "win"} sub={`賽馬 ${wf.length} 項`} />
+        <Kpi label="現時失敗" value={<CountUp value={wfFail} />} tone={wfFail ? "lose" : "win"} sub="與日誌共用核對範圍" />
       </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-3">

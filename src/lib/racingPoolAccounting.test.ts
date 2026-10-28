@@ -7,6 +7,21 @@ import { getHkjcChanges } from './hkjc-changes.functions';
 
 afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
 describe('跨場共用明細及無存證', () => {
+  it('19/10起計前不讀凍結或派彩', async () => {
+    const fetcher = vi.fn(); vi.stubGlobal('fetch', fetcher);
+    const options = exoticPoolOptions('2026-10-18');
+    const run = options.queryFn;
+    if (typeof run !== 'function') throw new Error('missing query');
+    const result = await run({} as Parameters<typeof run>[0]);
+    expect(result.pools).toEqual([]);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+  it('404核實失敗不能冒充無存證', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({reason:'verification-failed'},{status:404})));
+    const run = exoticPoolOptions('2026-10-25').queryFn;
+    if (typeof run !== 'function') throw new Error('missing query');
+    await expect(run({} as Parameters<typeof run>[0])).rejects.toThrow('原始凍結未能核實');
+  });
   it('三T只有安慰獎行，官方單T證明原票未中正獎，可自動結算270元成本', () => {
     const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
     const [p] = calcPools([{race_no:7,pool:'三T(安慰獎)',combo:'3,6,10/1,4,9/任何組合',dividend:26624,unit:10}],{5:leg(5),6:leg(6),7:leg(7)}, {}, {}, {5:'3,6,10',6:'1,4,9',7:'2,10,11'});
@@ -19,9 +34,9 @@ describe('跨場共用明細及無存證', () => {
     expect(p).toMatchObject({missing:true,pendingSettlement:true,payout:0,consPayout:0});
   });
   it('無存證不讀更改或派彩，不冒充讀取失敗', async () => {
-    const fetcher = vi.fn().mockResolvedValue(Response.json({ reason: 'no-archive' }, { status: 503 }));
+    const fetcher = vi.fn().mockResolvedValue(Response.json({ reason: 'no-archive' }, { status: 404 }));
     vi.stubGlobal('fetch', fetcher);
-    const options = exoticPoolOptions('2026-10-03');
+    const options = exoticPoolOptions('2026-10-19');
     const run = options.queryFn;
     if (typeof run !== 'function') throw new Error('missing query');
     const result = await run({} as Parameters<typeof run>[0]);

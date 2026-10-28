@@ -119,17 +119,17 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-paper-3 font-sans-tc text-ink">
       <div className={`relative mx-auto flex min-h-screen w-full flex-col border-x border-hairline bg-paper ${wide ? "max-w-[1040px] xl:max-w-[1200px]" : "max-w-[440px] md:max-w-[880px] lg:max-w-[1040px] xl:max-w-[1200px]"}`}>
-        <header className="sticky top-0 z-20 flex min-h-[56px] items-center gap-2.5 border-b border-tan/10 bg-deep px-4 py-2.5 text-deep-fg">
-          <Link to="/" className="inline-flex items-center gap-2.5">
+        <header className="sticky top-0 z-20 grid min-h-[64px] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-tan/10 bg-deep px-3 py-2.5 text-deep-fg lg:flex lg:gap-4 lg:px-5">
+          <Link to="/" className="inline-flex min-w-0 items-center gap-2 lg:shrink-0">
             <img src={tianxiLogo} width="40" height="40" alt="" className="h-10 w-10 shrink-0 rounded-[7px] object-cover" />
-            <span className="flex flex-col leading-none max-[380px]:hidden">
+            <span className="flex min-w-0 flex-col leading-none max-[480px]:hidden">
               <span className="fx-spotlight fx-spotlight-brand font-serif-tc text-[16px] font-bold tracking-[0.01em]">天喜 TIANXI</span>
               <small className="fx-foil mt-[3px] block text-[9px] font-semibold uppercase tracking-[0.24em] text-tan">
                 Hong Kong Racing
               </small>
             </span>
           </Link>
-          <nav aria-label="主選單" className="hidden flex-1 items-center justify-center gap-6 lg:flex">
+          <nav aria-label="主選單" className="hidden min-w-0 flex-1 items-center justify-center gap-4 lg:flex xl:gap-6">
             {BOTNAV.map((item) => {
               const on = item.key === page || (item.key === "horse" && ["horse", "predictor", "encyclopedia"].includes(page));
               return (
