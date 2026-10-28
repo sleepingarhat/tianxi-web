@@ -11,6 +11,13 @@ const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
 // 不保存完成結果：避免凍結恢復後繼續公開舊初版或吞掉阻截錯誤。
 
+/** 賽日日期早於今日（香港時間）即屬已完結賽日。 */
+export function isPastMeetingDate(date: unknown, now = new Date()): boolean {
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const hk = new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+  return date < hk;
+}
+
 export async function fetchTodayPicksUpstream() {
   const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
@@ -56,6 +63,12 @@ export async function fetchTodayPicksUpstream() {
     const [{ publicRacingQuery }, { verifyRunnerIdentities }] = await Promise.all([import('./public-racing-evidence.server'), import('./racing-runner-identity')]);
     const card = await publicRacingQuery<import('./racing-runner-identity').RunnerIdentity>('SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0', [json.date, json.venue]);
     verifyRunnerIdentities(json.races.flatMap((r: any) => (r.picks ?? []).map((p: any) => ({raceNumber:r.raceNumber,horseNumber:p.horseNumber,horseId:p.horseId}))), card, []);
+  }
+  // 過咗香港午夜，鎖定狀態會轉去搵新一日賽程（no-fixture → locked:false），
+  // 但預測服務仍回上一個賽日嘅臨場重算版。舊賽日一律只讀原始凍結副本，唔可以當「初版・未鎖」展示。
+  if (isPastMeetingDate(json?.date)) {
+    const { readFrozenRacing } = await import('./frozen-racing.server');
+    return await readFrozenRacing(json.date);
   }
   return json;
 }

@@ -242,6 +242,7 @@ function PredictorPage() {
           </span>
         </div>
 
+        {tp.date ? <p className="mb-2 text-[13px] font-bold text-ink">賽事日期：{fmtMeetingDate(tp.date)}{venueName ? ` · ${venueName}` : ""}</p> : null}
         <p className="mb-1.5 font-mono-tx text-[9px] font-bold uppercase tracking-[0.18em] text-ink-3">全日場次</p>
         <div className="no-scrollbar flex gap-1 overflow-x-auto pb-1">
           {races.map((r: any) => {
@@ -256,6 +257,7 @@ function PredictorPage() {
                 }`}
               >
                 <span className="block font-mono-tx text-[11px] font-bold">R{r.raceNumber}{(r.picks ?? []).some((p: any) => p.officialChange) ? <span className="ml-1 text-lose">退出</span> : null}</span>
+                {r.title ? <span className="mt-0.5 block max-w-[9rem] truncate text-[10px] font-semibold">{r.title}</span> : null}
                 <span className="mt-0.5 block font-mono-tx text-[8px] text-ink-3">{cleanTime(r.startTime) || "—"} · {r.distance || "—"}m</span>
               </button>
             );
@@ -280,7 +282,7 @@ function PredictorPage() {
           >
             {races.length === 0 ? <option value={String(raceNo)}>{tp.publicationPending ? "副本核實中…" : tp.isLoading ? "核對場次中…" : tp.error ? "場次暫未能讀取" : "暫未有場次"}</option> : null}
             {races.map((r: any) => {
-              const cls = r.class ? ` · ${r.class}` : "";
+              const cls = `${r.title ? ` · ${r.title}` : ""}${r.class ? ` · ${r.class}` : ""}`;
               const dist = r.distance ? ` · ${r.distance}m` : "";
               const q = r.raceQuality?.tier ? ` · 場質${r.raceQuality.tier}` : "";
               return (

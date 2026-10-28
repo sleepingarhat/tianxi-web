@@ -317,3 +317,20 @@ export const LAB_TOOLS: readonly LabTool[] = [
     status: "soon",
   },
 ] as const;
+
+/** 已完賽賽日嘅展示寬限（日）：完賽後保留展示，直至下一賽日資料進入。 */
+export const RECENT_MEETING_HOLD_DAYS = 2;
+
+/** 賽日早過香港今日，但仍在寬限日數內（預設 2 日）。 */
+export function isRecentPastMeeting(
+  meetingDate: string | null | undefined,
+  now: Date = new Date(),
+  holdDays = RECENT_MEETING_HOLD_DAYS,
+): boolean {
+  if (!meetingDate) return false;
+  const d = Date.parse(`${String(meetingDate).slice(0, 10)}T00:00:00Z`);
+  const t = Date.parse(`${hkCalendarDate(now)}T00:00:00Z`);
+  if (!Number.isFinite(d) || !Number.isFinite(t)) return false;
+  const diff = (t - d) / 86_400_000;
+  return diff >= 1 && diff <= holdDays;
+}

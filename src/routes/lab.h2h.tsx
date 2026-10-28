@@ -17,6 +17,7 @@ import {
   buildEloOption,
   eloEmptyLabel,
   entityLabel,
+  fillPickFromEntities,
   filterEntities,
   parseOptionalDistance,
   resolveTrainerCatalog,
@@ -312,11 +313,12 @@ function H2hPage() {
     return buildEloOption(q.data);
   }, [q.data]);
 
+  // 只按 id 補名，唔覆寫用戶揀嘅 A/B 次序；回應次序唔同都唔會再觸發互換循環。
   useEffect(() => {
-    if (!q.data?.entities?.a || !q.data.entities.b) return;
-    const { a, b } = q.data.entities;
-    setPickA({ id: a.id, nameCh: a.nameCh, nameEn: a.nameEn, code: a.code, status: a.status });
-    setPickB({ id: b.id, nameCh: b.nameCh, nameEn: b.nameEn, code: b.code, status: b.status });
+    const entities = q.data?.entities;
+    if (!entities?.a || !entities.b) return;
+    setPickA((prev) => fillPickFromEntities(prev, entities));
+    setPickB((prev) => fillPickFromEntities(prev, entities));
   }, [q.data]);
 
   function syncUrl(next: {

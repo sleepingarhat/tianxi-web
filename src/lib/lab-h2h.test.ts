@@ -13,6 +13,7 @@ import {
   buildEloOption,
   eloEmptyLabel,
   entityLabel,
+  fillPickFromEntities,
   filterEntities,
   parseOptionalDistance,
   resolveTrainerCatalog,
@@ -217,5 +218,31 @@ describe("lab-h2h-ui", () => {
     expect((opt.series as any[])[0].data).toEqual([]);
     expect((opt.series as any[])[1].data).toEqual([]);
     expect((opt.series as any[])[0].markPoint).toBeUndefined();
+  });
+});
+
+describe("fillPickFromEntities（閃爍回歸）", () => {
+  const f = { id: "trainer_方嘉柏", nameCh: "方嘉柏", nameEn: null, code: "PF", status: "active" };
+  const l = { id: "trainer_呂健威", nameCh: "呂健威", nameEn: null, code: "KL", status: "active" };
+
+  it("回應 a/b 次序對調都按 id 補名，唔會跟住對調", () => {
+    const pickA = { id: "trainer_方嘉柏", nameCh: null, nameEn: null, code: null, status: null };
+    const swapped = { a: l, b: f };
+    const filled = fillPickFromEntities(pickA, swapped);
+    expect(filled?.id).toBe("trainer_方嘉柏");
+    expect(filled?.nameCh).toBe("方嘉柏");
+  });
+
+  it("已有名嘅揀選原樣返回同一引用，唔再觸發狀態更新", () => {
+    const pick = { id: "trainer_方嘉柏", nameCh: "方嘉柏", nameEn: null, code: null, status: null };
+    expect(fillPickFromEntities(pick, { a: l, b: f })).toBe(pick);
+    expect(fillPickFromEntities(pick, { a: f, b: l })).toBe(pick);
+  });
+
+  it("空揀選、缺 entities 或 id 配對唔到都原樣返回", () => {
+    expect(fillPickFromEntities(null, { a: f, b: l })).toBeNull();
+    const pick = { id: "trainer_蔡約翰", nameCh: null, nameEn: null, code: null, status: null };
+    expect(fillPickFromEntities(pick, null)).toBe(pick);
+    expect(fillPickFromEntities(pick, { a: f, b: l })).toBe(pick);
   });
 });

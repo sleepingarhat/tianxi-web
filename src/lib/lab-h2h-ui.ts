@@ -91,6 +91,27 @@ export function filterEntities(items: readonly LabSearchItem[], query: string): 
   );
 }
 
+/**
+ * 深連結只有 id 時用回應補名。按 id 配對，唔跟回應 a/b 次序；
+ * 已有名或配對唔到就原樣返回同一引用，避免 A/B 狀態互換循環（畫面閃爍）。
+ */
+export function fillPickFromEntities(
+  pick: LabSearchItem | null,
+  entities: LabH2hPayload["entities"] | null | undefined,
+): LabSearchItem | null {
+  if (!pick || !entities?.a || !entities.b) return pick;
+  const match = entities.a.id === pick.id ? entities.a : entities.b.id === pick.id ? entities.b : null;
+  if (!match) return pick;
+  if (pick.nameCh || pick.nameEn) return pick;
+  return {
+    id: match.id,
+    nameCh: match.nameCh,
+    nameEn: match.nameEn,
+    code: match.code,
+    status: match.status,
+  };
+}
+
 export function entityLabel(e: {
   nameCh: string | null;
   nameEn: string | null;

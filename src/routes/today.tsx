@@ -31,6 +31,7 @@ import {
   goingPill,
   goingText,
   isMeetingToday,
+  isRecentPastMeeting,
   lockPhase,
   lockStatusLabel,
   modelMarketGapPp,
@@ -105,6 +106,7 @@ function TodayPage() {
   const date = tp.date ?? smart.data?.date ?? nextMeeting.data?.date;
   const venue = tp.venue ?? smart.data?.venue ?? nextMeeting.data?.venue;
   const meetingToday = isMeetingToday(date, new Date(nowMs));
+  const recentPast = isRecentPastMeeting(date, new Date(nowMs));
   const races = tp.races ?? [];
   const venueName =
     tp.meeting?.venueName || smart.data?.venueName || nextMeeting.data?.venueName || venueLabel(venue);
@@ -140,7 +142,7 @@ function TodayPage() {
   const hitRate = useQuery({
     queryKey: ["meetingHitRate", "today-page", date, tier.tier],
     queryFn: () => hitFn({ data: { date: date! } }),
-    enabled: !!date && meetingToday && !tp.cancellation,
+    enabled: !!date && (meetingToday || recentPast) && !tp.cancellation,
     staleTime: 60_000,
     refetchInterval: 60_000,
   });
@@ -250,7 +252,7 @@ function TodayPage() {
   const ticker = tp.cancellation
     ? `${fmtMeetingDate(tp.cancellation.date)} · ${tp.cancellation.label}`
     : date
-      ? `${fmtMeetingDate(date)} · ${venueName} · ${meetingToday ? "賽日" : "下一賽日"} · ${lockLabel}`
+      ? `${fmtMeetingDate(date)} · ${venueName} · ${meetingToday ? "賽日" : recentPast ? "上一賽日 · 已完賽" : "下一賽日"} · ${lockLabel}`
       : "載入賽日…";
 
   return (
@@ -274,7 +276,7 @@ function TodayPage() {
         <Pill>{goingPill(going)}</Pill>
         <Pill>天氣 {weatherMini}</Pill>
         <Pill tone={phase === "locked" ? "win" : phase === "unavailable" ? "lose" : "gold"}>{lockLabel}</Pill>
-        {!meetingToday && date ? <Pill tone="ink">非今日 · 顯示下一賽日</Pill> : null}
+        {!meetingToday && date ? <Pill tone="ink">{recentPast ? "已完賽 · 下一賽日資料到前保留展示" : "非今日 · 顯示下一賽日"}</Pill> : null}
       </section>
 
       {tp.cancellation ? null : tp.isLoading || tier.loading ? (
