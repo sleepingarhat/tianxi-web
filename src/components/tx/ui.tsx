@@ -52,7 +52,7 @@ export function PageHead({ en, title, desc }: { en: string; title: string; desc?
       <span aria-hidden className="absolute left-4 top-0 h-[3px] w-10 rounded-b bg-gold" />
       <p className="font-mono-tx text-[10px] font-bold uppercase tracking-[0.28em] text-ink-3">{en}</p>
       <h1 className="fx-spotlight mt-1 font-serif-tc text-2xl font-bold leading-tight text-ink">{title}</h1>
-      {desc ? <p className="mt-2 text-[12px] leading-relaxed text-ink-2">{desc}</p> : null}
+      {desc ? <p className="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-2">{desc}</p> : null}
     </section>
   );
 }
@@ -73,11 +73,11 @@ export function Card({
   return (
     <section className={`tx-card mx-4 my-3 min-w-0 overflow-hidden rounded-[8px] border border-hairline bg-paper-2 shadow-sm ${className}`}>
       {title ? (
-        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-hairline bg-paper/50 px-3 py-3">
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-hairline bg-paper/50 px-3 py-2.5">
           <h2 className="min-w-0 font-serif-tc text-[15px] font-bold leading-relaxed text-ink">
             {title}
             {en ? (
-              <small className="mt-1 block font-mono-tx text-[9px] font-bold uppercase text-ink-3">
+              <small className="mt-0.5 block font-mono-tx text-[10px] font-bold uppercase tracking-[0.14em] text-ink-3">
                 {en}
               </small>
             ) : null}
@@ -106,7 +106,7 @@ export function Pill({
   };
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-[4px] border px-1.5 py-[2px] text-[10px] font-bold leading-none ${tones[tone]}`}
+      className={`inline-flex items-center gap-1 rounded-[4px] border px-1.5 py-[3px] text-[11px] font-bold leading-none ${tones[tone]}`}
     >
       {children}
     </span>
@@ -116,9 +116,9 @@ export function Pill({
 export function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
     <div className="min-w-0 rounded-[10px] border border-hairline bg-paper px-2.5 py-2 transition hover:-translate-y-px hover:border-gold-strong/40">
-      <p className="text-[10px] font-medium leading-none text-ink-3">{label}</p>
-      <p className="tabnum mt-1.5 font-mono-tx text-[17px] font-bold leading-none text-ink">{value}</p>
-      {sub ? <p className="tabnum mt-1 font-mono-tx text-[9px] leading-none text-ink-3">{sub}</p> : null}
+      <p className="text-[11px] font-medium leading-tight text-ink-3">{label}</p>
+      <p className="tabnum mt-1.5 font-mono-tx text-[18px] font-bold leading-none text-ink">{value}</p>
+      {sub ? <p className="tabnum mt-1 font-mono-tx text-[10px] leading-tight text-ink-3">{sub}</p> : null}
     </div>
   );
 }
@@ -211,14 +211,14 @@ TxCta.displayName = "TxCta";
 
 export function ErrorNote({ error }: { error: unknown }) {
   return (
-    <p className="rounded-[8px] border border-lose/30 bg-lose/5 px-3 py-2 text-[11px] leading-relaxed text-lose">
+    <p className="rounded-[8px] border border-lose/30 bg-lose/5 px-3 py-2 text-[12px] leading-relaxed text-lose">
       資料載入失敗：{error instanceof Error ? error.message : "未知錯誤"}
     </p>
   );
 }
 
 export function Empty({ label = "暫無資料" }: { label?: string }) {
-  return <p className="py-5 text-center text-[11px] text-ink-3">{label}</p>;
+  return <p className="py-5 text-center text-[12px] text-ink-3">{label}</p>;
 }
 
 export function Scroller({ children }: { children: ReactNode }) {
@@ -227,13 +227,13 @@ export function Scroller({ children }: { children: ReactNode }) {
 
 export function Table({ head, children }: { head: ReactNode[]; children: ReactNode }) {
   return (
-    <table className="w-full border-collapse text-[11px]">
+    <table className="w-full border-collapse text-[12px] [&_tbody_tr]:border-b [&_tbody_tr]:border-hairline/60 [&_tbody_tr:last-child]:border-0 [&_tbody_tr:hover]:bg-paper/60">
       <thead>
         <tr className="border-b border-hairline">
           {head.map((h, i) => (
             <th
               key={i}
-              className={`whitespace-nowrap px-1.5 py-1.5 font-mono-tx text-[9px] font-bold uppercase tracking-wider text-ink-3 ${
+              className={`whitespace-nowrap px-1.5 py-2 font-mono-tx text-[10px] font-bold uppercase tracking-wider text-ink-3 ${
                 i === 0 ? "text-left" : "text-right"
               }`}
             >
@@ -287,7 +287,7 @@ export function Seg<T extends string | number>({
             key={String(o.value)}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-bold transition-all ${
+            className={`whitespace-nowrap min-h-8 rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all ${
               on
                 ? "border-gold-strong bg-gold-bg text-gold"
                 : "border-hairline bg-paper text-ink-2 hover:border-gold-strong/40"

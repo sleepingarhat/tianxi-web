@@ -263,7 +263,7 @@ function TodayPage() {
         desc={
           meetingToday
             ? "賽日儀表板 · 鎖定狀態、而家場次、全日四揀與逐場命中。"
-            : "非賽日顯示下一個賽日 · 資料以凍結／官方來源為準"
+            : "非賽日保留上一賽日最多兩日，之後顯示下一賽日 · 資料以凍結／官方來源為準"
         }
       />
 
@@ -333,6 +333,7 @@ function TodayPage() {
                     hasResult: r.hasResult === true,
                     hitCount: hit,
                     countdownLabel: start ? countdown(r.startTime, new Date(nowMs), date) : "",
+                    meetingPast: recentPast,
                   });
                   const meters = positiveDistance(r) ?? cardByRace.get(Number(r.raceNumber))?.distance ?? headerByRace.get(Number(r.raceNumber))?.distance ?? null;
                   return (
@@ -362,15 +363,22 @@ function TodayPage() {
                       ) : access === "name" ? (
                         <div className="mt-1.5">
                           <p className="font-serif-tc text-[13px] font-bold">{r.picks?.[0]?.nameCh || "首選待定"}</p>
-                          {!tier.loading ? <UpgradeCard inline need="pro" feature="全日逐場預測" /> : null}
+                          <p className="mt-0.5 text-[11px] text-ink-3">完整四揀屬 Pro 內容</p>
                         </div>
                       ) : (
-                        <div className="mt-1.5">{!tier.loading ? <UpgradeCard inline need="registered" feature="其他場次首選" /> : null}</div>
+                        <p className="mt-1.5 text-[11px] text-ink-3">首選屬會員內容 · 免費登記即可查看</p>
                       )}
                     </li>
                   );
                 })}
               </ul>
+              {!tier.loading && races.some((r: any) => cardAccess(tier.tier, Number(r.raceNumber)) !== "full") ? (
+                <div className="mt-3 border-t border-hairline pt-3">
+                  {races.some((r: any) => cardAccess(tier.tier, Number(r.raceNumber)) === "locked")
+                    ? <UpgradeCard inline need="registered" feature="其他場次首選" />
+                    : <UpgradeCard inline need="pro" feature="全日逐場預測" />}
+                </div>
+              ) : null}
             </Card>
             <OfficialDrawCard data={official.data} raceNumber={focusRace ? Number(focusRace.raceNumber) : null} />
             {date && (venue === "ST" || venue === "HV") ? <MeetingOfficialResearch date={date} venue={venue} /> : null}
@@ -489,7 +497,7 @@ function NowCard({
     );
   }
   const start = cleanTime(race.startTime);
-  const cd = countdown(race.startTime, new Date(nowMs), meetingDate);
+  const cd = isRecentPastMeeting(meetingDate, new Date(nowMs)) ? "已完賽" : countdown(race.startTime, new Date(nowMs), meetingDate);
   const top = rankedPicks(race.picks, 5);
   const top4 = top.slice(0, 4);
   const fifth = top[4];

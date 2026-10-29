@@ -258,7 +258,10 @@ export function raceRunStatus(input: {
   hasResult?: boolean;
   hitCount?: number | null;
   countdownLabel?: string | null;
+  /** 賽日已過（保留展示期間）：全部場次已跑完，唔再顯示進行中。 */
+  meetingPast?: boolean;
 }): RaceRunStatus {
+  if (input.meetingPast === true) return "完場";
   if (input.settled === true || input.hasResult === true || typeof input.hitCount === "number") return "完場";
   if (input.countdownLabel === "已開跑") return "進行中";
   return "待開";
