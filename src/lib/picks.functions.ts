@@ -34,6 +34,23 @@ export async function fetchTodayPicksUpstream() {
       throw error;
     }
   }
+  // 午夜後 lock-state 無賽程日期。先用公開賽程定位上一賽日，
+  // 直接核實原始副本，避免先等即時預測（可能觸發慢運算）再棄用。
+  // 賽程只定位日期，唔代證凍結；下一賽日仍走原有即時／鎖定流程。
+  if (!lock.date) {
+    const { optionalRacingReference } = await import('./optional-racing-reference');
+    const meeting = await optionalRacingReference(async signal => {
+      const response = await fetch(`${WORKER_BASE}/api/meetings/smart/current`, { cache: 'no-store', signal });
+      if (!response.ok) throw new Error('賽程日期暫未能讀取');
+      return await response.json() as { date?: string; venue?: string };
+    });
+    if (meeting && isPastMeetingDate(meeting.date) && ['ST', 'HV'].includes(meeting.venue ?? '')) {
+      const { readFrozenRacing } = await import('./frozen-racing.server');
+      const frozen = await readFrozenRacing(meeting.date as string);
+      if (frozen.venue !== meeting.venue) throw new FrozenEvidenceError('verification-failed', '凍結副本與賽程馬場不符');
+      return frozen;
+    }
+  }
   const token = process.env["TIANXI_ADMIN_TOKEN"];
   const url = `${WORKER_BASE}/api/analyze/today-picks`;
   const { workerFetch } = await import('./site-reader.server');
@@ -58,17 +75,16 @@ export async function fetchTodayPicksUpstream() {
     return empty;
   }
   if (!res.ok || json?.error) throw new Error(json?.error || `預測服務錯誤 ${res.status}`);
+  // 舊日期即時版永不使用，毋須先核對將會棄用的即時四揀。
+  if (isPastMeetingDate(json?.date)) {
+    const { readFrozenRacing } = await import('./frozen-racing.server');
+    return await readFrozenRacing(json.date);
+  }
   if (json?.races?.length) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(json.date ?? '') || !['ST', 'HV'].includes(json.venue)) throw new Error('預測賽日或馬場身份未能核實');
     const [{ publicRacingQuery }, { verifyRunnerIdentities }] = await Promise.all([import('./public-racing-evidence.server'), import('./racing-runner-identity')]);
     const card = await publicRacingQuery<import('./racing-runner-identity').RunnerIdentity>('SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0', [json.date, json.venue]);
     verifyRunnerIdentities(json.races.flatMap((r: any) => (r.picks ?? []).map((p: any) => ({raceNumber:r.raceNumber,horseNumber:p.horseNumber,horseId:p.horseId}))), card, []);
-  }
-  // 過咗香港午夜，鎖定狀態會轉去搵新一日賽程（no-fixture → locked:false），
-  // 但預測服務仍回上一個賽日嘅臨場重算版。舊賽日一律只讀原始凍結副本，唔可以當「初版・未鎖」展示。
-  if (isPastMeetingDate(json?.date)) {
-    const { readFrozenRacing } = await import('./frozen-racing.server');
-    return await readFrozenRacing(json.date);
   }
   return json;
 }
@@ -78,12 +94,12 @@ const refreshPicks = createPicksRefresh(fetchTodayPicksUpstream);
 export const getTodayPicksAll = createServerFn({ method: "GET" }).handler(async () => {
   const { setResponseHeader } = await import("@tanstack/react-start/server");
   setResponseHeader("Cache-Control", "no-store");
-  const day = (await refreshPicks()) as import('./racing-shapes').DayPicks;
   // 一律喺伺服器按會籍投影（Pro 全日、其他人按 FEATURE_TIERS），唔再依賴 PRO_ENFORCEMENT 開關：
   // 上游用管理員 token 攞到全日資料，冇投影就直接交俾瀏覽器會洩漏賽前預測。
   const { projectDayPicksForViewer } = await import('./picks-projection');
   const { viewerTier } = await import('./picks-entitlement.server');
-  return projectDayPicksForViewer(day, await viewerTier());
+  const [day, tier] = await Promise.all([refreshPicks(), viewerTier()]);
+  return projectDayPicksForViewer(day as import('./racing-shapes').DayPicks, tier);
 });
 
 /** 監控台用：可選強制重新運算（fresh=1，忽略快取） */

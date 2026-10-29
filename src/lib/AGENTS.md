@@ -1,5 +1,7 @@
 # src/lib rules
 
+- With no lock-state date, locate past meetings through a bounded public lookup before live picks; verify original snapshot SHA/identity/venue and project tiers per request. Why: discardable live recomputation must not delay finished meetings.
+
 - Strategy page and today PnL share useStrategyAccounting and combineStrategyAccounting; cross pools start at CROSS_POOL_START, only explicit no-archive HTTP responses skip reads, and failed reads suppress full totals. Why: avoid missing DT/TT or treating verification failure as zero.
 
 - Official research uses fixed server-side D1 field allowlists and separate public DTOs with unavailable states; never prediction fields. Why: references cannot bypass membership or certify frozen inputs.
