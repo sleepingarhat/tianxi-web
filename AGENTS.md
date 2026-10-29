@@ -8,7 +8,7 @@
 
 - Racing-only nav; product-scope.ts/start.ts block retired execution (redirect/410); research stays private with commit/SHA. Why: preserve research.
 - Cite final/current homepage data only for verifiable claims.
-- Reuse PageHead/Card/Stat/Table/Seg/AppShell for consistency.
+- Reuse PageHead/Card/Stat/Table/Seg/AppShell; AppShell owns non-home back/home-fallback and encyclopedia links. Why: consistent navigation.
 - Share FoundingMemberOffer/freeStage; Card headers use minmax text/fixed actions to prevent wrapping.
 - Desktop density; mobile one column.
 - Publish: run scripts/sync-frontend-repo.py. Pinned imports: approved removals only; preserve env/generated; no implicit migration/publish. Retired lab routes redirect /lab. Why: safe sync.

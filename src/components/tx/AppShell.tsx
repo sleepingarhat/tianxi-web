@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter, useCanGoBack, useLocation } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 
@@ -100,6 +100,9 @@ export function AppShell({
   const tier = useTier();
   const founding = useFoundingInfo();
   const navigate = useNavigate();
+  const router = useRouter();
+  const canGoBack = useCanGoBack();
+  const pathname = useLocation({ select: location => location.pathname });
   const queryClient = useQueryClient();
   const [signingOut, setSigningOut] = useState(false);
 
@@ -212,6 +215,13 @@ export function AppShell({
             )}
           </div>
         </header>
+
+        {pathname !== '/' ? <nav aria-label="頁面導航" className="flex items-center justify-between gap-2 border-b border-hairline px-4 py-2">
+          <TxCta variant="outline" size="sm" aria-label="返回上一頁" title="返回上一頁" onClick={() => { if (canGoBack) router.history.back(); else void navigate({ to: '/', replace: true }); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m12 5-7 7 7 7M5 12h14" /></svg>返回
+          </TxCta>
+          {['/today', '/horse', '/predictor'].includes(pathname) ? <Link to="/encyclopedia" className="text-[12px] font-bold text-gold">馬匹百科 →</Link> : null}
+        </nav> : null}
 
         {signedIn === false && founding.data && !founding.data.gate_open && founding.data.remaining > 0 ? <div className="border-b border-hairline bg-gold-bg px-4 py-1.5 text-center text-[11px] text-ink-2">創始會員名額尚餘 <b className="tabnum text-gold">{founding.data.remaining}</b> 個 · <Link to="/auth" className="font-bold text-gold">免費登記享 Pro 全站功能</Link></div> : null}
 

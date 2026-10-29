@@ -11,6 +11,7 @@ vi.mock("./picks-entitlement.server", () => ({ viewerTier: () => mocks.tier() })
 vi.mock("./computed-cache.server", () => ({ CACHE_TTL: 1, cached: (_k: string, _t: number, fn: () => unknown) => mocks.cached(fn) }));
 vi.mock('@tanstack/react-start/server', () => ({ setResponseHeader: vi.fn() }));
 vi.mock('./public-racing-evidence.server', () => ({ publicRacingQuery: (sql: string) => mocks.query(sql) }));
+vi.mock('./coverage-snapshot.server', () => ({ readStoredCoverageAudit: () => mocks.cached(() => { throw new Error('missing snapshot'); }) }));
 vi.mock('./evidence-viewer.server', () => ({ evidenceViewerIsPro: () => mocks.pro() }));
 vi.mock('./frozen-racing', () => ({ frozenColumns: ['date'], frozenEvidenceStatus: () => 'available', validateFrozenSnapshot: () => mocks.validate() }));
 vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { rpc: (...args: unknown[]) => mocks.rpc(...args) } }));

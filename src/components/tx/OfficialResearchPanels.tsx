@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { getHorseOfficialResearch, getMeetingOfficialResearch } from "@/lib/official-research.functions";
 import type { OfficialRow, OfficialSection } from "@/lib/official-research";
+import { requireOfficialRead } from '@/lib/official-research-read';
 import { Card, Empty, Loading, Pill, Seg, Table, Td, TxCta } from "./ui";
 
 function Source({ rows }: { rows: OfficialRow[] }) {
@@ -17,7 +18,7 @@ function ReferenceTable({ section, fields, headings }: { section: OfficialSectio
 export function HorseOfficialResearch({ horseId }: { horseId: string }) {
   const fn = useServerFn(getHorseOfficialResearch);
   const [tab,setTab] = useState("rating");
-  const query = useQuery({ queryKey:["horseOfficialResearch",horseId],queryFn:()=>fn({data:{id:horseId}}),staleTime:600_000 });
+  const query = useQuery({ queryKey:["horseOfficialResearch",horseId],queryFn:async()=>requireOfficialRead(await fn({data:{id:horseId}})),staleTime:600_000,retry:2 });
   const labels = [{value:"rating",label:"官方評分／體重"},{value:"performance",label:"途程成績"},{value:"movement",label:"搬遷"},{value:"overoar",label:"喘鳴"}];
   const key = tab as "rating"|"performance"|"movement"|"overoar";
   const section = query.data?.[key];
@@ -36,7 +37,7 @@ export function HorseOfficialResearch({ horseId }: { horseId: string }) {
 }
 export function MeetingOfficialResearch({ date,venue }: { date:string;venue:string }) {
   const fn=useServerFn(getMeetingOfficialResearch);
-  const query=useQuery({queryKey:["meetingOfficialResearch",date,venue],queryFn:()=>fn({data:{date,venue}}),staleTime:600_000});
+  const query=useQuery({queryKey:["meetingOfficialResearch",date,venue],queryFn:async()=>requireOfficialRead(await fn({data:{date,venue}})),staleTime:600_000,retry:2});
   const [pool,setPool]=useState("jkc");
   const [group,setGroup]=useState("");
   const groups=useMemo(()=>Array.from(new Set(query.data?.draws.rows.map(r=>`${r['racecourse']}／${r['course_label'] || "全天候"}／${r['distance_m']}米`) ?? [])),[query.data]);

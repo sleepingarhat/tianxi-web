@@ -4,13 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useAuthState } from '@/lib/useAuthState';
 import { getCoverageAudit } from "@/lib/racing-visibility.functions";
 import { DISTANCE_BANDS, summarizeCoverage } from "@/lib/racing-visibility";
 import { Card, Empty, ErrorNote, Loading, Pill, Scroller, Seg, Stat, StatGrid, Table, Td } from "./ui";
 
 export function useCoverageAudit(days = 180) {
   const read = useServerFn(getCoverageAudit);
-  return useQuery({ queryKey: ["coverage-audit", days], queryFn: () => detailDeadline(() => read({ data: { days } })), retry: false, staleTime: 300_000, refetchInterval: 300_000 });
+  const { userId, signedIn } = useAuthState();
+  return useQuery({ queryKey: ["coverage-audit", days, userId ?? 'guest'], enabled: signedIn !== null, queryFn: () => detailDeadline(() => read({ data: { days } })), retry: 1, staleTime: 300_000, refetchInterval: 300_000 });
 }
 const fmt = (n: number | null) => n == null ? "—" : n.toFixed(2);
 export function CoverageAudit({ days = 180, showMeetings = false }: { days?: number; showMeetings?: boolean }) {
@@ -22,7 +24,7 @@ export function CoverageAudit({ days = 180, showMeetings = false }: { days?: num
     : ["ST", "HV"].flatMap(venue => DISTANCE_BANDS.map(band => ({ label: `${venue === "ST" ? "沙田" : "跑馬地"} · ${band}`, rows: rows.filter(r => r.venue === venue && r.band === band) })));
   return <>
     <Card title="凍結四揀 × 收市市場對照" en="Daily coverage audit" action={<Pill tone={q.data?.failed.length ? "lose" : "gold"}>{q.isFetching ? "更新中" : "只讀"}</Pill>}>
-      {q.isLoading ? <Loading /> : q.error ? <div><ErrorNote error={q.error} /><Button variant="outline" onClick={() => void q.refetch()}>重新讀取分層對照</Button></div> : rows.length ? <>
+      {q.isPending ? <Loading /> : q.error ? <div><ErrorNote error={q.error} /><Button variant="outline" onClick={() => void q.refetch()}>重新讀取分層對照</Button></div> : rows.length ? <>
         <StatGrid cols={2}>
           <Stat label="凍結四揀平均中" value={fmt(summary.model)} sub={`／4 · ${summary.n} 場`} />
           <Stat label="收市市場平均中" value={fmt(summary.market)} sub={`／4 · ${summary.paired} 場可對照`} />
@@ -33,7 +35,7 @@ export function CoverageAudit({ days = 180, showMeetings = false }: { days?: num
           {groups.map(g => { const s = summarizeCoverage(g.rows); return <tr key={g.label} className="border-b border-hairline"><Td first><span className="text-[10px]">{g.label}</span></Td><Td>{s.paired}</Td><Td className="font-bold text-gold">{fmt(s.pairedModel)}</Td><Td>{fmt(s.market)}</Td><Td>{s.missing}</Td></tr>; })}
         </Table></Scroller>
         <p className="mt-3 text-[10px] leading-relaxed text-ink-3">短途 ≤1200米；一哩 1201–1650米；中長 1651–2000米；長途 &gt;2000米。市場以全場已出賽馬匹收市獨贏由低至高揀4匹（等同隱含機率排序）；不以頭4名的賠率代替全場。不足10場只作記錄；2.31只係歷史參考，唔係本窗市場實數。</p>
-        <p className="mt-2 text-[10px] text-ink-3">讀取窗口 {q.data?.from} 至 {q.data?.to ?? "—"} · 自動跟已入帳凍結賽日更新</p>
+        <p className="mt-2 text-[10px] text-ink-3">讀取窗口 {q.data?.from} 至 {q.data?.to ?? "—"} · 上次完整對帳：{q.data?.checkedAt ? new Date(q.data.checkedAt).toLocaleString('zh-HK', { timeZone: 'Asia/Hong_Kong' }) : '—'} HKT</p>
         {q.data?.excluded ? <p className="mt-2 text-[10px] text-ink-3">另有 {q.data.excluded} 場未標示凍結或缺完整四揀／賽果，未納本表；因此場數可與原滾動統計不同。</p> : null}
         {q.data?.failed.length ? <p className="mt-2 text-[10px] text-lose">未讀到賽日：{q.data.failed.join("、")}；以上係部分資料，唔代表完整統計。</p> : null}
       </> : <Empty label="未有完整凍結四揀及賽果" />}
