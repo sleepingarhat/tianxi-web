@@ -548,7 +548,8 @@ function ComparePage() {
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-[9px] leading-relaxed text-ink-3">單場樣本細，預期同實際有差屬正常；要睇長期係咪一致，需累積多場。只作對照，非投注建議。</p>
+              <p className="mt-2 text-[9px] leading-relaxed text-ink-3">同機率並列，後面名次自動跳過。</p>
+              <p className="mt-1 text-[9px] leading-relaxed text-ink-3">單場樣本細，預期同實際有差屬正常；要睇長期係咪一致，需累積多場。只作對照，非投注建議。</p>
             </section>
           );
         })()}
