@@ -44,11 +44,29 @@ export async function collectPendingRaces(
   return { archived: null, attempts, failures };
 }
 
-export const raceFailureAlertKey = (f: RaceFailure) =>
-  `results-race-failure:${f.date}:${f.venue}:R${f.raceNumber}:${f.code}`;
+/**
+ * HKJC fills the result page in stages: the table appears, then the columns
+ * complete. These codes are that ramp-up, not an incident, so one race must not
+ * produce one alert per code (2026-11-01 HV R6/R8/R10 each alerted twice).
+ */
+export const TRANSIENT_RESULT_CODES: ReadonlySet<string> = new Set([
+  "official-result-table-missing",
+  "official-result-columns-incomplete",
+  "official-result-race-mismatch",
+]);
 
-/** HKJC's result table appears shortly after the off; parse gaps inside this window are expected, not incidents. */
-export const EARLY_RESULT_GRACE_MS = 20 * 60_000;
+export const raceFailureAlertKey = (f: RaceFailure) =>
+  `results-race-failure:${f.date}:${f.venue}:R${f.raceNumber}:` +
+  (TRANSIENT_RESULT_CODES.has(f.code) ? "not-yet-published" : f.code);
+
+/**
+ * Grace after the off before a parse gap becomes an alert. Measured on the whole
+ * 2026-11-01 HV meeting: every race archived 15.1–20.3 minutes after the off,
+ * while the page still reported table-missing / columns-incomplete at +5 to +15
+ * minutes. 30 minutes covers that ramp-up with margin; a gap after it is a real
+ * incident and alerts once per race.
+ */
+export const EARLY_RESULT_GRACE_MS = 30 * 60_000;
 
 /** Parse an ISO timestamp or "HH:mm"/"HH:mm:ss" (HKT) into epoch ms for the given race date. */
 export function raceStartedAt(startTime: string | null | undefined, date: string): number | null {
@@ -78,6 +96,24 @@ export function raceStartTimingMap(
     map.set(row.raceNumber, time);
   }
   return map;
+}
+
+/**
+ * Per-race view of the same evidence: keeps every race whose own start time is
+ * known instead of discarding the whole meeting because one row is blank. A race
+ * missing from the map is never suppressed, so this can only ever mute an alert
+ * for a race whose official start time we actually hold.
+ */
+export function raceStartTimingMapPartial(
+  rows: ReadonlyArray<{ raceNumber: number; startTime: string | null }>,
+  date: string,
+): ReadonlyMap<number, number> | null {
+  const map = new Map<number, number>();
+  for (const row of rows) {
+    const time = raceStartedAt(row.startTime, date);
+    if (time != null && Number.isFinite(time)) map.set(row.raceNumber, time);
+  }
+  return map.size ? map : null;
 }
 
 /** Meeting/job timeouts may be muted only with positive evidence that every known start is future. */
@@ -134,6 +170,26 @@ export function workerMeetingTimingMap(
     rows.push({ raceNumber, startTime: typeof r?.startTime === "string" ? r.startTime : null });
   }
   return raceStartTimingMap(rows, date);
+}
+
+/**
+ * Same projection read, tolerant of individual races whose start time is blank.
+ * Used for per-race alert suppression, where one blank row must not disable
+ * suppression for every other race in the meeting.
+ */
+export function workerMeetingTimingMapPartial(
+  payload: { venue?: unknown; races?: unknown } | null,
+  date: string,
+  venue: string,
+): ReadonlyMap<number, number> | null {
+  if (!payload || payload.venue !== venue || !Array.isArray(payload.races)) return null;
+  const rows: { raceNumber: number; startTime: string | null }[] = [];
+  for (const r of payload.races as { raceNumber?: unknown; startTime?: unknown }[]) {
+    const raceNumber = Number(r?.raceNumber);
+    if (!Number.isInteger(raceNumber) || raceNumber < 1) continue;
+    rows.push({ raceNumber, startTime: typeof r?.startTime === "string" ? r.startTime : null });
+  }
+  return raceStartTimingMapPartial(rows, date);
 }
 
 export const raceFailureAlertText = (f: RaceFailure) =>

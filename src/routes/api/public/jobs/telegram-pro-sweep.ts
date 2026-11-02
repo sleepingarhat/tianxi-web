@@ -6,7 +6,7 @@ export const Route=createFileRoute('/api/public/jobs/telegram-pro-sweep')({serve
   const {runJobTickAlerts}=await import('@/lib/job-ticks-watch.server');const jobTickAlerts=await runJobTickAlerts();
   const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');
   const gate=await db.rpc('membership_gate_at');if(gate.error)return Response.json({ok:false,jobTickAlerts},{status:502});if(!gate.data)return Response.json({skipped:'gate_not_open',jobTickAlerts});
-  if(!process.env['TIANXI_RACING_BOT_TOKEN'] || !process.env['TELEGRAM_PRO_CHAT_ID'])return Response.json({skipped:'telegram_not_configured',jobTickAlerts});
+  const {proChannelConfigured}=await import('@/lib/telegram.server');if(!proChannelConfigured())return Response.json({skipped:'telegram_not_configured',jobTickAlerts});
   const {runCryptoNotices}=await import('@/lib/crypto-notices.server');const cryptoNotices=await runCryptoNotices();
   const list=await db.from('telegram_links').select('user_id').not('pro_joined_at','is',null).is('pro_removed_at',null).order('last_checked_at',{nullsFirst:true}).limit(200);if(list.error)return Response.json({ok:false,jobTickAlerts},{status:502});
   const {jobMembership}=await import('@/lib/job-membership.server');const {removeProMember}=await import('@/lib/telegram-pro.server');let removed=0,failed=0;

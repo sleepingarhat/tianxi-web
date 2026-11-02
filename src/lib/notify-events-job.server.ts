@@ -3,7 +3,7 @@
  * 跟 horse-watch／raceday 同一套 lease＋watch_notifications／deliverEventPush。
  */
 import { jobMembership } from './job-membership.server';
-import { tgRetry } from './telegram.server';
+import { tgRetry, memberBotConfigured } from './telegram.server';
 import { vapidConfig } from './webpush.server';
 import { deliverEventPush, renewNotificationLease } from './notification-delivery.server';
 import { watchFeedSenderSecret } from './shared-secret.server';
@@ -23,7 +23,7 @@ function sinceIso(daysBack = 3): string {
 }
 
 export async function runNotifyEventsJob() {
-  if (!process.env['TIANXI_RACING_BOT_TOKEN'] && !vapidConfig()) return { skipped: 'notifications_not_configured' };
+  if (!memberBotConfigured() && !vapidConfig()) return { skipped: 'notifications_not_configured' };
   if (!watchFeedSenderSecret()) return { skipped: 'feed_not_configured' };
 
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
@@ -143,7 +143,7 @@ export async function runNotifyEventsJob() {
           payload._message ??
           notifyEventMessage(payload, watch.data.find((w) => w.user_id === uid && w.horse_id === row.horse_id)?.horse_name);
 
-        if (!row.telegram_sent_at && p.telegram_enabled && link && !link.dm_blocked && process.env['TIANXI_RACING_BOT_TOKEN']) {
+        if (!row.telegram_sent_at && p.telegram_enabled && link && !link.dm_blocked && memberBotConfigured()) {
           await renew();
           const sent = await tgRetry('sendMessage', {
             chat_id: link.chat_id,

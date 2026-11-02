@@ -59,8 +59,12 @@ function DevelopersPage() {
       <PageHead
         en="Developer API"
         title="公開只讀 API"
-        desc="Pro 認證 · 天喜衍生數據 · 未鎖今日預測不開放"
+        desc="即將上線 · 暫未開放金鑰申請"
       />
+
+      <section className="mx-4 mt-3 rounded-md border border-gold bg-paper-2 px-3 py-2 text-[13px] font-semibold text-ink">
+        會員 API 即將上線，暫未開放申請金鑰；以下為預覽文件。
+      </section>
 
       <section className="mx-4 mt-3 rounded-md border border-gold/40 bg-paper-2 px-3 py-2 text-[12px] leading-relaxed text-ink-2">
         <strong className="text-ink">合規：</strong>

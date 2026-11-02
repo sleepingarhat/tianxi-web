@@ -2,14 +2,17 @@ import { describe, it, expect, vi } from "vitest";
 import {
   alertOnce,
   collectPendingRaces,
+  EARLY_RESULT_GRACE_MS,
   raceFailureAlertKey,
   raceFailureAlertText,
   raceStartedAt,
   raceStartTimingMap,
+  raceStartTimingMapPartial,
   resultErrorCode,
   suppressMeetingTimeoutAlert,
   suppressRaceFailureAlert,
   workerMeetingTimingMap,
+  workerMeetingTimingMapPartial,
   type AlertStore,
 } from "./racing-results-failures";
 
@@ -131,9 +134,9 @@ describe("worker meeting timing fallback", () => {
 describe("transient alert suppression", () => {
   const started = new Map([[3, Date.parse("2026-10-25T14:30:00+08:00")]]);
   const within = new Date(Date.parse("2026-10-25T14:40:00+08:00"));
-  const after = new Date(Date.parse("2026-10-25T14:55:00+08:00"));
+  const after = new Date(Date.parse("2026-10-25T15:01:00+08:00"));
   const failure = (code: string, raceNumber = 3) => ({ date: "2026-10-25", venue: "ST", raceNumber, code });
-  it("table-missing, columns-incomplete and race-mismatch are suppressed within 20 minutes of the off", () => {
+  it("table-missing, columns-incomplete and race-mismatch are suppressed within the grace window", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), started, within)).toBe(true);
     expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, within)).toBe(true);
     expect(suppressRaceFailureAlert(failure("official-result-race-mismatch"), started, within)).toBe(true);
@@ -147,9 +150,9 @@ describe("transient alert suppression", () => {
     expect(suppressRaceFailureAlert(failure("official-result-timeout", 1), new Map(), within)).toBe(false);
     expect(suppressRaceFailureAlert(failure("official-result-timeout", 1), started, within)).toBe(false);
   });
-  it("parse gaps before the off or exactly 20 minutes after it are not suppressed", () => {
+  it("parse gaps before the off or at or past the 30-minute boundary are not suppressed", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), started, new Date("2026-10-25T14:29:59+08:00"))).toBe(false);
-    expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, new Date("2026-10-25T14:50:00+08:00"))).toBe(false);
+    expect(suppressRaceFailureAlert(failure("official-result-columns-incomplete"), started, new Date("2026-10-25T15:00:00+08:00"))).toBe(false);
   });
   it("unknown timing never suppresses", () => {
     expect(suppressRaceFailureAlert(failure("official-result-table-missing"), null, within)).toBe(false);
@@ -230,5 +233,107 @@ describe("alertOnce dedupe", () => {
       send,
     };
     expect(await alertOnce("k", "a", store)).toBe("sent");
+  });
+});
+
+/**
+ * 2026-11-01 HV (跑馬地): every race archived 15.1–20.3 minutes after the off,
+ * yet eight alerts fired at +5 to +15 minutes. D1 races.start_time is NULL for
+ * every meeting, so the strict map was null and nothing was ever suppressed.
+ * Start times below are the engine's own public projection for that day.
+ */
+describe("2026-11-01 HV alert storm replay", () => {
+  const date = "2026-11-01";
+  const venue = "HV";
+  const payload = {
+    venue: "HV",
+    races: [
+      { raceNumber: 1, startTime: "12:45" },
+      { raceNumber: 2, startTime: "13:15" },
+      { raceNumber: 3, startTime: "13:45" },
+      { raceNumber: 4, startTime: "14:15" },
+      { raceNumber: 5, startTime: "15:10" },
+      { raceNumber: 6, startTime: "15:40" },
+      { raceNumber: 7, startTime: "16:10" },
+      { raceNumber: 8, startTime: "16:40" },
+      { raceNumber: 9, startTime: "17:15" },
+      { raceNumber: 10, startTime: "17:50" },
+    ],
+  };
+  const hkt = (hhmm: string) => new Date(`2026-11-01T${hhmm}:00+08:00`);
+  const timing = workerMeetingTimingMapPartial(payload, date, venue)!;
+
+  // The eight alerts actually delivered, read back from telegram_alert_state.
+  const delivered: Array<[number, string, string]> = [
+    [6, "official-result-table-missing", "15:50"],
+    [6, "official-result-columns-incomplete", "15:55"],
+    [7, "official-result-table-missing", "16:15"],
+    [8, "official-result-table-missing", "16:50"],
+    [8, "official-result-columns-incomplete", "16:55"],
+    [9, "official-result-table-missing", "17:25"],
+    [10, "official-result-table-missing", "17:55"],
+    [10, "official-result-columns-incomplete", "18:05"],
+  ];
+
+  it.each(delivered)("R%i %s at %s HKT is inside the grace window and must not alert", (raceNumber, code, hhmm) => {
+    expect(suppressRaceFailureAlert({ date, venue, raceNumber, code }, timing, hkt(hhmm))).toBe(true);
+  });
+
+  it("the grace window covers the slowest observed archive (20.3 minutes after the off)", () => {
+    expect(EARLY_RESULT_GRACE_MS).toBeGreaterThanOrEqual(21 * 60_000);
+  });
+
+  it("a blank D1 start_time no longer disables suppression for the other races", () => {
+    const strict = raceStartTimingMap(
+      [{ raceNumber: 7, startTime: null }, { raceNumber: 8, startTime: "16:40" }],
+      date,
+    );
+    expect(strict).toBeNull();
+    const partial = raceStartTimingMapPartial(
+      [{ raceNumber: 7, startTime: null }, { raceNumber: 8, startTime: "16:40" }],
+      date,
+    );
+    expect(suppressRaceFailureAlert(
+      { date, venue, raceNumber: 8, code: "official-result-table-missing" }, partial, hkt("16:50"),
+    )).toBe(true);
+    // The race whose own start time is unknown still alerts.
+    expect(suppressRaceFailureAlert(
+      { date, venue, raceNumber: 7, code: "official-result-table-missing" }, partial, hkt("16:15"),
+    )).toBe(false);
+  });
+
+  it("one race gets one alert even when the page moves from missing to incomplete", () => {
+    const missing = raceFailureAlertKey({ date, venue, raceNumber: 8, code: "official-result-table-missing" });
+    const incomplete = raceFailureAlertKey({ date, venue, raceNumber: 8, code: "official-result-columns-incomplete" });
+    const mismatch = raceFailureAlertKey({ date, venue, raceNumber: 8, code: "official-result-race-mismatch" });
+    expect(missing).toBe(incomplete);
+    expect(missing).toBe(mismatch);
+    expect(raceFailureAlertKey({ date, venue, raceNumber: 8, code: "official-result-identity-mismatch" })).not.toBe(missing);
+    expect(raceFailureAlertKey({ date, venue, raceNumber: 9, code: "official-result-table-missing" })).not.toBe(missing);
+  });
+
+  it("a gap that outlasts the grace window still alerts", () => {
+    // R9 was off at 17:15; the window ends 30 minutes later, exclusive.
+    expect(suppressRaceFailureAlert(
+      { date, venue, raceNumber: 9, code: "official-result-table-missing" }, timing, hkt("17:44"),
+    )).toBe(true);
+    expect(suppressRaceFailureAlert(
+      { date, venue, raceNumber: 9, code: "official-result-table-missing" }, timing, hkt("17:45"),
+    )).toBe(false);
+  });
+
+  it("a blank start time for every race cannot suppress anything", () => {
+    const blank = workerMeetingTimingMapPartial(
+      { venue: "HV", races: [{ raceNumber: 9, startTime: null }] }, date, venue,
+    );
+    expect(blank).toBeNull();
+    expect(suppressRaceFailureAlert(
+      { date, venue, raceNumber: 9, code: "official-result-table-missing" }, blank, hkt("17:25"),
+    )).toBe(false);
+  });
+
+  it("the strict projection read is unchanged for meeting-timeout evidence", () => {
+    expect(workerMeetingTimingMap(payload, date, venue)?.get(9)).toBe(Date.parse("2026-11-01T17:15:00+08:00"));
+    expect(workerMeetingTimingMap({ venue: "HV", races: [{ raceNumber: 9, startTime: null }] }, date, "HV")).toBeNull();
   });
 });

@@ -1,13 +1,13 @@
 import {createServerFn} from '@tanstack/react-start';
 import {requireTier} from './tier.server';
 export const getTelegramLink=createServerFn({method:'POST'}).middleware([requireTier('registered')]).handler(async({context})=>{
-  const {telegramConfigured}=await import('./telegram.server');
+  const {memberBotConfigured,proChannelConfigured}=await import('./telegram.server');
   const r=await context.supabase.from('telegram_links').select('telegram_username,dm_blocked,pro_joined_at,pro_removed_at').eq('user_id',context.userId).maybeSingle();
   if(r.error)throw new Error('Telegram 連結未能讀取');
-  return {configured:telegramConfigured(),linked:!!r.data,username:r.data?.telegram_username,dmBlocked:r.data?.dm_blocked ?? false,proJoined:!!r.data?.pro_joined_at && !r.data?.pro_removed_at};
+  return {configured:memberBotConfigured(),linked:!!r.data,username:r.data?.telegram_username,dmBlocked:r.data?.dm_blocked ?? false,proJoined:!!r.data?.pro_joined_at && !r.data?.pro_removed_at,proConfigured:proChannelConfigured()};
 });
 export const createTelegramLinkToken=createServerFn({method:'POST'}).middleware([requireTier('registered')]).handler(async({context})=>{
-  const {telegramConfigured}=await import('./telegram.server');if(!telegramConfigured())throw new Error('會員 Telegram Bot 尚未設定');
+  const {memberBotConfigured}=await import('./telegram.server');if(!memberBotConfigured())throw new Error('會員 Telegram Bot 尚未設定');
   const {randomBytes,createHash}=await import('node:crypto');const token=randomBytes(24).toString('base64url');
   const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
   const r=await supabaseAdmin.rpc('create_telegram_link_token',{uid:context.userId,hash:createHash('sha256').update(token).digest('hex')});
