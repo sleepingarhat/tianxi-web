@@ -3,7 +3,8 @@
 ## 2026-11-02 用戶新排序（19:40 HKT）
 - [ ] 會員Telegram：帳戶綁定、會員群批准、賽日通知、愛駒通知；以用戶手機真實收到為驗收。
   - 2026-11-02 20:15 HKT：會員 Bot @tianxi_racing_bot 已用另一個 Telegram 連接接駁（金鑰名 TELEGRAM_API_KEY_1，getMe 確認係佢本人）；告警 Bot 嘅連接冇用過。telegram.server.ts 已改經平台閘門送訊，回呼密鑰由會員 Bot 連接金鑰推導，horse-watch／事件／賽日／巡查四個崗位一律改用 memberBotConfigured()，Pro 頻道未接好前顯示「尚未接駁」。7 項新測試、737 項測試及 typecheck 全過；本機回呼以推導密鑰回 200、冇密鑰回 401。
-  - 待辦：正式站發布後先可登記回呼（公開 Preview 網域要登入，Telegram 入唔到）；@tianxi_racing_pro 要加會員 Bot 做管理員先可批加入；raceday_alerts_enabled 仍為 false，未獲明確批准唔開。
+  - 2026-11-02 21:42 HKT：回呼已登記至 tianxi.racing；帳戶 @imronsiu 已連結，會員 Bot 送達測試訊息成功（待用戶手機確認）。待辦：@tianxi_racing_pro 加會員 Bot 做管理員；愛駒提示等真實事件。
+  - 2026-11-03 01:40 HKT：獲用戶批准，app_settings.raceday_alerts_enabled 開為 true（updated_by 管理員帳戶）。一次性排程實測：工作通過可用性檢查、讀到馬會凍結狀態仍為 draft／未鎖，故記 not_final 且冇送訊（tg_sent 0、new_rows 0），測試排程已刪除。下一個賽日 11-04 跑馬地 9 場（第一場 18:40、凍結 17:10 HKT）為首次真實送達窗口；收費閘、Crypto、付款環境及凍結記錄冇改。
 - [x] 會員API暫停開發，頁面改「即將上線」。
 - [ ] 官方馬匹資料擴展至非最新排位／退役馬（須官方身份核實）。
 - [ ] 賽程收料直接寫入 D1 races.start_time（tianxi-racing）。
