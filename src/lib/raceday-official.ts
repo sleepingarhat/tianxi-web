@@ -120,3 +120,24 @@ export function normalizeLastRun(rows: Record<string, unknown>[]): LastRunRow[] 
   }
   return out.sort((a, b) => a.raceNumber - b.raceNumber || a.horseNumber - b.horseNumber);
 }
+
+export type HeadlineRow = { date: string; venue: "ST" | "HV"; version: number | null; title: string; lead: string | null; url: string; scrapedAt: string | null };
+
+// 賽日頭條存檔：每個賽日一篇；同日兩場（如有）分開列出，新日期先。
+export function normalizeHeadlines(rows: Record<string, unknown>[]): HeadlineRow[] {
+  const out: HeadlineRow[] = [];
+  for (const r of rows) {
+    const date = typeof r["date"] === "string" && /^\d{4}-\d{2}-\d{2}$/.test(r["date"]) ? r["date"] : null;
+    const venue = r["venue"] === "ST" || r["venue"] === "HV" ? r["venue"] : null;
+    const title = typeof r["title"] === "string" ? r["title"].trim() : "";
+    if (!date || !venue || !title) continue;
+    const v = Number(r["version"]);
+    out.push({
+      date, venue, title, url: OFFICIAL_FOCUS_URL,
+      version: Number.isInteger(v) && v > 0 ? v : null,
+      lead: typeof r["lead"] === "string" && r["lead"].trim() ? r["lead"].trim() : null,
+      scrapedAt: typeof r["scrapedAt"] === "string" ? r["scrapedAt"] : null,
+    });
+  }
+  return out.sort((a, b) => b.date.localeCompare(a.date) || a.venue.localeCompare(b.venue));
+}

@@ -33,3 +33,19 @@ export const getRacedayOfficial = createServerFn({ method: "GET" })
       failed: [ranking.ok ? null : "騎練榜", draws.ok ? null : "檔位統計", changes.ok ? null : "更易存檔", challengePools.ok && challengeRows.ok ? null : "騎師王／練馬師王", focus.ok ? null : "賽日頭條", lastRun.ok ? null : "上仗備忘"].filter(Boolean) as string[],
     };
   });
+
+// 公開賽日頭條存檔：只讀標題、導語及版本；正文屬馬會編輯文章，不轉載。
+export const getRacedayHeadlines = createServerFn({ method: "GET" }).handler(async () => {
+  const { publicRacingQuery } = await import("./public-racing-evidence.server");
+  const { normalizeHeadlines } = await import("./raceday-official");
+  try {
+    const rows = await publicRacingQuery<Record<string, unknown>>(
+      "SELECT meeting_date date, venue, version, title_ch title, highlight_ch lead, scraped_at scrapedAt FROM official_raceday_focus ORDER BY meeting_date DESC, venue LIMIT 120",
+      [],
+    );
+    return { rows: normalizeHeadlines(rows), failed: false };
+  } catch (e) {
+    console.error("raceday headlines read failed", e);
+    return { rows: [], failed: true };
+  }
+});

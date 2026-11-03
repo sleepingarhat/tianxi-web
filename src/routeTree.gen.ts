@@ -21,6 +21,7 @@ import { Route as EloLogRouteImport } from './routes/elo-log'
 import { Route as EncyclopediaRouteImport } from './routes/encyclopedia'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FreezeLedgerRouteImport } from './routes/freeze-ledger'
+import { Route as HeadlinesRouteImport } from './routes/headlines'
 import { Route as HorseRouteImport } from './routes/horse'
 import { Route as LabRouteImport } from './routes/lab'
 import { Route as LoginRouteImport } from './routes/login'
@@ -177,6 +178,11 @@ const FeaturesRoute = FeaturesRouteImport.update({
 const FreezeLedgerRoute = FreezeLedgerRouteImport.update({
   id: '/freeze-ledger',
   path: '/freeze-ledger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HeadlinesRoute = HeadlinesRouteImport.update({
+  id: '/headlines',
+  path: '/headlines',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HorseRoute = HorseRouteImport.update({
@@ -718,6 +724,7 @@ export interface FileRoutesByFullPath {
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
+  '/headlines': typeof HeadlinesRoute
   '/horse': typeof HorseRoute
   '/lab': typeof LabRouteWithChildren
   '/login': typeof LoginRoute
@@ -829,6 +836,7 @@ export interface FileRoutesByTo {
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
+  '/headlines': typeof HeadlinesRoute
   '/horse': typeof HorseRoute
   '/login': typeof LoginRoute
   '/manual': typeof ManualRoute
@@ -940,6 +948,7 @@ export interface FileRoutesById {
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
   '/freeze-ledger': typeof FreezeLedgerRoute
+  '/headlines': typeof HeadlinesRoute
   '/horse': typeof HorseRoute
   '/lab': typeof LabRouteWithChildren
   '/login': typeof LoginRoute
@@ -1053,6 +1062,7 @@ export interface FileRouteTypes {
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
+    | '/headlines'
     | '/horse'
     | '/lab'
     | '/login'
@@ -1164,6 +1174,7 @@ export interface FileRouteTypes {
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
+    | '/headlines'
     | '/horse'
     | '/login'
     | '/manual'
@@ -1274,6 +1285,7 @@ export interface FileRouteTypes {
     | '/encyclopedia'
     | '/features'
     | '/freeze-ledger'
+    | '/headlines'
     | '/horse'
     | '/lab'
     | '/login'
@@ -1387,6 +1399,7 @@ export interface RootRouteChildren {
   EncyclopediaRoute: typeof EncyclopediaRoute
   FeaturesRoute: typeof FeaturesRoute
   FreezeLedgerRoute: typeof FreezeLedgerRoute
+  HeadlinesRoute: typeof HeadlinesRoute
   HorseRoute: typeof HorseRoute
   LabRoute: typeof LabRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -1549,6 +1562,13 @@ declare module '@tanstack/react-router' {
       path: '/freeze-ledger'
       fullPath: '/freeze-ledger'
       preLoaderRoute: typeof FreezeLedgerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/headlines': {
+      id: '/headlines'
+      path: '/headlines'
+      fullPath: '/headlines'
+      preLoaderRoute: typeof HeadlinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/horse': {
@@ -2333,6 +2353,7 @@ const rootRouteChildren: RootRouteChildren = {
   EncyclopediaRoute: EncyclopediaRoute,
   FeaturesRoute: FeaturesRoute,
   FreezeLedgerRoute: FreezeLedgerRoute,
+  HeadlinesRoute: HeadlinesRoute,
   HorseRoute: HorseRoute,
   LabRoute: LabRouteWithChildren,
   LoginRoute: LoginRoute,

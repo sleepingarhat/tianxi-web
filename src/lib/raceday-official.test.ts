@@ -47,3 +47,17 @@ describe("normalizeChallenge", () => {
     expect(normalizeChallenge([], rows)).toEqual([]);
   });
 });
+
+describe("normalizeHeadlines", () => {
+  it("lists every stored meeting newest first and drops rows without identity", async () => {
+    const { normalizeHeadlines } = await import("./raceday-official");
+    const rows = normalizeHeadlines([
+      { date: "2026-11-01", venue: "HV", version: 1, title: "舊頭條", lead: "" },
+      { date: "2026-11-04", venue: "HV", version: 2, title: "猛男複製輝煌戰績", lead: "姚本輝" },
+      { date: "2026-11-04", venue: "XX", title: "壞場地" },
+      { date: "bad", venue: "ST", title: "壞日期" },
+    ]);
+    expect(rows.map((r) => [r.date, r.title, r.version])).toEqual([["2026-11-04", "猛男複製輝煌戰績", 2], ["2026-11-01", "舊頭條", 1]]);
+    expect(rows[1]?.lead).toBeNull();
+  });
+});
