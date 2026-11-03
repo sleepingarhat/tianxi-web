@@ -19,7 +19,7 @@ import { getRaceDayCardDisplay } from "@/lib/race-day-card.functions";
 import { getRaceHeaders } from "@/lib/race-header.functions";
 import { prizeText, ratingText, trackText, type RaceHeaderRow } from "@/lib/race-header";
 import { getRacedayOfficial } from "@/lib/raceday-official.functions";
-import type { ChallengeBoard } from "@/lib/raceday-official";
+import type { ChallengeBoard, LastRunRow, RacedayFocus } from "@/lib/raceday-official";
 import { bestDraws, changeCountByRace, type DrawStatRow, type RankingRow } from "@/lib/raceday-official";
 import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import {
@@ -381,11 +381,13 @@ function TodayPage() {
                 </div>
               ) : null}
             </Card>
+            <OfficialLastRunCard data={official.data} raceNumber={focusRace ? Number(focusRace.raceNumber) : null} />
             <OfficialDrawCard data={official.data} raceNumber={focusRace ? Number(focusRace.raceNumber) : null} />
             {date && (venue === "ST" || venue === "HV") ? <MeetingOfficialResearch date={date} venue={venue} /> : null}
           </div>
 
           <aside className="min-w-0 lg:sticky lg:top-[72px] lg:pb-6">
+            <OfficialFocusCard data={official.data} />
             <OfficialRankingCard data={official.data} />
             <OfficialChallengeCard data={official.data} />
             <Card title="今日累計命中" en="Day hits">
@@ -600,7 +602,47 @@ function RaceHeaderLine({ header }: { header?: RaceHeaderRow | undefined }) {
   return <p className="mt-0.5 text-[11px] text-ink-3">{parts.join(" · ")}</p>;
 }
 
-type OfficialData = { ranking: { jockey: RankingRow[]; trainer: RankingRow[]; asOf: string | null; season: string | null }; draws: DrawStatRow[]; challenge?: ChallengeBoard[]; failed: string[] } | undefined;
+type OfficialData = { ranking: { jockey: RankingRow[]; trainer: RankingRow[]; asOf: string | null; season: string | null }; draws: DrawStatRow[]; challenge?: ChallengeBoard[]; focus?: RacedayFocus | null; lastRun?: LastRunRow[]; failed: string[] } | undefined;
+
+const VENUE_SHORT: Record<string, string> = { ST: "沙田", HV: "跑馬地", CH: "從化" };
+
+function OfficialFocusCard({ data }: { data: OfficialData }) {
+  const focus = data?.focus;
+  if (!focus) return null;
+  return (
+    <Card title="賽日頭條" en="Raceday focus">
+      <p className="font-serif-tc text-[15px] font-bold leading-snug text-ink">{focus.title}</p>
+      {focus.lead ? <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{focus.lead}</p> : null}
+      <a href={focus.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-[12px] font-bold text-gold underline underline-offset-2">睇馬會原文 →</a>
+      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：只顯示標題及導語，全文請睇馬會網頁。不計入預測。</p>
+    </Card>
+  );
+}
+
+function OfficialLastRunCard({ data, raceNumber }: { data: OfficialData; raceNumber: number | null }) {
+  const all = data?.lastRun ?? [];
+  if (!all.length) return null;
+  const inRace = raceNumber === null ? [] : all.filter((r) => r.raceNumber === raceNumber);
+  const rows = inRace.length ? inRace : all;
+  return (
+    <Card title="上仗備忘" en="Last-run reminder">
+      <p className="text-[11px] text-ink-3">{inRace.length ? `第 ${raceNumber} 場精選馬` : `全日精選馬 ${all.length} 匹`}{all[0]?.updatedAt ? ` · 馬會更新 ${all[0].updatedAt.slice(5, 10).replace("-", "/")} ${all[0].updatedAt.slice(11, 16)}` : ""}</p>
+      <ul className="mt-2 divide-y divide-hairline">
+        {rows.map((r) => (
+          <li key={`${r.raceNumber}-${r.horseNumber}`} className="py-2 first:pt-0 last:pb-0">
+            <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-[12px]">
+              <span className="tabnum font-mono-tx text-ink-3">R{r.raceNumber} · {r.horseNumber}號</span>
+              <span className="font-serif-tc font-bold text-ink">{r.horseName}</span>
+              <span className="text-[11px] text-ink-3">上仗 {r.lastDate.slice(5).replace("-", "/")} {VENUE_SHORT[r.lastVenue] ?? r.lastVenue}{r.track ? ` ${r.track}` : ""}{r.cls ? ` ${r.cls}班` : ""}{r.distance ? ` ${r.distance}米` : ""}{r.draw ? ` 檔${r.draw}` : ""}{r.positions ? ` · 走位 ${r.positions}` : ""}</span>
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{r.memo}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：上仗備忘照馬會頁面原文，賽前已公佈；不計入預測及凍結選馬。</p>
+    </Card>
+  );
+}
 
 function OfficialChallengeCard({ data }: { data: OfficialData }) {
   const boards = data?.challenge ?? [];

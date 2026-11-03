@@ -85,3 +85,38 @@ export function normalizeChallenge(pools: Record<string, unknown>[], rows: Recor
   }
   return boards;
 }
+
+export type RacedayFocus = { title: string; lead: string | null; url: string };
+export type LastRunRow = {
+  raceNumber: number; horseNumber: number; horseName: string; lastDate: string; lastVenue: string;
+  track: string | null; cls: string | null; distance: number | null; draw: number | null; positions: string | null; memo: string; updatedAt: string | null;
+};
+
+const OFFICIAL_FOCUS_URL = "https://racing.hkjc.com/zh-hk/local/page/raceday-focus";
+
+// 頭條正文屬馬會編輯文章：只顯示標題、導語，連返官方頁。
+export function normalizeFocus(rows: Record<string, unknown>[]): RacedayFocus | null {
+  const r = rows[0];
+  if (!r) return null;
+  const title = typeof r["title"] === "string" ? r["title"].trim() : "";
+  if (!title) return null;
+  const lead = typeof r["lead"] === "string" && r["lead"].trim() ? r["lead"].trim() : null;
+  return { title, lead, url: OFFICIAL_FOCUS_URL };
+}
+
+export function normalizeLastRun(rows: Record<string, unknown>[]): LastRunRow[] {
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && /^\d+$/.test(v) ? Number(v) : null);
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const out: LastRunRow[] = [];
+  for (const r of rows) {
+    const raceNumber = num(r["raceNumber"]), horseNumber = num(r["horseNumber"]);
+    const horseName = str(r["horseName"]), lastDate = str(r["lastDate"]), memo = str(r["memo"]);
+    if (raceNumber === null || horseNumber === null || !horseName || !lastDate || !memo) continue;
+    out.push({
+      raceNumber, horseNumber, horseName, lastDate, lastVenue: str(r["lastVenue"]) ?? "",
+      track: str(r["track"]), cls: str(r["cls"]), distance: num(r["distance"]), draw: num(r["draw"]),
+      positions: str(r["positions"]), memo, updatedAt: str(r["updatedAt"]),
+    });
+  }
+  return out.sort((a, b) => a.raceNumber - b.raceNumber || a.horseNumber - b.horseNumber);
+}
