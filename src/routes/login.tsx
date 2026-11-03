@@ -53,7 +53,7 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-[6px] border border-hairline bg-paper px-2.5 py-2 text-[12px] text-ink outline-none focus:border-gold-strong"
+              className="tx-field w-full"
             />
             <button
               type="submit"

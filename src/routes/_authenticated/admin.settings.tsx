@@ -67,7 +67,7 @@ function SettingsPage() {
         </Panel>
         <Panel title="自動更新" en="Refresh Interval">
           <div className="flex items-center gap-2">
-            <input type="number" min={15} max={3600} value={sec} onChange={(e) => setSec(Number(e.target.value))} className="w-24 rounded-[6px] border border-hairline bg-paper-3 px-2 py-1.5 font-mono-tx text-[12px] text-ink" />
+            <input type="number" min={15} max={3600} value={sec} onChange={(e) => setSec(Number(e.target.value))} className="tx-field-sm w-24 font-mono-tx" />
             <span className="text-[12px] text-ink-3">秒（15–3600）</span>
             <button type="button" onClick={save} className="ml-auto rounded-[6px] bg-gold px-3 py-1.5 text-[12px] font-bold text-paper">{saved ? "已儲存" : "儲存"}</button>
           </div>

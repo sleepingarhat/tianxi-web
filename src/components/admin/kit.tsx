@@ -162,7 +162,7 @@ export function DataTable<T>({
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="搜尋…"
-            className="w-full max-w-xs rounded-[6px] border border-hairline bg-paper-3 px-2.5 py-1.5 text-[12px] text-ink placeholder:text-ink-3 focus:border-gold focus:outline-none"
+            className="tx-field-sm w-full max-w-xs"
           />
           <span className="tabnum ml-auto shrink-0 font-mono-tx text-[10px] text-ink-3">{total.toLocaleString()} 行</span>
         </div>

@@ -74,8 +74,8 @@ function Pnl() {
     <>
       <AdminHead title="盈虧" en="P&L" desc="賽馬每注 $10；四揀複式累計與孖T／三T 逐日核對分開列。負數照實展示。" onRefresh={() => { rp.refetch(); meets.refetch(); }} refreshing={rp.isFetching} />
       <div className="mb-3 flex flex-wrap items-end gap-2 rounded-[8px] border border-hairline bg-paper-3 px-3 py-2">
-        <label className="text-[11px] text-ink-3">由<input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="ml-1 rounded-[6px] border border-hairline bg-paper px-2 py-1 text-[11px] text-ink" /></label>
-        <label className="text-[11px] text-ink-3">至<input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="ml-1 rounded-[6px] border border-hairline bg-paper px-2 py-1 text-[11px] text-ink" /></label>
+        <label className="text-[11px] text-ink-3">由<input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="tx-field-sm ml-1" /></label>
+        <label className="text-[11px] text-ink-3">至<input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="tx-field-sm ml-1" /></label>
         {[["", "全部"], [-30, "近30日"], [-90, "近90日"]].map(([d, l]) => (
           <button key={String(l)} type="button" onClick={() => { setTo(""); setFrom(d === "" ? "" : new Date(Date.now() + Number(d) * 864e5).toISOString().slice(0, 10)); }} className="rounded-[6px] border border-hairline bg-paper px-2 py-1 text-[11px] text-ink-2">{l}</button>
         ))}

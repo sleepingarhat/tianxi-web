@@ -90,7 +90,7 @@ export function OpsPanel() {
             value={alpha}
             onChange={(e) => setAlpha(e.target.value)}
             inputMode="decimal"
-            className="tabnum w-24 rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[12px] text-ink"
+            className="tx-field tabnum w-24"
           />
           <button
             type="button"
@@ -114,7 +114,7 @@ export function OpsPanel() {
               value={pruneDate}
               onChange={(e) => setPruneDate(e.target.value)}
               placeholder="YYYY-MM-DD"
-              className="tabnum w-32 rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[12px] text-ink"
+              className="tx-field tabnum w-32"
             />
             <button type="button" disabled={busy !== null || !pruneDate} className={btn}
               onClick={() => run("prune-prediction-log", "/admin/api/d1-maintenance", { action: "prune-prediction-log-older-than", beforeDate: pruneDate })}>
@@ -248,7 +248,7 @@ export function SqlPanel() {
         value={sql}
         onChange={(e) => setSql(e.target.value)}
         rows={4}
-        className="w-full rounded-[8px] border border-hairline bg-paper-2 p-2 font-mono-tx text-[11px] text-ink"
+        className="tx-field w-full min-h-[72px] resize-y p-2 font-mono-tx text-[11px]"
       />
       <button type="button" disabled={busy} onClick={go} className="mt-2 w-full rounded-[8px] bg-deep px-3 py-2 text-[12px] text-deep-fg disabled:opacity-50">
         {busy ? "查詢中…" : "執行（只限 SELECT）"}

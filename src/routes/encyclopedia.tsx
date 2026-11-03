@@ -74,7 +74,7 @@ function EncyclopediaPage() {
             value={term}
             onChange={(e) => setTerm(e.target.value)}
             placeholder="馬名或編號，例如 嘉應高昇 / J062"
-            className="flex-1 rounded-[6px] border border-hairline bg-paper px-2.5 py-2 text-[12px] text-ink outline-none focus:border-gold-strong"
+            className="tx-field min-w-0 flex-1"
           />
           <button
             type="submit"

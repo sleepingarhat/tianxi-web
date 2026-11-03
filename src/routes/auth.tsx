@@ -214,7 +214,7 @@ function AuthPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink outline-none focus:border-gold"
+              className="tx-field mt-1 w-full"
             />
           </label>
           <label className="block text-[11px] text-ink-3">
@@ -226,7 +226,7 @@ function AuthPage() {
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[13px] text-ink outline-none focus:border-gold"
+              className="tx-field mt-1 w-full"
             />
             {mode === "signup" && <PasswordMeter pw={password} />}
           </label>

@@ -63,7 +63,7 @@ export function OptionListPicker({
         aria-label={`${label}搜尋`}
         aria-expanded={open}
         autoComplete="off"
-        className="w-full rounded-md border border-hairline bg-paper px-2 py-1.5 text-[13px]"
+        className="tx-field w-full"
       />
       {open ? (
         <ul

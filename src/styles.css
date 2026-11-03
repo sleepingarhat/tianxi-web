@@ -287,6 +287,67 @@
   }
 }
 
+/* ── 全站文字輸入框：紙底、幼邊、金對焦（細字版俾監控端同表格篩選）── */
+@utility tx-field {
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--tx-ink) 15%, transparent);
+  background-color: var(--tx-paper-2);
+  padding: 7px 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--tx-ink);
+  box-shadow: inset 0 1px 1px color-mix(in oklab, var(--tx-deep) 5%, transparent);
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+  &::placeholder { color: var(--tx-ink-3); }
+  &:hover:not(:disabled):not(:focus) {
+    border-color: color-mix(in oklab, var(--tx-gold) 40%, var(--tx-hairline));
+  }
+  &:focus {
+    outline: none;
+    border-color: var(--tx-gold);
+    background-color: var(--tx-paper);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tx-gold) 16%, transparent);
+  }
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}
+
+@utility tx-field-sm {
+  border-radius: 6px;
+  border: 1px solid color-mix(in oklab, var(--tx-ink) 15%, transparent);
+  background-color: var(--tx-paper-2);
+  padding: 4px 8px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--tx-ink);
+  box-shadow: inset 0 1px 1px color-mix(in oklab, var(--tx-deep) 5%, transparent);
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+  &::placeholder { color: var(--tx-ink-3); }
+  &:hover:not(:disabled):not(:focus) {
+    border-color: color-mix(in oklab, var(--tx-gold) 40%, var(--tx-hairline));
+  }
+  &:focus {
+    outline: none;
+    border-color: var(--tx-gold);
+    background-color: var(--tx-paper);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tx-gold) 16%, transparent);
+  }
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}
+
+/* 有圖標／按鈕塞入面嘅搜尋框：用外殼做紙底同金對焦 */
+@utility tx-field-box {
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--tx-ink) 15%, transparent);
+  background-color: var(--tx-paper-2);
+  box-shadow: inset 0 1px 1px color-mix(in oklab, var(--tx-deep) 5%, transparent);
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+  &:focus-within {
+    border-color: var(--tx-gold);
+    background-color: var(--tx-paper);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--tx-gold) 16%, transparent);
+  }
+}
+
 /* ── 金色流光邊框（重點卡片強調，取代彩虹 border-beam）───────────── */
 @keyframes tx-beam {
   to {

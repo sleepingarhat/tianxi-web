@@ -51,7 +51,7 @@ export function PageHead({ en, title, desc }: { en: string; title: string; desc?
     <section className="relative overflow-hidden border-b border-hairline bg-gradient-to-b from-paper-2 to-paper px-4 pb-4 pt-5">
       <span aria-hidden className="absolute left-4 top-0 h-[3px] w-10 rounded-b bg-gold" />
       <p className="font-mono-tx text-[10px] font-bold uppercase tracking-[0.28em] text-ink-3">{en}</p>
-      <h1 className="fx-spotlight mt-1 font-serif-tc text-2xl font-bold leading-tight text-ink">{title}</h1>
+      <h1 className="fx-spotlight mt-1 font-serif-tc text-[26px] font-bold leading-tight tracking-wide text-ink">{title}</h1>
       {desc ? <p className="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-2">{desc}</p> : null}
     </section>
   );

@@ -110,7 +110,7 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
         </SheetHeader>
 
         <div className="flex items-center gap-2 border-b border-hairline px-4 py-2">
-          <div className="flex flex-1 items-center gap-1.5 rounded-md border border-hairline bg-paper-2 px-2 py-1.5">
+          <div className="tx-field-box flex flex-1 items-center gap-1.5 px-2.5 py-1.5">
             <Search className="h-3.5 w-3.5 text-ink-3" />
             <input
               value={q}

@@ -43,7 +43,7 @@ function Logs() {
             </Button>
           ))}
           <label className="ml-1 flex items-center gap-1 text-[11px] text-ink-3"><input type="checkbox" checked={showOk} onChange={(e) => setShowOk(e.target.checked)} />包括成功任務</label>
-          <input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="搜尋來源／內容" className="ml-auto w-44 rounded-[6px] border border-hairline bg-paper-3 px-2 py-1 text-[11px] text-ink" />
+          <input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="搜尋來源／內容" className="tx-field-sm ml-auto w-44" />
         </div>
         {shown.length === 0 ? (
           <p className="py-5 text-center text-[11px] text-ink-3">{ops.loading ? "讀取中…" : "冇異常紀錄"}</p>
