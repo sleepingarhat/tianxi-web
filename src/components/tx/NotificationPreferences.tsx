@@ -88,6 +88,6 @@ export function NotificationPreferences({openRaceday=false}:{openRaceday?:boolea
     </div>
 
     {choose && q.data?.racedayLive?<div className="mt-3 border-t border-hairline pt-3 text-xs"><p>揀選收賽日提示及通知方式；未確認前唔會自動登記。</p><div className="mt-2 flex flex-wrap gap-4"><Link to="/account" className="text-gold" onClick={()=>document.getElementById('telegram-settings')?.scrollIntoView({block:'center'})}>連結 Telegram →</Link><Link to="/account" className="text-gold" onClick={()=>document.getElementById('push-settings')?.scrollIntoView({block:'center'})}>設定推送通知 →</Link></div></div>:null}
-    <p className="mt-3 text-xs text-ink-3">每日批次同步，非即時；<Link to="/account" className="text-gold">連結 Telegram／設定推送</Link>。收賽日提示同鎖定／四揀只通知已核實賽前凍結最終版（draft 永遠唔通知）。每條訊息附「數據模型預測 僅供參考 · 理性投注」。</p>
+    <p className="mt-3 text-xs text-ink-3">愛駒動態約每30分鐘自動從馬會資料同步；<Link to="/account" className="text-gold">連結 Telegram／設定推送</Link>。收賽日提示同鎖定／四揀只通知已核實賽前凍結最終版（draft 永遠唔通知）。每條訊息附「數據模型預測 僅供參考 · 理性投注」。</p>
   </Card></div>;
 }

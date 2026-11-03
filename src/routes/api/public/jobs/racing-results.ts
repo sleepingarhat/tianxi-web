@@ -3,6 +3,10 @@ import { authenticateCronRequest } from '@/integrations/supabase/cron-auth';
 import { isConfirmedComplete, resultsDueAt } from '@/lib/racing-results-schedule';
 import { racingResultsJobInput } from '@/lib/racing-results-job-input';
 
+/** Official schedule times written at racecard ingest (entries_upcoming.post_time) win; races.start_time fills gaps. */
+const RACE_START_SQL_VENUE = `SELECT race_number raceNumber, MIN(post_time) startTime FROM (SELECT e.race_number, e.post_time FROM entries_upcoming e WHERE e.race_date=? AND e.venue=? AND e.race_number>0 AND e.post_time IS NOT NULL UNION ALL SELECT r.race_number, r.start_time FROM races r JOIN race_meetings mt ON mt.id=r.meeting_id WHERE mt.date=? AND mt.venue=? AND r.start_time IS NOT NULL) GROUP BY race_number`;
+const RACE_START_SQL_DAY = `SELECT race_number raceNumber, MIN(post_time) startTime FROM (SELECT e.race_number, e.post_time FROM entries_upcoming e WHERE e.race_date=? AND e.race_number>0 AND e.post_time IS NOT NULL UNION ALL SELECT r.race_number, r.start_time FROM races r JOIN race_meetings mt ON mt.id=r.meeting_id WHERE mt.date=? AND r.start_time IS NOT NULL) GROUP BY race_number`;
+
 export const Route = createFileRoute('/api/public/jobs/racing-results')({
   server: {
     handlers: {
@@ -56,7 +60,7 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
               let timing: ReadonlyMap<number, number> | null = null;
               let raceTiming: ReadonlyMap<number, number> | null = null;
               try {
-                const rows = await publicRacingQuery<{ raceNumber: number; startTime: string | null }>(`SELECT r.race_number raceNumber,r.start_time startTime FROM races r JOIN race_meetings mt ON mt.id=r.meeting_id WHERE mt.date=? AND mt.venue=?`, [m.date, m.venueCode]);
+                const rows = await publicRacingQuery<{ raceNumber: number; startTime: string | null }>(RACE_START_SQL_VENUE, [m.date, m.venueCode, m.date, m.venueCode]);
                 timing = raceStartTimingMap(rows, m.date);
                 raceTiming = raceStartTimingMapPartial(rows, m.date);
               } catch { /* fall through to the Worker projection */ }
@@ -165,7 +169,7 @@ export const Route = createFileRoute('/api/public/jobs/racing-results')({
             if (code === 'official-result-timeout') {
               try {
                 const { publicRacingQuery } = await import('@/lib/public-racing-evidence.server');
-                const rows = await publicRacingQuery<{ raceNumber: number; startTime: string | null }>(`SELECT r.race_number raceNumber,r.start_time startTime FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=?`, [hktDay]);
+                const rows = await publicRacingQuery<{ raceNumber: number; startTime: string | null }>(RACE_START_SQL_DAY, [hktDay, hktDay]);
                 skipTimeoutAlert = suppressMeetingTimeoutAlert(code, raceStartTimingMap(rows, hktDay));
               } catch { /* timing unknown → alert as before */ }
             }

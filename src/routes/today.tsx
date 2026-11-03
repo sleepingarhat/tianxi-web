@@ -19,6 +19,7 @@ import { getRaceDayCardDisplay } from "@/lib/race-day-card.functions";
 import { getRaceHeaders } from "@/lib/race-header.functions";
 import { prizeText, ratingText, trackText, type RaceHeaderRow } from "@/lib/race-header";
 import { getRacedayOfficial } from "@/lib/raceday-official.functions";
+import type { ChallengeBoard } from "@/lib/raceday-official";
 import { bestDraws, changeCountByRace, type DrawStatRow, type RankingRow } from "@/lib/raceday-official";
 import { cleanTime, countdown, fmtMeetingDate, pct, txApi } from "@/lib/tx-api";
 import {
@@ -386,6 +387,7 @@ function TodayPage() {
 
           <aside className="min-w-0 lg:sticky lg:top-[72px] lg:pb-6">
             <OfficialRankingCard data={official.data} />
+            <OfficialChallengeCard data={official.data} />
             <Card title="今日累計命中" en="Day hits">
               {dayHits.racesCounted ? (
                 <>
@@ -598,7 +600,45 @@ function RaceHeaderLine({ header }: { header?: RaceHeaderRow | undefined }) {
   return <p className="mt-0.5 text-[11px] text-ink-3">{parts.join(" · ")}</p>;
 }
 
-type OfficialData = { ranking: { jockey: RankingRow[]; trainer: RankingRow[]; asOf: string | null; season: string | null }; draws: DrawStatRow[]; failed: string[] } | undefined;
+type OfficialData = { ranking: { jockey: RankingRow[]; trainer: RankingRow[]; asOf: string | null; season: string | null }; draws: DrawStatRow[]; challenge?: ChallengeBoard[]; failed: string[] } | undefined;
+
+function OfficialChallengeCard({ data }: { data: OfficialData }) {
+  const boards = data?.challenge ?? [];
+  if (!data) return null;
+  if (!boards.length) {
+    return (
+      <Card title="騎師王／練馬師王" en="Challenge">
+        <p className="text-[12px] text-ink-3">馬會稍後公佈騎師王坐騎表及練馬師王出馬表。</p>
+      </Card>
+    );
+  }
+  const settled = (b: ChallengeBoard) => b.rows.some((r) => r.order !== null);
+  return (
+    <Card title="騎師王／練馬師王" en="Challenge">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+        {boards.map((b) => (
+          <div key={b.kind} className="min-w-0">
+            <p className="text-[11px] font-bold text-ink-3">{b.kind === "JKC" ? "騎師王" : "練馬師王"}{b.races ? ` · 第 ${b.races.split(",")[0]}–${b.races.split(",").at(-1)} 場` : ""}</p>
+            <div className="mt-1 grid grid-cols-[18px_minmax(0,1fr)_auto_auto] gap-x-2 text-[10px] text-ink-3">
+              <span>{settled(b) ? "名" : ""}</span><span>{b.kind === "JKC" ? "騎師" : "練馬師"}</span><span className="text-right">賠率</span><span className="w-9 text-right">積分</span>
+            </div>
+            <ol className="space-y-0.5">
+              {b.rows.slice(0, 8).map((r) => (
+                <li key={r.name} className="grid grid-cols-[18px_minmax(0,1fr)_auto_auto] gap-x-2 text-[12px]">
+                  <span className="tabnum font-mono-tx text-ink-3">{r.order ?? ""}</span>
+                  <span className="truncate font-serif-tc">{r.name}</span>
+                  <span className="tabnum text-right font-mono-tx">{r.odds ?? "—"}</span>
+                  <span className="tabnum w-9 text-right font-mono-tx">{r.points ?? "—"}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：騎師王／練馬師王賠率及積分照馬會頁面原文；「—」代表未有賠率或已無機會。只作參考，不計入預測。</p>
+    </Card>
+  );
+}
 
 function OfficialRankingCard({ data }: { data: OfficialData }) {
   if (!data || (!data.ranking.jockey.length && !data.ranking.trainer.length)) return null;

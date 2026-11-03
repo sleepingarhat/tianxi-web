@@ -25,3 +25,25 @@ describe("raceday official", () => {
     expect(c).toHaveLength(2);
   });
 });
+
+import { normalizeChallenge } from "./raceday-official";
+describe("normalizeChallenge", () => {
+  const pools = [{ kind: "JKC", status: "PAYOUTSTARTED", races: "1,2,3" }];
+  const rows = [
+    { kind: "JKC", name: "田泰安", odds: "6.50", finalOrder: 2, points: "28.0", isOther: 0 },
+    { kind: "JKC", name: "何澤堯", odds: "1.08", finalOrder: 1, points: "44.0", isOther: 0 },
+    { kind: "JKC", name: "巫顯東", odds: null, finalOrder: null, points: "18.0", isOther: 1 },
+    { kind: "JKC", name: "潘明輝", odds: "9999", finalOrder: 5, points: "0.0", isOther: 0 },
+  ];
+  it("orders by official final order and drops the 其他 members", () => {
+    const b = normalizeChallenge(pools, rows)[0]!;
+    expect(b.rows.map((r) => r.name)).toEqual(["何澤堯", "田泰安", "潘明輝"]);
+    expect(b.rows[0]!.points).toBe(44);
+  });
+  it("hides the 9999 placeholder instead of showing it as odds", () => {
+    expect(normalizeChallenge(pools, rows)[0]!.rows[2]!.odds).toBeNull();
+  });
+  it("omits a pool the official page has not published", () => {
+    expect(normalizeChallenge([], rows)).toEqual([]);
+  });
+});

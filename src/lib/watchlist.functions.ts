@@ -39,3 +39,16 @@ export const getLatestHorseEvents=createServerFn({method:'POST'}).middleware([re
  const fallback=await context.supabase.from('watch_notifications').select('horse_id,title,event_date,created_at').eq('user_id',context.userId).in('horse_id',ids).gte('created_at',new Date(Date.now()-14*86400000).toISOString()).order('created_at',{ascending:false}).limit(1000);
  for(const r of fallback.data ?? []) if(r.horse_id && !result[r.horse_id])result[r.horse_id]={title:r.title,date:r.event_date ?? r.created_at.slice(0,10)}; return result;
 });
+
+export const getHorseFeed=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator((data:unknown)=>z.object({horseIds:z.array(horseId).max(90)}).parse(data)).handler(async({data,context})=>{
+ const followed=await context.supabase.from('horse_watchlist').select('horse_id').eq('user_id',context.userId).in('horse_id',data.horseIds);
+ if(followed.error)throw new Error('愛駒身份未能核實');const ids=followed.data.map(r=>r.horse_id);if(ids.length!==new Set(data.horseIds).size)throw new Error('只可讀取自己追蹤嘅馬匹');
+ const {projectHorseFeed}=await import('./watch-events');
+ if(!ids.length)return {available:true,feed:projectHorseFeed({},[])};
+ try { const {watchFeedSenderSecret}=await import('./shared-secret.server'); const secret=watchFeedSenderSecret(); if(!secret)throw new Error('動態來源暫時讀取唔到');
+  const since=new Date(Date.now()+8*3600000-30*86400000).toISOString().slice(0,10);
+  const response=await fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/watch/events?horse_ids=${encodeURIComponent(ids.join(','))}&since=${since}&trackwork=all`,{headers:{'x-cron-secret':secret},signal:AbortSignal.timeout(10000)});
+  if(!response.ok)throw new Error('動態來源暫時讀取唔到');
+  return {available:true,feed:projectHorseFeed(await response.json(),ids)};
+ } catch { throw new Error('動態來源暫時讀取唔到'); }
+});

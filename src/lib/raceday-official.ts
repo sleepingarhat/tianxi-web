@@ -54,3 +54,34 @@ export function bestDraws(rows: DrawStatRow[], raceNumber: number, n = 3, minSta
   return rows.filter((r) => r.raceNumber === raceNumber && r.starts >= minStarts)
     .sort((a, b) => b.winPct - a.winPct || b.placePct - a.placePct || a.draw - b.draw).slice(0, n);
 }
+
+// 騎師王（JKC）／練馬師王（TNC）彩池板：馬會官方賠率原文、最後名次及積分。只作參考，不計入預測。
+export type ChallengeRow = { kind: "JKC" | "TNC"; name: string; odds: string | null; order: number | null; points: number | null; rides: number | null };
+export type ChallengeBoard = { kind: "JKC" | "TNC"; status: string | null; races: string | null; rows: ChallengeRow[] };
+
+export function normalizeChallenge(pools: Record<string, unknown>[], rows: Record<string, unknown>[]): ChallengeBoard[] {
+  const boards: ChallengeBoard[] = [];
+  for (const kind of ["JKC", "TNC"] as const) {
+    const pool = pools.find((p) => p["kind"] === kind);
+    if (!pool) continue;
+    const list: ChallengeRow[] = [];
+    for (const r of rows) {
+      if (r["kind"] !== kind || int(r["isOther"]) === 1) continue;
+      const name = str(r["name"]);
+      if (!name) continue;
+      const rawOdds = str(r["odds"]);
+      const pts = Number(r["points"]);
+      list.push({
+        kind, name,
+        // 9999 係馬會頁「已無機會」嘅佔位，唔當成賠率顯示。
+        odds: rawOdds && rawOdds !== "9999" ? rawOdds : null,
+        order: int(r["finalOrder"]),
+        points: r["points"] == null || r["points"] === "" || !Number.isFinite(pts) ? null : pts,
+        rides: int(r["rides"]),
+      });
+    }
+    list.sort((a, b) => (a.order ?? 999) - (b.order ?? 999) || Number(a.odds ?? 1e9) - Number(b.odds ?? 1e9) || a.name.localeCompare(b.name));
+    boards.push({ kind, status: str(pool["status"]), races: str(pool["races"]), rows: list });
+  }
+  return boards;
+}

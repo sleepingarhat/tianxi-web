@@ -66,6 +66,7 @@ import { Route as LabGoingRouteImport } from './routes/lab.going'
 import { Route as LabH2hRouteImport } from './routes/lab.h2h'
 import { Route as LabPaceRouteImport } from './routes/lab.pace'
 import { Route as LabPoolsRouteImport } from './routes/lab.pools'
+import { Route as MyHorsesUpdatesRouteImport } from './routes/my-horses_.updates'
 import { Route as AuthenticatedAccountApiRouteImport } from './routes/_authenticated/account.api'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminConsoleRouteImport } from './routes/_authenticated/admin.console'
@@ -403,6 +404,11 @@ const LabPoolsRoute = LabPoolsRouteImport.update({
   id: '/pools',
   path: '/pools',
   getParentRoute: () => LabRoute,
+} as any)
+const MyHorsesUpdatesRoute = MyHorsesUpdatesRouteImport.update({
+  id: '/my-horses_/updates',
+  path: '/my-horses/updates',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountApiRoute = AuthenticatedAccountApiRouteImport.update({
   id: '/api',
@@ -754,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
+  '/my-horses/updates': typeof MyHorsesUpdatesRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/lab/': typeof LabIndexRoute
@@ -862,6 +869,7 @@ export interface FileRoutesByTo {
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
+  '/my-horses/updates': typeof MyHorsesUpdatesRoute
   '/engine': typeof EngineIndexRoute
   '/explain': typeof ExplainIndexRoute
   '/lab': typeof LabIndexRoute
@@ -974,6 +982,7 @@ export interface FileRoutesById {
   '/lab/h2h': typeof LabH2hRoute
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
+  '/my-horses_/updates': typeof MyHorsesUpdatesRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/lab/': typeof LabIndexRoute
@@ -1086,6 +1095,7 @@ export interface FileRouteTypes {
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
+    | '/my-horses/updates'
     | '/engine/'
     | '/explain/'
     | '/lab/'
@@ -1194,6 +1204,7 @@ export interface FileRouteTypes {
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
+    | '/my-horses/updates'
     | '/engine'
     | '/explain'
     | '/lab'
@@ -1305,6 +1316,7 @@ export interface FileRouteTypes {
     | '/lab/h2h'
     | '/lab/pace'
     | '/lab/pools'
+    | '/my-horses_/updates'
     | '/engine/'
     | '/explain/'
     | '/lab/'
@@ -1409,6 +1421,7 @@ export interface RootRouteChildren {
   EngineMonitorRoute: typeof EngineMonitorRoute
   EngineResidualsRoute: typeof EngineResidualsRoute
   ExplainDateRoute: typeof ExplainDateRoute
+  MyHorsesUpdatesRoute: typeof MyHorsesUpdatesRoute
   EngineIndexRoute: typeof EngineIndexRoute
   ExplainIndexRoute: typeof ExplainIndexRoute
   ApiPublicDataStatsRoute: typeof ApiPublicDataStatsRoute
@@ -1852,6 +1865,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lab/pools'
       preLoaderRoute: typeof LabPoolsRouteImport
       parentRoute: typeof LabRoute
+    }
+    '/my-horses_/updates': {
+      id: '/my-horses_/updates'
+      path: '/my-horses/updates'
+      fullPath: '/my-horses/updates'
+      preLoaderRoute: typeof MyHorsesUpdatesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account/api': {
       id: '/_authenticated/account/api'
@@ -2347,6 +2367,7 @@ const rootRouteChildren: RootRouteChildren = {
   EngineMonitorRoute: EngineMonitorRoute,
   EngineResidualsRoute: EngineResidualsRoute,
   ExplainDateRoute: ExplainDateRoute,
+  MyHorsesUpdatesRoute: MyHorsesUpdatesRoute,
   EngineIndexRoute: EngineIndexRoute,
   ExplainIndexRoute: ExplainIndexRoute,
   ApiPublicDataStatsRoute: ApiPublicDataStatsRoute,
