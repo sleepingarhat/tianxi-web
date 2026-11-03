@@ -121,7 +121,7 @@ function DashboardPage() {
                 {num(r90?.top4AvgIntersect, 2)}
                 <span className="ml-1 text-[12px] text-ink-3">／4 匹</span>
               </p>
-              <p className="mt-1 text-[9px] leading-tight text-ink-3">
+              <p className="mt-1 text-[10px] leading-tight text-ink-3">
                 近 90 日 {r90?.racesEvaluated ?? 0} 場 · {r90?.meetingsEvaluated ?? 0} 個賽馬日
               </p>
             </div>
@@ -246,7 +246,7 @@ function DashboardPage() {
                 tone="ink"
               />
             </div>
-            <p className="px-0.5 text-[9px] leading-tight text-ink-3">
+            <p className="px-0.5 text-[10px] leading-tight text-ink-3">
               集成覆蓋 = 已套用「天喜LGB」排序模型嘅場數；未覆蓋嘅場數自動退回「天喜ELO」基準評分。
             </p>
             <AlphaGuard alpha={avgAlpha} />
@@ -349,19 +349,19 @@ function DashboardPage() {
             </div>
             <div className="tx-data-panel rounded-[8px] border border-deep/15 bg-paper p-2.5 shadow-sm">
               <div className="mb-1.5 flex items-baseline justify-between">
-                <p className="text-[10px] font-bold text-ink-3">四揀平均命中匹數 · 逐個賽馬日（近 12 個月）</p>
-                <p className="tabnum font-mono-tx text-[9px] text-ink-3">{per.length} 個賽馬日</p>
+                <p className="text-[11px] font-bold text-ink-3">四揀平均命中匹數 · 逐個賽馬日（近 12 個月）</p>
+                <p className="tabnum font-mono-tx text-[10px] text-ink-3">{per.length} 個賽馬日</p>
               </div>
               <TrendChart
                 points={per.map((p) => ({ label: String(p.date || "").slice(5), value: p.top4AvgIntersect }))}
                 height={124}
                 decimals={2}
               />
-              <p className="mt-1.5 text-[9px] leading-relaxed text-ink-3">金色虛線＝期內平均；圓點＝單個賽馬日平均命中匹數。</p>
+              <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">金色虛線＝期內平均；圓點＝單個賽馬日平均命中匹數。</p>
             </div>
             <TierGate min="pro" feature="策略盈虧">
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 text-[10px] font-bold text-ink-3">
+              <p className="mb-1 text-[11px] font-bold text-ink-3">
                 彩池命中 · 實戰複式（{pnlFrom} 起 · 命中場數／投注場數）
               </p>
               {[
@@ -380,11 +380,11 @@ function DashboardPage() {
                   />
                 );
               })}
-              <p className="mt-1.5 text-[9px] leading-relaxed text-ink-3">
+              <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">
                 以上按天喜策略實際落注方式計算：模型首 4 匹打複式（三重彩／四重彩為 24 注全包），只要實際頭三／頭四名落在模型首 4 匹之內即中。
               </p>
               <div className="mt-1.5 border-t border-hairline pt-1.5">
-                <p className="mb-1 text-[10px] font-bold text-ink-3">
+                <p className="mb-1 text-[11px] font-bold text-ink-3">
                   參考：單一組合命中（近 90 日 · 不打複式）
                 </p>
                 {[
@@ -433,7 +433,7 @@ function DashboardPage() {
           <ErrorNote error={leaderboard.error} />
         ) : (
           <div>
-            <p className="pb-1 text-[9px] text-ink-3">條長度＝勝率（100% 為滿格）；右方數字＝勝率。</p>
+            <p className="pb-1 text-[10px] text-ink-3">條長度＝勝率（100% 為滿格）；右方數字＝勝率。</p>
             {(leaderboard.data?.horses || []).map((h: any, i: number) => {
               const wr = h.totalStarts ? (h.totalWins / h.totalStarts) * 100 : null;
               return (

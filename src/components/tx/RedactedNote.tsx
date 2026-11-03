@@ -12,7 +12,7 @@ export function RedactedNote({ races = [] }: { races?: { race: number; actual: n
           </li>
         ))}
       </ul>
-      <p className="text-[10px] leading-relaxed text-ink-3">
+      <p className="text-[11px] leading-relaxed text-ink-3">
         以上場次未計入命中統計（唔係冇中）。
         <Link to="/auth" className="ml-1 font-bold text-gold">登入查看全日對帳 →</Link>
       </p>

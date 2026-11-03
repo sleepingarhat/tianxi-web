@@ -34,7 +34,7 @@ export function LightDot({ color, size = 9 }: { color: LightColor; size?: number
 /** 三燈圖例（放喺卡片底部解釋燈色） */
 export function LightLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] leading-none text-ink-3">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] leading-none text-ink-3">
       <span className="inline-flex items-center gap-1">
         <LightDot color="green" size={7} />綠＝最終版，已鎖
       </span>
@@ -50,7 +50,7 @@ export function LightLegend() {
 
 function SubBar({ s }: { s: RaceStatus }) {
   return (
-    <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono-tx text-[9px] leading-none text-ink-3">
+    <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono-tx text-[10px] leading-none text-ink-3">
       <span className="tabnum">
         天喜LGB 覆蓋 {s.lgbTotal ? `${s.lgbCovered}/${s.lgbTotal}` : "—"}
         {s.lgbTotal && !s.lgbFull ? "（未覆蓋者退回天喜ELO）" : ""}
@@ -82,7 +82,7 @@ export function PredictionStatusLight({
   if (compact) {
     return (
       <span
-        className={`inline-flex items-center gap-1 rounded-[4px] border px-1.5 py-[2px] text-[10px] font-bold leading-none ${FRAME[status.color]} ${TEXT[status.color]}`}
+        className={`inline-flex items-center gap-1 rounded-[4px] border px-1.5 py-[2px] text-[11px] font-bold leading-none ${FRAME[status.color]} ${TEXT[status.color]}`}
         title={status.reason}
       >
         <LightDot color={status.color} size={7} />
@@ -99,7 +99,7 @@ export function PredictionStatusLight({
           {status.label}
         </p>
       </div>
-      <p className="mt-1 text-[10px] leading-relaxed text-ink-2">{status.reason}</p>
+      <p className="mt-1 text-[11px] leading-relaxed text-ink-2">{status.reason}</p>
       <SubBar s={status} />
     </div>
   );
@@ -119,16 +119,16 @@ export function DayStatusLight({ status }: { status: DayStatus }) {
         <span className={`font-serif-tc text-[13px] font-bold leading-none ${TEXT[status.color]}`}>
           {status.label}
         </span>
-        <span className="tabnum ml-auto font-mono-tx text-[9px] text-ink-3">
+        <span className="tabnum ml-auto font-mono-tx text-[10px] text-ink-3">
           綠 {status.green} / 黃 {status.amber} / 紅 {status.red}（共 {status.total} 場）
         </span>
-        <span className="text-[10px] text-ink-3">{open ? "▲" : "▼"}</span>
+        <span className="text-[11px] text-ink-3">{open ? "▲" : "▼"}</span>
       </button>
-      <p className="mt-1 text-[10px] leading-relaxed text-ink-2">{status.reason}</p>
+      <p className="mt-1 text-[11px] leading-relaxed text-ink-2">{status.reason}</p>
       {open ? (
         <div className="mt-2 border-t border-hairline pt-2">
           <LightLegend />
-          <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">
+          <p className="mt-1.5 text-[11px] leading-relaxed text-ink-3">
             引擎每日重算：天喜LGB 每日 04:00 重訓、天喜ELO 每日重算，臨場退馬亦會改排位。因此鎖點之前見到嘅四揀屬初版；全日只鎖一次
             —— 第一場開跑前 90 分鐘做最後一次計算後鎖死全日，之後只准補名次，凍結名單就係最終版，用嚟對帳。少仗（第一／二次出賽）只作資料提示，照列正式預測及戰績；不改已鎖分數或四揀。
           </p>

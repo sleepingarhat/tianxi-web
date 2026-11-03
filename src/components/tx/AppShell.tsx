@@ -127,7 +127,7 @@ export function AppShell({
             <img src={tianxiLogo} width="40" height="40" alt="" className="h-10 w-10 shrink-0 rounded-[7px] object-cover" />
             <span className="flex min-w-0 flex-col leading-none max-[480px]:hidden">
               <span className="fx-spotlight fx-spotlight-brand font-serif-tc text-[16px] font-bold tracking-[0.01em]">天喜 TIANXI</span>
-              <small className="fx-foil mt-[3px] block text-[9px] font-semibold uppercase tracking-[0.24em] text-tan">
+              <small className="fx-foil mt-[3px] block text-[10px] font-semibold uppercase tracking-[0.24em] text-tan">
                 Hong Kong Racing
               </small>
             </span>
@@ -227,7 +227,7 @@ export function AppShell({
 
         {ticker ? (
           <div className="border-b border-gold-strong/30 bg-gold-bg px-4 py-1.5">
-            <p className="tabnum grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2 font-mono-tx text-[10px] font-bold leading-none text-gold">
+            <p className="tabnum grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2 font-mono-tx text-[11px] font-bold leading-none text-gold">
               <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
               <OverflowTicker>{ticker}</OverflowTicker>
             </p>
@@ -258,7 +258,7 @@ export function AppShell({
                   {item.icon}
                 </svg>
                 <span
-                  className={`text-[10px] tracking-[0.06em] ${
+                  className={`text-[11px] tracking-[0.06em] ${
                     on ? "font-bold text-gold-strong" : "font-medium text-deep-fg/65"
                   }`}
                 >

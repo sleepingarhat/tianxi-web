@@ -45,12 +45,12 @@ function AuditPage() {
         </div>
         <div className="lg:grid lg:grid-cols-2">
           <Card title="數據完整性審計" en={`Integrity · ${d.integrity?.scanDate ?? "—"}`}>
-            <p className="mb-2 text-[10px] leading-relaxed text-ink-3">ok＝PASS、warn＝WATCH、critical＝FAIL，直接對應審計原檔 severity。缺項只列頭 8 個。</p>
+            <p className="mb-2 text-[11px] leading-relaxed text-ink-3">ok＝PASS、warn＝WATCH、critical＝FAIL，直接對應審計原檔 severity。缺項只列頭 8 個。</p>
             <ul>{d.integrity?.categories.map((c) => (
               <li key={c.key} className="border-b border-hairline py-2 last:border-b-0">
                 <p className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><span className="text-[12px] font-bold text-ink">{CAT[c.key] ?? c.key}</span><Pill tone={tone(c.status)}>{c.status}</Pill></p>
-                <p className="tabnum mt-0.5 font-mono-tx text-[10px] text-ink-3">應有 {c.expected} · 現有 {c.present}{c.stale ? ` · 過期 ${c.stale}` : ""}{c.note ? ` · ${c.note}` : ""}</p>
-                {c.missing.length ? <p className="mt-0.5 break-words font-mono-tx text-[10px] text-lose">缺：{c.missing.join("、")}</p> : null}
+                <p className="tabnum mt-0.5 font-mono-tx text-[11px] text-ink-3">應有 {c.expected} · 現有 {c.present}{c.stale ? ` · 過期 ${c.stale}` : ""}{c.note ? ` · ${c.note}` : ""}</p>
+                {c.missing.length ? <p className="mt-0.5 break-words font-mono-tx text-[11px] text-lose">缺：{c.missing.join("、")}</p> : null}
               </li>))}</ul>
             <p className="mt-3 text-[11px] font-bold text-ink">近 14 日</p>
             <div className="mt-1 flex flex-wrap gap-1">{d.history.map((h) => <span key={h.date} title={`嚴重 ${h.critical}／提示 ${h.warn}`}><Pill tone={tone(h.status)}>{h.date.slice(5)} {h.status}</Pill></span>)}</div>
@@ -59,9 +59,9 @@ function AuditPage() {
             <ul>{d.health?.checks.map((c) => (
               <li key={c.id} className="border-b border-hairline py-2 last:border-b-0">
                 <p className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><span className="text-[12px] font-bold text-ink">{c.label}</span><Pill tone={tone(c.status)}>{c.status}</Pill></p>
-                {c.detail ? <p className="mt-0.5 text-[10px] leading-relaxed text-ink-3">{c.detail}</p> : null}
+                {c.detail ? <p className="mt-0.5 text-[11px] leading-relaxed text-ink-3">{c.detail}</p> : null}
               </li>))}</ul>
-            {d.retrain ? <div className="mt-3 rounded-[6px] border border-hairline bg-paper p-2 text-[10px] leading-relaxed text-ink-2">
+            {d.retrain ? <div className="mt-3 rounded-[6px] border border-hairline bg-paper p-2 text-[11px] leading-relaxed text-ink-2">
               <p className="font-bold text-ink">最近重訓：{d.retrain.model_version}</p>
               <p className="tabnum font-mono-tx">訓練窗口 {d.retrain.training_start ?? "—"} 至 {d.retrain.training_end ?? "—"} · {d.retrain.training_rows?.toLocaleString() ?? "—"} 行</p>
               <p className="break-all font-mono-tx">指紋 {d.retrain.bundle_fingerprint ?? "未記錄"}</p>

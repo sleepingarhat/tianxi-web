@@ -97,7 +97,7 @@ function LedgerError({
         type="button"
         onClick={onRetry}
         disabled={busy}
-        className="rounded-[8px] border border-hairline bg-paper px-3 py-1.5 font-mono-tx text-[10px] font-bold text-gold disabled:opacity-50"
+        className="rounded-[8px] border border-hairline bg-paper px-3 py-1.5 font-mono-tx text-[11px] font-bold text-gold disabled:opacity-50"
       >
         {busy ? "重新讀取中…" : "重新讀取"}
       </button>
@@ -155,20 +155,20 @@ function FreezeLedgerPage() {
         ) : (
           <div className="space-y-2.5">
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 font-mono-tx text-[9px] font-bold uppercase tracking-[0.2em] text-ink-3">主尺 · 四揀</p>
+              <p className="mb-1 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">主尺 · 四揀</p>
               <KV k="平均相交（四揀入實際頭四）" v={`${num(season?.top4AvgIntersect, 2)}／4`} />
               <KV k="頭四覆蓋" v={num(season?.top4CoveragePct) + "%"} />
               <KV k="四揀全中場數" v={`${season?.top4FullHits ?? 0} 場`} />
               <KV k="評核樣本" v={`${season?.racesEvaluated ?? 0} 場 / ${season?.meetings ?? 0} 日`} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 font-mono-tx text-[9px] font-bold uppercase tracking-[0.2em] text-ink-3">旁註 · Top3 ／ 副尺 · 位置</p>
+              <p className="mb-1 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">旁註 · Top3 ／ 副尺 · 位置</p>
               <KV k="Top3 平均相交" v={`${num(season?.top3AvgIntersect, 2)}／3`} />
               <KV k="Top3 任中" v={num(season?.top3AnyHitPct) + "%"} />
               <KV k="位置命中（四揀入位置）" v={num(season?.placeHitPct) + "%"} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 font-mono-tx text-[9px] font-bold uppercase tracking-[0.2em] text-ink-3">旁註 · 市場硬度（唔用嚟改模型）</p>
+              <p className="mb-1 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">旁註 · 市場硬度（唔用嚟改模型）</p>
               <KV k="獨贏頭馬命中" v={num(season?.winnerHitPct) + "%"} />
               <KV k="市場大熱命中" v={num(season?.favouriteHitPct) + "%"} />
               <KV k="模型獨贏 logloss" v={num(season?.modelWinLogloss, 3)} />
@@ -196,13 +196,13 @@ function FreezeLedgerPage() {
                     <Link to="/results" search={{ date: m.date }} className="font-serif-tc text-[12px] font-bold">
                       {fmtMeetingDate(m.date)}
                     </Link>
-                    <span className="ml-1 font-mono-tx text-[9px] text-ink-3">
+                    <span className="ml-1 font-mono-tx text-[10px] text-ink-3">
                       {m.venue === "HV" ? "跑馬地" : m.venue === "ST" ? "沙田" : "—"}
                     </span>
                   </Td>
                   <Td>
                     <span
-                      className="font-mono-tx text-[9px] text-ink-3"
+                      className="font-mono-tx text-[10px] text-ink-3"
                       title={m.blockedReason ?? undefined}
                     >
                       {SOURCE_LABEL[m.source] ?? m.source}
@@ -211,7 +211,7 @@ function FreezeLedgerPage() {
                   <Td>
                     {m.racesEvaluated || "—"}
                     {m.postLockRaces?.length ? (
-                      <span className="ml-1 font-mono-tx text-[9px] text-ink-3">
+                      <span className="ml-1 font-mono-tx text-[10px] text-ink-3">
                         （另 {m.postLockRaces.length} 場{m.postLockNote ?? "鎖後、唔計分"}）
                       </span>
                     ) : null}
@@ -237,7 +237,7 @@ function FreezeLedgerPage() {
       {graded.map((m) => (
         <Card key={`races-${m.date}`} title={`逐場明細 · ${fmtMeetingDate(m.date)}`} en="Per Race">
           {m.postLockRaces?.length ? (
-            <p className="mb-2 font-mono-tx text-[10px] text-ink-3">
+            <p className="mb-2 font-mono-tx text-[11px] text-ink-3">
               第 {m.postLockRaces.join("、")} 場：{m.postLockNote ?? "鎖後、唔計分"}——鎖點當刻未有快照，唔入凍結戰績、唔回填。
             </p>
           ) : null}
@@ -249,10 +249,10 @@ function FreezeLedgerPage() {
                 <tr key={r.raceNumber} className={`border-b border-hairline ${(r.top4Intersect ?? 0) >= 3 ? "bg-win/5" : ""}`}>
                   <Td first>{r.raceNumber}</Td>
                   <Td>
-                    <span className="font-mono-tx text-[10px]">{r.predictedTop4.join(" · ")}</span>
+                    <span className="font-mono-tx text-[11px]">{r.predictedTop4.join(" · ")}</span>
                   </Td>
                   <Td>
-                    <span className="font-mono-tx text-[10px] text-ink-2">{r.actualTop4.join(" · ") || "—"}</span>
+                    <span className="font-mono-tx text-[11px] text-ink-2">{r.actualTop4.join(" · ") || "—"}</span>
                   </Td>
                   <Td className={(r.top4Intersect ?? 0) >= 3 ? "font-bold text-win" : "font-bold"}>
                     {r.top4Intersect == null ? "—" : `${r.top4Intersect}／4`}

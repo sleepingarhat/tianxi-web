@@ -10,13 +10,13 @@ function FactorRow({ f, maxAbs, tone }: { f: WhyFactor; maxAbs: number; tone: "w
     <div className="min-w-0 py-1.5">
       <div className="flex items-baseline justify-between gap-2">
         <p className="min-w-0 truncate font-serif-tc text-[11px] font-bold text-ink">{f.label}</p>
-        <p className={`tabnum shrink-0 font-mono-tx text-[10px] font-bold ${tone === "win" ? "text-win" : "text-lose"}`}>
+        <p className={`tabnum shrink-0 font-mono-tx text-[11px] font-bold ${tone === "win" ? "text-win" : "text-lose"}`}>
           {f.contribution > 0 ? "+" : "−"}
           {Math.abs(f.contribution).toFixed(2)}
         </p>
       </div>
       <TxBar ratio={ratio} tone={tone} height={4} className="mt-1" />
-      <p className="tabnum mt-1 font-mono-tx text-[9px] leading-relaxed text-ink-3">
+      <p className="tabnum mt-1 font-mono-tx text-[10px] leading-relaxed text-ink-3">
         全場第 {f.rank}／{f.total} · {f.metricLabel} {f.metric} · 權重 {(f.weight * 100).toFixed(0)}%
       </p>
     </div>
@@ -51,7 +51,7 @@ export function WhyPicked({
         <span className="font-mono-tx text-[8px] uppercase tracking-[0.16em] text-ink-3">WHY</span>
         {name ? <span className="truncate font-serif-tc text-[11px] text-ink-2">· {name}</span> : null}
         <span
-          className={`tabnum ml-auto shrink-0 rounded-[3px] border px-1 font-mono-tx text-[9px] font-bold ${
+          className={`tabnum ml-auto shrink-0 rounded-[3px] border px-1 font-mono-tx text-[10px] font-bold ${
             why.net >= 0 ? "border-win/45 bg-win/10 text-win" : "border-lose/45 bg-lose/10 text-lose"
           }`}
         >
@@ -76,23 +76,23 @@ export function WhyPicked({
         <div className="border-t border-hairline px-2.5 pb-2.5 pt-1.5">
           <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
             <div className="min-w-0">
-              <p className="mb-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-win">推高排名</p>
+              <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-win">推高排名</p>
               {why.up.length ? (
                 why.up.map((f) => <FactorRow key={f.id} f={f} maxAbs={why.maxAbs} tone="win" />)
               ) : (
-                <p className="py-1.5 text-[10px] text-ink-3">冇明顯優勢項</p>
+                <p className="py-1.5 text-[11px] text-ink-3">冇明顯優勢項</p>
               )}
             </div>
             <div className="min-w-0">
-              <p className="mb-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-lose">拉低排名</p>
+              <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-lose">拉低排名</p>
               {why.down.length ? (
                 why.down.map((f) => <FactorRow key={f.id} f={f} maxAbs={why.maxAbs} tone="lose" />)
               ) : (
-                <p className="py-1.5 text-[10px] text-ink-3">冇明顯弱項</p>
+                <p className="py-1.5 text-[11px] text-ink-3">冇明顯弱項</p>
               )}
             </div>
           </div>
-          <p className="mt-1.5 text-[9px] leading-relaxed text-ink-3">
+          <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">
             數值＝該項特徵同場標準化分數 × 天喜LGB 特徵重要度權重，正數推高、負數拉低；屬局部解釋，只用該場之前嘅歷史資料計算，非投注建議。
           </p>
         </div>

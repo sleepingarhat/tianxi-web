@@ -107,8 +107,8 @@ function CardsPage() {
                               <span className="font-serif-tc text-[14px] font-bold">{p.nameCh}</span>
                             )}
                           </div>
-                           {p.officialChange ? <p className="mt-1 text-[10px] font-bold text-lose">已退出 · {p.officialChange.announcedAt} HKT</p> : null}
-                           <p className="mt-0.5 text-[10px] text-ink-3">
+                           {p.officialChange ? <p className="mt-1 text-[11px] font-bold text-lose">已退出 · {p.officialChange.announcedAt} HKT</p> : null}
+                           <p className="mt-0.5 text-[11px] text-ink-3">
                             {p.jockeyCh || "—"} / {p.trainerCh || "—"}
                           </p>
                         </Td>
@@ -125,7 +125,7 @@ function CardsPage() {
               </Scroller>
               {sub.withdrawn.length > 0 && sub.status === 'valid' ? <p className="mt-2 text-[11px] text-ink">原四揀 {sub.original.join("-")}，{sub.withdrawn.join("、")}號{sub.prelockNotRecomputed ? '鎖前退出未及重算，按鎖後方式' : '鎖後退出'}當無效，唔補位</p> : sub.status !== 'valid' ? <p className="mt-2 text-[11px] text-lose">原凍結僅作事故紀錄；退出公布時間未能核實，暫不提供有效四揀。</p> : null}
               {r.expectedBoxCoverage ? (
-                <p className="tabnum mt-2 font-mono-tx text-[10px] leading-relaxed text-ink-3">
+                <p className="tabnum mt-2 font-mono-tx text-[11px] leading-relaxed text-ink-3">
                   期望覆蓋率 · 三重彩 N4 {pct(r.expectedBoxCoverage.trio_n4)} / N6 {pct(r.expectedBoxCoverage.trio_n6)} · 四重彩 N6{" "}
                   {pct(r.expectedBoxCoverage.first4_n6)}
                 </p>

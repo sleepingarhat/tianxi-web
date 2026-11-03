@@ -88,7 +88,7 @@ function HeadlinesPage() {
             <div className="divide-y divide-hairline">{archive.map((r) => <HeadlineItem key={`${r.date}-${r.venue}`} row={r} />)}</div>
           </Card>
         ) : null}
-        <p className="text-[10px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：頭條係馬會編輯文章，天喜只保存標題、導語、版本同原文指紋，唔轉載正文同圖片，亦唔計入預測及凍結選馬。</p>
+        <p className="text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：頭條係馬會編輯文章，天喜只保存標題、導語、版本同原文指紋，唔轉載正文同圖片，亦唔計入預測及凍結選馬。</p>
       </div>
     </AppShell>
   );

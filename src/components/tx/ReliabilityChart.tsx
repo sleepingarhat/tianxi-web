@@ -93,7 +93,7 @@ export function ReliabilityChart({ calib, max = 70 }: { calib?: Calibration | nu
       </div>
 
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[280px] text-[10px]">
+        <table className="w-full min-w-[280px] text-[11px]">
           <thead className="text-ink-3">
             <tr>
               <th className="py-1 text-left font-bold">機率區間</th>

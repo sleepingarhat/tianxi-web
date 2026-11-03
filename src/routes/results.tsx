@@ -61,8 +61,8 @@ function EvidenceNote({ error, date }: { error: unknown; date?: string | undefin
       <div className="rounded-[8px] border border-gold-strong/40 bg-gold-bg px-3 py-2.5">
         <p className="text-[11px] font-bold text-gold">{code === "no-archive" ? "呢個賽日未有原始凍結副本" : "呢個賽日嘅凍結副本未通過核實"}</p>
         <p className="mt-1 text-[10.5px] leading-relaxed text-ink-2">{message}</p>
-        <p className="mt-1 text-[10px] leading-relaxed text-ink-3">天喜只展示有不可變原始副本嘅賽日，缺副本嘅賽日唔會用初版或臨場重算補寫；請揀選冇劃線嘅賽日核對。</p>
-        {date && isLegacyEvidenceDate(date) ? <p className="mt-1 text-[10px] leading-relaxed text-ink-2">呢個係 2026-10-21 前嘅舊賽日：舊紀錄照列喺<Link to="/prediction-vs-result" className="text-gold underline">預測與賽果</Link>，標明「舊紀錄，未經原始副本核實」，唔計入已核實戰績。</p> : null}
+        <p className="mt-1 text-[11px] leading-relaxed text-ink-3">天喜只展示有不可變原始副本嘅賽日，缺副本嘅賽日唔會用初版或臨場重算補寫；請揀選冇劃線嘅賽日核對。</p>
+        {date && isLegacyEvidenceDate(date) ? <p className="mt-1 text-[11px] leading-relaxed text-ink-2">呢個係 2026-10-21 前嘅舊賽日：舊紀錄照列喺<Link to="/prediction-vs-result" className="text-gold underline">預測與賽果</Link>，標明「舊紀錄，未經原始副本核實」，唔計入已核實戰績。</p> : null}
       </div>
     );
   }
@@ -133,7 +133,7 @@ function ResultsPage() {
               type="button"
               title={hasArchive ? "有已核實嘅原始凍結副本" : "呢個賽日未有原始凍結副本，不能核對"}
               onClick={() => navigate({ search: { date: m.date } })}
-              className={`tabnum shrink-0 rounded-[4px] border px-2 py-1 font-mono-tx text-[10px] font-bold ${
+              className={`tabnum shrink-0 rounded-[4px] border px-2 py-1 font-mono-tx text-[11px] font-bold ${
                 on ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"
               } ${hasArchive ? "" : "opacity-50 line-through"}`}
             >
@@ -143,7 +143,7 @@ function ResultsPage() {
         })}
       </div>
       {archived && archived.size < meetings.length ? (
-        <p className="mx-4 mt-1.5 text-[10px] leading-relaxed text-ink-3">
+        <p className="mx-4 mt-1.5 text-[11px] leading-relaxed text-ink-3">
           劃線嘅賽日未有已核實嘅原始凍結副本，故唔會展示該日最終預測（唔會以初版或臨場重算補寫）。目前可核對嘅賽日：
           {[...archived].sort().reverse().slice(0, 6).join("、") || "暫無"}。
         </p>
@@ -178,7 +178,7 @@ function ResultsPage() {
               />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper p-2.5">
-              <p className="mb-1.5 text-[10px] font-bold text-ink-3">逐場四揀達標（≥3 匹）</p>
+              <p className="mb-1.5 text-[11px] font-bold text-ink-3">逐場四揀達標（≥3 匹）</p>
               <HitStrip hits={races.map((r: any) => (r.top4IntersectCount == null ? null : r.top4IntersectCount >= 3))} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
@@ -206,7 +206,7 @@ function ResultsPage() {
               <details key={r.raceNumber} open={Number(r.raceNumber) === 1} className="py-2.5">
                 <summary className="flex cursor-pointer list-none items-center gap-2">
                   <span className="tabnum w-7 font-mono-tx text-[13px] font-bold text-gold">R{r.raceNumber}</span>
-                  <span className="tabnum font-mono-tx text-[10px] text-ink-3">
+                  <span className="tabnum font-mono-tx text-[11px] text-ink-3">
                     {r.distance == null ? "途程待核" : `${r.distance}m`} · {r.going ?? "場地待核"}
                   </span>
                   <span className="ml-auto flex gap-1">
@@ -215,34 +215,34 @@ function ResultsPage() {
                     </Pill>
                     <Pill tone={r.top3AnyHit ? "win" : "ink"}>入頭三 {r.top3IntersectCount}</Pill>
                   </span>
-                  <span className="text-[10px] text-ink-3">▼</span>
+                  <span className="text-[11px] text-ink-3">▼</span>
                 </summary>
                 {r.changeClassification.hasWithdrawal && <p className="mt-2 text-xs text-ink-2">退出場次 · 原凍結保留{r.officialMetric.eligible ? "並計正式戰績" : "，不計命中或場次分母"}</p>}
                 {r.changeClassification.postLockJockeyChange && <p className="mt-2 text-xs text-ink-2">鎖後換騎 · 原四揀照計，不重算</p>}
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <div className="rounded-[8px] border border-hairline bg-paper p-2">
-                    <p className="mb-1 text-[10px] font-bold text-ink-3">引擎凍結四揀</p>
+                    <p className="mb-1 text-[11px] font-bold text-ink-3">引擎凍結四揀</p>
                     {(r.predictedTop4 || []).map((p: any) => (
                       <div key={p.horseNumber} className="flex items-center gap-1.5 py-0.5">
-                        <span className="tabnum w-4 font-mono-tx text-[10px] font-bold text-gold">#{p.rank}</span>
-                        <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[10px] font-bold text-deep-fg">
+                        <span className="tabnum w-4 font-mono-tx text-[11px] font-bold text-gold">#{p.rank}</span>
+                        <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[11px] font-bold text-deep-fg">
                           {p.horseNumber}
                         </span>
                         <FollowHorseButton horseId={p.horseId} horseName={p.nameCh}/>{p.horseId ? <Link to="/horse" search={{ id: p.horseId }} className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${p.hit ? "font-bold text-win" : "text-ink-2"}`}>{p.nameCh}</Link> : <span className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${p.hit ? "font-bold text-win" : "text-ink-2"}`}>{p.nameCh}</span>}
-                        <span className="shrink-0 font-mono-tx text-[10px]">{p.hit ? "✓" : "·"}</span>
+                        <span className="shrink-0 font-mono-tx text-[11px]">{p.hit ? "✓" : "·"}</span>
                       </div>
                     ))}
                   </div>
                   <div className="rounded-[8px] border border-hairline bg-paper p-2">
-                    <p className="mb-1 text-[10px] font-bold text-ink-3">官方頭四名</p>
+                    <p className="mb-1 text-[11px] font-bold text-ink-3">官方頭四名</p>
                     {(r.actualTop4 || []).map((a: any) => (
                       <div key={a.horseNumber} className="flex items-center gap-1.5 py-0.5">
-                        <span className="tabnum w-4 font-mono-tx text-[10px] font-bold text-ink-3">{a.position}</span>
-                        <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[10px] font-bold text-deep-fg">
+                        <span className="tabnum w-4 font-mono-tx text-[11px] font-bold text-ink-3">{a.position}</span>
+                        <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[11px] font-bold text-deep-fg">
                           {a.horseNumber}
                         </span>
                         <FollowHorseButton horseId={a.horseId} horseName={a.nameCh}/>{a.horseId ? <Link to="/horse" search={{ id: a.horseId }} className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${a.hit ? "font-bold text-win" : "text-ink-2"}`}>{a.nameCh}</Link> : <span className={`min-w-0 flex-1 truncate font-serif-tc text-[11px] ${a.hit ? "font-bold text-win" : "text-ink-2"}`}>{a.nameCh}</span>}
-                        <span className="tabnum shrink-0 font-mono-tx text-[10px] text-ink-3">{a.winOdds ?? "—"}</span>
+                        <span className="tabnum shrink-0 font-mono-tx text-[11px] text-ink-3">{a.winOdds ?? "—"}</span>
                       </div>
                     ))}
                   </div>
@@ -253,10 +253,10 @@ function ResultsPage() {
                 </div>
                 {(divByRace.get(Number(r.raceNumber)) ?? []).length ? (
                   <div className="mt-1.5 rounded-[8px] border border-hairline bg-paper px-2 py-1.5">
-                    <p className="mb-1 text-[10px] font-bold text-ink-3">官方派彩（每 ${divByRace.get(Number(r.raceNumber))?.[0]?.unit ?? 10} 注）</p>
+                    <p className="mb-1 text-[11px] font-bold text-ink-3">官方派彩（每 ${divByRace.get(Number(r.raceNumber))?.[0]?.unit ?? 10} 注）</p>
                     <div className="grid grid-cols-2 gap-x-3 sm:grid-cols-3">
                       {(divByRace.get(Number(r.raceNumber)) ?? []).map((d, i) => (
-                        <p key={i} className="tabnum flex items-baseline justify-between gap-1 font-mono-tx text-[10px] text-ink-2">
+                        <p key={i} className="tabnum flex items-baseline justify-between gap-1 font-mono-tx text-[11px] text-ink-2">
                           <span className="truncate">{POOL_ZH[d.pool] ?? d.pool} <span className="text-ink-3">{d.combo}</span></span>
                           <span className="shrink-0 font-bold text-ink">${Number(d.dividend).toLocaleString()}</span>
                         </p>

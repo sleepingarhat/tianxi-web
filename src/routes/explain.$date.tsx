@@ -48,7 +48,7 @@ function RaceBlock({ r }: { r: ExplainRace }) {
       en={`R${r.raceNumber}`}
       action={
         <span
-          className={`tabnum rounded-[4px] border px-1.5 py-[2px] font-mono-tx text-[10px] font-bold ${
+          className={`tabnum rounded-[4px] border px-1.5 py-[2px] font-mono-tx text-[11px] font-bold ${
             tone === "win"
               ? "border-win/40 bg-win/10 text-win"
               : tone === "lose"
@@ -60,14 +60,14 @@ function RaceBlock({ r }: { r: ExplainRace }) {
         </span>
       }
     >
-      <p className="tabnum font-mono-tx text-[10px] text-ink-3">
+      <p className="tabnum font-mono-tx text-[11px] text-ink-3">
         {r.distance ? `${r.distance}米` : "—"} · {r.band ?? "—"} · 地質 {r.going ?? "—"}
       </p>
       <TxBar ratio={(r.overlap4 ?? 0) / 4} tone={tone} height={5} className="mt-1.5" />
 
       <div className="mt-2.5 grid grid-cols-2 gap-2">
         <div className="min-w-0">
-          <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-ink-3">凍結四揀</p>
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">凍結四揀</p>
           {r.picks.map((p) => (
             <div
               key={p.rank}
@@ -76,20 +76,20 @@ function RaceBlock({ r }: { r: ExplainRace }) {
               }`}
             >
               <p className="flex items-baseline gap-1.5">
-                <span className="tabnum font-mono-tx text-[10px] font-bold text-ink-3">{p.rank}</span>
+                <span className="tabnum font-mono-tx text-[11px] font-bold text-ink-3">{p.rank}</span>
                 <span className="tabnum font-mono-tx text-[11px] font-bold text-ink">{p.horseNumber ?? "—"}</span>
                 <span className="min-w-0 truncate font-serif-tc text-[11px] text-ink">{p.nameCh ?? "—"}</span>
-                {p.hitTop4 ? <span className="ml-auto shrink-0 text-[9px] font-bold text-win">入頭4</span> : null}
+                {p.hitTop4 ? <span className="ml-auto shrink-0 text-[10px] font-bold text-win">入頭4</span> : null}
               </p>
               {p.reason ? (
-                <p className="mt-1 text-[9px] leading-relaxed text-ink-3">{p.reason}</p>
+                <p className="mt-1 text-[10px] leading-relaxed text-ink-3">{p.reason}</p>
               ) : null}
             </div>
           ))}
         </div>
 
         <div className="min-w-0">
-          <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.12em] text-ink-3">實際頭 4</p>
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">實際頭 4</p>
           {r.actualTop4.map((a) => (
             <div
               key={a.position}
@@ -98,11 +98,11 @@ function RaceBlock({ r }: { r: ExplainRace }) {
               }`}
             >
               <p className="flex items-baseline gap-1.5">
-                <span className="tabnum font-mono-tx text-[10px] font-bold text-ink-3">{a.position}</span>
+                <span className="tabnum font-mono-tx text-[11px] font-bold text-ink-3">{a.position}</span>
                 <span className="tabnum font-mono-tx text-[11px] font-bold text-ink">{a.horseNumber ?? "—"}</span>
                 <span className="min-w-0 truncate font-serif-tc text-[11px] text-ink">{a.nameCh ?? "—"}</span>
               </p>
-              <p className="tabnum mt-0.5 font-mono-tx text-[9px] text-ink-3">
+              <p className="tabnum mt-0.5 font-mono-tx text-[10px] text-ink-3">
                 獨贏 {a.winOdds ?? "—"}
                 {a.inPicks ? " · 四揀內" : " · 四揀外"}
               </p>
@@ -117,7 +117,7 @@ function RaceBlock({ r }: { r: ExplainRace }) {
         <Pill tone={r.qpl3 ? "win" : "ink"}>位置Q三 {r.qpl3 ? "包到" : "未包"}</Pill>
         <Pill tone="ink">位置命中 {r.place3_hits ?? "—"}／3</Pill>
       </div>
-      <p className="mt-1.5 font-mono-tx text-[9px] text-ink-3">來源 {r.src ?? "—"}</p>
+      <p className="mt-1.5 font-mono-tx text-[10px] text-ink-3">來源 {r.src ?? "—"}</p>
       <div className="mt-3 border-t border-hairline pt-2">
         {r.picks.map(p => p.horseId ? <LivePickEvidence key={p.rank} raceId={`race_${r.date}_${r.venue}_${r.raceNumber}`} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} /> : null)}
       </div>
@@ -156,7 +156,7 @@ function ExplainMeetingPage() {
                 key={d}
                 to="/explain/$date"
                 params={{ date: d }}
-                className="rounded-[6px] border border-hairline bg-paper px-2 py-1.5 font-mono-tx text-[10px] font-bold text-ink hover:border-gold-strong"
+                className="rounded-[6px] border border-hairline bg-paper px-2 py-1.5 font-mono-tx text-[11px] font-bold text-ink hover:border-gold-strong"
               >
                 {d}
               </Link>
@@ -197,7 +197,7 @@ function ExplainMeetingPage() {
               key={d}
               to="/explain/$date"
               params={{ date: d }}
-              className={`rounded-[6px] border px-2 py-1 font-mono-tx text-[10px] font-bold ${
+              className={`rounded-[6px] border px-2 py-1 font-mono-tx text-[11px] font-bold ${
                 d === m.date ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"
               }`}
             >
@@ -206,7 +206,7 @@ function ExplainMeetingPage() {
           ))}
           <Link
             to="/explain"
-            className="rounded-[6px] border border-hairline bg-paper px-2 py-1 font-mono-tx text-[10px] font-bold text-ink-2 hover:border-gold-strong"
+            className="rounded-[6px] border border-hairline bg-paper px-2 py-1 font-mono-tx text-[11px] font-bold text-ink-2 hover:border-gold-strong"
           >
             全局分層
           </Link>

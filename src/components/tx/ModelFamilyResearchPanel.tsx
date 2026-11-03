@@ -13,7 +13,7 @@ export function ModelFamilyResearchPanel({ report }: { report: ModelFamilyReport
         <h3 className="text-[13px] font-bold text-ink">{m.name}</h3>
         <p className="mt-2 font-mono-tx text-2xl font-bold text-ink">{m.averageHits.toFixed(3)}<span className="text-sm text-ink-3">／4</span></p>
         <p className="mt-2 text-[11px] text-ink-2">合共中{m.hits}匹／{m.races}場</p>
-        <p className="mt-1 text-[10px] text-ink-3">95%賽日區間 {m.ci95[0]?.toFixed(3)}–{m.ci95[1]?.toFixed(3)}</p>
+        <p className="mt-1 text-[11px] text-ink-3">95%賽日區間 {m.ci95[0]?.toFixed(3)}–{m.ci95[1]?.toFixed(3)}</p>
       </div>)}
     </div>
     {report.tuneDates && <p className="mt-4 text-[12px] leading-relaxed text-ink-2">調參：{report.tuneDates[0]} 至 {report.tuneDates.at(-1)}（{report.tuneDates.length}賽日）；上方只列最後{report.evalDates?.length}賽日嘅獨立評估結果。每日訓練只用較早賽日，最後30日不再調參；呢批日期曾做固定參數探索，唔係從未睇過嘅全新樣本。</p>}

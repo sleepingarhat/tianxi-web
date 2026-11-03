@@ -354,7 +354,7 @@ function TodayPage() {
                           {top.map((p) => (
                             <span
                               key={p.horseNumber}
-                              className="tabnum rounded-[4px] border border-hairline bg-paper px-1.5 py-0.5 font-mono-tx text-[10px] font-bold text-ink"
+                              className="tabnum rounded-[4px] border border-hairline bg-paper px-1.5 py-0.5 font-mono-tx text-[11px] font-bold text-ink"
                             >
                               #{p.horseNumber} {p.nameCh || ""}
                             </span>
@@ -402,7 +402,7 @@ function TodayPage() {
               ) : (
                 <p className="text-[12px] text-ink-3">{DAY_HITS_EMPTY}</p>
               )}
-              <p className="mt-1 text-[10px] leading-relaxed text-ink-3">正式凍結／戰績起計 2026-10-04 · 研究層統計</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-ink-3">正式凍結／戰績起計 2026-10-04 · 研究層統計</p>
             </Card>
 
             <Card title={STRATEGY_PNL_CARD_TITLE} en="Cumulative PnL" action={<Link to="/strategy-pnl" className="text-[11px] font-bold text-gold">詳情 →</Link>}>
@@ -424,7 +424,7 @@ function TodayPage() {
                       {totalNet >= 0 ? "+" : "−"}
                       {Math.abs(totalNet).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                     </p>
-                    <p className="mt-1 text-[10px] text-ink-3">
+                    <p className="mt-1 text-[11px] leading-relaxed text-ink-3">
                       近90日 · {accounting.points[0]?.date ? fmtMeetingDate(accounting.points[0].date) : "—"}起計 · {STRATEGY_PNL_NOTE}
                     </p>
                   </>
@@ -531,7 +531,7 @@ function NowCard({
     >
       <div className="mb-3 flex flex-wrap items-end gap-3">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.16em] text-ink-3">開跑倒數</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-ink-3">開跑倒數</p>
           <p className="tabnum font-mono-tx text-[28px] font-bold leading-none text-ink">{cd || "—"}</p>
           <p className="mt-1 text-[11px] text-ink-3">{start ? `${start} HKT` : "時間待定"}</p>
         </div>
@@ -547,7 +547,7 @@ function NowCard({
         <p className="-mt-1 mb-3 text-[12px] text-ink-2">
           <b className="font-serif-tc">{header.raceName || ""}</b>
           {header.prize ? <span className="ml-2 tabnum font-mono-tx text-[11px] text-ink-3">獎金 {prizeText(header.prize)}</span> : null}
-          <span className="ml-2 text-[10px] text-ink-3">來源：馬會排位表</span>
+          <span className="ml-2 text-[11px] text-ink-3">來源：馬會排位表</span>
         </p>
       ) : null}
 
@@ -561,7 +561,7 @@ function NowCard({
               >
                 <span className="tabnum font-mono-tx text-[11px] font-bold">#{p.horseNumber}</span>{" "}
                 <span className="font-serif-tc text-[12px] font-bold">{p.nameCh || "—"}</span>
-                <span className="ml-1 tabnum font-mono-tx text-[10px] text-ink-3">{pct(p.pWin)}</span>
+                <span className="ml-1 tabnum font-mono-tx text-[11px] text-ink-3">{pct(p.pWin)}</span>
               </span>
             ))}
             {fifth ? (
@@ -615,7 +615,7 @@ function OfficialFocusCard({ data }: { data: OfficialData }) {
       {focus.lead ? <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{focus.lead}</p> : null}
       <a href={focus.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-[12px] font-bold text-gold underline underline-offset-2">睇馬會原文 →</a>
       <Link to="/headlines" className="ml-3 inline-block text-[12px] font-bold text-gold underline underline-offset-2">所有賽日頭條</Link>
-      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：只顯示標題及導語，全文請睇馬會網頁。不計入預測。</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：只顯示標題及導語，全文請睇馬會網頁。不計入預測。</p>
     </Card>
   );
 }
@@ -640,7 +640,7 @@ function OfficialLastRunCard({ data, raceNumber }: { data: OfficialData; raceNum
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：上仗備忘照馬會頁面原文，賽前已公佈；不計入預測及凍結選馬。</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：上仗備忘照馬會頁面原文，賽前已公佈；不計入預測及凍結選馬。</p>
     </Card>
   );
 }
@@ -662,7 +662,7 @@ function OfficialChallengeCard({ data }: { data: OfficialData }) {
         {boards.map((b) => (
           <div key={b.kind} className="min-w-0">
             <p className="text-[11px] font-bold text-ink-3">{b.kind === "JKC" ? "騎師王" : "練馬師王"}{b.races ? ` · 第 ${b.races.split(",")[0]}–${b.races.split(",").at(-1)} 場` : ""}</p>
-            <div className="mt-1 grid grid-cols-[18px_minmax(0,1fr)_auto_auto] gap-x-2 text-[10px] text-ink-3">
+            <div className="mt-1 grid grid-cols-[18px_minmax(0,1fr)_auto_auto] gap-x-2 text-[11px] text-ink-3">
               <span>{settled(b) ? "名" : ""}</span><span>{b.kind === "JKC" ? "騎師" : "練馬師"}</span><span className="text-right">賠率</span><span className="w-9 text-right">積分</span>
             </div>
             <ol className="space-y-0.5">
@@ -678,7 +678,7 @@ function OfficialChallengeCard({ data }: { data: OfficialData }) {
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：騎師王／練馬師王賠率及積分照馬會頁面原文；「—」代表未有賠率或已無機會。只作參考，不計入預測。</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：騎師王／練馬師王賠率及積分照馬會頁面原文；「—」代表未有賠率或已無機會。只作參考，不計入預測。</p>
     </Card>
   );
 }
@@ -705,7 +705,7 @@ function OfficialRankingCard({ data }: { data: OfficialData }) {
         {list("騎師", data.ranking.jockey)}
         {list("練馬師", data.ranking.trainer)}
       </div>
-      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：騎練排名（{data.ranking.season ?? "本"}馬季，截至 {data.ranking.asOf ?? "—"}）；只作參考，不計入預測。</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：騎練排名（{data.ranking.season ?? "本"}馬季，截至 {data.ranking.asOf ?? "—"}）；只作參考，不計入預測。</p>
     </Card>
   );
 }
@@ -730,7 +730,7 @@ function OfficialDrawCard({ data, raceNumber }: { data: OfficialData; raceNumber
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-[10px] text-ink-3">馬會官方 · 只屬研究參考：檔位統計（三季同跑道同途程）；金色為樣本20次以上勝出率最高三檔。只作參考，不計入預測。</p>
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：檔位統計（三季同跑道同途程）；金色為樣本20次以上勝出率最高三檔。只作參考，不計入預測。</p>
     </Card>
   );
 }

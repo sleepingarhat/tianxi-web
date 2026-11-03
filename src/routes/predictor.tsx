@@ -225,7 +225,7 @@ function PredictorPage() {
       <div className="mx-4 mt-3">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono-tx text-[9px] font-bold uppercase tracking-[0.14em] ${
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono-tx text-[10px] font-bold uppercase tracking-[0.14em] ${
               tp.frozen
                 ? "border-gold-strong bg-gold-bg text-gold"
                 : "border-hairline bg-paper text-ink-3"
@@ -233,7 +233,7 @@ function PredictorPage() {
           >
             {tp.publicationPending ? "正在建立凍結副本…" : tp.isLoading ? "核對預測中…" : tp.edition === "unavailable" ? "最終預測暫未能核實" : tp.frozen ? "最終版 · 已鎖" : "初版 · 未鎖"}
           </span>
-          <span className="text-[10px] leading-snug text-ink-3">
+          <span className="text-[11px] leading-snug text-ink-3">
             {tp.publicationPending ? "首場前90分鐘停止更新四揀，預留30分鐘建立及核實副本；完成後自動顯示。" : tp.isLoading ? "" : tp.edition === "unavailable" ? "暫停展示預測，正在重新核對；請勿使用舊初版製作海報。" : tp.frozen
               ? "已鎖定四揀，同對賬、賽果頁用同一套，唔會再改。"
               : `未鎖定：刷新有機會改四揀；${
@@ -243,7 +243,7 @@ function PredictorPage() {
         </div>
 
         {tp.date ? <p className="mb-2 text-[13px] font-bold text-ink">賽事日期：{fmtMeetingDate(tp.date)}{venueName ? ` · ${venueName}` : ""}</p> : null}
-        <p className="mb-1.5 font-mono-tx text-[9px] font-bold uppercase tracking-[0.18em] text-ink-3">全日場次</p>
+        <p className="mb-1.5 font-mono-tx text-[10px] font-bold uppercase tracking-[0.18em] text-ink-3">全日場次</p>
         <div className="no-scrollbar flex gap-1 overflow-x-auto pb-1">
           {races.map((r: any) => {
             const on = Number(r.raceNumber) === Number(race?.raceNumber);
@@ -257,7 +257,7 @@ function PredictorPage() {
                 }`}
               >
                 <span className="block font-mono-tx text-[11px] font-bold">R{r.raceNumber}{(r.picks ?? []).some((p: any) => p.officialChange) ? <span className="ml-1 text-lose">退出</span> : null}</span>
-                {r.title ? <span className="mt-0.5 block max-w-[9rem] truncate text-[10px] font-semibold">{r.title}</span> : null}
+                {r.title ? <span className="mt-0.5 block max-w-[9rem] truncate text-[11px] font-semibold">{r.title}</span> : null}
                 <span className="mt-0.5 block font-mono-tx text-[8px] text-ink-3">{cleanTime(r.startTime) || "—"} · {r.distance || "—"}m</span>
               </button>
             );
@@ -268,7 +268,7 @@ function PredictorPage() {
       <div className="mx-4 mb-2.5 mt-2">
         <label
           htmlFor="tp-race-select"
-          className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3"
+          className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3"
         >
           揀場次
         </label>
@@ -356,22 +356,22 @@ function PredictorPage() {
         <section className="mx-4 mb-3 rounded-[10px] border border-hairline bg-paper-2 px-2.5 py-2.5">
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <h2 className="font-serif-tc text-[13px] font-bold text-ink">六項賽前證據</h2>
-            <Link to="/features" className="text-[10px] font-bold text-gold">完整排序 →</Link>
+            <Link to="/features" className="text-[11px] font-bold text-gold">完整排序 →</Link>
           </div>
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[7px] border border-hairline bg-hairline">
             {evidence.map(({ id, label, leader, stat }) => (
               <div key={id} className="min-w-0 bg-paper px-2 py-2">
-                <p className="text-[9px] font-bold text-ink-3">{label}</p>
+                <p className="text-[10px] font-bold text-ink-3">{label}</p>
                 {leader && stat ? (
                   <>
                     <p className="mt-1 truncate font-serif-tc text-[11px] font-bold text-ink">#{leader.no} {leader.name}</p>
-                    <p className="tabnum mt-0.5 truncate font-mono-tx text-[9px] text-gold">{stat.metric}</p>
+                    <p className="tabnum mt-0.5 truncate font-mono-tx text-[10px] text-gold">{stat.metric}</p>
                   </>
-                ) : <p className="mt-1 text-[10px] text-ink-3">資料未齊</p>}
+                ) : <p className="mt-1 text-[11px] text-ink-3">資料未齊</p>}
               </div>
             ))}
           </div>
-          <p className="mt-2 text-[9px] leading-relaxed text-ink-3">每格顯示該項目前列馬匹；完整名次、樣本與自選組合請開啟特徵排序表。</p>
+          <p className="mt-2 text-[10px] leading-relaxed text-ink-3">每格顯示該項目前列馬匹；完整名次、樣本與自選組合請開啟特徵排序表。</p>
         </section>
       ) : null}
 
@@ -387,19 +387,19 @@ function PredictorPage() {
           </div>
           <div className="tabnum grid grid-cols-4 gap-y-1 font-mono-tx text-[11px]">
             <span />
-            <span className="text-center text-[9px] text-ink-3">揀4</span>
-            <span className="text-center text-[9px] text-ink-3">揀5</span>
-            <span className="text-center text-[9px] text-ink-3">揀6</span>
-            <span className="text-[10px] text-ink-2">三重彩（頭三名複式）</span>
+            <span className="text-center text-[10px] text-ink-3">揀4</span>
+            <span className="text-center text-[10px] text-ink-3">揀5</span>
+            <span className="text-center text-[10px] text-ink-3">揀6</span>
+            <span className="text-[11px] text-ink-2">三重彩（頭三名複式）</span>
             <span className="text-center font-bold text-ink">{pct(cov.trio_n4)}</span>
             <span className="text-center text-ink-2">{pct(cov.trio_n5)}</span>
             <span className="text-center text-ink-2">{pct(cov.trio_n6)}</span>
-            <span className="text-[10px] text-ink-2">四重彩（頭四名複式）</span>
+            <span className="text-[11px] text-ink-2">四重彩（頭四名複式）</span>
             <span className="text-center font-bold text-ink">{pct(cov.first4_n4)}</span>
             <span className="text-center text-ink-2">{pct(cov.first4_n5)}</span>
             <span className="text-center text-ink-2">{pct(cov.first4_n6)}</span>
           </div>
-          <p className="mt-1.5 text-[9px] leading-relaxed text-ink-3">
+          <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">
             「揀N」＝取模型前 N 名落箱；數值為模型估算命中機率，只作同日相對比較揀場之用，非投注建議。
           </p>
         </div>

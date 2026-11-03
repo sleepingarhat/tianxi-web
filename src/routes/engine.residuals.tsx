@@ -119,7 +119,7 @@ function ResidualsPage() {
                       <p className="font-serif-tc text-[13px] font-bold text-ink">
                         {DIM_LABEL[f.dim] ?? f.dim} · {f.key}
                       </p>
-                      <p className="tabnum font-mono-tx text-[10px] text-ink-3">
+                      <p className="tabnum font-mono-tx text-[11px] text-ink-3">
                         {f.horses} 匹 · 三甲偏差 {num(f.biasTop3Pp)} pp · 獨贏偏差 {num(f.biasWinPp)} pp
                       </p>
                     </div>
@@ -130,7 +130,7 @@ function ResidualsPage() {
                 ))}
               </div>
             )}
-            <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
+            <p className="mt-2 text-[11px] leading-relaxed text-ink-3">
               低估＝該組實際上名率高過引擎機率，可以加重；高估＝引擎過度樂觀，應收窄。呢個係診斷結果，未自動改動引擎權重。
             </p>
           </Card>
@@ -165,7 +165,7 @@ function ResidualsPage() {
                 </Table>
               </Scroller>
             )}
-            <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
+            <p className="mt-2 text-[11px] leading-relaxed text-ink-3">
               偏差單位為百分點（pp）。「四揀中匹」＝該組每場預測首四名之中實際跑入前四嘅平均匹數；賠率區間分組因為逐匹切開，該欄只作參考。
             </p>
           </Card>

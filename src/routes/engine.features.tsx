@@ -126,7 +126,7 @@ function FeatureCatalogPage() {
             <section key={g}>
               <h3 className="mb-1.5 flex items-baseline gap-2 border-b border-hairline pb-1 font-serif-tc text-[13px] font-bold text-brown">
                 {GROUP_LABEL[g]}
-                <span className="tabnum font-mono-tx text-[9px] font-bold text-ink-3">{rows.length} 項</span>
+                <span className="tabnum font-mono-tx text-[10px] font-bold text-ink-3">{rows.length} 項</span>
               </h3>
               <div className="space-y-1.5">
                 {rows.map((f) => {
@@ -137,13 +137,13 @@ function FeatureCatalogPage() {
                         <div className="min-w-0 flex-1">
                           <p className="font-serif-tc text-[12.5px] font-bold leading-tight text-ink">
                             {f.zh}
-                            <span className="ml-1.5 font-mono-tx text-[9px] font-normal text-ink-3">{f.id}</span>
+                            <span className="ml-1.5 font-mono-tx text-[10px] font-normal text-ink-3">{f.id}</span>
                           </p>
                           <p className="mt-0.5 text-[10.5px] leading-relaxed text-ink-2">{f.note}</p>
                         </div>
                         <div className="shrink-0 text-right">
                           <Pill tone={STATUS_TONE[f.status]}>{STATUS_LABEL[f.status]}</Pill>
-                          <p className="mt-1 font-mono-tx text-[9px] leading-none text-ink-3">
+                          <p className="mt-1 font-mono-tx text-[10px] leading-none text-ink-3">
                             {SOURCE_LABEL[f.source]}
                           </p>
                         </div>
@@ -153,12 +153,12 @@ function FeatureCatalogPage() {
                           <div className="min-w-0 flex-1">
                             <TxBar ratio={w / 100} tone="gold" height={5} />
                           </div>
-                          <span className="tabnum shrink-0 font-mono-tx text-[9px] leading-none text-ink-3">
+                          <span className="tabnum shrink-0 font-mono-tx text-[10px] leading-none text-ink-3">
                             重要度 {f.gain ?? 0}
                           </span>
                         </div>
                       ) : f.reason ? (
-                        <p className="mt-1.5 border-t border-hairline pt-1.5 text-[10px] leading-relaxed text-ink-3">
+                        <p className="mt-1.5 border-t border-hairline pt-1.5 text-[11px] leading-relaxed text-ink-3">
                           原因：{f.reason}
                         </p>
                       ) : null}

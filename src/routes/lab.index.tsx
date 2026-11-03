@@ -52,7 +52,7 @@ function LabPage() {
               {ready ? (
                 <p className="mt-2 text-[11px] font-bold text-gold">進入 →</p>
               ) : (
-                <p className="mt-2 text-[10px] text-ink-3">尚未上線</p>
+                <p className="mt-2 text-[11px] text-ink-3">尚未上線</p>
               )}
             </Card>
           );

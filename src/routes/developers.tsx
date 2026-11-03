@@ -95,7 +95,7 @@ function DevelopersPage() {
               {ENDPOINTS.map((ep) => (
                 <tr key={ep.path} className="border-b border-hairline/60 align-top">
                   <td className="py-2 pr-2 font-mono-tx text-gold">{ep.method}</td>
-                  <td className="py-2 pr-2 font-mono-tx text-[10px] text-ink">
+                  <td className="py-2 pr-2 font-mono-tx text-[11px] text-ink">
                     {ep.path}
                     {ep.query ? <span className="text-ink-3">{ep.query}</span> : null}
                   </td>
@@ -108,7 +108,7 @@ function DevelopersPage() {
       </Card>
 
       <Card title="curl 範例" en="Example">
-        <pre className="overflow-x-auto rounded-md bg-ink px-3 py-2 font-mono-tx text-[10px] leading-relaxed text-paper">
+        <pre className="overflow-x-auto rounded-md bg-ink px-3 py-2 font-mono-tx text-[11px] leading-relaxed text-paper">
 {`curl -sS 'https://api.tianxi.racing/api/v1/picks/frozen?date=2026-10-25' \\
   -H 'Authorization: Bearer tx_live_YOUR_KEY'`}
         </pre>

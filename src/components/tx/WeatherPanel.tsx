@@ -50,8 +50,8 @@ export function WeatherPanel({ venue }: { venue?: string | undefined }) {
                 onClick={() => setPick(v.venue)}
                 className={
                   v.venue === cur?.venue
-                    ? "rounded-[4px] border border-gold-strong/40 bg-gold-bg px-2 py-[3px] text-[10px] font-bold text-gold"
-                    : "rounded-[4px] border border-hairline bg-paper px-2 py-[3px] text-[10px] font-bold text-ink-3"
+                    ? "rounded-[4px] border border-gold-strong/40 bg-gold-bg px-2 py-[3px] text-[11px] font-bold text-gold"
+                    : "rounded-[4px] border border-hairline bg-paper px-2 py-[3px] text-[11px] font-bold text-ink-3"
                 }
               >
                 {v.venueLabel}
@@ -96,7 +96,7 @@ export function WeatherPanel({ venue }: { venue?: string | undefined }) {
 
           {cur.sectional.length > 0 && (
             <div className="mt-3 border-t border-hairline pt-2">
-              <p className="mb-1.5 text-[10px] font-medium text-ink-3">跑道各段風速（km/h）</p>
+              <p className="mb-1.5 text-[11px] font-medium text-ink-3">跑道各段風速（km/h）</p>
               <div className="space-y-1.5">
                 {cur.sectional.map((s) => (
                   <MeterBar
@@ -110,7 +110,7 @@ export function WeatherPanel({ venue }: { venue?: string | undefined }) {
             </div>
           )}
 
-          <p className="mt-2 text-[9px] leading-relaxed text-ink-3">
+          <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
             資料源：香港賽馬會馬場天氣站（風速追蹤器），每分鐘更新，僅供參考。
           </p>
         </>

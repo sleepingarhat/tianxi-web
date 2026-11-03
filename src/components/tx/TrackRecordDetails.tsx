@@ -73,9 +73,9 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
               />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper p-2.5">
-              <p className="mb-1 text-[10px] font-bold text-ink-3">四揀平均中匹數走勢（虛線＝目標 3）</p>
+              <p className="mb-1 text-[11px] font-bold text-ink-3">四揀平均中匹數走勢（虛線＝目標 3）</p>
               <Spark values={trend} height={46} tone={Number(s?.top4AvgIntersect) >= 3 ? "win" : "gold"} />
-              <p className="mb-1.5 mt-2 text-[10px] font-bold text-ink-3">逐日達標</p>
+              <p className="mb-1.5 mt-2 text-[11px] font-bold text-ink-3">逐日達標</p>
               <HitStrip hits={hits} max={40} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
@@ -92,7 +92,7 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
         title="逐賽日對賬"
         en="By Meeting"
         action={
-          <Link to="/freeze-ledger" className="font-mono-tx text-[10px] font-bold text-gold">
+          <Link to="/freeze-ledger" className="font-mono-tx text-[11px] font-bold text-gold">
             凍結對帳表 →
           </Link>
         }
@@ -107,7 +107,7 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
                   <Link to="/results" search={{ date: m.date }} className="font-serif-tc text-[12px] font-bold">
                     {fmtMeetingDate(m.date)}
                   </Link>
-                  <span className="ml-1 font-mono-tx text-[9px] text-ink-3">{m.venue === "HV" ? "跑馬地" : "沙田"}</span>
+                  <span className="ml-1 font-mono-tx text-[10px] text-ink-3">{m.venue === "HV" ? "跑馬地" : "沙田"}</span>
                 </Td>
                 <Td>{m.racesEvaluated ?? m.races ?? "—"}</Td>
                 <Td className={(m.top4AvgIntersect ?? 0) >= 3 ? "font-bold text-win" : "font-bold"}>

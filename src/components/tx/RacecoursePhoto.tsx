@@ -31,7 +31,7 @@ export function RacecoursePhoto({ venue }: { venue: string }) {
   return (
     <figure className="mx-4 mt-3 overflow-hidden rounded-[8px] border border-hairline bg-paper-2">
       <img src={p.image_url} alt={title} className="aspect-[16/7] w-full lg:aspect-[16/4] object-cover" loading="eager" />
-      <figcaption className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-[9px] text-ink-3">
+      <figcaption className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-[10px] text-ink-3">
         <span>{title} · 每週更新</span>
         <PhotoCredit p={p} />
       </figcaption>
@@ -50,14 +50,14 @@ export function WeeklyRacecoursePosters() {
         {([["沙田馬場", st], ["跑馬地馬場", hv]] as const).map(([t, p]) => (
           <figure key={t} className="overflow-hidden rounded-[10px] border border-hairline bg-paper-2">
             <img src={p.image_url} alt={t} className="aspect-[16/9] w-full object-cover" loading="lazy" />
-            <figcaption className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-[10px] text-ink-3">
+            <figcaption className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 text-[11px] text-ink-3">
               <span className="font-bold text-ink">{t}</span>
               <PhotoCredit p={p} />
             </figcaption>
           </figure>
         ))}
       </div>
-      <p className="mt-2 text-[10px] text-ink-3">相片每星期自動由 Wikimedia Commons 更新，只用准許商用嘅自由授權相，詳見 <a href="/media-credits" className="underline">圖片來源</a>。</p>
+      <p className="mt-2 text-[11px] text-ink-3">相片每星期自動由 Wikimedia Commons 更新，只用准許商用嘅自由授權相，詳見 <a href="/media-credits" className="underline">圖片來源</a>。</p>
     </section>
   );
 }

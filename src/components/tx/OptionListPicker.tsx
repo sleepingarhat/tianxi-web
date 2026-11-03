@@ -95,7 +95,7 @@ export function OptionListPicker({
                     onClick={() => choose(opt.id)}
                   >
                     <span className="font-serif-tc">{opt.label}</span>
-                    {opt.hint ? <span className="text-[10px] text-ink-3">{opt.hint}</span> : null}
+                    {opt.hint ? <span className="text-[11px] text-ink-3">{opt.hint}</span> : null}
                   </button>
                 </li>
               );

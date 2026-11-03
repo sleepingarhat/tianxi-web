@@ -192,21 +192,21 @@ export function EnginePipeline({ defaultOpen }: { defaultOpen?: number }) {
               onClick={() => setOpen(isOpen ? null : i)}
               className="flex w-full items-center gap-2 px-2.5 py-2 text-left"
             >
-              <span className="tabnum shrink-0 rounded-[4px] bg-deep px-1.5 py-1 font-mono-tx text-[10px] font-bold leading-none text-deep-fg">
+              <span className="tabnum shrink-0 rounded-[4px] bg-deep px-1.5 py-1 font-mono-tx text-[11px] font-bold leading-none text-deep-fg">
                 {s.n}
               </span>
               <span className="min-w-0">
                 <span className="block font-serif-tc text-[13px] font-bold leading-tight text-ink">{s.title}</span>
-                <span className="block text-[10px] leading-tight text-ink-3">{s.one}</span>
+                <span className="block text-[11px] leading-tight text-ink-3">{s.one}</span>
               </span>
               <span
-                className={`ml-auto shrink-0 rounded-[4px] border px-1.5 py-[2px] text-[9px] font-bold leading-none ${
+                className={`ml-auto shrink-0 rounded-[4px] border px-1.5 py-[2px] text-[10px] font-bold leading-none ${
                   s.affects ? "border-gold-strong/40 bg-gold-bg text-gold" : "border-hairline bg-paper-3 text-ink-3"
                 }`}
               >
                 {s.affects ? "影響排名" : "不影響排名"}
               </span>
-              <span className="shrink-0 text-[10px] text-ink-3">{isOpen ? "▲" : "▼"}</span>
+              <span className="shrink-0 text-[11px] text-ink-3">{isOpen ? "▲" : "▼"}</span>
             </button>
             {isOpen ? (
               <div className="border-t border-hairline bg-paper-2 px-2.5 py-2">
@@ -217,17 +217,17 @@ export function EnginePipeline({ defaultOpen }: { defaultOpen?: number }) {
                 ))}
                 {s.math?.length ? (
                   <div className="mt-2 space-y-1.5 border-t border-hairline pt-2">
-                    <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-ink-3">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-3">
                       數學公式 · Formulas
                     </div>
                     {s.math.map((m, k) => (
                       <div key={k} className="rounded-[6px] border border-hairline bg-paper px-2 py-1.5">
-                        <div className="text-[10px] font-bold text-ink-2">{m.label}</div>
-                        <div className="tabnum mt-0.5 overflow-x-auto whitespace-pre font-mono-tx text-[10px] leading-relaxed text-ink">
+                        <div className="text-[11px] font-bold text-ink-2">{m.label}</div>
+                        <div className="tabnum mt-0.5 overflow-x-auto whitespace-pre font-mono-tx text-[11px] leading-relaxed text-ink">
                           {m.eq}
                         </div>
                         {m.note ? (
-                          <div className="mt-0.5 text-[9px] leading-relaxed text-ink-3">{m.note}</div>
+                          <div className="mt-0.5 text-[10px] leading-relaxed text-ink-3">{m.note}</div>
                         ) : null}
                       </div>
                     ))}

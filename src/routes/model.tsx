@@ -41,7 +41,7 @@ function P({ children }: { children: React.ReactNode }) {
 }
 
 function Src({ path }: { path: string }) {
-  return <a href={SRC + path} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block break-all font-mono-tx text-[10px] text-gold underline">源碼：{path}</a>;
+  return <a href={SRC + path} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block break-all font-mono-tx text-[11px] text-gold underline">源碼：{path}</a>;
 }
 
 function ModelPage() {
@@ -133,7 +133,7 @@ K_base：馬 ${ELO.k.horse}／騎師 ${ELO.k.jockey}／練馬師 ${ELO.k.trainer
     <Card title={`特徵清單（${FEATURES.length} 項）`} en="特徵衍生與編碼">
       <ol className="divide-y divide-hairline">
         {FEATURES.map((f, i) => <li key={f.name} className="grid gap-0.5 py-2 sm:grid-cols-[2rem_12rem_6rem_1fr_9rem] sm:gap-3">
-          <span className="font-mono-tx text-[10px] text-ink-3">{i + 1}</span>
+          <span className="font-mono-tx text-[11px] text-ink-3">{i + 1}</span>
           <span className="break-all font-mono-tx text-[11px] font-bold text-ink">{f.name}</span>
           <span className="text-[11px] text-gold">{f.group}</span>
           <span className="text-[12px] leading-relaxed text-ink-2">{f.derive}</span>

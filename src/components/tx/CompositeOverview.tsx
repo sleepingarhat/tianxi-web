@@ -48,7 +48,7 @@ export function CompositeOverview({
     <section className="border-b border-hairline bg-paper-2 px-3 py-4">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="font-serif-tc text-base text-brown">綜合特徵總覽</h2>
-        <span className="tabnum rounded-full bg-paper-3 px-2 py-0.5 font-mono-tx text-[10px] text-ink-3">
+        <span className="tabnum rounded-full bg-paper-3 px-2 py-0.5 font-mono-tx text-[11px] text-ink-3">
           {selected.length} 項特徵合成
         </span>
       </div>
@@ -63,18 +63,18 @@ export function CompositeOverview({
                 : "rounded-md border border-hairline bg-paper p-2 opacity-80"
             }
           >
-            <div className="mb-1 text-[10px] text-ink-3">{c.label}</div>
+            <div className="mb-1 text-[11px] text-ink-3">{c.label}</div>
             <div className="font-serif-tc text-sm text-ink">
               {c.row!.horse.no}. {c.row!.horse.name}
             </div>
-            <div className={`tabnum font-mono-tx text-[10px] font-bold ${c.tone}`}>{c.tag}</div>
+            <div className={`tabnum font-mono-tx text-[11px] font-bold ${c.tone}`}>{c.tag}</div>
           </div>
         ))}
       </div>
 
       <div className="overflow-x-auto no-scrollbar rounded-md border border-hairline bg-paper">
         <table className="w-full text-left">
-          <thead className="bg-paper-3 text-[10px] font-medium text-ink-3">
+          <thead className="bg-paper-3 text-[11px] font-medium text-ink-3">
             <tr>
               <th className="sticky left-0 z-10 bg-paper-3 py-2 pl-3 pr-2">馬匹</th>
               {selected.map((f) => (
@@ -102,7 +102,7 @@ export function CompositeOverview({
                       {row.horse.name}
                     </span>
                   </div>
-                  <div className="tabnum pl-6 font-mono-tx text-[9px] text-ink-3">
+                  <div className="tabnum pl-6 font-mono-tx text-[10px] text-ink-3">
                     {row.leads > 0 ? `${row.leads} 項第一 · ` : ""}平均名次 {row.avgRank.toFixed(1)}
                   </div>
                 </td>

@@ -80,7 +80,7 @@ export function AlphaGuard({
   return (
     <div className={`rounded-[10px] border px-2.5 py-2 ${t.box} ${className}`}>
       <div className="flex items-center justify-between gap-2">
-        <p className="flex items-center gap-1.5 text-[10px] font-bold leading-none text-ink-2">
+        <p className="flex items-center gap-1.5 text-[11px] font-bold leading-none text-ink-2">
           <span className={`tx-blink inline-block h-[7px] w-[7px] rounded-full ${t.dot}`} />
           集成比重 α 健康
           <span className="font-mono-tx text-[8px] uppercase tracking-[0.18em] text-ink-3">Alpha Guard</span>

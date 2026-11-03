@@ -163,7 +163,7 @@ export function CloseGapPanel() {
                 <span>0</span><span>{(axisMax / 2).toFixed(2)}</span><span>{axisMax.toFixed(2)}</span>
               </div>
             </div>
-            <p className="mt-1.5 text-[9px] leading-relaxed text-ink-3">
+            <p className="mt-1.5 text-[10px] leading-relaxed text-ink-3">
               區間用次序統計量 95% 近似由而家分位投影；到 {threshold} 場時帶會收窄，中位（p50）附近最穩。呢個係研究投影，唔係額外資料，唔會倒饋入模型。
             </p>
           </div>

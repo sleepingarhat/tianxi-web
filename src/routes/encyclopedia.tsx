@@ -93,7 +93,7 @@ function EncyclopediaPage() {
               {projectMemberRows(results, tier.tier).map((h: any) => (
                 <Link key={h.id} to="/horse" search={{ id: h.id }} className="flex items-center gap-2 py-2">
                   <span className="flex-1 truncate font-serif-tc text-[13px] font-bold">{h.nameCh || h.nameEn}</span>
-                  <span className="tabnum font-mono-tx text-[10px] text-ink-3">{h.code}</span>
+                  <span className="tabnum font-mono-tx text-[11px] text-ink-3">{h.code}</span>
                 </Link>
               ))}
             </div>

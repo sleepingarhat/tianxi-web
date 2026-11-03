@@ -31,31 +31,31 @@ export function EngineValueCompare() {
         <div className="space-y-2.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-[10px] border border-hairline bg-paper p-3">
             <div className="text-center">
-              <p className="text-[10px] font-bold text-ink-3">引擎命中馬平均獨贏</p>
+              <p className="text-[11px] font-bold text-ink-3">引擎命中馬平均獨贏</p>
               <p className="tabnum font-mono-tx text-[28px] font-bold leading-tight text-win">{num(s.engineOdds, 1)}</p>
-              <p className="text-[9px] text-ink-3">{s.engineSamples} 匹命中</p>
+              <p className="text-[10px] text-ink-3">{s.engineSamples} 匹命中</p>
             </div>
             <div className="text-center">
-              <span className="rounded-[4px] border border-gold-strong/60 bg-gold-bg px-1.5 py-0.5 text-[10px] font-bold text-gold">
+              <span className="rounded-[4px] border border-gold-strong/60 bg-gold-bg px-1.5 py-0.5 text-[11px] font-bold text-gold">
                 {s.oddsEdge != null && s.oddsEdge > 0 ? "更高 ▲" : "對照"}
               </span>
               <p className="tabnum mt-1 font-mono-tx text-[11px] font-bold text-gold">{s.oddsEdge != null ? `${s.oddsEdge >= 0 ? "+" : ""}${s.oddsEdge.toFixed(1)}` : "—"}</p>
             </div>
             <div className="text-center">
-              <p className="text-[10px] font-bold text-ink-3">市場頭四命中馬平均獨贏</p>
+              <p className="text-[11px] font-bold text-ink-3">市場頭四命中馬平均獨贏</p>
               <p className="tabnum font-mono-tx text-[28px] font-bold leading-tight text-ink-2">{num(s.marketOdds, 1)}</p>
-              <p className="text-[9px] text-ink-3">{s.marketSamples} 匹命中</p>
+              <p className="text-[10px] text-ink-3">{s.marketSamples} 匹命中</p>
             </div>
           </div>
           <div className="space-y-1.5 rounded-[10px] border border-hairline bg-paper p-2.5">
             {[["引擎四揀平均命中", s.engineHits, "bg-win"], ["市場頭四平均命中", s.marketHits, "bg-ink-3"]].map(([k, v, c]) => (
-              <div key={k as string} className="flex items-center gap-2 text-[10px]">
+              <div key={k as string} className="flex items-center gap-2 text-[11px]">
                 <span className="w-24 shrink-0 font-bold text-ink-2">{k as string}</span>
                 <span className="h-2 flex-1 overflow-hidden rounded-full bg-paper-2"><span className={`block h-full ${c}`} style={{ width: pct(v as number) }} /></span>
                 <span className="tabnum w-14 text-right font-mono-tx font-bold text-ink">{num(v as number, 2)} / 4</span>
               </div>
             ))}
-            <p className="text-[9px] text-ink-3">命中差距（市場 − 引擎）{s.hitGap != null ? s.hitGap.toFixed(2) : "—"} 匹 · {s.races} 場 / {q.data?.meetings} 日</p>
+            <p className="text-[10px] text-ink-3">命中差距（市場 − 引擎）{s.hitGap != null ? s.hitGap.toFixed(2) : "—"} 匹 · {s.races} 場 / {q.data?.meetings} 日</p>
           </div>
           {t.length > 1 ? (
             <EChart height={170} ariaLabel="滾動命中與命中馬平均賠率走勢" option={{
@@ -75,7 +75,7 @@ export function EngineValueCompare() {
           <p className="font-serif-tc text-[12px] font-bold text-ink">
             {s.oddsEdge != null && s.oddsEdge > 0 && (s.hitGap ?? 0) <= 0.5 ? "命中馬更冷，覆蓋接近，具值博參考價值。" : "引擎與市場數字如實並列，僅供參考。"}
           </p>
-          <p className="text-[9px] leading-relaxed text-ink-3">截至最近已入帳賽日 {q.data?.to ? fmtMeetingDate(q.data.to) : "—"}，每日對帳後自動更新。只計當前凍結版本 {current?.version} 嘅最終凍結四揀；賠率為收市獨贏；收市價缺漏或第四熱門同價嘅場次唔計。只讀資料，唔改模型或凍結。</p>
+          <p className="text-[10px] leading-relaxed text-ink-3">截至最近已入帳賽日 {q.data?.to ? fmtMeetingDate(q.data.to) : "—"}，每日對帳後自動更新。只計當前凍結版本 {current?.version} 嘅最終凍結四揀；賠率為收市獨贏；收市價缺漏或第四熱門同價嘅場次唔計。只讀資料，唔改模型或凍結。</p>
         </div>
       )}
     </Card>

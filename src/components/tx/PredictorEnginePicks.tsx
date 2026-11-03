@@ -73,8 +73,8 @@ export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveO
                             <span className="font-serif-tc text-[14px] font-bold">{p.nameCh}</span>
                           )}
                         </div>
-                        {p.officialChange ? <p className="mt-1 text-[10px] font-bold text-lose">已退出 · 馬會 {p.officialChange.announcedAt} 公布</p> : null}
-                        <p className="mt-0.5 text-[10px] text-ink-3">
+                        {p.officialChange ? <p className="mt-1 text-[11px] font-bold text-lose">已退出 · 馬會 {p.officialChange.announcedAt} 公布</p> : null}
+                        <p className="mt-0.5 text-[11px] text-ink-3">
                           {p.jockeyCh || "—"} / {p.trainerCh || "—"}
                         </p>
                       </Td>
@@ -90,7 +90,7 @@ export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveO
               </Table>
             </Scroller>
             {race.expectedBoxCoverage ? (
-              <p className="tabnum font-mono-tx text-[10px] leading-relaxed text-ink-3">
+              <p className="tabnum font-mono-tx text-[11px] leading-relaxed text-ink-3">
                 期望覆蓋率 · 三重彩 N4 {pct(race.expectedBoxCoverage.trio_n4)} / N5 {pct(race.expectedBoxCoverage.trio_n5)} /
                 N6 {pct(race.expectedBoxCoverage.trio_n6)} · 四重彩 N6 {pct(race.expectedBoxCoverage.first4_n6)}
               </p>

@@ -30,7 +30,7 @@ export function MeetingCancellationNotice({ cancellation }: { cancellation: Meet
           >
             {cancellation.label}
           </p>
-          <p className="tabnum mt-0.5 font-mono-tx text-[10px] text-ink-3">
+          <p className="tabnum mt-0.5 font-mono-tx text-[11px] text-ink-3">
             {fmtMeetingDate(cancellation.date)}
             {source ? ` · 來源：${source}` : ""}
           </p>
@@ -38,7 +38,7 @@ export function MeetingCancellationNotice({ cancellation }: { cancellation: Meet
         <Pill tone={suspected ? "gold" : "lose"}>{suspected ? "疑似停賽" : "停賽"}</Pill>
       </div>
       <p className="mt-2 text-[11px] leading-relaxed text-ink-2">{cancellation.reason}</p>
-      <p className="mt-1 text-[10px] leading-relaxed text-ink-3">
+      <p className="mt-1 text-[11px] leading-relaxed text-ink-3">
         引擎自動偵測：先讀人手覆核檔，再比對馬會公告，最後檢查排位表是否無場次。停賽或疑似停賽一律不生成、不鎖定預測，亦不計入戰績。
       </p>
     </section>

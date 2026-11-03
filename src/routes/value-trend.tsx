@@ -36,7 +36,7 @@ function Chart({ rows }: { rows: ValueDay[] }) {
         <path d={line("m")} className="fill-none stroke-ink-3" strokeWidth={1.5} />
         <path d={line("a")} className="fill-none stroke-deep" strokeWidth={2.5} />
       </svg>
-      <figcaption className="mt-1 flex flex-wrap gap-3 text-[10px] text-ink-3">
+      <figcaption className="mt-1 flex flex-wrap gap-3 text-[11px] text-ink-3">
         <span><b className="text-deep">━</b> 實際勝出（累計）</span><span><b className="text-ink-3">━</b> 市場隱含預期</span><span><b className="text-gold">┅</b> 凍結模型預期</span>
       </figcaption>
     </figure>
@@ -66,7 +66,7 @@ function ValueTrendPage() {
         <div className="lg:grid lg:grid-cols-2">
           <Card title="累計走勢" en="Cumulative">
             <Chart rows={rows} />
-            <p className="mt-2 text-[10px] leading-relaxed text-ink-3">實際線貼近市場線＝收市盤已反映晒；貼近模型線＝凍結機率較準。模型預期高過實際，代表凍結機率對呢批馬偏高。</p>
+            <p className="mt-2 text-[11px] leading-relaxed text-ink-3">實際線貼近市場線＝收市盤已反映晒；貼近模型線＝凍結機率較準。模型預期高過實際，代表凍結機率對呢批馬偏高。</p>
           </Card>
           <Card title="逐賽日值博Δ" en="Per Meeting">
             <Scroller>

@@ -88,7 +88,7 @@ function MonitorPage() {
               <div key={g.key} className="flex items-center gap-2 py-2.5">
                 <div className="flex-1">
                   <p className="font-serif-tc text-[13px] font-bold">{g.label}</p>
-                  <p className="tabnum font-mono-tx text-[10px] text-ink-3">{g.note}</p>
+                  <p className="tabnum font-mono-tx text-[11px] text-ink-3">{g.note}</p>
                 </div>
                 <Pill tone={TONE[g.status]}>{g.status}</Pill>
               </div>
@@ -123,7 +123,7 @@ function MonitorPage() {
                 sub="＞0 即勝過基準率"
               />
             </StatGrid>
-            <p className="mt-2 tabnum font-mono-tx text-[10px] text-ink-3">
+            <p className="mt-2 tabnum font-mono-tx text-[11px] text-ink-3">
               樣本 {base.races ?? "—"} 場 · {base.horses ?? "—"} 匹 · 基準勝率 {base.baseWinRate ?? "—"}%
               　三甲 Brier {base.brierTop3 ?? "—"} · Log-loss {base.logLossTop3 ?? "—"}
             </p>
@@ -153,7 +153,7 @@ function MonitorPage() {
           <>
             <div className="mb-2 flex items-center gap-2">
               <Pill tone="win">已套用</Pill>
-              <span className="tabnum font-mono-tx text-[10px] text-ink-3">
+              <span className="tabnum font-mono-tx text-[11px] text-ink-3">
                 第 {calCur.version} 版 · {String(calCur.fittedAt || "").substring(0, 10)} · 樣本 {calCur.samples ?? "—"} 匹
               </span>
             </div>
@@ -166,7 +166,7 @@ function MonitorPage() {
                 sub={hold?.before?.brier != null ? `校準前 ${hold.before.brier}` : undefined}
               />
             </StatGrid>
-            <p className="mt-2 tabnum font-mono-tx text-[10px] text-ink-3">
+            <p className="mt-2 tabnum font-mono-tx text-[11px] text-ink-3">
               驗證集 {hold?.after?.n ?? "—"} 匹 · Log-loss {hold?.before?.logLoss ?? "—"} → {hold?.after?.logLoss ?? "—"}
               　只調整顯示機率，嚴格單調，唔會改動任何排名或選馬次序。
             </p>

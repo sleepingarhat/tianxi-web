@@ -28,7 +28,7 @@ function MediaCredits() {
         {ITEMS.map((item) => <article key={item.source} className="py-3 first:pt-0 last:pb-0">
           <h2 className="font-serif-tc text-[14px] font-bold text-ink">{item.title}</h2>
           <p className="mt-1 text-[11px] leading-relaxed text-ink-2">作者：{item.author} · 授權：{item.license} · {item.note}</p>
-          <a href={item.source} target="_blank" rel="license noopener noreferrer" className="mt-1 inline-block break-all font-mono-tx text-[10px] text-gold underline">原始檔案及授權頁</a>
+          <a href={item.source} target="_blank" rel="license noopener noreferrer" className="mt-1 inline-block break-all font-mono-tx text-[11px] text-gold underline">原始檔案及授權頁</a>
         </article>)}
       </div>
     </Card>

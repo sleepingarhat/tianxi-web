@@ -44,9 +44,9 @@ export function FeatureRankingTable({
 
       {def && (
         <>
-          <p className="bg-paper-2 px-3 py-1.5 text-[10px] text-ink-3">{def.note}</p>
+          <p className="bg-paper-2 px-3 py-1.5 text-[11px] text-ink-3">{def.note}</p>
           <table className="w-full text-left">
-            <thead className="bg-paper-3 text-[10px] font-medium text-ink-3">
+            <thead className="bg-paper-3 text-[11px] font-medium text-ink-3">
               <tr>
                 <th className="w-11 py-2 pl-4">名次</th>
                 <th className="py-2 pr-3">馬匹</th>
@@ -72,7 +72,7 @@ export function FeatureRankingTable({
                     <div className="font-serif-tc text-ink">
                       {row.horse.no}. {row.horse.name}
                     </div>
-                    <div className="tabnum font-mono-tx text-[9px] text-ink-3">
+                    <div className="tabnum font-mono-tx text-[10px] text-ink-3">
                       {row.horse.age ? `${row.horse.age}Y • ` : ""}
                       {row.horse.trainer} / {row.horse.jockey}
                     </div>

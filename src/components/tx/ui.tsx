@@ -50,7 +50,7 @@ export function PageHead({ en, title, desc }: { en: string; title: string; desc?
   return (
     <section className="relative overflow-hidden border-b border-hairline bg-gradient-to-b from-paper-2 to-paper px-4 pb-4 pt-5">
       <span aria-hidden className="absolute left-4 top-0 h-[3px] w-10 rounded-b bg-gold" />
-      <p className="font-mono-tx text-[10px] font-bold uppercase tracking-[0.28em] text-ink-3">{en}</p>
+      <p className="font-mono-tx text-[11px] font-bold uppercase tracking-[0.28em] text-ink-3">{en}</p>
       <h1 className="fx-spotlight mt-1 font-serif-tc text-[26px] font-bold leading-tight tracking-wide text-ink">{title}</h1>
       {desc ? <p className="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-2">{desc}</p> : null}
     </section>
@@ -77,7 +77,7 @@ export function Card({
           <h2 className="min-w-0 font-serif-tc text-[15px] font-bold leading-relaxed text-ink">
             {title}
             {en ? (
-              <small className="mt-0.5 block font-mono-tx text-[10px] font-bold uppercase tracking-[0.14em] text-ink-3">
+              <small className="mt-0.5 block font-mono-tx text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">
                 {en}
               </small>
             ) : null}
@@ -118,7 +118,7 @@ export function Stat({ label, value, sub }: { label: string; value: ReactNode; s
     <div className="min-w-0 rounded-[10px] border border-hairline bg-paper px-2.5 py-2 transition hover:-translate-y-px hover:border-gold-strong/40">
       <p className="text-[11px] font-medium leading-tight text-ink-3">{label}</p>
       <p className="tabnum mt-1.5 font-mono-tx text-[18px] font-bold leading-none text-ink">{value}</p>
-      {sub ? <p className="tabnum mt-1 font-mono-tx text-[10px] leading-tight text-ink-3">{sub}</p> : null}
+      {sub ? <p className="tabnum mt-1 font-mono-tx text-[11px] leading-tight text-ink-3">{sub}</p> : null}
     </div>
   );
 }
@@ -233,7 +233,7 @@ export function Table({ head, children }: { head: ReactNode[]; children: ReactNo
           {head.map((h, i) => (
             <th
               key={i}
-              className={`whitespace-nowrap px-1.5 py-2 font-mono-tx text-[10px] font-bold uppercase tracking-wider text-ink-3 ${
+              className={`whitespace-nowrap px-1.5 py-2 font-mono-tx text-[11px] font-bold uppercase tracking-wider text-ink-3 ${
                 i === 0 ? "text-left" : "text-right"
               }`}
             >
@@ -303,7 +303,7 @@ export function Seg<T extends string | number>({
 
 export function Disclaimer({ extra }: { extra?: ReactNode }) {
   return (
-    <footer className="mt-4 border-t border-hairline px-4 py-5 text-[10px] leading-relaxed text-ink-3">
+    <footer className="mt-4 border-t border-hairline px-4 py-5 text-[11px] leading-relaxed text-ink-3">
       <strong className="text-ink-2">天喜為分析平台，不提供投注服務。</strong>
       <br />
       投注請透過合法渠道（HKJC）進行。

@@ -127,7 +127,7 @@ function KV({ rows }: { rows: [string, unknown][] }) {
             i < present.length - (present.length % 2 === 0 ? 2 : 1) ? "border-b" : ""
           }`}
         >
-          <p className="text-[9px] leading-none text-ink-3">{k}</p>
+          <p className="text-[10px] leading-none text-ink-3">{k}</p>
           <p className="mt-1 break-words text-[12.5px] font-medium text-ink">{String(v)}</p>
         </div>
       ))}
@@ -290,7 +290,7 @@ function HorsePage() {
             <div className="flex items-start gap-3">
               <Silks source={h} size={60} className="rounded-[8px]" />
               <div className="min-w-0 flex-1">
-                <p className="font-mono-tx text-[10px] font-bold uppercase tracking-[0.22em] text-gold">
+                <p className="font-mono-tx text-[11px] font-bold uppercase tracking-[0.22em] text-gold">
                   HORSE DOSSIER{has(h.code) ? ` · ${h.code}` : ""}
                 </p>
                 <h1 className="mt-1 flex flex-wrap items-center gap-2 font-serif-tc text-[27px] font-bold leading-tight text-ink">
@@ -307,7 +307,7 @@ function HorsePage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-mono-tx text-[9px] tracking-[0.18em] text-ink-3">天喜ELO</p>
+                <p className="font-mono-tx text-[10px] tracking-[0.18em] text-ink-3">天喜ELO</p>
                 <p className="tabnum font-mono-tx text-[24px] font-bold leading-none text-gold">
                   {tier.has("registered") ? num(latestElo.rating, 0) : "—"}
                 </p>
@@ -331,7 +331,7 @@ function HorsePage() {
 
           <nav aria-label="馬匹檔案分段" className="no-scrollbar sticky top-0 z-20 flex gap-1 overflow-x-auto border-b border-hairline bg-paper/95 px-4 py-2 backdrop-blur-sm">
             {[["overview", "概覽"], ["official", "馬會官方"], ["elo", "天喜ELO"], ["splits", "表現"], ["form", "近績"], ["pedigree", "血統"], ["training", "晨操試閘"], ["source", "資料來源"]].map(([to, label]) => (
-              <a key={to} href={`#${to}`} className="shrink-0 rounded-[4px] border border-hairline bg-paper px-2 py-1 text-[10px] font-bold text-ink-2">{label}</a>
+              <a key={to} href={`#${to}`} className="shrink-0 rounded-[4px] border border-hairline bg-paper px-2 py-1 text-[11px] font-bold text-ink-2">{label}</a>
             ))}
           </nav>
 
@@ -357,7 +357,7 @@ function HorsePage() {
                 ["最後出賽", has(h.lastRaceDate) ? fmtMeetingDate(h.lastRaceDate) : ""],
               ]}
             />
-            {isNewHorse ? <p className="mt-2 rounded-[6px] border border-gold-strong/40 bg-gold-bg px-2.5 py-2 text-[10px] leading-relaxed text-ink-2">血統資料已接入；新馬血統起步評分仍在歷史回測，未影響現行生產排名。</p> : null}
+            {isNewHorse ? <p className="mt-2 rounded-[6px] border border-gold-strong/40 bg-gold-bg px-2.5 py-2 text-[11px] leading-relaxed text-ink-2">血統資料已接入；新馬血統起步評分仍在歷史回測，未影響現行生產排名。</p> : null}
           </Card></div>
 
           <TierGate min="registered" feature="Elo 走勢及研究信號" mode="preview" preview={<div className="mx-4 border-y border-hairline py-3 text-[11px] text-ink-3"><p>天喜Elo 起點：{eloHistory[0] ? num(eloHistory[0].rating, 0) : "—"}</p>{signals.slice(0, 1).map((s: any) => <p key={s.key}>{s.label || s.key}：{s.value}</p>)}</div>}>
@@ -417,7 +417,7 @@ function HorsePage() {
               <div className="space-y-2">
                 <div className="no-scrollbar flex gap-1 overflow-x-auto pb-1">
                   {perfGroups.filter(([k]) => performanceRows(k).length).map(([k, label]) => (
-                    <button key={k} type="button" onClick={() => setPerfTab(k)} className={`shrink-0 rounded-[4px] border px-2 py-1 text-[10px] font-bold ${perfTab === k ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"}`}>{label}</button>
+                    <button key={k} type="button" onClick={() => setPerfTab(k)} className={`shrink-0 rounded-[4px] border px-2 py-1 text-[11px] font-bold ${perfTab === k ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"}`}>{label}</button>
                   ))}
                 </div>
                 {perfGroups.map(([k, label]) => {
@@ -448,7 +448,7 @@ function HorsePage() {
                   );
                 })}
               </div>
-              {has(perf.note) ? <p className="mt-2 text-[10px] leading-relaxed text-ink-3">{String(perf.note)}</p> : null}
+              {has(perf.note) ? <p className="mt-2 text-[11px] leading-relaxed text-ink-3">{String(perf.note)}</p> : null}
             </Card></div>
           ) : null}
 
@@ -519,7 +519,7 @@ function HorsePage() {
                         ))}
                       </div>
                       {tier.has("registered") && has(sectionalText(f.sectionals)) ? (
-                        <div className="border-t border-hairline px-3 py-2 font-mono-tx text-[10px] leading-relaxed text-ink-2">
+                        <div className="border-t border-hairline px-3 py-2 font-mono-tx text-[11px] leading-relaxed text-ink-2">
                           <p>
                             <b className="text-ink">分段</b> {sectionalText(f.sectionals)}
                           </p>

@@ -72,7 +72,7 @@ function BacktestPage() {
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-hairline">
               <div className="h-full bg-gold" style={{ width: `${Math.min(100, (top4.engine / Math.max(top4.market, 0.01)) * 100)}%` }} />
             </div>
-            <p className="mt-1 text-[10px] text-ink-3">市場熱門用賽後最終賠率，引擎鎖定時睇唔到；凍結四揀唔會因追目標而改寫。</p>
+            <p className="mt-1 text-[11px] text-ink-3">市場熱門用賽後最終賠率，引擎鎖定時睇唔到；凍結四揀唔會因追目標而改寫。</p>
           </Card>
 
           <Card title="逐彩池命中：引擎 vs 隨機 vs 市場" en="Hit Rate vs Baselines">
@@ -89,7 +89,7 @@ function BacktestPage() {
                 ))}
               </Table>
             </Scroller>
-            <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
+            <p className="mt-2 text-[11px] leading-relaxed text-ink-3">
               倍數＞1＝好過隨機。z 值用超幾何分佈近似：≥2 代表唔太可能係運氣，≥3 屬顯著。市場熱門用賽後最終賠率，引擎鎖定時睇唔到，所以只作參考上限。
             </p>
           </Card>
@@ -109,7 +109,7 @@ function BacktestPage() {
                 ))}
               </Table>
             </Scroller>
-            <p className="mt-2 text-[10px] text-ink-3">每場都買、唔揀場；派彩為馬會官方金額。負數照實展示。</p>
+            <p className="mt-2 text-[11px] text-ink-3">每場都買、唔揀場；派彩為馬會官方金額。負數照實展示。</p>
           </Card>
 
           <Card title="逐賽日四揀中匹數" en="Per Meeting">
@@ -157,7 +157,7 @@ function BacktestPage() {
                 </Table>
               </Scroller>
             </div>
-            <p className="mt-2 text-[10px] text-ink-3">模型只用賽前可知資料訓練（as-of 切點），回測期內預測全部為賽前凍結四揀。</p>
+            <p className="mt-2 text-[11px] text-ink-3">模型只用賽前可知資料訓練（as-of 切點），回測期內預測全部為賽前凍結四揀。</p>
           </>
         ) : null}
       </Card>

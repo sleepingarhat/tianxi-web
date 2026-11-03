@@ -198,7 +198,7 @@ function StrategyPnlPage() {
 
           <div className="grid grid-cols-2 gap-2.5 px-4 pb-1 pt-3.5">
             <div className="col-span-2 rounded-[14px] border border-gold-strong bg-gradient-to-b from-gold-bg to-paper-2 px-3 py-4 text-center">
-              <p className="font-mono-tx text-[10px] font-bold tracking-[0.13em] text-ink-3">{missing ? "已可核對累計盈虧" : "累計盈虧"} CUMULATIVE NET</p>
+              <p className="font-mono-tx text-[11px] font-bold tracking-[0.13em] text-ink-3">{missing ? "已可核對累計盈虧" : "累計盈虧"} CUMULATIVE NET</p>
               <p className={`mt-1.5 font-serif-tc text-[40px] font-black leading-none ${tone(d.totalNet)}`}>
                 {signed(d.totalNet)}
               </p>
@@ -213,7 +213,7 @@ function StrategyPnlPage() {
               { l: "投注場數 RACES", v: d.racesBet ?? "—", s: "模型有效四揀場次", t: null },
             ].map((k) => (
               <div key={k.l} className="rounded-[14px] border border-hairline bg-paper px-3 py-4 text-center">
-                <p className="font-mono-tx text-[10px] font-bold tracking-[0.13em] text-ink-3">{k.l}</p>
+                <p className="font-mono-tx text-[11px] font-bold tracking-[0.13em] text-ink-3">{k.l}</p>
                 <p
                   className={`mt-1.5 break-all font-serif-tc text-[26px] font-black leading-none ${
                     k.t == null ? "text-ink" : tone(k.t)
@@ -241,7 +241,7 @@ function StrategyPnlPage() {
                   <div key={p.key} className="rounded-[11px] border border-hairline bg-paper px-3 py-2.5">
                     <p className="font-serif-tc text-[13px] font-extrabold text-ink">
                       {p.nm}
-                      <small className="ml-1.5 font-mono-tx text-[9px] font-semibold tracking-[0.05em] text-ink-3">
+                      <small className="ml-1.5 font-mono-tx text-[10px] font-semibold tracking-[0.05em] text-ink-3">
                         {p.unit}／{p.key === "DT" || p.key === "TT" ? "口" : "場"}
                       </small>
                     </p>
@@ -267,7 +267,7 @@ function StrategyPnlPage() {
                     <tr key={p.date || i} className="border-b border-hairline">
                       <Td first>
                         <span className="font-serif-tc text-[12px] font-bold">{fmtMeetingDate(p.date)}</span>
-                        <small className="block font-mono-tx text-[9px] font-normal text-ink-3">
+                        <small className="block font-mono-tx text-[10px] font-normal text-ink-3">
                           {VENUE[p.venue] || p.venue || ""}
                         </small>
                       </Td>

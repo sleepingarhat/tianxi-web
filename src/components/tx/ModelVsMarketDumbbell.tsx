@@ -38,7 +38,7 @@ export function ModelVsMarketDumbbell({
     .filter((p) => p.pWin != null && p.raw != null);
 
   if (rows.length < 2) {
-    return <p className="py-3 text-[10px] text-ink-3">等臨場盤口，有齊賠率後自動顯示對照。</p>;
+    return <p className="py-3 text-[11px] text-ink-3">等臨場盤口，有齊賠率後自動顯示對照。</p>;
   }
 
   const sum = rows.reduce((a, r) => a + (r.raw as number), 0);
@@ -64,7 +64,7 @@ export function ModelVsMarketDumbbell({
 
   return (
     <div>
-      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono-tx text-[9px] text-ink-3">
+      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono-tx text-[10px] text-ink-3">
         <span className="inline-flex items-center gap-1">
           <span className="inline-block h-2 w-2 rounded-full bg-gold" /> 引擎勝算
         </span>
@@ -83,8 +83,8 @@ export function ModelVsMarketDumbbell({
             <div key={d.horseNumber} className="py-1.5">
               <div className="grid grid-cols-[76px_minmax(0,1fr)_62px] items-center gap-2">
                 <div className="min-w-0">
-                  <span className="tabnum font-mono-tx text-[10px] font-bold text-ink">#{d.horseNumber}</span>
-                  <span className="ml-1 truncate font-serif-tc text-[10px] font-bold text-ink-2">{d.nameCh || ""}</span>
+                  <span className="tabnum font-mono-tx text-[11px] font-bold text-ink">#{d.horseNumber}</span>
+                  <span className="ml-1 truncate font-serif-tc text-[11px] font-bold text-ink-2">{d.nameCh || ""}</span>
                 </div>
                 <div className="relative h-4">
                   <span
@@ -102,7 +102,7 @@ export function ModelVsMarketDumbbell({
                     title={`市場 ${pctFmt(d.market)}`}
                   />
                 </div>
-                <div className="tabnum text-right font-mono-tx text-[9px] leading-tight">
+                <div className="tabnum text-right font-mono-tx text-[10px] leading-tight">
                   <span className={`block font-bold ${over ? "text-gold" : "text-market"}`}>
                     {over ? "+" : ""}
                     {d.gapPp.toFixed(1)}pp
@@ -112,21 +112,21 @@ export function ModelVsMarketDumbbell({
               <div className="mt-1 grid grid-cols-4 gap-1 font-mono-tx text-[8px] leading-tight text-ink-3">
                 <span>
                   模型勝算
-                  <b className="tabnum mt-0.5 block text-[10px] font-bold text-gold">{pctFmt(d.model)}</b>
+                  <b className="tabnum mt-0.5 block text-[11px] font-bold text-gold">{pctFmt(d.model)}</b>
                 </span>
                 <span>
                   市場機率
-                  <b className="tabnum mt-0.5 block text-[10px] font-bold text-market">{pctFmt(d.market)}</b>
+                  <b className="tabnum mt-0.5 block text-[11px] font-bold text-market">{pctFmt(d.market)}</b>
                 </span>
                 <span>
                   入場機率
-                  <b className="tabnum mt-0.5 block text-[10px] font-bold text-win">
+                  <b className="tabnum mt-0.5 block text-[11px] font-bold text-win">
                     {d.entry != null ? pctFmt(d.entry) : "—"}
                   </b>
                 </span>
                 <span>
                   入場排名
-                  <b className="tabnum mt-0.5 block text-[10px] font-bold text-ink">
+                  <b className="tabnum mt-0.5 block text-[11px] font-bold text-ink">
                     {d.entryRank != null ? `#${d.entryRank}` : "—"}
                   </b>
                 </span>
@@ -135,10 +135,10 @@ export function ModelVsMarketDumbbell({
           );
         })}
       </div>
-      <p className="mt-2 text-[9px] leading-relaxed text-ink-3">
+      <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
         市場機率由即時獨贏賠率除水（歸一化）推算；入場機率＝模型估算該馬進入實際頭四名（入 Q）之機率，入場排名按該機率喺全場排序（同機率並列）。兩者只作對照，唔會改動引擎排名，亦非投注建議。
       </p>
-      {oddsNote ? <p className="mt-1 font-mono-tx text-[9px] text-ink-3">{oddsNote}</p> : null}
+      {oddsNote ? <p className="mt-1 font-mono-tx text-[10px] text-ink-3">{oddsNote}</p> : null}
     </div>
   );
 }

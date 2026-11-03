@@ -15,7 +15,7 @@ export function LivePickEvidence({ raceId, horseId, name, frozen }: { raceId?: s
   const number = (value: number | null | undefined) => value == null ? "未記錄" : value.toFixed(1);
   const factors = parseLockedFactors(q.data?.factorScores);
   return <details className="border-b border-hairline py-2">
-    <summary className="cursor-pointer text-[12px] font-bold text-ink">{name} <span className="float-right text-[10px] text-gold">解釋資料 ＋</span></summary>
+    <summary className="cursor-pointer text-[12px] font-bold text-ink">{name} <span className="float-right text-[11px] text-gold">解釋資料 ＋</span></summary>
     <div className="mt-2 space-y-2 text-[11px] leading-relaxed text-ink-2">
       <Pill>{q.isLoading ? "核對解釋資料中" : q.error ? "解釋資料讀取未成功" : q.data?.provenance === "public-frozen-picks" ? "公開凍結選馬 · 原欄位" : q.data ? "歷史紀錄 · 鎖點待核" : frozen === false ? "此賽日未鎖定" : "未有可公開紀錄"}</Pill>
       {q.isLoading ? <p>讀取解釋資料…</p> : q.error ? <div><p className="text-ink-3">逐匹解釋暫時未能讀取；四揀預測不受影響。</p><Button variant="outline" size="sm" className="mt-2" onClick={() => q.refetch()}>重讀解釋</Button></div> : q.data ? <>
@@ -27,8 +27,8 @@ export function LivePickEvidence({ raceId, horseId, name, frozen }: { raceId?: s
           <section className="min-w-0 border-t border-hairline pt-2"><h4 className="font-bold text-ink">血統 · 資料庫參考</h4><dl className="mt-2 grid grid-cols-2 gap-2">{[["父系", q.data.sire], ["母系", q.data.dam], ["外祖父", q.data.damsire], ["早熟程度", null]].map(([label, value]) => <div key={label ?? ""}><dt className="text-ink-3">{label}</dt><dd className="break-words font-semibold">{value || (label === "早熟程度" ? "未有核實評估" : "來源未收齊")}</dd></div>)}</dl><p className="mt-2 text-ink-3">未保存逐項凍結血統值；以上名稱只作身份參考，唔代表當日模型輸入。{q.data.pedigreeUpdatedAt ? `來源更新：${q.data.pedigreeUpdatedAt}。` : ""}唔以血統估作自身往績。</p></section>
         </div>
         <p>三軸設定：馬0.7／騎師0.2／練馬師0.1；只讀原紀錄，缺值唔以當前 Elo 或重算因子倒填。</p>
-        <p className="break-words text-[10px] text-ink-3">{q.data.modelVersion ?? "模型版本未記錄"} · 記錄時間 {q.data.generatedAt}（非首場T−90時間）</p>
-      </> : <div><Empty label={frozen === false ? "此賽日未鎖定，凍結解釋將於鎖點後公開" : "此匹未有可公開凍結解釋紀錄；不使用賽後重算值"} />{frozen === false ? <p className="px-1 text-center text-[10px] leading-relaxed text-ink-3">鎖定前只有初版預測，系統唔會用初版或賽後重算值補寫凍結解釋；到鎖點凍結完成後，此處即會讀到逐匹數值。</p> : null}</div>}
+        <p className="break-words text-[11px] text-ink-3">{q.data.modelVersion ?? "模型版本未記錄"} · 記錄時間 {q.data.generatedAt}（非首場T−90時間）</p>
+      </> : <div><Empty label={frozen === false ? "此賽日未鎖定，凍結解釋將於鎖點後公開" : "此匹未有可公開凍結解釋紀錄；不使用賽後重算值"} />{frozen === false ? <p className="px-1 text-center text-[11px] leading-relaxed text-ink-3">鎖定前只有初版預測，系統唔會用初版或賽後重算值補寫凍結解釋；到鎖點凍結完成後，此處即會讀到逐匹數值。</p> : null}</div>}
     </div>
   </details>;
 }

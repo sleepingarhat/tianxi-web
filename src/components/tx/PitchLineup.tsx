@@ -28,7 +28,7 @@ function Half({ side, tone, flip }: { side: LSide; tone: "home" | "away"; flip?:
               <span className={`grid h-7 w-7 place-items-center rounded-full border-2 border-paper font-mono-tx text-[11px] font-bold shadow-sm ${tone === "home" ? "bg-gold text-ink" : "bg-ink text-paper"}`}>
                 {p.jersey_number ?? ""}
               </span>
-              <span className="mt-0.5 w-full truncate text-center text-[9px] font-bold leading-tight text-paper [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]">
+              <span className="mt-0.5 w-full truncate text-center text-[10px] font-bold leading-tight text-paper [text-shadow:0_1px_2px_rgb(0_0_0/0.6)]">
                 {p.short_name ?? p.name}
               </span>
             </div>
@@ -62,7 +62,7 @@ export function SubsList({ side }: { side: LSide }) {
       {subs.map((p) => (
         <li key={p.id} className="grid grid-cols-[1.75rem_1.5rem_minmax(0,1fr)] items-center gap-2 py-1.5 text-[12px]">
           <span className="tabnum text-right font-mono-tx text-ink-3">{p.jersey_number ?? "–"}</span>
-          <span className="grid h-5 w-5 place-items-center rounded-[4px] bg-hairline text-[10px] font-bold text-ink-2">{POS_ZH[p.position ?? ""] ?? "?"}</span>
+          <span className="grid h-5 w-5 place-items-center rounded-[4px] bg-hairline text-[11px] font-bold text-ink-2">{POS_ZH[p.position ?? ""] ?? "?"}</span>
           <span className="truncate text-ink">{p.name}</span>
         </li>
       ))}

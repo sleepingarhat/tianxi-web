@@ -286,7 +286,7 @@ function ComparePage() {
     <AppShell page="" ticker={metaLine || "載入賽事…"}>
       <section className="px-5 pb-2 pt-[22px]">
         <h1 className="font-serif-tc text-[24px] font-black leading-[1.15] tracking-[-0.005em] text-ink">
-          <small className="mb-1.5 block font-mono-tx text-[10px] font-bold uppercase tracking-[0.22em] text-ink-3">
+          <small className="mb-1.5 block font-mono-tx text-[11px] font-bold uppercase tracking-[0.22em] text-ink-3">
             Prediction vs Result
           </small>
           <span className="fx-spotlight block">預測與賽果</span>
@@ -300,7 +300,7 @@ function ComparePage() {
       {!tier.loading && !tier.has("registered") ? <UpgradeCard need="registered" feature="預測對賽果明細（全部賽日）" /> : null}
       <section className="grid grid-cols-2 gap-2.5 border-b border-hairline px-5 pb-3.5 pt-2">
         <div>
-          <label htmlFor="cmp-date" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">
+          <label htmlFor="cmp-date" className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">
             賽事日期
           </label>
           <select
@@ -325,7 +325,7 @@ function ComparePage() {
           </select>
           {list.isError && meetings.length === 0 ? (
             <div className="mt-1.5 flex items-center gap-2">
-              <span className="text-[10px] text-lose">賽日清單暫時讀唔到</span>
+              <span className="text-[11px] text-lose">賽日清單暫時讀唔到</span>
               <Button
                 variant="outline"
                 size="sm"
@@ -338,7 +338,7 @@ function ComparePage() {
           ) : null}
         </div>
         <div>
-          <label htmlFor="cmp-race" className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">
+          <label htmlFor="cmp-race" className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">
             場次
           </label>
           <select
@@ -392,7 +392,7 @@ function ComparePage() {
               賽日總覽
               <small className="ml-2 font-mono-tx text-[8px] uppercase tracking-[0.2em] text-ink-3">Meeting Recap</small>
             </p>
-            <p className="tabnum font-mono-tx text-[10px] text-ink-3">{frozenSummary.racesEvaluated ?? 0} 場已評核</p>
+            <p className="tabnum font-mono-tx text-[11px] text-ink-3">{frozenSummary.racesEvaluated ?? 0} 場已評核</p>
           </div>
 
           <div className="mt-2 grid grid-cols-2 gap-2">
@@ -432,7 +432,7 @@ function ComparePage() {
                     on ? "ring-1 ring-gold-strong" : ""
                   }`}
                 >
-                  <span className="block font-mono-tx text-[9px] font-bold leading-none">R{fr.raceNumber}</span>
+                  <span className="block font-mono-tx text-[10px] font-bold leading-none">R{fr.raceNumber}</span>
                   <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-extrabold leading-none">{fr.redacted ? '需登入' : n == null ? '待核' : `${n}/4`}</span>
                 </button>
               );
@@ -450,10 +450,10 @@ function ComparePage() {
         <div className="mx-auto grid max-w-[560px] lg:max-w-[900px] grid-cols-2 grid-rows-[auto_1fr] overflow-hidden rounded-[8px] border border-hairline bg-paper shadow-sm">
           <div className="border-b border-r border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-extrabold text-ink">
             預測
-            <small className="mt-0.5 block font-mono-tx text-[10px] font-semibold text-ink-3">
+            <small className="mt-0.5 block font-mono-tx text-[11px] font-semibold text-ink-3">
               {picksSourceLabel}
               {frozenAlpha != null ? ` · α=${frozenAlpha.toFixed(2)}` : ""} · TOP 4
-              <span className="mt-0.5 block font-sans-tc text-[9px] font-bold tracking-normal text-ink-3">
+              <span className="mt-0.5 block font-sans-tc text-[10px] font-bold tracking-normal text-ink-3">
                 {frozenTop4.length ? (legacy ? "舊紀錄，未經原始副本核實" : "已核實原始凍結副本") : "原凍結核對中"}
               </span>
 
@@ -461,7 +461,7 @@ function ComparePage() {
           </div>
           <div className="border-b border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-extrabold text-ink">
             賽果
-            <small className="mt-0.5 block font-mono-tx text-[10px] font-semibold text-ink-3">
+            <small className="mt-0.5 block font-mono-tx text-[11px] font-semibold text-ink-3">
               Result · 1st – 4th
             </small>
           </div>
@@ -534,22 +534,22 @@ function ComparePage() {
             <section aria-label="入場排名對實際成績" className="mx-auto mt-4 max-w-[560px] lg:max-w-[900px] rounded-[8px] border border-hairline bg-paper px-3 py-3">
               <div className="flex items-baseline justify-between gap-2">
                 <h2 className="text-[14px] font-bold text-ink">入場排名 vs 實際成績</h2>
-                <span className="shrink-0 font-mono-tx text-[9px] text-ink-3">{picks.data?.frozen === true ? "賽前鎖定機率" : "即時重算機率，只作參考"}</span>
+                <span className="shrink-0 font-mono-tx text-[10px] text-ink-3">{picks.data?.frozen === true ? "賽前鎖定機率" : "即時重算機率，只作參考"}</span>
               </div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-center">
-                <div className="rounded-[6px] bg-paper-2 py-2"><p className="text-[10px] text-ink-3">入場排名頭 {cmp.topCount} 匹 · 預期入 Q</p><b className="tabnum font-mono-tx text-[15px] text-gold">{cmp.expectedTop.toFixed(2)}</b><span className="mx-1 text-ink-3">對</span><b className="tabnum font-mono-tx text-[15px] text-win">{cmp.actualTop}</b><p className="text-[9px] text-ink-3">實際入 Q</p></div>
-                <div className="rounded-[6px] bg-paper-2 py-2"><p className="text-[10px] text-ink-3">全場 {cmp.rows.length} 匹 · 預期入 Q</p><b className="tabnum font-mono-tx text-[15px] text-gold">{cmp.expectedAll.toFixed(2)}</b><span className="mx-1 text-ink-3">對</span><b className="tabnum font-mono-tx text-[15px] text-win">{cmp.actualAll}</b><p className="text-[9px] text-ink-3">實際入 Q</p></div>
+                <div className="rounded-[6px] bg-paper-2 py-2"><p className="text-[11px] text-ink-3">入場排名頭 {cmp.topCount} 匹 · 預期入 Q</p><b className="tabnum font-mono-tx text-[15px] text-gold">{cmp.expectedTop.toFixed(2)}</b><span className="mx-1 text-ink-3">對</span><b className="tabnum font-mono-tx text-[15px] text-win">{cmp.actualTop}</b><p className="text-[10px] text-ink-3">實際入 Q</p></div>
+                <div className="rounded-[6px] bg-paper-2 py-2"><p className="text-[11px] text-ink-3">全場 {cmp.rows.length} 匹 · 預期入 Q</p><b className="tabnum font-mono-tx text-[15px] text-gold">{cmp.expectedAll.toFixed(2)}</b><span className="mx-1 text-ink-3">對</span><b className="tabnum font-mono-tx text-[15px] text-win">{cmp.actualAll}</b><p className="text-[10px] text-ink-3">實際入 Q</p></div>
               </div>
               <div className="mt-2 divide-y divide-hairline">
-                <div className="grid grid-cols-4 py-1 font-mono-tx text-[9px] text-ink-3"><span>入場排名</span><span>馬號</span><span>入 Q 機率</span><span className="text-right">實際名次</span></div>
+                <div className="grid grid-cols-4 py-1 font-mono-tx text-[10px] text-ink-3"><span>入場排名</span><span>馬號</span><span>入 Q 機率</span><span className="text-right">實際名次</span></div>
                 {cmp.rows.map((r) => (
                   <div key={r.horseNumber} className={`tabnum grid grid-cols-4 py-1 font-mono-tx text-[11px] ${r.inQ ? "text-win" : "text-ink-2"}`}>
                     <span>#{r.entryRank}</span><span>{r.horseNumber}</span><span>{(r.pTop4 * 100).toFixed(1)}%</span><span className="text-right font-bold">{r.finish}{r.inQ ? " ✓" : ""}</span>
                   </div>
                 ))}
               </div>
-              <p className="mt-2 text-[9px] leading-relaxed text-ink-3">同機率並列，後面名次自動跳過。</p>
-              <p className="mt-1 text-[9px] leading-relaxed text-ink-3">單場樣本細，預期同實際有差屬正常；要睇長期係咪一致，需累積多場。只作對照，非投注建議。</p>
+              <p className="mt-2 text-[10px] leading-relaxed text-ink-3">同機率並列，後面名次自動跳過。</p>
+              <p className="mt-1 text-[10px] leading-relaxed text-ink-3">單場樣本細，預期同實際有差屬正常；要睇長期係咪一致，需累積多場。只作對照，非投注建議。</p>
             </section>
           );
         })()}

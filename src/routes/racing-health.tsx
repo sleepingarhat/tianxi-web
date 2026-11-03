@@ -65,7 +65,7 @@ function RacingHealthPage() {
                   <tr key={w.file} className="border-t border-hairline">
                     <Td first mono={false}>
                       <div>{w.label}</div>
-                      <div className="text-[10px] text-ink-3">{w.file}</div>
+                      <div className="text-[11px] text-ink-3">{w.file}</div>
                     </Td>
                     <Td mono={false}><Pill tone={TONE[w.state]}>{TXT[w.state]}</Pill></Td>
                     <Td>{hk(w.startedAt)}</Td>
@@ -107,7 +107,7 @@ function RacingHealthPage() {
               <p className="text-[11px] text-ink-3">目前冇未恢復告警。</p>
             )}
           </Card>
-          <p className="mx-4 mb-4 text-[10px] text-ink-3">
+          <p className="mx-4 mb-4 text-[11px] text-ink-3">
             檢查時間 {hk(d.checkedAt)} · 只讀狀態，唔會發 Telegram 訊息 · <Link to="/engine/backtest" className="text-gold underline">睇引擎回測</Link>
           </p>
         </>

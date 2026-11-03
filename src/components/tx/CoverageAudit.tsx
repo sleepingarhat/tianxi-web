@@ -32,14 +32,14 @@ export function CoverageAudit({ days = 180, showMeetings = false }: { days?: num
         <p className="my-3 text-[11px] leading-relaxed text-ink-2">同場配對：引擎 {fmt(summary.pairedModel)}／4、市場 {fmt(summary.market)}／4；{summary.missing} 場無法作市場對照：未有完整收市獨贏賠率，或第4及第5熱門同賠率。只排除市場比較，唔代表冇預測或投注輸咗。</p>
         <Seg value={group} onChange={setGroup} options={[{ value: "cross", label: "馬場×途程" }, { value: "venue", label: "馬場" }, { value: "dist", label: "途程" }]} />
         <Scroller><Table head={["分層", "配對場", "引擎／4", "市場／4", "未能對照"]}>
-          {groups.map(g => { const s = summarizeCoverage(g.rows); return <tr key={g.label} className="border-b border-hairline"><Td first><span className="text-[10px]">{g.label}</span></Td><Td>{s.paired}</Td><Td className="font-bold text-gold">{fmt(s.pairedModel)}</Td><Td>{fmt(s.market)}</Td><Td>{s.missing}</Td></tr>; })}
+          {groups.map(g => { const s = summarizeCoverage(g.rows); return <tr key={g.label} className="border-b border-hairline"><Td first><span className="text-[11px]">{g.label}</span></Td><Td>{s.paired}</Td><Td className="font-bold text-gold">{fmt(s.pairedModel)}</Td><Td>{fmt(s.market)}</Td><Td>{s.missing}</Td></tr>; })}
         </Table></Scroller>
-        <p className="mt-3 text-[10px] leading-relaxed text-ink-3">短途 ≤1200米；一哩 1201–1650米；中長 1651–2000米；長途 &gt;2000米。市場以全場已出賽馬匹收市獨贏由低至高揀4匹（等同隱含機率排序）；不以頭4名的賠率代替全場。不足10場只作記錄；2.31只係歷史參考，唔係本窗市場實數。</p>
-        <p className="mt-2 text-[10px] text-ink-3">讀取窗口 {q.data?.from} 至 {q.data?.to ?? "—"} · 上次完整對帳：{q.data?.checkedAt ? new Date(q.data.checkedAt).toLocaleString('zh-HK', { timeZone: 'Asia/Hong_Kong' }) : '—'} HKT</p>
-        {q.data?.excluded ? <p className="mt-2 text-[10px] text-ink-3">另有 {q.data.excluded} 場未標示凍結或缺完整四揀／賽果，未納本表；因此場數可與原滾動統計不同。</p> : null}
-        {q.data?.failed.length ? <p className="mt-2 text-[10px] text-lose">未讀到賽日：{q.data.failed.join("、")}；以上係部分資料，唔代表完整統計。</p> : null}
+        <p className="mt-3 text-[11px] leading-relaxed text-ink-3">短途 ≤1200米；一哩 1201–1650米；中長 1651–2000米；長途 &gt;2000米。市場以全場已出賽馬匹收市獨贏由低至高揀4匹（等同隱含機率排序）；不以頭4名的賠率代替全場。不足10場只作記錄；2.31只係歷史參考，唔係本窗市場實數。</p>
+        <p className="mt-2 text-[11px] text-ink-3">讀取窗口 {q.data?.from} 至 {q.data?.to ?? "—"} · 上次完整對帳：{q.data?.checkedAt ? new Date(q.data.checkedAt).toLocaleString('zh-HK', { timeZone: 'Asia/Hong_Kong' }) : '—'} HKT</p>
+        {q.data?.excluded ? <p className="mt-2 text-[11px] text-ink-3">另有 {q.data.excluded} 場未標示凍結或缺完整四揀／賽果，未納本表；因此場數可與原滾動統計不同。</p> : null}
+        {q.data?.failed.length ? <p className="mt-2 text-[11px] text-lose">未讀到賽日：{q.data.failed.join("、")}；以上係部分資料，唔代表完整統計。</p> : null}
       </> : <Empty label="未有完整凍結四揀及賽果" />}
     </Card>
-    {showMeetings && q.data ? <Card title="逐賽日凍結拆解" en="Frozen meetings"><div className="grid grid-cols-2 gap-2">{q.data.meetings.map(m => <Link key={m.date} to="/explain/$date" params={{ date: m.date }} className="border-b border-hairline py-2 text-[11px] text-ink"><b className="tabnum font-mono-tx">{m.date}</b><span className="mt-1 block text-[10px] text-ink-3">{m.venue === "HV" ? "跑馬地" : "沙田"} · {m.races.length} 場 →</span></Link>)}</div></Card> : null}
+    {showMeetings && q.data ? <Card title="逐賽日凍結拆解" en="Frozen meetings"><div className="grid grid-cols-2 gap-2">{q.data.meetings.map(m => <Link key={m.date} to="/explain/$date" params={{ date: m.date }} className="border-b border-hairline py-2 text-[11px] text-ink"><b className="tabnum font-mono-tx">{m.date}</b><span className="mt-1 block text-[11px] text-ink-3">{m.venue === "HV" ? "跑馬地" : "沙田"} · {m.races.length} 場 →</span></Link>)}</div></Card> : null}
   </>;
 }

@@ -71,7 +71,7 @@ function PasswordMeter({ pw }: { pw: string }) {
         ))}
       </div>
       <p className={`mt-1 text-[11px] font-bold ${text}`}>密碼強度：{label}{common ? "（屬常見密碼，容易被估中）" : ""}</p>
-      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px]">
+      <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
         {checks.map((c) => (
           <li key={c.label} className={c.ok ? "text-win" : "text-ink-3"}>{c.ok ? "✓" : "○"} {c.label}</li>
         ))}
@@ -267,7 +267,7 @@ function AuthPage() {
         >
           {mode === "signin" ? "未有帳戶？免費註冊" : "已有帳戶？登入"}
         </Button>
-        <p className="mt-3 text-[10px] text-ink-3">一般會員毋須管理員權限；內部監控台只限獲授權管理員，免費註冊不會取得管理員權限。</p>
+        <p className="mt-3 text-[11px] text-ink-3">一般會員毋須管理員權限；內部監控台只限獲授權管理員，免費註冊不會取得管理員權限。</p>
 
         {err && <p className="mt-3 text-[12px] text-lose">{err}</p>}
         {msg && <p className="mt-3 text-[12px] text-win">{msg}</p>}

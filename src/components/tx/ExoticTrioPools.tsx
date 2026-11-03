@@ -24,7 +24,7 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
   return (
     <Card title="孖T／三T 二拖三" en="Double Trio · Triple Trio">
       <p className="mb-3 text-[12px] font-bold text-gold">孖T／三T跨場組口盈虧由 19/10/2026 起計；之前賽日不計跨場組口。</p>
-      <p className="mb-2 text-[10px] leading-relaxed text-ink-3">
+      <p className="mb-2 text-[11px] leading-relaxed text-ink-3">
         <b className="text-ink-2">買法：孖T／三T 用引擎凍結預測排序頭 5 隻</b>——每場第 1、2 選做膽，拖第 3、4、5 選，共 3 組；每注 $10。孖T 每口 9 注（$90），兩場都中先算正獎；三T 每口 27 注（$270），三場都中先算正獎，頭兩場中、第三場唔中算安慰獎。
         跨邊幾場以馬會派彩紀錄為準。第 5 選只用已核實原凍結；缺第五選或鎖前無效輸入不入正式合計。孖T／三T 會用到第 5 選。
       </p>
@@ -41,13 +41,13 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
           <div className="mb-2 grid grid-cols-3 gap-2 text-center">
             {[["成本", money(cost), ""], ["派彩", money(ret), ""], ["淨盈虧", `${net >= 0 ? "+" : "−"}${money(Math.abs(net))}`, net >= 0 ? "text-win" : "text-lose"]].map(([l, v, c]) => (
               <div key={l} className="rounded-[6px] border border-hairline bg-paper px-2 py-1.5">
-                <p className="text-[9px] text-ink-3">{l}</p>
+                <p className="text-[10px] text-ink-3">{l}</p>
                 <p className={`tabnum font-mono-tx text-[13px] font-bold ${c || "text-ink"}`}>{v}</p>
               </div>
             ))}
           </div>
           {pools.some(p => p.missing) ? <p className="mb-2 text-[11px] text-gold">合計只含已核實組口；待核組口成本及派彩未納入。</p> : null}
-          {q.data && 'dividendSource' in q.data && q.data.dividendSource ? <p className="mb-2 break-all text-[10px] text-ink-3"><a href={q.data.dividendSource.url} className="text-gold underline" target="_blank" rel="noreferrer">馬會全日派彩存證</a> · SHA {q.data.dividendSource.sha256}</p> : null}
+          {q.data && 'dividendSource' in q.data && q.data.dividendSource ? <p className="mb-2 break-all text-[11px] text-ink-3"><a href={q.data.dividendSource.url} className="text-gold underline" target="_blank" rel="noreferrer">馬會全日派彩存證</a> · SHA {q.data.dividendSource.sha256}</p> : null}
           <ul>
             {pools.map((p) => (
               <li key={`${p.name}:${p.races.join("-")}`} className="border-b border-hairline py-2 last:border-b-0">
@@ -65,7 +65,7 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
                     <p className="text-ink-2">結算注項：{d.settledCombinations?.map(t => t.join("、")).join(" ／ ") ?? "待核"}</p>
                     <p className="text-ink-3">官方正獎組合：{d.winningCombination ?? "未有紀錄"}</p>
                   </div>)}
-                </div> : <p className="mt-1 flex flex-wrap gap-1 text-[10px]">
+                </div> : <p className="mt-1 flex flex-wrap gap-1 text-[11px]">
                   {p.detail.map((d) => (
                     <span key={d.race} className={`rounded-[4px] border px-1.5 ${d.hit ? "border-win/40 text-win" : d.hit === false ? "border-hairline text-ink-3" : "border-hairline text-ink-3"}`}>
                       R{d.race} {d.hit ? "✓" : d.hit === false ? "✗" : "—"}
@@ -74,8 +74,8 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
                 </p>}
                 {detailed ? <p className="mt-3 text-[11px] leading-relaxed text-ink-3">第 {p.races.at(-1)} 場結算 · 官方每 $10 正獎派彩 {p.mainDividend == null ? "—" : money(p.mainDividend)}{p.consolationDividend == null ? "" : ` · 安慰獎 ${money(p.consolationDividend)}`} · 派彩屬整口跨場投注，唔拆成單場收益。</p> : null}
                 {p.name.includes('三T') && p.mainDividend == null && !p.missing ? <p className="mt-1 text-[11px] leading-relaxed text-ink-3">官方未列正獎派彩；已按各場官方單T組合核實原注冇中正獎，唔代表正獎派彩係零元。</p> : null}
-                {p.races.map(race => { const source=q.data?.evidence[race]?.source; return source ? <p key={race} className="mt-1 break-all text-[10px] text-ink-3"><a className="text-gold underline" href={source.sourceUrl} target="_blank" rel="noreferrer">R{race} 官方熱門存檔</a> · SHA {source.sha256}</p> : null; })}
-                <p className="tabnum mt-1 font-mono-tx text-[10px] text-ink-2">
+                {p.races.map(race => { const source=q.data?.evidence[race]?.source; return source ? <p key={race} className="mt-1 break-all text-[11px] text-ink-3"><a className="text-gold underline" href={source.sourceUrl} target="_blank" rel="noreferrer">R{race} 官方熱門存檔</a> · SHA {source.sha256}</p> : null; })}
+                <p className="tabnum mt-1 font-mono-tx text-[11px] text-ink-2">
                   {p.missing ? '成本及派彩待核，不入合計' : `${p.units} 注 · 成本 ${money(p.cost)}`}
                   {p.payout ? ` · 正獎 ${money(p.payout)}` : ""}
                   {p.consPayout ? ` · 安慰獎 ${p.consUnits} 注 ${money(p.consPayout)}` : ""}

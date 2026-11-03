@@ -40,7 +40,7 @@ export function FreeStageRoadmap() {
       action={
         <div className="flex flex-col items-end gap-2">
           <Pill tone="win">{data?.gate_open ? "收費閘已開" : "全站免費中"}</Pill>
-          <Link to="/membership" className="font-mono-tx text-[10px] font-bold text-gold hover:underline">
+          <Link to="/membership" className="font-mono-tx text-[11px] font-bold text-gold hover:underline">
             睇方案 →
           </Link>
         </div>
@@ -58,7 +58,7 @@ export function FreeStageRoadmap() {
         {STEPS.map((s) => (
           <li key={s.id} className="relative pb-3 pl-5 last:pb-0">
             <span
-              className={`absolute -left-[9px] top-0.5 grid h-[18px] w-[18px] place-items-center rounded-full border-2 font-mono-tx text-[9px] font-bold ${
+              className={`absolute -left-[9px] top-0.5 grid h-[18px] w-[18px] place-items-center rounded-full border-2 font-mono-tx text-[10px] font-bold ${
                 s.state === "now" ? "border-gold bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-3"
               }`}
             >
@@ -75,7 +75,7 @@ export function FreeStageRoadmap() {
           </li>
         ))}
       </ol>
-      <p className="mt-2 border-t border-hairline pt-4 text-[10px] leading-relaxed text-ink-2">
+      <p className="mt-2 border-t border-hairline pt-4 text-[11px] leading-relaxed text-ink-2">
         <b className="text-ink">會員進度門檻： {GOAL_MEMBERS.toLocaleString()} 人。</b>
         滿額不自動開閘；付款驗收及批准後才開始收費，iOS App尚未推出。公開對帳永久免費。
       </p>

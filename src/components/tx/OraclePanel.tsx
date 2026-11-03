@@ -41,10 +41,10 @@ function FactorCell({ bonus, breakdown }: { bonus?: number | null; breakdown?: P
       </span>
       {lines.length ? (
         <details className="mt-0.5">
-          <summary className="cursor-pointer text-[10px] text-ink-3">明細</summary>
+          <summary className="cursor-pointer text-[11px] text-ink-3">明細</summary>
           <div className="mt-1 space-y-0.5">
             {lines.map((f) => (
-              <div key={f.k} className="whitespace-nowrap text-[10px] leading-tight">
+              <div key={f.k} className="whitespace-nowrap text-[11px] leading-tight">
                 <span className={f.bonus > 0 ? "text-win" : f.bonus < 0 ? "text-lose" : "text-ink-3"}>
                   {f.bonus >= 0 ? "+" : ""}
                   {Number(f.bonus).toFixed(1)}
@@ -66,7 +66,7 @@ function RaceCard({ race, defaultOpen }: { race: any; defaultOpen: boolean }) {
 
   const TH = ({ children, right, center }: { children: React.ReactNode; right?: boolean; center?: boolean }) => (
     <th
-      className={`whitespace-nowrap border-b border-hairline bg-paper-3 px-2 py-1.5 text-[10px] font-medium tracking-wide text-ink-2 ${
+      className={`whitespace-nowrap border-b border-hairline bg-paper-3 px-2 py-1.5 text-[11px] font-medium tracking-wide text-ink-2 ${
         right ? "text-right" : center ? "text-center" : "text-left"
       }`}
     >
@@ -177,7 +177,7 @@ function RaceCard({ race, defaultOpen }: { race: any; defaultOpen: boolean }) {
                       {p.marketRank != null ? (
                         <>
                           <span className="font-semibold text-ink">{p.marketRank}</span>
-                          {p.blendProb != null ? <span className="text-[10px] text-ink-3"> {pct(p.blendProb)}</span> : null}
+                          {p.blendProb != null ? <span className="text-[11px] text-ink-3"> {pct(p.blendProb)}</span> : null}
                         </>
                       ) : (
                         <span className="text-ink-3">—</span>
@@ -229,7 +229,7 @@ export function OraclePanel() {
       <div className="mb-3 rounded-[8px] border border-hairline bg-paper-2 p-3">
         <div className="text-[13px] font-semibold text-ink">
           即日 天喜預測模型 TX-Oracle v3
-          <span className="ml-2 text-[10px] font-normal tracking-wide text-ink-3">
+          <span className="ml-2 text-[11px] font-normal tracking-wide text-ink-3">
             LIGHTGBM ENSEMBLE + 天喜ELO COMPLEMENTARY STACKING
             {races[0]?.ensembleAlpha != null ? ` · α=${races[0].ensembleAlpha}（天喜LGB 主導）` : ""}
           </span>

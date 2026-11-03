@@ -25,7 +25,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             }`}
           >
             <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
-              天喜預測 <span className="font-mono-tx text-[9px] font-normal text-ink-3">TIANXI</span>
+              天喜預測 <span className="font-mono-tx text-[10px] font-normal text-ink-3">TIANXI</span>
               {locked ? (
                 <span className="ml-auto shrink-0 rounded-[3px] border border-win/45 bg-win/10 px-1 font-mono-tx text-[8px] font-bold text-win">
                   已鎖定
@@ -43,7 +43,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                       <span className={`tabnum text-center font-mono-tx text-[11px] font-bold ${i === 0 ? "text-gold" : "text-ink-3"}`}>
                         {i + 1}
                       </span>
-                      <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[10px] font-bold text-ink">
+                      <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[11px] font-bold text-ink">
                         {p.horseNumber}
                       </span>
                       <div className="min-w-0">
@@ -54,7 +54,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                         ) : (
                           <span className="block truncate font-serif-tc text-[12px] font-bold text-ink">{p.nameCh}</span>
                         )}
-                        <p className="tabnum mt-0.5 truncate font-mono-tx text-[9px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
+                        <p className="tabnum mt-0.5 truncate font-mono-tx text-[10px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
                         {p.officialChange ? (
                           <Link to="/race-changes" className="mt-1 block">
                             <Pill tone="lose">
@@ -68,13 +68,13 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
+                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
+                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="py-3 text-[10px] text-ink-3">此場整備中</p>
+                <p className="py-3 text-[11px] text-ink-3">此場整備中</p>
               )}
             </div>
           </div>
@@ -85,7 +85,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             }`}
           >
             <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
-              市場穩陣 <span className="font-mono-tx text-[9px] font-normal text-ink-3">MARKET</span>
+              市場穩陣 <span className="font-mono-tx text-[10px] font-normal text-ink-3">MARKET</span>
               {locked ? (
                 <span className="ml-auto shrink-0 rounded-[3px] border border-gold-strong/45 bg-gold-bg px-1 font-mono-tx text-[8px] font-bold text-gold">
                   已鎖定
@@ -98,7 +98,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                   <div key={p.horseNumber} className="min-h-[74px] py-2">
                     <div className="grid grid-cols-[16px_24px_minmax(0,1fr)] items-center gap-1.5">
                       <span className="tabnum text-center font-mono-tx text-[11px] font-bold text-ink-3">{i + 1}</span>
-                      <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[10px] font-bold text-ink">
+                      <span className="tabnum grid h-6 w-6 place-items-center rounded-[4px] border border-gold-strong/45 bg-paper-2 font-mono-tx text-[11px] font-bold text-ink">
                         {p.horseNumber}
                       </span>
                       <div className="min-w-0">
@@ -109,17 +109,17 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                         ) : (
                           <span className="block truncate font-serif-tc text-[12px] font-bold text-ink">{p.nameCh}</span>
                         )}
-                        <p className="tabnum mt-0.5 truncate font-mono-tx text-[9px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
+                        <p className="tabnum mt-0.5 truncate font-mono-tx text-[10px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[10px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
+                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
+                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="py-3 text-[10px] leading-relaxed text-ink-3">等臨場盤口，賽日近開賽前自動更新</p>
+                <p className="py-3 text-[11px] leading-relaxed text-ink-3">等臨場盤口，賽日近開賽前自動更新</p>
               )}
             </div>
           </div>

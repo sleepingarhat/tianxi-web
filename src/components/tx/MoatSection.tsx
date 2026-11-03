@@ -72,7 +72,7 @@ export function MoatSection() {
         <Link to="/engine" className="text-gold underline underline-offset-4">睇實時數據規模同引擎健康 →</Link>
         <Link to="/prediction-vs-result" className="text-gold underline underline-offset-4">逐場核對預測與賽果 →</Link>
       </div>
-      <p className="mt-3 text-[10px] text-ink-3">預測只供參考，唔保證中獎；過往成績唔代表將來表現。</p>
+      <p className="mt-3 text-[11px] text-ink-3">預測只供參考，唔保證中獎；過往成績唔代表將來表現。</p>
     </section>
   );
 }
@@ -101,7 +101,7 @@ function DataScaleStrip() {
           <div key={l} className="min-w-0">
             <p className="tabnum font-mono-tx text-[22px] font-bold leading-none text-gold md:text-[30px]">{v}</p>
             <p className="mt-1 text-[12px] font-bold text-ink">{l}</p>
-            <p className="text-[10px] text-ink-3">{sub}</p>
+            <p className="text-[11px] text-ink-3">{sub}</p>
           </div>
         ))}
       </div>
@@ -111,7 +111,7 @@ function DataScaleStrip() {
           .map(([l, n]) => `${l} ${fmtCount(n)}`)
           .join(" · ")}
       </p>
-      <p className="mt-2 text-[10px] leading-relaxed text-ink-3">
+      <p className="mt-2 text-[11px] leading-relaxed text-ink-3">
         以天喜生產數據庫實數點算，最新賽果 {d.range.last ?? "—"}；每日自動更新。
       </p>
     </div>

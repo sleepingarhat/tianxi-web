@@ -156,10 +156,10 @@ function CourseMapLarge({ w }: { w: VenueWeather }) {
             <ArrowDisc deg={arrowDeg(s.direction)} speed={s.speed} />
             <div className="rounded-[6px] bg-paper/90 px-1 py-[1px] leading-tight shadow-[0_0_0_1px_rgba(0,0,0,0.04)] backdrop-blur-[1px]">
               <div className="whitespace-nowrap text-[11px] font-bold text-ink">{dirLabel(s.direction)}</div>
-              <div className="tabnum whitespace-nowrap font-mono-tx text-[10px] text-ink-2">
+              <div className="tabnum whitespace-nowrap font-mono-tx text-[11px] text-ink-2">
                 {num(s.speed, "", 0)} 公里/小時
               </div>
-              <div className="tabnum flex items-center gap-1 whitespace-nowrap font-mono-tx text-[10px] text-ink-3">
+              <div className="tabnum flex items-center gap-1 whitespace-nowrap font-mono-tx text-[11px] text-ink-3">
                 <img src="/hkjc/windIcon.svg" alt="陣風" className="h-[9px] w-auto opacity-70" />
                 {num(s.gust, "", 0)} 公里/小時
               </div>
@@ -203,12 +203,12 @@ function MetricCard({ icon, label, value, unit, note }: { icon: string; label: s
   return (
     <div className="flex items-start justify-between gap-2 rounded-[10px] border border-hairline bg-paper px-2.5 py-2">
       <div>
-        <div className="font-mono-tx text-[10px] text-ink-3">{label}</div>
+        <div className="font-mono-tx text-[11px] text-ink-3">{label}</div>
         <div className="tabnum font-serif-tc text-[20px] font-bold leading-tight text-ink">
           {value}
-          {unit ? <span className="ml-0.5 font-mono-tx text-[10px] font-normal text-ink-3">{unit}</span> : null}
+          {unit ? <span className="ml-0.5 font-mono-tx text-[11px] font-normal text-ink-3">{unit}</span> : null}
         </div>
-        {note ? <div className="font-mono-tx text-[9px] text-ink-3">{note}</div> : null}
+        {note ? <div className="font-mono-tx text-[10px] text-ink-3">{note}</div> : null}
       </div>
       <img src={icon} alt="" className="mt-0.5 h-8 w-8 shrink-0 opacity-90" loading="lazy" />
     </div>
@@ -233,7 +233,7 @@ export function CourseMapButton({ venue, going }: { venue?: string | undefined; 
   const w = list.find((v) => v.venue === venue) ?? list.find((v) => v.venue !== "CH") ?? list[0];
   if (!w) {
     return (
-      <div className="flex h-[58px] w-[104px] items-center justify-center rounded-[8px] border border-hairline bg-paper-3 text-[10px] text-ink-3">
+      <div className="flex h-[58px] w-[104px] items-center justify-center rounded-[8px] border border-hairline bg-paper-3 text-[11px] text-ink-3">
         場地圖待更新
       </div>
     );
@@ -270,11 +270,11 @@ export function CourseMapButton({ venue, going }: { venue?: string | undefined; 
 
         <div className="mt-3 rounded-[10px] border border-hairline bg-paper px-2 py-2">
           <div className="mb-1 font-serif-tc text-[13px] font-bold text-ink">風向及風速儀</div>
-          <p className="mb-1 font-mono-tx text-[10px] leading-relaxed text-ink-3">
+          <p className="mb-1 font-mono-tx text-[11px] leading-relaxed text-ink-3">
             量度騎師於競賽時在跑道指定方位上所感受嘅即時風向及風速
           </p>
           <CourseMapLarge w={w} />
-          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-mono-tx text-[10px] text-ink-3">
+          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-mono-tx text-[11px] text-ink-3">
             {LEGEND.map((l) => (
               <span key={l.t}>
                 <span className="mr-1 inline-block h-2 w-2 rounded-full align-middle" style={{ background: l.c }} />
@@ -305,7 +305,7 @@ export function CourseMapButton({ venue, going }: { venue?: string | undefined; 
 
         <div className="mt-3 overflow-hidden rounded-[10px] border border-hairline">
           <table className="w-full text-[11px]">
-            <thead className="bg-paper-3 font-mono-tx text-[10px] text-ink-3">
+            <thead className="bg-paper-3 font-mono-tx text-[11px] text-ink-3">
               <tr>
                 <th className="px-2 py-1 text-left">跑道位置</th>
                 <th className="px-2 py-1 text-left">風向</th>
@@ -326,7 +326,7 @@ export function CourseMapButton({ venue, going }: { venue?: string | undefined; 
           </table>
         </div>
 
-        <p className="mt-2 font-mono-tx text-[10px] leading-relaxed text-ink-3">
+        <p className="mt-2 font-mono-tx text-[11px] leading-relaxed text-ink-3">
           資料來自馬會風向及風速儀（每分鐘更新），氣壓 {num(w.pressure, " hPa", 1)}、日照{" "}
           {num(w.sunshineHour, " 小時")}，僅供參考。
         </p>

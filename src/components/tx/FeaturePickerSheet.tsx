@@ -72,7 +72,7 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
                 <SlidersHorizontal className="h-4 w-4 text-brown" />
                 <span className="font-serif-tc text-sm text-ink">選擇特徵</span>
               </span>
-              <span className="tabnum rounded-full bg-gold-bg px-2 py-0.5 font-mono-tx text-[10px] font-bold text-gold">
+              <span className="tabnum rounded-full bg-gold-bg px-2 py-0.5 font-mono-tx text-[11px] font-bold text-gold">
                 已選 {selected.length}/{rankableCount}
               </span>
             </button>
@@ -122,7 +122,7 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
           <button
             type="button"
             onClick={() => setOnlyRankable((v) => !v)}
-            className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] ${
+            className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] ${
               onlyRankable
                 ? "border-gold-strong bg-gold-bg font-bold text-gold"
                 : "border-hairline bg-paper text-ink-3"
@@ -174,28 +174,28 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
                           <span className="font-serif-tc text-[13px] text-ink">{zh}</span>
                           {cat && (
                             <span
-                              className={`rounded-full border px-1.5 py-[1px] text-[9px] ${STATUS_TONE[cat.status]}`}
+                              className={`rounded-full border px-1.5 py-[1px] text-[10px] ${STATUS_TONE[cat.status]}`}
                             >
                               {STATUS_LABEL[cat.status as keyof typeof STATUS_LABEL]}
                             </span>
                           )}
                           {cat && (
-                            <span className="rounded-full border border-hairline bg-paper-3 px-1.5 py-[1px] text-[9px] text-ink-3">
+                            <span className="rounded-full border border-hairline bg-paper-3 px-1.5 py-[1px] text-[10px] text-ink-3">
                               {SOURCE_LABEL[cat.source]}
                             </span>
                           )}
                           {rankId && (
                             <span
                               title="可即場排序，唔等於引擎未採用"
-                              className="rounded-full border border-gold-strong/40 bg-gold-bg px-1.5 py-[1px] text-[9px] font-bold text-gold"
+                              className="rounded-full border border-gold-strong/40 bg-gold-bg px-1.5 py-[1px] text-[10px] font-bold text-gold"
                             >
                               可排序
                             </span>
                           )}
                         </span>
-                        <span className="mt-0.5 block text-[10px] leading-relaxed text-ink-3">{note}</span>
+                        <span className="mt-0.5 block text-[11px] leading-relaxed text-ink-3">{note}</span>
                         {cat?.reason && (
-                          <span className="mt-0.5 block text-[10px] leading-relaxed text-lose/80">
+                          <span className="mt-0.5 block text-[11px] leading-relaxed text-lose/80">
                             {cat.reason}
                           </span>
                         )}
@@ -204,7 +204,7 @@ export function FeaturePickerSheet({ selected, onToggle, onSelectAll, onClear }:
                             <span className="tx-bar-track h-1 flex-1">
                               <span className="tx-bar-fill h-1" style={{ width: `${gainPct}%` }} />
                             </span>
-                            <span className="tabnum font-mono-tx text-[9px] text-ink-3">
+                            <span className="tabnum font-mono-tx text-[10px] text-ink-3">
                               重要度 {cat.gain}
                             </span>
                           </span>

@@ -99,7 +99,7 @@ function RacePage() {
                 <Link key={r.id} to="/race" search={{ id: r.id }} className="flex items-center gap-2 py-2">
                   <span className="tabnum w-7 font-mono-tx text-[13px] font-bold text-gold">R{r.raceNumber}</span>
                   <span className="flex-1 truncate font-serif-tc text-[13px]">{r.title || `第 ${r.raceNumber} 場`}</span>
-                  <span className="tabnum font-mono-tx text-[10px] text-ink-3">{r.distanceM || r.distance}m</span>
+                  <span className="tabnum font-mono-tx text-[11px] text-ink-3">{r.distanceM || r.distance}m</span>
                 </Link>
               ))}
               {!(next.data?.races || []).length ? <Empty /> : null}
@@ -182,7 +182,7 @@ function RacePage() {
                       ) : (
                         <span className="block truncate font-serif-tc text-[16px] font-bold leading-tight text-ink">{horseName}</span>
                       )}
-                      <p className="mt-1 truncate text-[10px] text-ink-3">
+                      <p className="mt-1 truncate text-[11px] text-ink-3">
                         {h.jockeyCh || h.jockey || "—"} ／ {h.trainerCh || h.trainer || "—"}
                       </p>
                     </div>

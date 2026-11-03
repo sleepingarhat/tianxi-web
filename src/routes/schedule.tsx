@@ -91,7 +91,7 @@ function SchedulePage() {
                     <span className="tabnum font-mono-tx text-[12px] font-bold text-gold">{m.date.slice(5)}</span>
                     <span className="flex-1 font-serif-tc text-[13px] font-bold">{m.venueName}</span>
                     <Pill>{m.trackCondition || "—"}</Pill>
-                    <span className="tabnum font-mono-tx text-[10px] text-ink-3">{m.totalRaces} 場</span>
+                    <span className="tabnum font-mono-tx text-[11px] text-ink-3">{m.totalRaces} 場</span>
                   </button>
                   {open ? (
                     <div className="pb-3 pl-4">
@@ -110,7 +110,7 @@ function SchedulePage() {
                                 R{r.raceNumber}
                               </span>
                               <span className="flex-1 truncate text-[12px]">{r.title || `第 ${r.raceNumber} 場`}</span>
-                              <span className="tabnum font-mono-tx text-[10px] text-ink-3">
+                              <span className="tabnum font-mono-tx text-[11px] text-ink-3">
                                 {r.distance || r.distanceM}m
                               </span>
                             </Link>

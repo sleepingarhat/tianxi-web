@@ -518,7 +518,7 @@ function H2hPage() {
                             ? "—"
                             : `${row.a.starts} 出 · ${row.a.wins} 勝 · ${row.a.top3} 三甲 · 均名 ${row.a.avgPlace ?? "—"}`}
                           {row.a.lowSample && row.a.starts > 0 ? (
-                            <span className="ml-1 text-[10px] text-ink-3">（樣本少）</span>
+                            <span className="ml-1 text-[11px] text-ink-3">（樣本少）</span>
                           ) : null}
                         </td>
                         <td className="py-1.5 text-ink-2">
@@ -526,7 +526,7 @@ function H2hPage() {
                             ? "—"
                             : `${row.b.starts} 出 · ${row.b.wins} 勝 · ${row.b.top3} 三甲 · 均名 ${row.b.avgPlace ?? "—"}`}
                           {row.b.lowSample && row.b.starts > 0 ? (
-                            <span className="ml-1 text-[10px] text-ink-3">（樣本少）</span>
+                            <span className="ml-1 text-[11px] text-ink-3">（樣本少）</span>
                           ) : null}
                         </td>
                       </tr>
@@ -550,12 +550,12 @@ function H2hPage() {
                     <p className="mb-1 font-serif-tc text-[13px] font-bold">
                       {name}
                       {style.lowSample ? (
-                        <span className="ml-2 text-[10px] font-sans-tc font-normal text-ink-3">
+                        <span className="ml-2 text-[11px] font-sans-tc font-normal text-ink-3">
                           樣本較少
                         </span>
                       ) : null}
                     </p>
-                    <p className="mb-1 text-[10px] text-ink-3">樣本 {style.sample} 場</p>
+                    <p className="mb-1 text-[11px] text-ink-3">樣本 {style.sample} 場</p>
                     <ul className="space-y-0.5 text-[12px]">
                       {(style.buckets ?? []).map((b) => (
                         <li key={b.code} className="flex justify-between gap-2">

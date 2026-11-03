@@ -16,14 +16,14 @@ function Phone({ title, children, tag }: { title: string; children: ReactNode; t
         <p className="px-3 pb-1.5 pt-2 font-serif-tc text-[12px] font-bold text-ink">{title}</p>
         <div className="space-y-1.5 px-3 pb-3">{children}</div>
       </div>
-      {tag ? <span className="absolute -right-2 -top-2 rounded-full bg-gold px-2 py-0.5 text-[9px] font-bold text-ink shadow">{tag}</span> : null}
+      {tag ? <span className="absolute -right-2 -top-2 rounded-full bg-gold px-2 py-0.5 text-[10px] font-bold text-ink shadow">{tag}</span> : null}
     </div>
   );
 }
 
 const Row = ({ n, name, v, hl }: { n: string; name: string; v: string; hl?: boolean }) => (
-  <div className={`flex items-center gap-2 rounded-[6px] border px-2 py-1.5 text-[10px] ${hl ? "border-gold-strong/60 bg-gold-bg" : "border-hairline bg-paper-2"}`}>
-    <span className="tabnum grid h-5 w-5 place-items-center rounded-[4px] bg-deep font-mono-tx text-[9px] font-bold text-gold-strong">{n}</span>
+  <div className={`flex items-center gap-2 rounded-[6px] border px-2 py-1.5 text-[11px] ${hl ? "border-gold-strong/60 bg-gold-bg" : "border-hairline bg-paper-2"}`}>
+    <span className="tabnum grid h-5 w-5 place-items-center rounded-[4px] bg-deep font-mono-tx text-[10px] font-bold text-gold-strong">{n}</span>
     <span className="flex-1 truncate text-ink">{name}</span>
     <span className="tabnum font-mono-tx text-ink-2">{v}</span>
   </div>
@@ -31,7 +31,7 @@ const Row = ({ n, name, v, hl }: { n: string; name: string; v: string; hl?: bool
 
 const Note = ({ i, children }: { i: number; children: ReactNode }) => (
   <li className="flex gap-2 text-[12px] leading-relaxed text-ink-2">
-    <span className="tabnum mt-[2px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-gold font-mono-tx text-[10px] font-bold text-ink">{i}</span>
+    <span className="tabnum mt-[2px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-gold font-mono-tx text-[11px] font-bold text-ink">{i}</span>
     <span>{children}</span>
   </li>
 );
@@ -65,14 +65,14 @@ const SECTIONS: Section[] = [
     no: "04", tag: "賽前凍結", title: <>首場前 90 分鐘<br />全日一次鎖定</>,
     desc: "全日四揀同第五選喺首場開跑前 90 分鐘凍結寫入只增不改嘅紀錄。賽後只會補官方名次同派彩重算對帳，凍結預測一個字都唔改。",
     notes: ["停賽、改期由引擎自動偵測", "賽果延遲會自動補跑，只追補對帳", "凍結時間同版本可逐場追溯"],
-    phone: <Phone title="鎖定狀態 · 示意" tag="T−90"><div className="rounded-[6px] border border-gold-strong/60 bg-gold-bg p-2 text-center"><p className="text-[9px] text-ink-3">全日四揀</p><p className="font-serif-tc text-[14px] font-bold text-gold">已凍結 🔒</p></div><Row n="✓" name="四揀 + 第五選" v="已寫入" /><Row n="✓" name="版本指紋" v="tx-oracle-v3" /><Row n="…" name="官方賽果" v="完場後" /></Phone>,
+    phone: <Phone title="鎖定狀態 · 示意" tag="T−90"><div className="rounded-[6px] border border-gold-strong/60 bg-gold-bg p-2 text-center"><p className="text-[10px] text-ink-3">全日四揀</p><p className="font-serif-tc text-[14px] font-bold text-gold">已凍結 🔒</p></div><Row n="✓" name="四揀 + 第五選" v="已寫入" /><Row n="✓" name="版本指紋" v="tx-oracle-v3" /><Row n="…" name="官方賽果" v="完場後" /></Phone>,
     link: { to: "/schedule", label: "睇賽程" },
   },
   {
     no: "05", tag: "對帳盈虧", title: <>六個彩池逐場計，<br />蝕都照列</>,
     desc: "每場以 $10／注假設：四連環、單T、三重彩、四重彩用四揀複式；孖T、三T 用頭兩匹做膽拖第 3–5 選。成本、派彩、淨盈虧逐日累計，派彩以馬會官方紀錄為準。",
     notes: ["可揀賽馬日睇每場每個彩池中唔中", "孖T／三T 正獎、安慰獎分開列", "負數照實展示，唔會收埋"],
-    phone: <Phone title="策略盈虧 · 示意"><div className="grid grid-cols-2 gap-1.5">{[["四連環", "✓"], ["單T", "✗"], ["三重彩", "✓"], ["四重彩", "✗"], ["孖T", "✓"], ["三T", "✗"]].map(([a, b]) => <div key={a} className={`rounded-[6px] border px-2 py-1.5 text-[10px] ${b === "✓" ? "border-win/40 text-win" : "border-hairline text-ink-3"}`}>{a} {b}</div>)}</div></Phone>,
+    phone: <Phone title="策略盈虧 · 示意"><div className="grid grid-cols-2 gap-1.5">{[["四連環", "✓"], ["單T", "✗"], ["三重彩", "✓"], ["四重彩", "✗"], ["孖T", "✓"], ["三T", "✗"]].map(([a, b]) => <div key={a} className={`rounded-[6px] border px-2 py-1.5 text-[11px] ${b === "✓" ? "border-win/40 text-win" : "border-hairline text-ink-3"}`}>{a} {b}</div>)}</div></Phone>,
     link: { to: "/strategy-pnl", label: "睇策略盈虧" },
   },
   {
@@ -129,7 +129,7 @@ export function EngineLanding() {
         </section>
       ))}
       <section className="border-t border-hairline px-5 py-8 md:px-10">
-        <p className="font-mono-tx text-[9px] font-bold uppercase tracking-[0.18em] text-ink-3">QUICK ACCESS · 快速入口</p>
+        <p className="font-mono-tx text-[11px] font-bold uppercase tracking-[0.18em] text-ink-3">QUICK ACCESS · 快速入口</p>
         <h2 className="mt-1 font-serif-tc text-[18px] font-bold text-ink">天喜賽馬功能一覽</h2>
         <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
           {[
@@ -145,11 +145,11 @@ export function EngineLanding() {
             <Link key={l.to} to={l.to} className="rounded-[8px] border border-hairline bg-paper-2 px-3 py-2.5 text-center text-[12px] font-bold text-ink hover:border-gold-strong hover:bg-gold-bg">{l.label}</Link>
           ))}
         </div>
-        <p className="mb-1.5 mt-4 font-mono-tx text-[9px] font-bold uppercase tracking-[0.16em] text-ink-3">公開 GitHub 來源</p>
+        <p className="mb-1.5 mt-4 font-mono-tx text-[11px] font-bold uppercase tracking-[0.16em] text-ink-3">公開 GitHub 來源</p>
         <a href="https://github.com/sleepingarhat/tianxi-racing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[6px] border border-hairline bg-paper px-3 py-1.5 text-[11px] font-bold text-ink hover:border-gold-strong">天喜賽馬數據庫及引擎 ↗</a>
       </section>
 
-      <p className="px-5 pb-6 text-center text-[10px] text-ink-3">以上手機畫面為功能示意，唔係真實預測；真實四揀、賽果同盈虧請睇各功能頁。</p>
+      <p className="px-5 pb-6 text-center text-[11px] text-ink-3">以上手機畫面為功能示意，唔係真實預測；真實四揀、賽果同盈虧請睇各功能頁。</p>
     </div>
   );
 }
