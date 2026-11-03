@@ -68,7 +68,7 @@ export function OpsPanel() {
         <select
           value={wf}
           onChange={(e) => setWf(e.target.value)}
-          className="w-full rounded-[8px] border border-hairline bg-paper-2 px-3 py-2 text-[12px] text-ink"
+          className="tx-field w-full"
         >
           {WORKFLOWS.map((w) => (
             <option key={w} value={w}>{w}</option>

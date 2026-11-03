@@ -62,7 +62,7 @@ export function NotificationPreferences({openRaceday=false}:{openRaceday?:boolea
         </label>
       ))}
       <label className="flex items-center gap-2">晨操
-        <select className="bg-paper text-ink" value={q.data?.trackwork_mode ?? 'gallop'} onChange={e=>void change({trackwork_mode:e.target.value==='all'?'all':'gallop'})}>
+        <select className="tx-field-sm" value={q.data?.trackwork_mode ?? 'gallop'} onChange={e=>void change({trackwork_mode:e.target.value==='all'?'all':'gallop'})}>
           <option value="gallop">快操／試閘／出賽</option>
           <option value="all">全部晨操</option>
         </select>

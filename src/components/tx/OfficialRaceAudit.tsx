@@ -28,7 +28,7 @@ export function OfficialRaceAudit({ accounting = false, meetings = [] }: { accou
   const summary = day ? summarizeOfficialMetrics(day.races.filter(r=>!r.redacted).map(r=>r.metricInput)) : null;
   return <Card title={accounting ? '原注逐場核對' : '原四揀正式命中 · 逐場核對'} en="Original Frozen Selections">
     <label className="flex flex-wrap items-center gap-2 text-[12px] text-ink">賽日
-      <select aria-label="原四揀核對賽事" value={date} disabled={!options.length} onChange={e=>setDate(e.target.value)} className="min-w-0 max-w-full rounded-[6px] border border-hairline bg-paper px-2 py-1 text-ink">
+      <select aria-label="原四揀核對賽事" value={date} disabled={!options.length} onChange={e=>setDate(e.target.value)} className="tx-field-sm min-w-0 max-w-full">
         {!options.length ? <option value="">未有賽事</option> : options.map(row => <option key={row.date} value={row.date}>{row.date}{row.venue === 'ST' ? ' · 沙田' : row.venue === 'HV' ? ' · 跑馬地' : ''}</option>)}
       </select>
     </label>

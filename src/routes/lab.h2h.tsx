@@ -251,7 +251,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-md border border-hairline bg-paper px-2 py-2 text-[13px] font-normal text-ink"
+        className="tx-field mt-1 w-full font-normal"
       >
         {children}
       </select>

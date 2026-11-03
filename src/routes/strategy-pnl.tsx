@@ -293,7 +293,7 @@ function StrategyPnlPage() {
         <section className="mx-4 mt-3.5 space-y-3" aria-label="逐場彩池核對">
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor="pool-day" className="text-[12px] font-bold text-ink">逐場中唔中 · 賽馬日</label>
-            <select id="pool-day" value={dayPick || (sortedDesc[0]?.date ?? "")} onChange={(e) => setDayPick(e.target.value)} className="rounded-[6px] border border-hairline bg-paper-2 px-2 py-1 text-[12px] text-ink">
+            <select id="pool-day" value={dayPick || (sortedDesc[0]?.date ?? "")} onChange={(e) => setDayPick(e.target.value)} className="tx-field-sm">
               {sortedDesc.map((p) => <option key={p.date} value={p.date}>{p.date}</option>)}
             </select>
           </div>

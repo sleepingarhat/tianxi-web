@@ -51,7 +51,7 @@ export function MeetingOfficialResearch({ date,venue }: { date:string;venue:stri
       <div className="mt-2">{query.isPending ? <Loading/> : <ReferenceTable section={{rows:poolRows,available:query.data?.pools.available ?? false}} fields={["rank_no","person_name","points","wins","seconds","thirds","fourths"]} headings={["名次","姓名","積分","冠","亞","季","殿"]}/>}</div><Source rows={poolRows}/>
     </Card>
     <Card title="馬會官方檔位進階統計" en="Draw reference" action={<Pill>只屬研究參考</Pill>}>
-      {groups.length ? <label className="block text-[11px] text-ink-3">跑道／賽道／途程<select aria-label="官方檔位跑道及途程" value={selected} onChange={e=>setGroup(e.target.value)} className="mt-1 block w-full rounded-[6px] border border-hairline bg-paper px-2 py-2 text-[12px] text-ink">{groups.map(g=><option key={g} value={g}>{g.replace("STA","沙田全天候").replace("STT","沙田草地").replace("HVT","跑馬地草地")}</option>)}</select></label> : null}
+      {groups.length ? <label className="block text-[11px] text-ink-3">跑道／賽道／途程<select aria-label="官方檔位跑道及途程" value={selected} onChange={e=>setGroup(e.target.value)} className="tx-field-sm mt-1 block w-full">{groups.map(g=><option key={g} value={g}>{g.replace("STA","沙田全天候").replace("STT","沙田草地").replace("HVT","跑馬地草地")}</option>)}</select></label> : null}
       <div className="mt-2">{query.isPending ? <Loading/> : <ReferenceTable section={{rows:drawRows,available:query.data?.draws.available ?? false}} fields={["draw","starts","win_pct","place_pct"]} headings={["檔位","出賽","勝出率 %","上名率 %"]}/>}</div><Source rows={drawRows}/>
     </Card>
   </>;

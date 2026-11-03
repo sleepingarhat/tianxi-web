@@ -532,6 +532,16 @@
   color: var(--tx-ink);
   color-scheme: dark;
 }
+/* 監控端深色底：幼邊要再明顯啲、佔位字要睇得清；對焦金色唔受影響 */
+.tx-admin .tx-field:not(:focus),
+.tx-admin .tx-field-sm:not(:focus),
+.tx-admin .tx-field-box:not(:focus-within) {
+  border-color: color-mix(in oklab, var(--tx-ink) 30%, transparent);
+}
+.tx-admin .tx-field::placeholder,
+.tx-admin .tx-field-sm::placeholder {
+  color: color-mix(in oklab, var(--tx-ink) 62%, transparent);
+}
 @keyframes tx-soft-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }

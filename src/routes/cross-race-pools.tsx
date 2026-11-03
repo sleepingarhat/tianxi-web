@@ -34,7 +34,7 @@ function CrossRacePoolsPage() {
     <PageHead title="跨場彩池明細" en="Double Trio · Triple Trio" />
     <div className="mx-4 my-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2"><label htmlFor="cross-day" className="text-sm font-bold">賽馬日</label>
-        <select id="cross-day" value={date} onChange={e => setPicked(e.target.value)} className="max-w-full rounded-md border border-hairline bg-paper-2 px-3 py-2 text-sm text-ink">{options.map(d => <option key={d} value={d}>{d}</option>)}</select>
+        <select id="cross-day" value={date} onChange={e => setPicked(e.target.value)} className="tx-field max-w-full">{options.map(d => <option key={d} value={d}>{d}</option>)}</select>
       </div>
       <Button variant="outline" size="sm" asChild><Link to="/strategy-pnl">累計盈虧</Link></Button>
     </div>
