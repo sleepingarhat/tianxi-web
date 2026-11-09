@@ -132,19 +132,44 @@ function StatusCard({ status, scrapedAt }: { status: ReturnType<typeof summarize
   );
 }
 
+/** 連續場次（例如六環彩 1 至 6 場）縮寫為「1–6」，唔連續就逐場列出。 */
+function legLabel(races: number[]): string {
+  const contiguous = races.length > 2 && races.every((n, i) => i === 0 || n === (races[i - 1] ?? NaN) + 1);
+  return contiguous ? `${races[0]}–${races[races.length - 1]}` : races.join("、");
+}
+
+/** 長組合（例如六環彩）喺每場分隔「/」後面換行，避免壓住派彩金額。 */
+function ComboText({ combo }: { combo: string }) {
+  const parts = combo.split(/(?<=\/)/);
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 ? <wbr /> : null}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function CrossDividendCard({ rows }: { rows: DividendRow[] }) {
   if (!rows.length) return null;
   return (
     <Card title="跨場彩池派彩" en="Multi-race dividends">
       <Scroller>
-        <Table head={["彩池", "場次", "類別", "勝出組合", "每 $10 派彩"]}>
+        <Table head={["彩池", "場次", "勝出組合", "每 $10 派彩"]}>
           {rows.map((r) => (
             <tr key={`${r.pool}-${r.leg}-${r.kind}-${r.seq}-${r.combo}`}>
-              <Td first><span className="font-bold">{poolLabel(r.pool)}</span></Td>
-              <Td>{r.races.join("、")}</Td>
-              <Td mono={false}>{r.kind === "Winning" ? "派彩" : <Pill>{DIVIDEND_KIND_LABEL[r.kind] ?? r.kind}</Pill>}</Td>
-              <Td className="max-w-[22ch] whitespace-normal break-all">{r.combo}</Td>
-              <Td><Amount row={r} /></Td>
+              <td className="px-1.5 py-1.5 text-left align-top">
+                <span className="block whitespace-nowrap font-bold">{poolLabel(r.pool)}</span>
+                {r.kind === "Winning" ? null : (
+                  <span className="mt-1 inline-block whitespace-nowrap"><Pill>{DIVIDEND_KIND_LABEL[r.kind] ?? r.kind}</Pill></span>
+                )}
+              </td>
+              <td className="tabnum whitespace-nowrap px-1.5 py-1.5 text-right align-top font-mono-tx">{legLabel(r.races)}</td>
+              <td className="tabnum min-w-[6ch] max-w-[20ch] px-1.5 py-1.5 text-right align-top font-mono-tx leading-snug [overflow-wrap:anywhere]"><ComboText combo={r.combo} /></td>
+              <td className="tabnum whitespace-nowrap py-1.5 pl-2 pr-1.5 text-right align-top font-mono-tx"><Amount row={r} /></td>
             </tr>
           ))}
         </Table>
@@ -167,7 +192,7 @@ function RaceDividendsCard({ rows }: { rows: DividendRow[] }) {
                   {pools.flatMap(({ pool, rows: rs }) => rs.map((r, i) => (
                     <tr key={`${pool}-${r.seq}-${r.combo}`}>
                       <td className="whitespace-nowrap py-1 pr-2 font-bold text-ink-2">{i === 0 ? poolLabel(pool) : ""}</td>
-                      <td className="tabnum py-1 pr-2 font-mono-tx text-ink">{r.combo}</td>
+                      <td className="tabnum py-1 pr-2 font-mono-tx leading-snug text-ink [overflow-wrap:anywhere]"><ComboText combo={r.combo} /></td>
                       <td className="tabnum py-1 text-right font-mono-tx"><Amount row={r} /></td>
                     </tr>
                   )))}
