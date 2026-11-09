@@ -105,7 +105,7 @@ function SectionalMiniBars({ list }: { list: unknown }) {
         return (
           <div key={i} className="flex flex-col items-center gap-0.5">
             <div className="w-3 rounded-sm bg-gold/70" style={{ height: h }} title={t != null ? `${t}s` : undefined} />
-            <span className="font-mono-tx text-[8px] text-ink-3">{has(s.sectionNumber) ? s.sectionNumber : i + 1}</span>
+            <span className="font-mono-tx text-[10px] text-ink-3">{has(s.sectionNumber) ? s.sectionNumber : i + 1}</span>
           </div>
         );
       })}
@@ -393,7 +393,7 @@ function HorsePage() {
                         {has(s.unit) ? s.unit : ""}
                       </span>
                     </div>
-                    <p className="mt-1 font-mono-tx text-[9.5px] text-ink-3">
+                    <p className="mt-1 font-mono-tx text-[10.5px] text-ink-3">
                       {[
                         has(s.asOf) ? fmtMeetingDate(s.asOf) : "",
                         has(s.sampleSize) ? `樣本 ${s.sampleSize}` : "",
@@ -442,7 +442,7 @@ function HorsePage() {
                         );
                       })}
                       {rows.some((it: any) => Number(it.starts) < 20) ? (
-                        <p className="mt-1.5 text-[9.5px] text-ink-3">樣本較少，解讀需審慎。</p>
+                        <p className="mt-1.5 text-[10.5px] text-ink-3">樣本較少，解讀需審慎。</p>
                       ) : null}
                     </Metric>
                   );
@@ -459,7 +459,7 @@ function HorsePage() {
             title="近期往績"
             en="Post-race History"
             action={
-              <span className="tabnum font-mono-tx text-[9.5px] text-ink-3">
+              <span className="tabnum font-mono-tx text-[10.5px] text-ink-3">
                 {forms.length ? `${forms.length} 場` : ""}
               </span>
             }
@@ -503,11 +503,11 @@ function HorsePage() {
                               .filter(has)
                               .join(" · ")}
                           </span>
-                          <span className="mt-[2px] block font-mono-tx text-[9.5px] text-ink-3">
+                          <span className="mt-[2px] block font-mono-tx text-[10.5px] text-ink-3">
                             {[dist(f.distance), f.raceClass, f.going].filter(has).join(" · ") || "POST-RACE HISTORY"}
                           </span>
                         </span>
-                        <span className="tabnum font-mono-tx text-[9.5px] text-ink-3">
+                        <span className="tabnum font-mono-tx text-[10.5px] text-ink-3">
                           {has(f.winOdds) ? `賠 ${f.winOdds}` : ""}
                         </span>
                       </summary>
@@ -534,7 +534,7 @@ function HorsePage() {
                     </details>
                   );
                 })}
-                <p className="pt-1 text-[9.5px] leading-relaxed text-ink-3">
+                <p className="pt-1 text-[10.5px] leading-relaxed text-ink-3">
                   以上為賽後歷史資料；檔位、負磅、騎師、配備、評語及分段不代表目前狀態。
                 </p>
                 {!tier.has("registered") ? <TierGate min="registered" feature="歷史分段" mode="preview" preview={forms[0] && has(sectionalText(forms[0].sectionals)) ? <p className="text-[11px] text-ink-3">{sectionalText(forms[0].sectionals).split(/[／|,，]/)[0]}</p> : null}>{null}</TierGate> : null}
@@ -587,7 +587,7 @@ function HorsePage() {
                   </Metric>
                 );
               })}
-              <p className="pt-1 text-[9.5px] leading-relaxed text-ink-3">
+              <p className="pt-1 text-[10.5px] leading-relaxed text-ink-3">
                 晨操只收錄現役馬匹；退役馬不會有新紀錄。踱步、游水等操練馬會不會公佈時間，故只列場地與類別；快操與試閘則附分段時間。
               </p>
 

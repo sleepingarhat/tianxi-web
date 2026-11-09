@@ -109,7 +109,7 @@ export function ModelVsMarketDumbbell({
                   </span>
                 </div>
               </div>
-              <div className="mt-1 grid grid-cols-4 gap-1 font-mono-tx text-[8px] leading-tight text-ink-3">
+              <div className="mt-1 grid grid-cols-4 gap-1 font-mono-tx text-[10px] leading-tight text-ink-3">
                 <span>
                   模型勝算
                   <b className="tabnum mt-0.5 block text-[11px] font-bold text-gold">{pctFmt(d.model)}</b>

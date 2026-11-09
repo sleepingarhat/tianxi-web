@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -47,7 +48,7 @@ function RacingHealthPage() {
         <>
           {!tgOk && (
             <div className="mx-4 mt-3 rounded-[8px] border border-lose/40 bg-lose/10 px-3 py-2 text-[12px] font-semibold text-lose">
-              ⚠ Telegram 告警通道未能確認接通。
+              <TriangleAlert aria-hidden className="mr-1 inline-block h-3.5 w-3.5 -translate-y-px align-middle" />Telegram 告警通道未能確認接通。
             </div>
           )}
           <div className="mx-4 mt-3">

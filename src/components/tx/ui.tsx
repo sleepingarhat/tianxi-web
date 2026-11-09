@@ -287,7 +287,7 @@ export function Seg<T extends string | number>({
             key={String(o.value)}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`whitespace-nowrap min-h-8 rounded-full border px-3 py-1.5 text-[12px] font-bold transition-all ${
+            className={`whitespace-nowrap min-h-8 rounded-full border px-3 py-1.5 text-[12px] font-bold transition-colors ${
               on
                 ? "border-gold-strong bg-gold-bg text-gold"
                 : "border-hairline bg-paper text-ink-2 hover:border-gold-strong/40"

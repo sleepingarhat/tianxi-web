@@ -43,7 +43,7 @@ function ReturnPage() {
     <AppShell page="dashboard">
       <div className="px-4 py-6">
         <Card title={session_id ? "付款完成" : "搵唔到付款資料"} en="Checkout">
-          <p className="text-[13px] leading-relaxed text-ink-2">{session_id ? "多謝支持！Pro 權限通常幾秒內開通，可以去會員頁睇你嘅訂閱狀態。" : "如果你啱啱付咗款，請去會員頁睇最新狀態。"}</p>
+          <p className="text-[13px] leading-relaxed text-ink-2">{session_id ? "多謝支持。Pro 權限通常幾秒內開通，可以去會員頁睇你嘅訂閱狀態。" : "如果你啱啱付咗款，請去會員頁睇最新狀態。"}</p>
           <Button asChild className="mt-4 h-11 w-full bg-deep text-deep-fg hover:bg-deep/90"><Link to="/membership">去會員頁</Link></Button>
         </Card>
       </div>

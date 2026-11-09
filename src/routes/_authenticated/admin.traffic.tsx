@@ -201,7 +201,7 @@ function Traffic() {
           </div>
         )}
         {d?.daily.length ? (
-          <div className="mt-1 flex justify-between font-mono-tx text-[9px] text-ink-3">
+          <div className="mt-1 flex justify-between font-mono-tx text-[10.5px] text-ink-3">
             <span>{fmtDate(d.daily.at(0)?.date ?? "")}</span>
             <span>{fmtDate(d.daily.at(-1)?.date ?? "")}</span>
           </div>

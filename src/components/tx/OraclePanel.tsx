@@ -261,7 +261,7 @@ export function OraclePanel() {
             <div>
               <span className="tabnum text-ink">{data.date ?? "—"}</span> {data.venue ?? ""} · {races.length} 場 · 天喜ELO 引擎{" "}
               {data.eloEngine === "v12" ? "v1.2" : (data.eloEngine ?? "—")} ·{" "}
-              {data.eloReady ? <span className="text-win">✓ 天喜ELO就緒</span> : <span className="text-lose">⚠ 天喜ELO未就緒</span>}
+              {data.eloReady ? <span className="text-win">✓ 天喜ELO就緒</span> : <span className="text-lose">天喜ELO未就緒</span>}
               {data.seedSummary?.totalSeeded ? ` · 新馬 seed ${data.seedSummary.totalSeeded} 隻` : ""}
             </div>
             <div>

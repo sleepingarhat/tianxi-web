@@ -259,7 +259,7 @@ function PredictorPage() {
               >
                 <span className="block font-mono-tx text-[11px] font-bold">R{r.raceNumber}{(r.picks ?? []).some((p: any) => p.officialChange) ? <span className="ml-1 text-lose">退出</span> : null}</span>
                 {r.title ? <span className="mt-0.5 block max-w-[9rem] truncate text-[11px] font-semibold">{r.title}</span> : null}
-                <span className="mt-0.5 block font-mono-tx text-[8px] text-ink-3">{cleanTime(r.startTime) || "—"} · {r.distance || "—"}m</span>
+                <span className="mt-0.5 block font-mono-tx text-[10px] text-ink-3">{cleanTime(r.startTime) || "—"} · {r.distance || "—"}m</span>
               </button>
             );
           })}

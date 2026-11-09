@@ -115,7 +115,7 @@ function DashboardPage() {
         <BeamCard className="p-3">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
             <div className="min-w-0">
-              <p className="font-mono-tx text-[8px] uppercase tracking-[0.22em] text-ink-3">Core KPI</p>
+              <p className="font-mono-tx text-[10px] uppercase tracking-[0.22em] text-ink-3">Core KPI</p>
               <p className="mt-0.5 font-serif-tc text-[15px] font-bold text-ink">四揀平均命中匹數</p>
               <p className="tabnum mt-1 font-mono-tx text-[28px] font-bold leading-none text-gold">
                 {num(r90?.top4AvgIntersect, 2)}
@@ -149,11 +149,11 @@ function DashboardPage() {
           className="rounded-[10px] bg-deep px-3 py-2.5 text-center text-deep-fg shadow-[0_2px_0_var(--tx-hairline)]"
         >
           <span className="block font-serif-tc text-[13px] font-bold">天喜策略累計盈虧</span>
-          <span className="mt-0.5 block font-mono-tx text-[8px] uppercase tracking-[0.2em] text-gold">Strategy P&amp;L</span>
+          <span className="mt-0.5 block font-mono-tx text-[10px] uppercase tracking-[0.2em] text-gold">Strategy P&amp;L</span>
         </Link>
         <Link to="/prediction-vs-result" className="rounded-[10px] border border-gold bg-gold-bg px-3 py-2.5 text-center">
           <span className="block font-serif-tc text-[13px] font-bold text-ink">預測與賽果</span>
-          <span className="mt-0.5 block font-mono-tx text-[8px] uppercase tracking-[0.2em] text-ink-3">Picks vs Results</span>
+          <span className="mt-0.5 block font-mono-tx text-[10px] uppercase tracking-[0.2em] text-ink-3">Picks vs Results</span>
         </Link>
       </div>
 

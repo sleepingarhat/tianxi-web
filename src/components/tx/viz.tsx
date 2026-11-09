@@ -61,7 +61,7 @@ export function MeterBar({
       <div className="flex items-baseline justify-between gap-1.5">
         <p className="min-w-0 truncate text-[10px] font-bold leading-none text-ink-3">
           {label}
-          {en ? <span className="ml-1 font-mono-tx text-[8px] uppercase tracking-[0.16em] text-ink-3">{en}</span> : null}
+          {en ? <span className="ml-1 font-mono-tx text-[10px] uppercase tracking-[0.16em] text-ink-3">{en}</span> : null}
         </p>
         <p className={`tabnum shrink-0 font-mono-tx text-[13px] font-bold leading-none ${txt}`}>{value}</p>
       </div>
@@ -71,7 +71,7 @@ export function MeterBar({
           style={{ width: `${Math.max(2, grown * 100)}%` }}
         />
       </div>
-      {sub ? <p className="tabnum mt-1 font-mono-tx text-[9px] leading-none text-ink-3">{sub}</p> : null}
+      {sub ? <p className="tabnum mt-1 font-mono-tx text-[10.5px] leading-none text-ink-3">{sub}</p> : null}
     </div>
   );
 }
@@ -183,7 +183,7 @@ export function KpiTile({
       <span className={`absolute inset-x-0 top-0 h-[2px] ${bar}`} aria-hidden />
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-1">
         <p className="min-w-0 truncate text-[10px] font-bold leading-none text-ink-3">{label}</p>
-        {en ? <p className="shrink-0 font-mono-tx text-[8px] uppercase tracking-[0.18em] text-ink-3">{en}</p> : null}
+        {en ? <p className="shrink-0 font-mono-tx text-[10px] uppercase tracking-[0.18em] text-ink-3">{en}</p> : null}
       </div>
       <p className={`tabnum mt-1.5 font-mono-tx text-[22px] font-bold leading-none ${txt}`}>
         {value}
@@ -199,7 +199,7 @@ export function KpiTile({
           <MiniBars values={trend} target={target} height={24} tone={tone === "lose" ? "ink" : tone} />
         </div>
       ) : null}
-      {sub ? <p className="tabnum mt-1 font-mono-tx text-[9px] leading-none text-ink-3">{sub}</p> : null}
+      {sub ? <p className="tabnum mt-1 font-mono-tx text-[10.5px] leading-none text-ink-3">{sub}</p> : null}
     </div>
   );
 }
@@ -241,7 +241,7 @@ export function BarRow({
       <div className="tx-bar-track mt-1 h-[5px] w-full bg-paper-3">
         <span className={`tx-bar-fill ${color}`} style={{ width: `${Math.max(1.5, grownBar * 100)}%` }} />
       </div>
-      {sub ? <p className="tabnum mt-1 font-mono-tx text-[9px] leading-none text-ink-3">{sub}</p> : null}
+      {sub ? <p className="tabnum mt-1 font-mono-tx text-[10.5px] leading-none text-ink-3">{sub}</p> : null}
     </div>
   );
 }
@@ -284,9 +284,9 @@ export function TrendChart({
     <div className="tx-data-panel overflow-hidden rounded-[6px] border border-deep/10 bg-paper-2/40 px-1.5 pb-1.5 pt-2">
       <div className="flex gap-1.5">
         <div className="flex w-9 shrink-0 flex-col justify-between py-[2px] text-right">
-          <span className="tabnum font-mono-tx text-[8px] text-ink-3">{fmt(max)}</span>
-          <span className="tabnum font-mono-tx text-[8px] text-gold">{fmt(avg)}</span>
-          <span className="tabnum font-mono-tx text-[8px] text-ink-3">{fmt(min)}</span>
+          <span className="tabnum font-mono-tx text-[10px] text-ink-3">{fmt(max)}</span>
+          <span className="tabnum font-mono-tx text-[10px] text-gold">{fmt(avg)}</span>
+          <span className="tabnum font-mono-tx text-[10px] text-ink-3">{fmt(min)}</span>
         </div>
         <div className="min-w-0 flex-1">
           <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full" style={{ height: H }}>
@@ -325,8 +325,8 @@ export function TrendChart({
             ))}
           </svg>
           <div className="mt-1 flex justify-between">
-            <span className="tabnum font-mono-tx text-[8px] text-ink-3">{pts[0]?.label}</span>
-            <span className="tabnum font-mono-tx text-[8px] text-ink-3">{pts.at(-1)?.label}</span>
+            <span className="tabnum font-mono-tx text-[10px] text-ink-3">{pts[0]?.label}</span>
+            <span className="tabnum font-mono-tx text-[10px] text-ink-3">{pts.at(-1)?.label}</span>
           </div>
         </div>
       </div>
@@ -405,7 +405,7 @@ export function Ring({
           <span className="tabnum font-mono-tx text-[11px] font-bold text-ink">{label}</span>
         </span>
       </div>
-      {sub ? <span className="text-center text-[9px] leading-tight text-ink-3">{sub}</span> : null}
+      {sub ? <span className="text-center text-[10.5px] leading-tight text-ink-3">{sub}</span> : null}
     </div>
   );
 }
@@ -430,7 +430,7 @@ export function DataChip({
   return (
     <span className={`inline-flex min-w-0 items-center gap-1.5 rounded-full border px-2 py-[3px] ${ring}`}>
       <span className={`tx-blink h-1.5 w-1.5 shrink-0 rounded-full ${dot}`} />
-      <span className="shrink-0 text-[9px] text-ink-3">{k}</span>
+      <span className="shrink-0 text-[10.5px] text-ink-3">{k}</span>
       <span className="tabnum truncate font-mono-tx text-[10px] font-bold text-ink">{v}</span>
     </span>
   );
@@ -468,7 +468,7 @@ export function Timeline({
               <span className="min-w-0 truncate font-serif-tc text-[12px] font-bold text-ink">{it.title}</span>
               <span className="tabnum shrink-0 font-mono-tx text-[10px] text-gold">{it.time || "—"}</span>
             </div>
-            {it.sub ? <p className="tabnum mt-0.5 font-mono-tx text-[9px] leading-tight text-ink-3">{it.sub}</p> : null}
+            {it.sub ? <p className="tabnum mt-0.5 font-mono-tx text-[10.5px] leading-tight text-ink-3">{it.sub}</p> : null}
           </div>
         );
       })}

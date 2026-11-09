@@ -48,7 +48,7 @@ export function WhyPicked({
         aria-expanded={open}
       >
         <span className="font-serif-tc text-[11px] font-bold text-ink">點解揀佢</span>
-        <span className="font-mono-tx text-[8px] uppercase tracking-[0.16em] text-ink-3">WHY</span>
+        <span className="font-mono-tx text-[10px] uppercase tracking-[0.16em] text-ink-3">WHY</span>
         {name ? <span className="truncate font-serif-tc text-[11px] text-ink-2">· {name}</span> : null}
         <span
           className={`tabnum ml-auto shrink-0 rounded-[3px] border px-1 font-mono-tx text-[10px] font-bold ${

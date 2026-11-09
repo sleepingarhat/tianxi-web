@@ -27,7 +27,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
               天喜預測 <span className="font-mono-tx text-[10px] font-normal text-ink-3">TIANXI</span>
               {locked ? (
-                <span className="ml-auto shrink-0 rounded-[3px] border border-win/45 bg-win/10 px-1 font-mono-tx text-[8px] font-bold text-win">
+                <span className="ml-auto shrink-0 rounded-[3px] border border-win/45 bg-win/10 px-1 font-mono-tx text-[10px] font-bold text-win">
                   已鎖定
                 </span>
               ) : null}
@@ -60,7 +60,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                             <Pill tone="lose">
                               {p.officialChange.kind === "replaced" ? `已退出・由${p.officialChange.replacement}補上` : "已退出"}
                             </Pill>
-                            <span className="mt-0.5 block font-mono-tx text-[8px] text-lose">
+                            <span className="mt-0.5 block font-mono-tx text-[10px] text-lose">
                               馬會 {p.officialChange.announcedAt} 公布{p.officialChange.beforeLock ? "（鎖定前）" : ""}
                             </span>
                           </Link>
@@ -68,8 +68,8 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
+                      <span className="text-[10px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
+                      <span className="text-right text-[10px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
                     </div>
                   </div>
                 ))
@@ -87,7 +87,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
               市場穩陣 <span className="font-mono-tx text-[10px] font-normal text-ink-3">MARKET</span>
               {locked ? (
-                <span className="ml-auto shrink-0 rounded-[3px] border border-gold-strong/45 bg-gold-bg px-1 font-mono-tx text-[8px] font-bold text-gold">
+                <span className="ml-auto shrink-0 rounded-[3px] border border-gold-strong/45 bg-gold-bg px-1 font-mono-tx text-[10px] font-bold text-gold">
                   已鎖定
                 </span>
               ) : null}
@@ -113,8 +113,8 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                       </div>
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[8px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[8px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
+                      <span className="text-[10px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
+                      <span className="text-right text-[10px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
                     </div>
                   </div>
                 ))

@@ -125,7 +125,7 @@ export function CloseGapPanel() {
 
           {/* 分位圖：18 場實測 ± 次序統計量區間；200 場投影收窄帶 */}
           <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-2.5">
-            <div className="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9.5px] text-ink-3">
+            <div className="mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] text-ink-3">
               <span className="flex items-center gap-1"><i className="inline-block h-2 w-2 rounded-full bg-gold" />而家（{sampleRaces} 場實測）</span>
               <span className="flex items-center gap-1"><i className="inline-block h-1.5 w-4 rounded-full bg-gold/30" />n={sampleRaces} 場區間</span>
               <span className="flex items-center gap-1"><i className="inline-block h-1.5 w-4 rounded-full bg-emerald-700/50" />累積到 {threshold} 場投影</span>
@@ -137,7 +137,7 @@ export function CloseGapPanel() {
                 const [lo200, hi200] = quantileBand(pts, r.p, threshold);
                 return (
                   <div key={r.key} className="relative h-6">
-                    <span className="absolute -left-0.5 top-1/2 -translate-y-1/2 text-[9.5px] tabnum text-ink-3">{r.label}</span>
+                    <span className="absolute -left-0.5 top-1/2 -translate-y-1/2 text-[10.5px] tabnum text-ink-3">{r.label}</span>
                     <div className="absolute inset-y-0 left-8 right-9">
                       {/* n 場區間 */}
                       <div
@@ -155,11 +155,11 @@ export function CloseGapPanel() {
                         style={{ left: pctAxis(v, axisMax) }}
                       />
                     </div>
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[9.5px] tabnum font-mono-tx text-ink-2">{v.toFixed(3)}</span>
+                    <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[10.5px] tabnum font-mono-tx text-ink-2">{v.toFixed(3)}</span>
                   </div>
                 );
               })}
-              <div className="flex justify-between pt-0.5 text-[8.5px] tabnum text-ink-3" style={{ paddingLeft: "2rem", paddingRight: "2.25rem" }}>
+              <div className="flex justify-between pt-0.5 text-[10.5px] tabnum text-ink-3" style={{ paddingLeft: "2rem", paddingRight: "2.25rem" }}>
                 <span>0</span><span>{(axisMax / 2).toFixed(2)}</span><span>{axisMax.toFixed(2)}</span>
               </div>
             </div>
@@ -178,7 +178,7 @@ export function CloseGapPanel() {
               <span className="text-ink-3">距鎖點</span><span className="tabnum text-right font-mono-tx text-ink">{l?.minutesToLock != null ? `${Math.round(l.minutesToLock / 60)} 小時 ${l.minutesToLock % 60} 分` : "—"}</span>
               <span className="text-ink-3">目前凍結行數</span><span className="tabnum text-right font-mono-tx text-ink">{l?.frozenRows ?? "—"}</span>
             </div>
-            <ul className="mt-1.5 space-y-0.5 text-[9.5px] leading-relaxed text-ink-3">
+            <ul className="mt-1.5 space-y-0.5 text-[10.5px] leading-relaxed text-ink-3">
               <li>· 到鎖點後若全日快照未齊，lock-tick 自動補寫一次：只補缺場、不覆寫已鎖場、不補過去賽日。</li>
               <li>· 實測核對：鎖點前後凍結行數一致、全日場次齊全，先當 pass。</li>
               <li>· 鎖後場照標「鎖後、唔計分」；只有開賽前快照嘅場次先入 closeGap 樣本。</li>

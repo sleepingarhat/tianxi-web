@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useStrategyAccounting } from "@/lib/useStrategyAccounting";
@@ -121,7 +122,7 @@ function CumChart({ points }: { points: { date: string; cum: number }[] }) {
   return (
     <div>
       <EChart option={option} height={190} ariaLabel="累計盈虧走勢" />
-      <div className="tabnum mt-1 flex justify-between px-0.5 font-mono-tx text-[9.5px] text-ink-3">
+      <div className="tabnum mt-1 flex justify-between px-0.5 font-mono-tx text-[10.5px] text-ink-3">
         <span>{points[0]?.date}</span>
         <span>最近 {signed(last)}</span>
         <span>{points[points.length - 1]?.date}</span>
@@ -156,9 +157,9 @@ function StrategyPnlPage() {
         }
       />
       <div className="mx-4 mt-3 rounded-[12px] border border-gold-strong bg-gradient-to-b from-gold-bg to-paper-2 px-3.5 py-3 font-serif-tc text-[11.5px] leading-[1.6] text-ink-2">
-        <b className="font-extrabold text-ink">⚠ 此為透明回溯紀錄，並非投注策略。</b>
+        <b className="font-bold text-ink"><TriangleAlert aria-hidden className="mr-1 inline-block h-3.5 w-3.5 -translate-y-px align-middle" />此為透明回溯紀錄，並非投注策略。</b>
         每場每池全數落注屬結構性負期望值（−EV），累計線長線預期向下；天喜唔會挑選或修飾數字，蝕都照列。模型強項在於
-        <b className="font-extrabold text-ink">頭 4 名箱形覆蓋率</b>，而非逐場捉單頭。
+        <b className="font-bold text-ink">頭 4 名箱形覆蓋率</b>，而非逐場捉單頭。
       </div>
 
       <div className="mx-4 mt-3">
@@ -199,7 +200,7 @@ function StrategyPnlPage() {
           <div className="grid grid-cols-2 gap-2.5 px-4 pb-1 pt-3.5">
             <div className="col-span-2 rounded-[14px] border border-gold-strong bg-gradient-to-b from-gold-bg to-paper-2 px-3 py-4 text-center">
               <p className="font-mono-tx text-[11px] font-bold tracking-[0.13em] text-ink-3">{missing ? "已可核對累計盈虧" : "累計盈虧"} CUMULATIVE NET</p>
-              <p className={`mt-1.5 font-serif-tc text-[40px] font-black leading-none ${tone(d.totalNet)}`}>
+              <p className={`mt-1.5 font-serif-tc text-[40px] font-bold leading-none ${tone(d.totalNet)}`}>
                 {signed(d.totalNet)}
               </p>
               <p className="mt-1.5 font-serif-tc text-[11px] leading-[1.4] text-ink-3">
@@ -215,7 +216,7 @@ function StrategyPnlPage() {
               <div key={k.l} className="rounded-[14px] border border-hairline bg-paper px-3 py-4 text-center">
                 <p className="font-mono-tx text-[11px] font-bold tracking-[0.13em] text-ink-3">{k.l}</p>
                 <p
-                  className={`mt-1.5 break-all font-serif-tc text-[26px] font-black leading-none ${
+                  className={`mt-1.5 break-all font-serif-tc text-[26px] font-bold leading-none ${
                     k.t == null ? "text-ink" : tone(k.t)
                   }`}
                 >
@@ -239,16 +240,16 @@ function StrategyPnlPage() {
                 const b = breakdown[p.key];
                 return (
                   <div key={p.key} className="rounded-[11px] border border-hairline bg-paper px-3 py-2.5">
-                    <p className="font-serif-tc text-[13px] font-extrabold text-ink">
+                    <p className="font-serif-tc text-[13px] font-bold text-ink">
                       {p.nm}
                       <small className="ml-1.5 font-mono-tx text-[10px] font-semibold tracking-[0.05em] text-ink-3">
                         {p.unit}／{p.key === "DT" || p.key === "TT" ? "口" : "場"}
                       </small>
                     </p>
-                    <p className={`mt-1.5 font-serif-tc text-[20px] font-black leading-none ${tone(b?.net)}`}>
+                    <p className={`mt-1.5 font-serif-tc text-[20px] font-bold leading-none ${tone(b?.net)}`}>
                       {signed(b?.net)}
                     </p>
-                    <p className="tabnum mt-1.5 font-mono-tx text-[9.5px] tracking-[0.02em] text-ink-3">
+                    <p className="tabnum mt-1.5 font-mono-tx text-[10.5px] tracking-[0.02em] text-ink-3">
                       {p.en}
                       <br />
                       中 {b?.wins ?? "—"}／{b?.bets ?? "—"} {p.key === "DT" || p.key === "TT" ? "口" : "場"}{b?.cons ? `（另 ${b.cons} 口只中安慰獎）` : ""}<br />總成本 {money(b?.cost)}<br />總派彩 {money(b?.payout)}

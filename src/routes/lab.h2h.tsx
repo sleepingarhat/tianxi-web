@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -483,7 +484,7 @@ function H2hPage() {
           {(q.data.warnings ?? []).length > 0 ? (
             <div className="mx-4 mt-3 rounded-md border border-tan/30 bg-paper-2 px-3 py-2 text-[12px] text-ink-2">
               {q.data.warnings.map((w) => (
-                <p key={w}>⚠ {w}</p>
+                <p key={w}><TriangleAlert aria-hidden className="mr-1 inline-block h-3.5 w-3.5 -translate-y-px align-middle" />{w}</p>
               ))}
             </div>
           ) : null}

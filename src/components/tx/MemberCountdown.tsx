@@ -13,7 +13,7 @@ export function MemberCountdown() {
         <span className="font-bold text-gold-strong">{gateOpen ? "收費閘已開 · 創始名額已滿" : `創始名額尚餘 ${remaining} 個`}</span>
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-deep-fg/15">
-        <div className="h-full rounded-full bg-gold-strong transition-all" style={{ width: `${pct}%` }} />
+        <div className="h-full origin-left rounded-full bg-gold-strong transition-transform duration-500" style={{ transform: `scaleX(${pct / 100})` }} />
       </div>
     </div>
   );

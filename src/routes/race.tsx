@@ -167,7 +167,7 @@ function RacePage() {
                 >
                   <div className="grid grid-cols-[46px_36px_minmax(0,1fr)_auto] items-center gap-2.5">
                     <Silks source={h} size={46} className="shadow-sm" />
-                    <span className="tabnum grid h-9 w-9 shrink-0 place-items-center rounded-[5px] border border-gold-strong/55 bg-paper-2 font-mono-tx text-[15px] font-extrabold text-ink">
+                    <span className="tabnum grid h-9 w-9 shrink-0 place-items-center rounded-[5px] border border-gold-strong/55 bg-paper-2 font-mono-tx text-[15px] font-bold text-ink">
                       {h.horseNumber}
                     </span>
                     <div className="min-w-0 border-l border-hairline pl-2">
@@ -192,7 +192,7 @@ function RacePage() {
                   <dl className="mt-2.5 grid grid-cols-6 overflow-hidden rounded-[6px] border border-hairline bg-paper-2">
                     {facts.map(([label, value], index) => (
                       <div key={label} className={`${index ? "border-l border-hairline" : ""} min-w-0 px-1 py-1.5 text-center`}>
-                        <dt className="whitespace-nowrap text-[8px] font-bold text-ink-3">{label}</dt>
+                        <dt className="whitespace-nowrap text-[10px] font-bold text-ink-3">{label}</dt>
                         <dd className="tabnum mt-0.5 truncate font-mono-tx text-[11px] font-bold text-ink">{String(value)}</dd>
                       </div>
                     ))}
@@ -215,7 +215,7 @@ function RacePage() {
 
               <div key={p.horseNumber} className="grid grid-cols-[26px_32px_minmax(0,1fr)_auto] items-center gap-2 py-2">
                 <span className="tabnum w-6 font-mono-tx text-[12px] font-bold text-gold">#{p.rank}</span>
-                <span className="tabnum grid h-8 w-8 place-items-center rounded-[5px] border border-gold-strong/55 bg-paper-2 font-mono-tx text-[13px] font-extrabold text-ink">
+                <span className="tabnum grid h-8 w-8 place-items-center rounded-[5px] border border-gold-strong/55 bg-paper-2 font-mono-tx text-[13px] font-bold text-ink">
                   {p.horseNumber}
                 </span>
                 <span className="flex-1 truncate font-serif-tc text-[13px] font-bold">{p.nameCh}</span>

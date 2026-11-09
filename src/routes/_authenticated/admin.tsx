@@ -130,7 +130,7 @@ function AdminLayout() {
             >
               <Search className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">搜尋頁面…</span>
-              <kbd className="ml-auto hidden rounded border border-hairline px-1 font-mono-tx text-[9px] sm:inline">⌘K</kbd>
+              <kbd className="ml-auto hidden rounded border border-hairline px-1 font-mono-tx text-[10.5px] sm:inline">⌘K</kbd>
             </button>
             <Link to="/" className="ml-auto inline-flex items-center gap-1 rounded-[6px] px-2 py-1.5 text-[11px] text-ink-3 hover:text-ink">
               <Activity className="h-3.5 w-3.5" /> 返回前台
@@ -162,7 +162,7 @@ function Brand() {
   return (
     <div className="px-4 py-3">
       <p className="text-[14px] font-bold text-ink">天喜<span className="text-gold">·</span>監控端</p>
-      <p className="font-mono-tx text-[9px] uppercase tracking-[0.2em] text-ink-3">TIANXI OPS</p>
+      <p className="font-mono-tx text-[10.5px] uppercase tracking-[0.2em] text-ink-3">TIANXI OPS</p>
     </div>
   );
 }

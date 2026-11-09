@@ -285,7 +285,7 @@ function ComparePage() {
   return (
     <AppShell page="" ticker={metaLine || "載入賽事…"}>
       <section className="px-5 pb-2 pt-[22px]">
-        <h1 className="font-serif-tc text-[24px] font-black leading-[1.15] tracking-[-0.005em] text-ink">
+        <h1 className="font-serif-tc text-[24px] font-bold leading-[1.15] tracking-[-0.005em] text-ink">
           <small className="mb-1.5 block font-mono-tx text-[11px] font-bold uppercase tracking-[0.22em] text-ink-3">
             Prediction vs Result
           </small>
@@ -390,7 +390,7 @@ function ComparePage() {
           <div className="flex items-baseline justify-between gap-2">
             <p className="font-serif-tc text-[13px] font-bold text-ink">
               賽日總覽
-              <small className="ml-2 font-mono-tx text-[8px] uppercase tracking-[0.2em] text-ink-3">Meeting Recap</small>
+              <small className="ml-2 font-mono-tx text-[10px] uppercase tracking-[0.2em] text-ink-3">Meeting Recap</small>
             </p>
             <p className="tabnum font-mono-tx text-[11px] text-ink-3">{frozenSummary.racesEvaluated ?? 0} 場已評核</p>
           </div>
@@ -433,7 +433,7 @@ function ComparePage() {
                   }`}
                 >
                   <span className="block font-mono-tx text-[10px] font-bold leading-none">R{fr.raceNumber}</span>
-                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-extrabold leading-none">{fr.redacted ? '需登入' : n == null ? '待核' : `${n}/4`}</span>
+                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-bold leading-none">{fr.redacted ? '需登入' : n == null ? '待核' : `${n}/4`}</span>
                 </button>
               );
             })}
@@ -448,7 +448,7 @@ function ComparePage() {
 
       <div className="px-4 pb-[22px] pt-4">
         <div className="mx-auto grid max-w-[560px] lg:max-w-[900px] grid-cols-2 grid-rows-[auto_1fr] overflow-hidden rounded-[8px] border border-hairline bg-paper shadow-sm">
-          <div className="border-b border-r border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-extrabold text-ink">
+          <div className="border-b border-r border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-bold text-ink">
             預測
             <small className="mt-0.5 block font-mono-tx text-[11px] font-semibold text-ink-3">
               {picksSourceLabel}
@@ -459,7 +459,7 @@ function ComparePage() {
 
             </small>
           </div>
-          <div className="border-b border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-extrabold text-ink">
+          <div className="border-b border-hairline bg-paper-2 px-3 py-2.5 text-center font-serif-tc text-[16px] font-bold text-ink">
             賽果
             <small className="mt-0.5 block font-mono-tx text-[11px] font-semibold text-ink-3">
               Result · 1st – 4th
@@ -500,7 +500,7 @@ function ComparePage() {
           <>
             <p className="tabnum mx-auto mt-[11px] max-w-[560px] lg:max-w-[900px] text-center font-mono-tx text-[12px] tracking-[0.04em] text-ink-2">
               預測首 4 名命中：
-              <b className={`font-extrabold ${hits >= 2 ? "text-win" : "text-ink"}`}>{hits} / 4</b>
+              <b className={`font-bold ${hits >= 2 ? "text-win" : "text-ink"}`}>{hits} / 4</b>
             </p>
             {wonDividends.length || wonExotic.length ? (
               <section aria-label="本場命中派彩" className="mx-auto mt-3 max-w-[560px] lg:max-w-[900px] border-t border-hairline pt-3">
