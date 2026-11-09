@@ -1,4 +1,5 @@
 import { parse } from 'node-html-parser';
+import { unnumberedPrelockWithdrawal, type HkjcChange } from './hkjc-changes';
 
 export type OfficialRunnerResult = {
   raceNumber: number; horseNumber: number; horseId: string; finishingPosition: number | null;
@@ -10,6 +11,21 @@ const UNNUMBERED_WITHDRAWN = /^(?:WV|WX)(?:-A)?$/i;
 
 /** Parse only the complete official performance table; never incident/dividend tables. */
 export function parseOfficialResults(html: string, date: string, raceNumber: number): OfficialRunnerResult[] {
+  const page = parseOfficialResultPage(html, date, raceNumber);
+  // Callers without notice evidence must not accept a blank unnumbered row.
+  if (page.unnumberedBlank.length) throw new Error('official-result-runner-invalid');
+  return page.results;
+}
+
+/**
+ * Same parse, but a row with no horse number AND no placing is returned
+ * separately (official horse code only) instead of failing. HKJC lists a horse
+ * replaced by a standby this way (2026-11-08 ST R9 L028). The caller must
+ * prove each one with a unique, dated pre-lock official notice; it is never
+ * stored as a runner, a loss, or under the replacement's number.
+ */
+export function parseOfficialResultPage(html: string, date: string, raceNumber: number): { results: OfficialRunnerResult[]; unnumberedBlank: string[] } {
+  const unnumberedBlank: string[] = [];
   const root = parse(html);
   const selected = root.querySelector('option[selected]')?.text.trim();
   const parts = date.split('-');
@@ -33,6 +49,11 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
     // number or the replacement's ID. Coverage still requires every card
     // starter to be matched or independently proven withdrawn.
     if (text(1) === '' && UNNUMBERED_WITHDRAWN.test(place) && horseId) return [];
+    if (text(1) === '' && place === '' && horseId) {
+      if (ids.has(horseId) || unnumberedBlank.includes(horseId)) throw new Error('official-result-runner-invalid');
+      unnumberedBlank.push(horseId);
+      return [];
+    }
     // Blank is not a loss. Collector must independently verify official withdrawal.
     const finishingPosition = place === '' ? null : /^\d+$/.test(place) ? Number(place) : /^(?:DNF|PU|UR|FE|DISQ|WX(?:-A)?|WV(?:-A)?|VOID)$/i.test(place) ? null : undefined;
     if (!Number.isInteger(horseNumber) || horseNumber < 1 || !horseId || seen.has(horseNumber) || ids.has(horseId) || finishingPosition === undefined) throw new Error('official-result-runner-invalid');
@@ -48,7 +69,8 @@ export function parseOfficialResults(html: string, date: string, raceNumber: num
       jockeyId: profile(3, 'jockeyid'), trainerId: profile(4, 'trainerid') }];
   });
   if (rows.length < 4 || !rows.some(r => r.finishingPosition === 1)) throw new Error('official-result-incomplete');
-  return rows;
+  if (unnumberedBlank.some(id => ids.has(id))) throw new Error('official-result-runner-invalid');
+  return { results: rows, unnumberedBlank };
 }
 
 /** No result may publish until all current-card starters are accounted for by identity. */
@@ -73,4 +95,18 @@ export function verifyOfficialResultCoverage(results: OfficialRunnerResult[], ca
     if (r.finishingPosition !== null && (!r.jockeyId || !r.trainerId)) throw new Error('actual-rider-missing');
   }
   for (const r of card) if (!withdrawn.has(r.horseNumber) && !results.some(x => x.horseNumber === r.horseNumber && x.horseId === canonical(r.horseId))) throw new Error('official-result-starter-missing');
+}
+
+/**
+ * Every unnumbered blank row must be an off-card horse with exactly one
+ * official replaced/scratched notice for this race, announced before lock.
+ * Missing notices, names, lock time or a horse still on the card all fail.
+ */
+export function verifyUnnumberedReplacedRunners(horseCodes: string[], ev: { raceNumber: number; lockAt: string | null; cardIds: string[]; names: ReadonlyMap<string, string>; changes: HkjcChange[] | null }) {
+  for (const code of horseCodes) {
+    const horseId = `horse_${code}`;
+    if (!ev.lockAt || !ev.changes || ev.cardIds.includes(horseId) || ev.cardIds.includes(code)) throw new Error('official-result-runner-invalid');
+    const notice = unnumberedPrelockWithdrawal(ev.changes, { raceNumber: ev.raceNumber, horseNumber: null, horseId, finishingPosition: null }, ev.names.get(horseId), ev.lockAt);
+    if (!notice) throw new Error('official-result-runner-invalid');
+  }
 }

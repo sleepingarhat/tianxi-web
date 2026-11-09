@@ -234,7 +234,7 @@ function FreezeLedgerPage() {
         )}
       </Card>
 
-      {graded.map((m) => (
+      {[...graded].sort((a, b) => b.date.localeCompare(a.date)).map((m) => (
         <Card key={`races-${m.date}`} title={`逐場明細 · ${fmtMeetingDate(m.date)}`} en="Per Race">
           {m.postLockRaces?.length ? (
             <p className="mb-2 font-mono-tx text-[11px] text-ink-3">

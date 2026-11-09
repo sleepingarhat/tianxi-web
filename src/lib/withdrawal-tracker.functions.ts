@@ -34,3 +34,10 @@ export const getWithdrawalTracker = createServerFn({method:'GET'})
       }),
     };
   });
+
+/** 退出馬追蹤頁可選賽日：跟官方更易存檔，唔再寫死日期。 */
+export const getWithdrawalDates = createServerFn({method:'GET'})
+  .handler(async () => {
+    const { listHkjcChangeDates } = await import('./hkjc-changes.server');
+    return listHkjcChangeDates(12);
+  });

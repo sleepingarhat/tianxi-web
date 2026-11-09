@@ -1,5 +1,5 @@
 import { load } from 'cheerio/slim';
-import type { DividendRow } from './raceDividends';
+import { normalizeOfficialDividend, type DividendRow } from './raceDividends';
 
 export type DividendEvidence = { rows: DividendRow[]; trios: Record<number, string>; raceCount: number };
 /** Absence of a main-prize row is NOT evidence of zero payout. */
@@ -28,9 +28,9 @@ export function parseOfficialDividends(html: string, date: string, venue: string
       if (cells.length === 3) pool = cells.shift() ?? '';
       if (cells.length !== 2 || !pool) throw new Error('dividend-row-shape');
       if (/騎師王|練馬師王/.test(pool)) return;
-      const combo = cells[0] ?? '', value = (cells[1] ?? '').replaceAll(',', '');
-      if (!/^\d+(?:\.\d+)?$/.test(value)) throw new Error('dividend-unverified-amount');
-      rows.push({ race_no: race, pool, combo, dividend: Number(value), unit: 10 });
+      const combo = cells[0] ?? '', amount = normalizeOfficialDividend(cells[1] ?? '');
+      if (!amount) throw new Error('dividend-unverified-amount');
+      rows.push({ race_no: race, pool, combo, unit: 10, ...amount });
       if (pool === '單T' && /^\d+,\d+,\d+$/.test(combo) && new Set(combo.split(',')).size === 3) {
         if (trios[race] && trios[race] !== combo) throw new Error('dividend-multiple-trio-combinations');
         trios[race] = combo;

@@ -1,0 +1,224 @@
+{
+ "days": [
+  {
+   "date": "2026-10-04",
+   "races": 11,
+   "avgTop4Hits": 2.273,
+   "ci95": [
+    1.545,
+    3.0
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 11,
+    "avgTop4Hits": 2.273,
+    "ci95": [
+     1.545,
+     3.0
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-07",
+   "races": 9,
+   "avgTop4Hits": 1.889,
+   "ci95": [
+    1.444,
+    2.333
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 20,
+    "avgTop4Hits": 2.1,
+    "ci95": [
+     1.65,
+     2.55
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-11",
+   "races": 11,
+   "avgTop4Hits": 2.273,
+   "ci95": [
+    1.727,
+    2.818
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 31,
+    "avgTop4Hits": 2.161,
+    "ci95": [
+     1.806,
+     2.516
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-14",
+   "races": 9,
+   "avgTop4Hits": 1.889,
+   "ci95": [
+    1.333,
+    2.444
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 40,
+    "avgTop4Hits": 2.1,
+    "ci95": [
+     1.8,
+     2.4
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-19",
+   "races": 11,
+   "avgTop4Hits": 2.091,
+   "ci95": [
+    1.727,
+    2.455
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 51,
+    "avgTop4Hits": 2.098,
+    "ci95": [
+     1.843,
+     2.353
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-21",
+   "races": 9,
+   "avgTop4Hits": 1.889,
+   "ci95": [
+    1.556,
+    2.222
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 60,
+    "avgTop4Hits": 2.067,
+    "ci95": [
+     1.833,
+     2.283
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-25",
+   "races": 11,
+   "avgTop4Hits": 1.909,
+   "ci95": [
+    1.545,
+    2.273
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 71,
+    "avgTop4Hits": 2.042,
+    "ci95": [
+     1.845,
+     2.239
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-10-28",
+   "races": 9,
+   "avgTop4Hits": 2.111,
+   "ci95": [
+    1.667,
+    2.556
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 80,
+    "avgTop4Hits": 2.05,
+    "ci95": [
+     1.863,
+     2.237
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-11-01",
+   "races": 10,
+   "avgTop4Hits": 2.0,
+   "ci95": [
+    1.5,
+    2.4
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 90,
+    "avgTop4Hits": 2.044,
+    "ci95": [
+     1.867,
+     2.222
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  },
+  {
+   "date": "2026-11-04",
+   "races": 9,
+   "avgTop4Hits": 2.0,
+   "ci95": [
+    1.444,
+    2.556
+   ],
+   "target": 3.0,
+   "enoughSample": false,
+   "cumulative": {
+    "races": 99,
+    "avgTop4Hits": 2.04,
+    "ci95": [
+     1.869,
+     2.202
+    ],
+    "target": 3.0,
+    "enoughSample": false
+   }
+  }
+ ],
+ "overall": {
+  "races": 99,
+  "avgTop4Hits": 2.04,
+  "ci95": [
+   1.869,
+   2.202
+  ],
+  "target": 3.0,
+  "enoughSample": false
+ }
+}

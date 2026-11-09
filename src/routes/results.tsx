@@ -1,4 +1,5 @@
 import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
+import { isLgbScoreSource } from "@/lib/score-source";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -184,7 +185,7 @@ function ResultsPage() {
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
               <KV k="三重彩（頭三名複式）" v={`${num(s.trioHitRate)}% · ${s.trioHits} 場`} />
               <KV k="四重彩（頭四名複式）" v={`${num(s.first4HitRate)}% · ${s.first4Hits} 場`} />
-              <KV k="凍結模型" v={races[0]?.scoreSource === "lgb" ? "天喜LGB" : races[0]?.scoreSource || "—"} />
+              <KV k="凍結模型" v={isLgbScoreSource(races[0]?.scoreSource) ? "天喜LGB" : races[0]?.scoreSource || "—"} />
               <KV k="集成比重" v={typeof races[0]?.ensembleAlpha === "number" ? `α=${Number(races[0].ensembleAlpha).toFixed(2)}` : "—"} />
             </div>
           </div>
@@ -219,7 +220,7 @@ function ResultsPage() {
                 </summary>
                 {r.changeClassification.hasWithdrawal && <p className="mt-2 text-xs text-ink-2">退出場次 · 原凍結保留{r.officialMetric.eligible ? "並計正式戰績" : "，不計命中或場次分母"}</p>}
                 {r.changeClassification.postLockJockeyChange && <p className="mt-2 text-xs text-ink-2">鎖後換騎 · 原四揀照計，不重算</p>}
-                <div className="mt-2 grid grid-cols-2 gap-2">
+                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <div className="rounded-[8px] border border-hairline bg-paper p-2">
                     <p className="mb-1 text-[11px] font-bold text-ink-3">引擎凍結四揀</p>
                     {(r.predictedTop4 || []).map((p: any) => (

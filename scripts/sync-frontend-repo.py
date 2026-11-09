@@ -5,7 +5,7 @@ REPO = "sleepingarhat/tianxi-web"
 API = f"https://api.github.com/repos/{REPO}"
 H = {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}", "Accept": "application/vnd.github+json"}
 KEEP = ("legacy-site/",)
-SKIP_DIRS = {".git", "node_modules", "dist", ".output", ".wrangler", ".lovable", ".tanstack", "__pycache__"}
+SKIP_DIRS = {".git", "node_modules", "dist", ".output", ".wrangler", ".lovable", ".tanstack", "__pycache__", ".oj-cache"}
 
 def req(m, url, **kw):
     for i in range(5):

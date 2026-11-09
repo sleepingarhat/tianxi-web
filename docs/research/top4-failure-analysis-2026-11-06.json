@@ -1,0 +1,396 @@
+{
+ "races": 108,
+ "avgTop4Hits": 2.037,
+ "failures": {
+  "count": 27,
+  "share": 0.25,
+  "reasons": {
+   "場地": 1,
+   "未分類": 18,
+   "爆冷": 8
+  },
+  "rows": [
+   {
+    "date": "2026-10-04",
+    "race": 5,
+    "venue": "ST",
+    "going": "封地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "場地"
+    ]
+   },
+   {
+    "date": "2026-10-04",
+    "race": 9,
+    "venue": "ST",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 0,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-04",
+    "race": 10,
+    "venue": "ST",
+    "going": "好地至快地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-07",
+    "race": 5,
+    "venue": "HV",
+    "going": "好地至快地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 3,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-10-07",
+    "race": 6,
+    "venue": "HV",
+    "going": "好地至快地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-07",
+    "race": 8,
+    "venue": "HV",
+    "going": "好地至快地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-11",
+    "race": 3,
+    "venue": "ST",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-11",
+    "race": 9,
+    "venue": "ST",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-11",
+    "race": 10,
+    "venue": "ST",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-14",
+    "race": 6,
+    "venue": "HV",
+    "going": "好地",
+    "band": "長途>1650",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-14",
+    "race": 9,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 0,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-19",
+    "race": 2,
+    "venue": "ST",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 2,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-10-19",
+    "race": 9,
+    "venue": "ST",
+    "going": "好地至快地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-21",
+    "race": 2,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 2,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-10-21",
+    "race": 5,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-25",
+    "race": 2,
+    "venue": "ST",
+    "going": "好地至快地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-10-25",
+    "race": 5,
+    "venue": "ST",
+    "going": "好地至快地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 3,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-10-25",
+    "race": 9,
+    "venue": "ST",
+    "going": "好地至快地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 2,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-10-28",
+    "race": 2,
+    "venue": "ST",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 3,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-10-28",
+    "race": 6,
+    "venue": "ST",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-11-01",
+    "race": 6,
+    "venue": "HV",
+    "going": "好地",
+    "band": "長途>1650",
+    "hits": 0,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-11-04",
+    "race": 1,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-11-04",
+    "race": 4,
+    "venue": "HV",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-11-04",
+    "race": 5,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 2,
+    "reasons": [
+     "爆冷"
+    ]
+   },
+   {
+    "date": "2026-11-04",
+    "race": 1,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 0,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-11-04",
+    "race": 4,
+    "venue": "HV",
+    "going": "好地",
+    "band": "中途1201–1650",
+    "hits": 1,
+    "longshots": 1,
+    "reasons": [
+     "未分類"
+    ]
+   },
+   {
+    "date": "2026-11-04",
+    "race": 5,
+    "venue": "HV",
+    "going": "好地",
+    "band": "短途≤1200",
+    "hits": 1,
+    "longshots": 2,
+    "reasons": [
+     "爆冷"
+    ]
+   }
+  ]
+ },
+ "byVenue": {
+  "HV": {
+   "races": 55,
+   "avgTop4Hits": 1.945
+  },
+  "ST": {
+   "races": 53,
+   "avgTop4Hits": 2.132
+  }
+ },
+ "byDistance": {
+  "中途1201–1650": {
+   "races": 40,
+   "avgTop4Hits": 2.075
+  },
+  "短途≤1200": {
+   "races": 59,
+   "avgTop4Hits": 2.068
+  },
+  "長途>1650": {
+   "races": 9,
+   "avgTop4Hits": 1.667
+  }
+ },
+ "byGoing": {
+  "好地": {
+   "races": 75,
+   "avgTop4Hits": 2.013
+  },
+  "好地至快地": {
+   "races": 30,
+   "avgTop4Hits": 2.0
+  },
+  "封地": {
+   "races": 3,
+   "avgTop4Hits": 3.0
+  }
+ },
+ "byLongshotsInActualTop4": {
+  "0": {
+   "races": 48,
+   "avgTop4Hits": 2.208
+  },
+  "1": {
+   "races": 43,
+   "avgTop4Hits": 2.0
+  },
+  "2": {
+   "races": 12,
+   "avgTop4Hits": 1.667
+  },
+  "3": {
+   "races": 5,
+   "avgTop4Hits": 1.6
+  }
+ },
+ "note": "只屬研究報告；樣本未達200場，只報方向，不作升版依據。"
+}

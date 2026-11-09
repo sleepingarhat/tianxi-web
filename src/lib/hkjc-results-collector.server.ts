@@ -1,6 +1,9 @@
-import { parseOfficialResults, verifyOfficialResultCoverage, type OfficialRunnerResult } from './hkjc-official-results';
+import { parseOfficialResultPage, verifyOfficialResultCoverage, verifyUnnumberedReplacedRunners, type OfficialRunnerResult } from './hkjc-official-results';
 import { publicRacingQuery } from './public-racing-evidence.server';
 import { officialWithdrawal } from './hkjc-changes';
+import { raceStartedAt } from './racing-results-failures';
+
+const DAY_LOCK_MS = 90 * 60_000;
 
 /** Caller is authenticated by the managed cron route before entering here. */
 export async function collectOfficialRace(date: string, venue: string, raceNumber: number) {
@@ -13,7 +16,7 @@ export async function collectOfficialRace(date: string, venue: string, raceNumbe
   if (!response.ok) throw new Error(`official-result-http-${response.status}`);
   const html = await response.text();
   if (html.length > 2_000_000) throw new Error('official-result-too-large');
-  const results = parseOfficialResults(html, date, raceNumber);
+  const { results, unnumberedBlank } = parseOfficialResultPage(html, date, raceNumber);
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(html))),n=>n.toString(16).padStart(2,'0')).join('');
   const card = await publicRacingQuery<{horseNumber:number;horseId:string;nameCh:string}>(`SELECT e.horse_number horseNumber,e.horse_id horseId,h.name_ch nameCh FROM entries_upcoming e LEFT JOIN horses h ON h.id=e.horse_id WHERE e.race_date=? AND e.venue=? AND e.race_number=?`,[date,venue,raceNumber]);
   const { readLatestHkjcChanges } = await import('./hkjc-changes.server');
@@ -33,6 +36,22 @@ export async function collectOfficialRace(date: string, venue: string, raceNumbe
       const fullId = `horse_${r.horseId}`;
       if (changes?.venue===venue && officialWithdrawal(changes.changes as unknown as import('./hkjc-changes').HkjcChange[],raceNumber,r.horseNumber,nameById.get(fullId),fullId)) offCardWithdrawn.add(`${r.horseNumber}:${r.horseId}`);
     }
+  }
+  if (unnumberedBlank.length) {
+    // A horse replaced by a standby appears with no number and no placing.
+    // Accept it only with one dated official notice before the day lock (first post − 90 min).
+    const ids = unnumberedBlank.map(id=>`horse_${id}`);
+    const [names, posts] = await Promise.all([
+      publicRacingQuery<{id:string;nameCh:string}>(`SELECT id,name_ch nameCh FROM horses WHERE id IN (${ids.map(()=>'?').join(',')})`,ids),
+      publicRacingQuery<{postTime:string|null}>(`SELECT DISTINCT post_time postTime FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0`,[date,venue]),
+    ]);
+    const starts = posts.map(p=>raceStartedAt(p.postTime,date));
+    const lockAt = starts.length && starts.every(t=>t!=null) ? new Date(Math.min(...starts as number[]) - DAY_LOCK_MS).toISOString() : null;
+    verifyUnnumberedReplacedRunners(unnumberedBlank, {
+      raceNumber, lockAt, cardIds: card.map(r=>r.horseId),
+      names: new Map(names.map(n=>[n.id,n.nameCh])),
+      changes: changes?.venue===venue ? changes.changes as unknown as import('./hkjc-changes').HkjcChange[] : null,
+    });
   }
   verifyOfficialResultCoverage(results,card,withdrawn,offCardWithdrawn);
   const saved = await supabaseAdmin.from('racing_official_result_snapshots').upsert({race_date:date,venue,race_number:raceNumber,source_url:sourceUrl,source_sha256:sha256,raw_html:html,results:JSON.parse(JSON.stringify(results)),identity_verified:true},{onConflict:'race_date,venue,race_number,source_sha256',ignoreDuplicates:true});

@@ -31,6 +31,19 @@ export async function readLatestHkjcChanges(date: string, venue?: string, sha256
   return data;
 }
 
+/** 有官方更易存檔嘅賽日（新至舊、唯讀）；只列日期，唔讀內容。 */
+export async function listHkjcChangeDates(limit = 12) {
+  const { createClient } = await import('@supabase/supabase-js');
+  const key = process.env['SUPABASE_PUBLISHABLE_KEY']!;
+  const sb = createClient(process.env['SUPABASE_URL']!, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: (input, init) => { const h = new Headers(init?.headers); if (key.startsWith('sb_') && h.get('Authorization') === `Bearer ${key}`) h.delete('Authorization'); h.set('apikey', key); return fetch(input, { ...init, headers: h }); } },
+  });
+  const { data, error } = await sb.from('hkjc_changes_snapshots').select('race_date').order('race_date', { ascending: false }).limit(400);
+  if (error) throw new Error('馬會更易事項賽日暫時未能讀取');
+  return [...new Set((data ?? []).map(r => r.race_date as string))].slice(0, limit);
+}
+
 const WORKER = 'https://tianxi-backend.tianxi-entertainment.workers.dev';
 
 /**

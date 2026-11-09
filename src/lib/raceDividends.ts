@@ -1,5 +1,19 @@
 // 官方派彩（每 $10 一注）：直接讀 tianxi-racing 倉每日派彩檔 data/YYYY/dividends_DATE.csv
-export type DividendRow = { race_no: number; pool: string; combo: string; dividend: number; unit: number };
+export type DividendRow = { race_no: number; pool: string; combo: string; dividend: number; unit: number; declared_dividend?: number; declared_unit?: number };
+
+/**
+ * Official amount → payout per $10. HKJC declares some dividends to a partial
+ * unit ("235,071.20/$1.0" = each $1 receives $235,071.20); the per-$10 figure
+ * is the declared amount × 10 / unit. Anything else (refund text, blanks) is
+ * null so callers keep failing closed.
+ */
+export function normalizeOfficialDividend(text: string): { dividend: number; declared_dividend: number; declared_unit: number } | null {
+  const m = /^(\d+(?:\.\d+)?)(?:\/\$(\d+(?:\.\d+)?))?$/.exec(String(text ?? '').replaceAll(',', '').trim());
+  if (!m) return null;
+  const declared = Number(m[1]), unit = m[2] === undefined ? 10 : Number(m[2]);
+  if (!Number.isFinite(declared) || !Number.isFinite(unit) || unit <= 0 || unit > 10) return null;
+  return { dividend: Math.round(declared * 10 / unit * 100) / 100, declared_dividend: declared, declared_unit: unit };
+}
 
 export async function fetchRaceDividendEvidence(date: string, venue?: string): Promise<{ rows: DividendRow[]; trios: Record<number,string>; source?: {url:string;sha256:string} }> {
   const response = await fetch(`/api/public/racing-dividends?date=${encodeURIComponent(date)}`, { signal: AbortSignal.timeout(15_000) });
@@ -32,11 +46,9 @@ export async function fetchRaceDividends(date: string): Promise<DividendRow[]> {
     const c = splitCsv(l);
     // These promotional markets are not part of the race-pool accounting.
     if (/騎師王|練馬師王/.test(c[iP] ?? '')) continue;
-    const value = String(c[iD] ?? "").replace(/,/g, "").trim();
-    if (!value || !/^\d+(?:\.\d+)?$/.test(value)) throw new Error("官方派彩含未核實金額或退款狀態，暫停結算");
-    const dividend = Number(value);
-    if (!Number.isFinite(dividend)) throw new Error("官方派彩金額無效");
-    rows.push({ race_no: Number(c[iR]), pool: c[iP] ?? "", combo: c[iC] ?? "", dividend, unit: 10 });
+    const amount = normalizeOfficialDividend(String(c[iD] ?? ""));
+    if (!amount) throw new Error("官方派彩含未核實金額或退款狀態，暫停結算");
+    rows.push({ race_no: Number(c[iR]), pool: c[iP] ?? "", combo: c[iC] ?? "", unit: 10, ...amount });
   }
   return rows.sort((a, b) => a.race_no - b.race_no);
 }

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { isLgbScoreSource } from "@/lib/score-source";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, Empty, ErrorNote, Loading, Pill, Scroller, Silks, Table, Td } from "@/components/tx/ui";
@@ -48,8 +49,8 @@ export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveO
               <Pill tone="gold">{race.distance}m</Pill>
               <Pill>{race.going || "—"}</Pill>
               <Pill>{racingClassLabel(race.class)}</Pill>
-              <Pill tone={race.scoreSource === "lgb" ? "win" : "ink"}>
-                {race.scoreSource === "lgb" ? "天喜LGB 模型" : "基準模型"}
+              <Pill tone={isLgbScoreSource(race.scoreSource) ? "win" : "ink"}>
+                {isLgbScoreSource(race.scoreSource) ? "天喜LGB 模型" : "基準模型"}
               </Pill>
               {race.raceQuality?.tier ? <Pill>賽事質素 {race.raceQuality.tier}</Pill> : null}
               {start ? <Pill>{start}</Pill> : null}

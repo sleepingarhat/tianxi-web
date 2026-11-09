@@ -3,25 +3,29 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { AppShell } from '@/components/tx/AppShell';
 import { Card, PageHead, Pill, Stat, ErrorNote } from '@/components/tx/ui';
-import { getWithdrawalTracker } from '@/lib/withdrawal-tracker.functions';
+import { getWithdrawalDates, getWithdrawalTracker } from '@/lib/withdrawal-tracker.functions';
+import { defaultWithdrawalDate, hkStamp } from '@/lib/withdrawal-dates';
+import { hkDateKey } from '@/lib/hkTime';
 import { withdrawalTimingLabel } from '@/lib/withdrawal-substitution';
+const datesOptions=queryOptions({queryKey:['withdrawal-dates'],queryFn:()=>getWithdrawalDates(),staleTime:60_000});
+const pickDate=(dates:string[],search?:string)=>search ?? defaultWithdrawalDate(dates,hkDateKey(new Date().toISOString())) ?? hkDateKey(new Date().toISOString());
 const options=(date:string)=>queryOptions({queryKey:['withdrawal-tracker',date],queryFn:()=>getWithdrawalTracker({data:{date}}),retry:false,staleTime:30_000});
 export const Route=createFileRoute('/withdrawals')({
-  validateSearch:z.object({date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).catch('2026-10-21')}),
+  validateSearch:z.object({date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().catch(undefined)}),
   loaderDeps:({search})=>({date:search.date}),
-  loader:({context,deps})=>context.queryClient.ensureQueryData(options(deps.date)),
+  loader:async({context,deps})=>{const dates=await context.queryClient.ensureQueryData(datesOptions);await context.queryClient.ensureQueryData(options(pickDate(dates,deps.date)));},
   head:()=>({meta:[{title:'退出馬追蹤 · 天喜 TIANXI'},{name:'description',content:'官方退出原因、公布時間、原凍結四揀及訓練驗收狀態逐項核對。'},{property:'og:title',content:'退出馬追蹤 · 天喜 TIANXI'},{property:'og:description',content:'官方原文指紋、凍結證據及鎖後換騎分組，缺證據不補造。'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),
   errorComponent:({error})=><AppShell><PageHead en="WITHDRAWAL EVIDENCE" title="退出馬追蹤"/><div className="p-4"><ErrorNote error={error}/></div></AppShell>,
   component:WithdrawalPage,
 });
 function WithdrawalPage(){
-  const {date}=Route.useSearch(); const {data}=useSuspenseQuery(options(date));
+  const search=Route.useSearch(); const {data:dates}=useSuspenseQuery(datesOptions); const date=pickDate(dates,search.date); const {data}=useSuspenseQuery(options(date));
   const labels:Record<string,string>={available:'已核實原副本','no-archive':'未有原始凍結副本','not-verified':'副本未核實','verification-failed':'副本核對未通過','read-failed':'暫時未能讀取'};
   const group=data.summary?.groups['post-lock-jockey-change'];
   return <AppShell columns={false}>
     <PageHead en="WITHDRAWAL EVIDENCE" title="退出馬追蹤"/>
     <div className="flex flex-wrap gap-4 border-b border-hairline p-4 text-sm">
-      {['2026-10-21','2026-10-19','2026-10-14'].map(d=><Link key={d} to="/withdrawals" search={{date:d}} aria-current={date===d?'page':undefined} className={date===d?'font-bold text-gold underline':'text-ink-2'}>{d}</Link>)}
+      {(dates.length?dates:[date]).map(d=><Link key={d} to="/withdrawals" search={{date:d}} aria-current={date===d?'page':undefined} className={date===d?'font-bold text-gold underline':'text-ink-2'}>{d}</Link>)}
       <Link to="/race-changes" className="text-gold underline">官方更改</Link>
     </div>
     <div className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
@@ -30,13 +34,13 @@ function WithdrawalPage(){
       <Stat label="鎖後換騎組" value={group?.originalAverage?.toFixed(2) ?? '待核'} sub={`${group?.races ?? 0} 場已核實`}/>
     </div>
     <section className="grid gap-4 border-y border-hairline bg-paper-2 p-4 text-xs lg:grid-cols-2">
-      <div className="space-y-2"><Pill tone={data.frozenEvidence==='available'?'win':'gold'}>{labels[data.frozenEvidence] ?? '未核實'}</Pill><p className="text-ink-2">鎖點：{data.lockAt ?? '未核實'}</p><p className="break-all font-mono-tx text-ink-3">凍結 SHA：{data.frozenSha ?? '無原副本，不能事後補造'}</p></div>
-      <div className="space-y-2"><p className="text-ink-2">官方擷取：{data.fetchedAt ?? '未有存檔'}</p><p className="break-all font-mono-tx text-ink-3">原文 SHA：{data.sha256 ?? '未有存檔'}</p>{data.source?<a className="break-all text-gold underline" href={data.source} target="_blank" rel="noreferrer">馬會官方更易事項</a>:null}</div>
+      <div className="space-y-2"><Pill tone={data.frozenEvidence==='available'?'win':'gold'}>{labels[data.frozenEvidence] ?? '未核實'}</Pill><p className="text-ink-2">鎖點：{hkStamp(data.lockAt) ?? '未核實'}</p><p className="break-all font-mono-tx text-ink-3">凍結 SHA：{data.frozenSha ?? '無原副本，不能事後補造'}</p></div>
+      <div className="space-y-2"><p className="text-ink-2">官方擷取：{hkStamp(data.fetchedAt) ?? '未有存檔'}</p><p className="break-all font-mono-tx text-ink-3">原文 SHA：{data.sha256 ?? '未有存檔'}</p>{data.source?<a className="break-all text-gold underline" href={data.source} target="_blank" rel="noreferrer">馬會官方更易事項</a>:null}</div>
     </section>
     <div className="grid gap-1 lg:grid-cols-2">
       {data.withdrawals.map(c=><Card key={`${c.raceNumber}:${c.horseNumber}:${c.horseName}`} title={`第${c.raceNumber}場 · ${c.horseNumber}號 ${c.horseName}`} action={<Pill tone="lose">{c.kind==='replaced'?'退出／後備補上':'退出'}</Pill>}>
         <dl className="grid grid-cols-[84px_minmax(0,1fr)] gap-2 text-xs leading-relaxed">
-          <dt className="text-ink-3">官方公布</dt><dd>{c.announcedAtIso ?? c.announcedAt}</dd>
+          <dt className="text-ink-3">官方公布</dt><dd>{c.announcedAtIso ? hkStamp(c.announcedAtIso) : c.announcedAt}</dd>
           <dt className="text-ink-3">退出原因</dt><dd>{c.text}</dd>
           <dt className="text-ink-3">鎖點分類</dt><dd>{withdrawalTimingLabel(c.beforeLock,c.originalRank,c.metricEligible)}</dd>
           <dt className="text-ink-3">原選排名</dt><dd>{c.originalRank ?? '未有匹配原副本'}</dd>

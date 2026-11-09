@@ -1,4 +1,6 @@
 import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
+import { isLgbScoreSource } from "@/lib/score-source";
+import { racingClassLabel } from "@/lib/racing-class";
 import { useTier } from "@/lib/useTier";
 import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
 import { cardAccess } from "@/lib/tier-projection";
@@ -81,11 +83,13 @@ function CardsPage() {
               }
             >
               <div className="mb-2 flex flex-wrap gap-1.5">
-                <Pill>{r.going || "—"}</Pill>
-                <Pill>第 {String(r.class).replace(/[^0-9]/g, "") || "?"} 班</Pill>
-                <Pill tone={r.scoreSource === "lgb" ? "win" : "ink"}>
-                  {r.scoreSource === "lgb" ? "天喜LGB" : "基準"}
-                </Pill>
+                <Pill>{r.going || "場地待公布"}</Pill>
+                <Pill>{racingClassLabel(r.class ?? r.className)}</Pill>
+                {r.scoreSource ? (
+                  <Pill tone={isLgbScoreSource(r.scoreSource) ? "win" : "ink"}>
+                    {isLgbScoreSource(r.scoreSource) ? "天喜LGB" : "基準"}
+                  </Pill>
+                ) : null}
                 {r.raceQuality?.tier ? <Pill tone="gold">質素 {r.raceQuality.tier}</Pill> : null}
               </div>
               <Scroller>

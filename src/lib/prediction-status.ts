@@ -1,3 +1,4 @@
+import { isLgbScoreSource } from "./score-source";
 // 天喜 · 預測狀態燈邏輯（單一真相，前端共用）
 // 綠燈＝已鎖定最終預測；黃燈＝仍會更新；紅燈＝資料未齊，只作參考。
 
@@ -96,7 +97,7 @@ export function raceStatus(
   const lgbCovered = picks.filter(
     (p) => p?.scoreSource === "lgb" || p?.lgbScore != null || p?.pLgb != null,
   ).length;
-  const raceIsLgb = race?.scoreSource === "lgb";
+  const raceIsLgb = isLgbScoreSource(race?.scoreSource);
   // 場次層級為 LGB 時，視同全場覆蓋（後端以整場判定）
   const covered = raceIsLgb ? (lgbCovered || lgbTotal) : lgbCovered;
   const lgbFull = lgbTotal > 0 && covered >= lgbTotal;

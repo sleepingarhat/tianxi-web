@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { parseOfficialResults, verifyOfficialResultCoverage, type OfficialRunnerResult } from './hkjc-official-results';
+import { parseOfficialResultPage, parseOfficialResults, verifyOfficialResultCoverage, verifyUnnumberedReplacedRunners, type OfficialRunnerResult } from './hkjc-official-results';
+import type { HkjcChange } from './hkjc-changes';
 const rows: OfficialRunnerResult[] = [1,2,3,4,5].map(n=>({raceNumber:1,horseNumber:n,horseId:`K00${n}`,finishingPosition:n,winOdds:3,runningPosition:null,jockeyId:'PZ',trainerId:'SCS'}));
 const card = rows.map(r=>({horseNumber:r.horseNumber,horseId:r.horseId}));
 describe('official results do not contaminate training',()=>{
@@ -70,5 +71,29 @@ describe('official results do not contaminate training',()=>{
   it('off-card runner with a placing is never excused as withdrawn',()=>{
     const offCard = {raceNumber:1,horseNumber:5,horseId:'K585',finishingPosition:2,winOdds:3,runningPosition:null,jockeyId:'PZ',trainerId:'SCS'};
     expect(()=>verifyOfficialResultCoverage([...rows.slice(0,4),offCard],card.slice(0,4),new Set(),new Set(['5:K585']))).toThrow('official-result-identity-mismatch');
+  });
+});
+describe('replaced-by-standby horse listed without number or placing (2026-11-08 ST R9 L028)',()=>{
+  const blank = `<tr><td></td><td></td><td><a href="/horse?horseid=HK_2024_L028">HELENE SUPAFEELING</a></td>${'<td>---</td>'.repeat(9)}</tr>`;
+  const html = `<select><option selected>08/11/2026</option></select><div class="race_tab">RACE 9 (175)</div><div class="performance"><table class="draggable"><thead><tr><th>Win Odds</th></tr></thead><tbody>${[1,2,3,4].map(n=>`<tr><td>${n}</td><td>${n}</td><td><a href="/horse?horseid=HK_2024_K00${n}">馬</a></td>${'<td>1</td>'.repeat(9)}</tr>`).join('')}${blank}</tbody></table></div>`;
+  const notice: HkjcChange = { raceNumber: 9, horseNumber: 1, horseName: '喜蓮勁感', kind: 'replaced', replacement: '展長風', text: '退出競賽,由後備馬 展長風 補上。', announcedAt: '05/11 12:51', announcedAtIso: '2026-11-05T04:51:00.000Z' };
+  const ev = { raceNumber: 9, lockAt: '2026-11-08T03:30:00.000Z', cardIds: ['horse_L493','horse_K002'], names: new Map([['horse_L028','喜蓮勁感']]), changes: [notice] };
+  it('parses the starters and returns the blank row separately, never as a runner',()=>{
+    const page = parseOfficialResultPage(html,'2026-11-08',9);
+    expect(page.results.map(r=>r.horseId)).toEqual(['K001','K002','K003','K004']);
+    expect(page.unnumberedBlank).toEqual(['L028']);
+    expect(()=>parseOfficialResults(html,'2026-11-08',9)).toThrow('official-result-runner-invalid');
+  });
+  it('accepts it only with one dated pre-lock replaced notice matching the horse name',()=>{
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],ev)).not.toThrow();
+  });
+  it('missing notice, late notice, wrong name, no lock time or a horse still on the card all fail',()=>{
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,changes:[]})).toThrow('official-result-runner-invalid');
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,changes:null})).toThrow('official-result-runner-invalid');
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,changes:[{...notice,announcedAtIso:'2026-11-08T05:00:00.000Z'}]})).toThrow('official-result-runner-invalid');
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,names:new Map([['horse_L028','別的馬']])})).toThrow('official-result-runner-invalid');
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,lockAt:null})).toThrow('official-result-runner-invalid');
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,cardIds:['horse_L028']})).toThrow('official-result-runner-invalid');
+    expect(()=>verifyUnnumberedReplacedRunners(['L028'],{...ev,changes:[{...notice,kind:'other'}]})).toThrow('official-result-runner-invalid');
   });
 });

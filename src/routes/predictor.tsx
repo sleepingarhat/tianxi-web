@@ -1,4 +1,5 @@
 import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
+import { isLgbScoreSource } from "@/lib/score-source";
 import { FeaturePageGate } from "@/components/tx/gates/FeaturePageGate";
 import { TierGate } from "@/components/tx/gates/TierGate";
 import { useTier } from "@/lib/useTier";
@@ -317,7 +318,7 @@ function PredictorPage() {
             <Pill tone="gold">R{race.raceNumber} · {race.distance || "—"}m</Pill>
             <Pill>{race.going || "地質待公布"}</Pill>
             <Pill>{racingClassLabel(race.class)}</Pill>
-            <Pill tone={race.scoreSource === "lgb" ? "win" : "ink"}>{race.scoreSource === "lgb" ? "天喜LGB" : "天喜ELO 基準"}</Pill>
+            <Pill tone={isLgbScoreSource(race.scoreSource) ? "win" : "ink"}>{isLgbScoreSource(race.scoreSource) ? "天喜LGB" : "天喜ELO 基準"}</Pill>
             {typeof race.ensembleAlpha === "number" ? <Pill>α={race.ensembleAlpha.toFixed(2)}</Pill> : null}
             {start ? <Pill>{start} 開跑</Pill> : null}
           </div>
