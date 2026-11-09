@@ -123,6 +123,7 @@ function ResultsPage() {
   return (
     <AppShell page="" ticker={activeDate ? `${fmtMeetingDate(activeDate)} 賽果核對` : "載入賽事…"}>
       <PageHead en="Results Audit" title="賽果核對" desc="引擎預測在賽前凍結，賽後與官方賽果逐場比對。" />
+      <p className="mx-4 mt-2 text-[12px]"><Link to="/official-pools" search={activeDate ? { date: activeDate } : {}} className="font-bold text-gold underline underline-offset-2">馬會官方派彩、彩池狀態及場地探針 →</Link></p>
 
       <div className="no-scrollbar mx-4 flex gap-1 overflow-x-auto">
         {meetings.map((m) => {

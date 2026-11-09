@@ -615,6 +615,7 @@ function OfficialFocusCard({ data }: { data: OfficialData }) {
       {focus.lead ? <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{focus.lead}</p> : null}
       <a href={focus.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-[12px] font-bold text-gold underline underline-offset-2">睇馬會原文 →</a>
       <Link to="/headlines" className="ml-3 inline-block text-[12px] font-bold text-gold underline underline-offset-2">所有賽日頭條</Link>
+      <Link to="/official-pools" className="ml-3 inline-block text-[12px] font-bold text-gold underline underline-offset-2">官方派彩及彩池</Link>
       <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：只顯示標題及導語，全文請睇馬會網頁。不計入預測。</p>
     </Card>
   );

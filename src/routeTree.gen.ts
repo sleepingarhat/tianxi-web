@@ -30,6 +30,7 @@ import { Route as MediaCreditsRouteImport } from './routes/media-credits'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as ModelRouteImport } from './routes/model'
 import { Route as MyHorsesRouteImport } from './routes/my-horses'
+import { Route as OfficialPoolsRouteImport } from './routes/official-pools'
 import { Route as PoolOddsRouteImport } from './routes/pool-odds'
 import { Route as PredictionReconciliationRouteImport } from './routes/prediction-reconciliation'
 import { Route as PredictionVsResultRouteImport } from './routes/prediction-vs-result'
@@ -223,6 +224,11 @@ const ModelRoute = ModelRouteImport.update({
 const MyHorsesRoute = MyHorsesRouteImport.update({
   id: '/my-horses',
   path: '/my-horses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfficialPoolsRoute = OfficialPoolsRouteImport.update({
+  id: '/official-pools',
+  path: '/official-pools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoolOddsRoute = PoolOddsRouteImport.update({
@@ -733,6 +739,7 @@ export interface FileRoutesByFullPath {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/my-horses': typeof MyHorsesRoute
+  '/official-pools': typeof OfficialPoolsRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -844,6 +851,7 @@ export interface FileRoutesByTo {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/my-horses': typeof MyHorsesRoute
+  '/official-pools': typeof OfficialPoolsRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -957,6 +965,7 @@ export interface FileRoutesById {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/my-horses': typeof MyHorsesRoute
+  '/official-pools': typeof OfficialPoolsRoute
   '/pool-odds': typeof PoolOddsRoute
   '/prediction-reconciliation': typeof PredictionReconciliationRoute
   '/prediction-vs-result': typeof PredictionVsResultRoute
@@ -1071,6 +1080,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/my-horses'
+    | '/official-pools'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -1182,6 +1192,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/my-horses'
+    | '/official-pools'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -1294,6 +1305,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/my-horses'
+    | '/official-pools'
     | '/pool-odds'
     | '/prediction-reconciliation'
     | '/prediction-vs-result'
@@ -1408,6 +1420,7 @@ export interface RootRouteChildren {
   MembershipRoute: typeof MembershipRoute
   ModelRoute: typeof ModelRoute
   MyHorsesRoute: typeof MyHorsesRoute
+  OfficialPoolsRoute: typeof OfficialPoolsRoute
   PoolOddsRoute: typeof PoolOddsRoute
   PredictionReconciliationRoute: typeof PredictionReconciliationRoute
   PredictionVsResultRoute: typeof PredictionVsResultRoute
@@ -1625,6 +1638,13 @@ declare module '@tanstack/react-router' {
       path: '/my-horses'
       fullPath: '/my-horses'
       preLoaderRoute: typeof MyHorsesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/official-pools': {
+      id: '/official-pools'
+      path: '/official-pools'
+      fullPath: '/official-pools'
+      preLoaderRoute: typeof OfficialPoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pool-odds': {
@@ -2362,6 +2382,7 @@ const rootRouteChildren: RootRouteChildren = {
   MembershipRoute: MembershipRoute,
   ModelRoute: ModelRoute,
   MyHorsesRoute: MyHorsesRoute,
+  OfficialPoolsRoute: OfficialPoolsRoute,
   PoolOddsRoute: PoolOddsRoute,
   PredictionReconciliationRoute: PredictionReconciliationRoute,
   PredictionVsResultRoute: PredictionVsResultRoute,
