@@ -13,3 +13,4 @@
 
 - Job heartbeats (`job_tick:*`, src/lib/job-ticks.ts registry) are read by the hourly sweep watchdog (`job-ticks-watch.server.ts`); a fail-status tick counts as alive — per-run failures keep using the dividends alert chain (updateDividendAlert). Why: heartbeat staleness means the cron stopped running, not that a run failed; duplicate failure alerts are noise.
 - Stripe checkout/portal return URLs pass payment-return-url: live accepts only production origins, sandbox adds preview/localhost, checkout path is server-fixed; reject otherwise before any provider call. Why: callers must not turn billing redirects into open redirects.
+- Official HKJC images and file links render only through official-records officialAssetUrl (host + path allowlist, image vs link), with referrerPolicy no-referrer and no proxying or re-hosting. Why: Worker rows are upstream data and must not become arbitrary image or link sources.

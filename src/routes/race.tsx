@@ -15,7 +15,9 @@ import { racePicksFromDay } from "@/lib/race-picks";
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingStatusPills, RunnerFormStrip } from "@/components/tx/MeetingDayPanel";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } from "@/components/tx/ui";
-import { displayedCardStatus, effectiveDrawStatus, runnerFormCells, runnerMeasures } from "@/lib/meeting-card";
+import { displayedCardStatus, effectiveDrawStatus, runnerFormCells, runnerMeasures, showsDeclaredCard } from "@/lib/meeting-card";
+import { brandOf, profileForRunner, reservesForRace } from "@/lib/official-records";
+import { RaceFilesBlock, ReserveList, RunnerProfileStrip, useRacecardOfficial } from "@/components/tx/RacecardOfficial";
 import { asVenue } from "@/lib/official-boards";
 import { canonicalRaceId, finishTime, fmtMeetingDate, txApi } from "@/lib/tx-api";
 
@@ -89,6 +91,19 @@ function RacePage() {
   });
 
 
+  const fallbackRace = (meeting.data?.races || []).find((r: any) => Number(r.raceNumber) === raceNumber);
+  const d = race.data?.horses?.length || race.data?.entries?.length ? race.data : (fallbackRace ?? initial.race ?? race.data);
+  const winOddsMap: Record<string, number> = odds.data?.winOdds || {};
+  const plaOddsMap: Record<string, number> = odds.data?.plaOdds || {};
+  const liveWin = (n: unknown) => winOddsMap[String(n).padStart(2, "0")] ?? null;
+  const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
+  const horses: any[] = d?.horses || d?.entries || [];
+  const cardStatus = displayedCardStatus(fallbackRace, meeting.data, d);
+  const drawStatus = effectiveDrawStatus(fallbackRace, meeting.data);
+  const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
+  // 馬會官方排位資料同檔案：只限正式排位或完場；已報名唔讀
+  const official = useRacecardOfficial(raceDate, venueCode, !!raceDate && showsDeclaredCard(cardStatus));
+
 
   if (!raceId) {
     return (
@@ -114,16 +129,6 @@ function RacePage() {
     );
   }
 
-  const fallbackRace = (meeting.data?.races || []).find((r: any) => Number(r.raceNumber) === raceNumber);
-  const d = race.data?.horses?.length || race.data?.entries?.length ? race.data : (fallbackRace ?? initial.race ?? race.data);
-  const winOddsMap: Record<string, number> = odds.data?.winOdds || {};
-  const plaOddsMap: Record<string, number> = odds.data?.plaOdds || {};
-  const liveWin = (n: unknown) => winOddsMap[String(n).padStart(2, "0")] ?? null;
-  const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
-  const horses: any[] = d?.horses || d?.entries || [];
-  const cardStatus = displayedCardStatus(fallbackRace, meeting.data, d);
-  const drawStatus = effectiveDrawStatus(fallbackRace, meeting.data);
-  const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
   // 引擎首選：只用已核實凍結／全日預測（同日同馬場），唔會用舊後端即時預測
   const dayRacePicks = projectRacePicks(racePicksFromDay(dayPicks.data, raceDate, venueCode, raceNumber), tier.tier);
   const pickRank = new Map<number, number>();
@@ -191,6 +196,7 @@ function RacePage() {
                 cardStatus,
                 isDeclaredCard: meeting.data?.isDeclaredCard,
               });
+              const profile = profileForRunner(official.profiles, raceNumber, h.horseNumber, brandOf(h.code, h.brand, h.id, h.horseId));
               return (
                 <article
                   key={h.id || h.horseNumber}
@@ -233,6 +239,7 @@ function RacePage() {
                     ))}
                   </dl>
                   <RunnerFormStrip cells={form} />
+                  {profile ? <RunnerProfileStrip row={profile} /> : null}
                 </article>
               );
             })}
@@ -240,7 +247,19 @@ function RacePage() {
         ) : (
           <Empty label={entriesOnly ? "此場尚無報名名單" : "此場尚無排位資料"} />
         )}
+        {official.enabled ? <ReserveList rows={reservesForRace(official.profiles, raceNumber)} /> : null}
       </Card>
+
+      {official.enabled ? (
+        <Card title="官方排位檔案" en="Racecard files" action={<Pill tone="gold">馬會官方</Pill>}>
+          <RaceFilesBlock official={official} raceNo={raceNumber} />
+          {!official.profileLoading && !official.profileError && !official.profiles.length ? (
+            <p className="mt-2 text-[11px] text-ink-3">排位馬匹資料：{official.profileAvailable ? "呢個範圍未有收錄。" : "暫時未有呢項官方資料。"}</p>
+          ) : null}
+          {official.profileError ? <p className="mt-2 text-[11px] text-ink-3">暫時讀唔到官方排位馬匹資料。</p> : null}
+          <p className="mt-2 text-[11px] leading-relaxed text-ink-3">官方顯示，唔係賽果名次，亦唔會用作預測。</p>
+        </Card>
+      ) : null}
 
       <Card title="引擎首選" en="Engine Picks">
         {dayPicks.isLoading ? (

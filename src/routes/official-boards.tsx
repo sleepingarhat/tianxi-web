@@ -46,7 +46,7 @@ export const Route = createFileRoute("/official-boards")({
   head: () => ({
     meta: [
       { title: "官方資料 · 天喜 TIANXI" },
-      { name: "description", content: "已收錄嘅馬會官方顯示：賽日獸醫檢查、從化往來、騎練合作、特別獎金、終點照片、騎師王同練馬師王賠率，以及獸醫名單、自購馬往績、曾用名同特別註解。" },
+      { name: "description", content: "已收錄嘅馬會官方顯示：賽日獸醫檢查、從化往來、騎練合作、特別獎金、終點照片、騎練王賠率、排位馬匹資料同排位檔案，以及獸醫名單、自購馬往績、曾用名、特別註解、賽日數據、馬匹評分、馬匹消息同進口資格。" },
       { property: "og:title", content: "官方資料 · 天喜 TIANXI" },
       { property: "og:description", content: "馬會已收錄嘅官方顯示。唔係賽果名次，亦唔會用作預測。" },
       { property: "og:type", content: "website" },

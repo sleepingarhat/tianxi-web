@@ -18,6 +18,9 @@ import {
 } from "@/lib/meeting-card";
 import { canonicalHorseId, canonicalRaceId, type Meeting, type RaceHorse, type RaceSummary } from "@/lib/tx-api";
 
+import { brandOf, profileForRunner, reservesForRace } from "@/lib/official-records";
+
+import { OfficialLink, RaceFilesBlock, ReserveList, RunnerProfileStrip, useRacecardOfficial, type RacecardOfficial } from "./RacecardOfficial";
 import { Pill, Scroller, Silks, Table, Td } from "./ui";
 
 export function MeetingStatusPills({
@@ -66,9 +69,11 @@ function raceDistance(race: RaceSummary): string {
 function RunnerRoster({
   race,
   meeting,
+  official,
 }: {
   race: RaceSummary;
   meeting: Meeting;
+  official: RacecardOfficial;
 }) {
   const horses = race.horses || [];
   const status = effectiveCardStatus(race, meeting);
@@ -85,7 +90,9 @@ function RunnerRoster({
     );
   }
   const labels = ["檔位", imposedWeightLabel(race.title), "排位體重"];
+  const raceNo = Number(race.raceNumber);
   return (
+    <>
     <Scroller>
       <Table head={["馬匹", ...labels]}>
         {horses.map((horse) => {
@@ -93,6 +100,7 @@ function RunnerRoster({
           const form = runnerFormCells({ horse, cardStatus: status });
           const name = horse.nameCh || horse.name || "未命名";
           const id = canonicalHorseId(horse.id);
+          const profile = profileForRunner(official.profiles, raceNo, horse.horseNumber, brandOf(horse.code, horse.id));
           return (
             <Fragment key={horse.id || `${horse.horseNumber}-${name}`}>
               <tr className="border-b border-hairline">
@@ -117,10 +125,11 @@ function RunnerRoster({
                   <Td key={label}>{row.find((item) => item.label === label)?.value ?? "—"}</Td>
                 ))}
               </tr>
-              {form.length ? (
+              {form.length || profile ? (
                 <tr className="border-b border-hairline">
                   <td colSpan={labels.length + 1} className="px-1 pb-2">
                     <RunnerFormStrip cells={form} />
+                    {profile ? <RunnerProfileStrip row={profile} /> : null}
                   </td>
                 </tr>
               ) : null}
@@ -129,6 +138,11 @@ function RunnerRoster({
         })}
       </Table>
     </Scroller>
+    <ReserveList rows={reservesForRace(official.profiles, raceNo)} />
+    <div className="py-2">
+      <RaceFilesBlock official={official} raceNo={raceNo} showAll={false} />
+    </div>
+    </>
   );
 }
 
@@ -163,8 +177,12 @@ export function MeetingDayPanel({
   const status: CardStatus | null = cardStatusOf(meeting);
   const races = meeting.races || [];
   const declared = showsDeclaredCard(status);
+  const official = useRacecardOfficial(meeting.date, meeting.venue, declared);
   return (
     <div className="pb-3 pl-1">
+      {declared && official.files.allPdf ? (
+        <p className="pb-1 text-[12px]"><OfficialLink href={official.files.allPdf}>全日排位 PDF（馬會官方）↗</OfficialLink></p>
+      ) : null}
       {!races.length ? (
         <p className="py-2 text-[12px] text-ink-3">{meetingRacesEmptyLabel(status)}</p>
       ) : (
@@ -189,7 +207,7 @@ export function MeetingDayPanel({
                     </Link>
                   ) : null}
                 </div>
-                {open ? <RunnerRoster race={race} meeting={meeting} /> : null}
+                {open ? <RunnerRoster race={race} meeting={meeting} official={official} /> : null}
               </div>
             );
           })}

@@ -19,6 +19,8 @@ export const MEETING_BOARDS = [
   { id: "fwb-declared", label: "已申報特別獎金", en: "Declared bonus" },
   { id: "finish-photos", label: "終點照片", en: "Finish photos" },
   { id: "challenge-odds", label: "騎師王／練馬師王賠率", en: "Challenge odds" },
+  { id: "racecard-profile", label: "排位馬匹資料", en: "Racecard profile" },
+  { id: "racecard-files", label: "排位檔案及跑道圖", en: "Racecard files" },
 ] as const;
 
 export const DIRECTORY_BOARDS = [
@@ -26,7 +28,23 @@ export const DIRECTORY_BOARDS = [
   { id: "ppo-performance", label: "自購馬往績", en: "PPO notes" },
   { id: "horse-former-name", label: "馬匹曾用名", en: "Former name" },
   { id: "special-index", label: "特別註解", en: "Special index" },
+  { id: "stats-centre", label: "賽日數據", en: "Stats centre" },
+  { id: "horse-ratings", label: "馬匹評分", en: "Horse ratings" },
+  { id: "horse-news", label: "馬匹消息", en: "Horse news" },
+  { id: "import-policy", label: "進口資格", en: "Import criteria" },
 ] as const;
+
+export type RatingBoard = "clas" | "csum" | "tp50";
+export type PolicyPage = "pps" | "ppgs";
+const NEWS_VIEW = /^(?:Horses|List)\/[A-Za-z0-9_]{1,40}$/;
+
+export function asRatingBoard(value: unknown): RatingBoard | null {
+  return value === "clas" || value === "csum" || value === "tp50" ? value : null;
+}
+
+export function asPolicyPage(value: unknown): PolicyPage | null {
+  return value === "pps" || value === "ppgs" ? value : null;
+}
 
 export type MeetingBoardId = (typeof MEETING_BOARDS)[number]["id"];
 export type DirectoryBoardId = (typeof DIRECTORY_BOARDS)[number]["id"];
@@ -70,6 +88,12 @@ export type BoardQuery = {
   brand?: string | null;
   season?: string | null;
   asOf?: string | null;
+  /** 馬匹評分必填：clas 評分榜、csum 評分變動、tp50 最高評分。 */
+  ratingBoard?: string | null;
+  /** 馬匹消息可選分類，例如 List/bres。 */
+  newsView?: string | null;
+  /** 進口資格可選分頁。 */
+  policyPage?: string | null;
 };
 
 function queryString(pairs: [string, string][]): string {
@@ -92,6 +116,20 @@ function raceNoParam(value: number | null | undefined): string | null {
 /** 參數未齊或會令接口回 400 時回 null，呼叫方唔好發請求。 */
 export function officialBoardPath(board: BoardId, query: BoardQuery = {}): string | null {
   if (board === "special-index") return "/api/official/special-index";
+  if (board === "stats-centre") return "/api/official/stats-centre";
+  if (board === "horse-ratings") {
+    const rating = asRatingBoard(query.ratingBoard);
+    return rating ? `/api/official/horse-ratings?board=${rating}` : null;
+  }
+  if (board === "horse-news") {
+    if (query.newsView == null || query.newsView === "") return "/api/official/horse-news";
+    return NEWS_VIEW.test(query.newsView) ? `/api/official/horse-news?view=${query.newsView}` : null;
+  }
+  if (board === "import-policy") {
+    if (query.policyPage == null || query.policyPage === "") return "/api/official/import-policy";
+    const page = asPolicyPage(query.policyPage);
+    return page ? `/api/official/import-policy?page=${page}` : null;
+  }
   if (board === "ove-database") {
     const asOf = asDate(query.asOf);
     return `/api/official/ove-database${queryString(asOf ? [["asOf", asOf]] : [])}`;
@@ -115,6 +153,8 @@ export function officialBoardPath(board: BoardId, query: BoardQuery = {}): strin
   if (board === "ove-record") return `/api/official/ove-record${queryString(base)}`;
   if (board === "conghua-movement") return `/api/official/conghua-movement${queryString(base)}`;
   if (board === "fwb-declared") return `/api/official/fwb-declared${queryString(base)}`;
+  if (board === "racecard-profile") return `/api/official/racecard-profile${queryString(base)}`;
+  if (board === "racecard-files") return `/api/official/racecard-files${queryString(base)}`;
   if (board === "jt-combo") {
     const section = query.section === "combo" || query.section === "debut" ? query.section : null;
     return `/api/official/jt-combo${queryString(section ? [...base, ["section", section]] : base)}`;
@@ -191,7 +231,7 @@ export class OfficialBoardError extends Error {
 
 export async function fetchOfficialBoard(path: string): Promise<OfficialEnvelope> {
   const response = await fetch(TX_BASE + path, { credentials: "omit" });
-  if (response.status === 400) throw new OfficialBoardError("日期、馬場或烙號唔正確。");
+  if (response.status === 400) throw new OfficialBoardError("日期、馬場、烙號或分頁唔正確。");
   if (!response.ok) throw new OfficialBoardError("暫時讀唔到官方資料。");
   const payload: unknown = await response.json();
   const envelope = readEnvelope(payload);

@@ -1,12 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 
 import {
-  OFFICIAL_COPY_NOTE,
   challengeRaceLabel,
   emptyBoardLabel,
-  fetchOfficialBoard,
   filterRows,
   formatOfficialRate,
   groupChallenge,
@@ -38,73 +35,9 @@ import {
   type VenueCode,
 } from "@/lib/official-boards";
 
+import { BoardCard, Count, Pager, note, useBoard } from "./OfficialBoardParts";
+import { HorseNewsBoard, HorseRatingsBoard, ImportPolicyBoard, RacecardFilesBoard, RacecardProfileBoard, StatsCentreBoard } from "./OfficialRecordBoards";
 import { Card, Empty, ErrorNote, Loading, Pill, Scroller, Seg, Table, Td } from "./ui";
-
-function useBoard(path: string | null) {
-  return useQuery({
-    queryKey: ["official-board", path],
-    queryFn: () => fetchOfficialBoard(path!),
-    enabled: path != null,
-    staleTime: 120_000,
-  });
-}
-
-function note() {
-  return <p className="mt-2 text-[11px] leading-relaxed text-ink-3">{OFFICIAL_COPY_NOTE}</p>;
-}
-
-function Count({ n }: { n: number }) {
-  return <p className="text-[11px] text-ink-3">共 {n} 筆</p>;
-}
-
-function Pager({ page, pages, onPage }: { page: number; pages: number; onPage: (page: number) => void }) {
-  if (pages <= 1) return null;
-  return (
-    <div className="mt-2 flex items-center justify-between gap-2 text-[12px]">
-      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} className="font-bold text-ink-2 disabled:opacity-40">上一頁</button>
-      <span className="tabnum font-mono-tx text-ink-3">{page} / {pages}</span>
-      <button type="button" disabled={page >= pages} onClick={() => onPage(page + 1)} className="font-bold text-ink-2 disabled:opacity-40">下一頁</button>
-    </div>
-  );
-}
-
-function BoardCard({
-  id,
-  title,
-  en,
-  path,
-  query,
-  read,
-  render,
-}: {
-  id: string;
-  title: string;
-  en: string;
-  path: string | null;
-  query: ReturnType<typeof useBoard>;
-  read: (envelope: OfficialEnvelope) => unknown[];
-  render: (rows: unknown[], envelope: OfficialEnvelope) => ReactNode;
-}) {
-  let body: ReactNode;
-  if (!path) body = <p className="text-[12px] text-ink-3">請揀日期同馬場。</p>;
-  else if (query.isPending) body = <Loading label="讀取官方資料…" />;
-  else if (query.isError) body = <ErrorNote error={query.error} />;
-  else if (!query.data) body = <Empty label={emptyBoardLabel(false)} />;
-  else {
-    const rows = read(query.data);
-    body = !query.data.available || !rows.length
-      ? <Empty label={emptyBoardLabel(query.data.available)} />
-      : render(rows, query.data);
-  }
-  return (
-    <Card title={title} en={en}>
-      <div id={`official-${id}`} className="scroll-mt-20">
-        {body}
-        {note()}
-      </div>
-    </Card>
-  );
-}
 
 function horseLine(raceNo: number | null, horseNo: number | null, name: string, extra?: string | null) {
   return (
@@ -380,6 +313,8 @@ const MEETING_COPY = [
   { id: "fwb-declared", title: "已申報特別獎金", en: "Declared bonus" },
   { id: "finish-photos", title: "終點照片", en: "Finish photos" },
   { id: "challenge-odds", title: "騎師王／練馬師王賠率", en: "Challenge odds" },
+  { id: "racecard-profile", title: "排位馬匹資料", en: "Racecard profile" },
+  { id: "racecard-files", title: "排位檔案及跑道圖", en: "Racecard files" },
 ] as const;
 
 export function MeetingOfficialBoards({
@@ -413,6 +348,8 @@ export function MeetingOfficialBoards({
     <BoardCard key="fwb-declared" id="fwb-declared" title={MEETING_COPY[3].title} en={MEETING_COPY[3].en} path={fwbPath} query={fwb} read={readFwbRows} render={(rows) => <FwbList rows={rows as FwbRow[]} />} />,
     <BoardCard key="finish-photos" id="finish-photos" title={raceNo ? `第${raceNo}場終點照片` : MEETING_COPY[4].title} en={MEETING_COPY[4].en} path={photoPath} query={photos} read={readFinishPhotos} render={(rows) => <PhotoGrid rows={rows as FinishPhotoRow[]} />} />,
     <BoardCard key="challenge-odds" id="challenge-odds" title={MEETING_COPY[5].title} en={MEETING_COPY[5].en} path={oddsPath} query={odds} read={readChallengeRows} render={(rows) => <ChallengeTable rows={rows as ChallengeRow[]} />} />,
+    <RacecardProfileBoard key="racecard-profile" date={date} venue={venue} />,
+    <RacecardFilesBoard key="racecard-files" date={date} venue={venue} />,
   ];
   const ordered = focus ? [...cards.filter((card) => card.key === focus), ...cards.filter((card) => card.key !== focus)] : cards;
   return (
@@ -433,7 +370,17 @@ const DIRECTORY_COPY = [
   { id: "ove-database" as const, title: "獸醫檢查名單", en: "Veterinary list" },
   { id: "ppo-performance" as const, title: "自購馬往績", en: "PPO notes" },
   { id: "horse-former-name" as const, title: "馬匹曾用名", en: "Former name" },
+  { id: "stats-centre" as const, title: "賽日數據", en: "Stats centre" },
+  { id: "horse-ratings" as const, title: "馬匹評分", en: "Horse ratings" },
+  { id: "horse-news" as const, title: "馬匹消息", en: "Horse news" },
+  { id: "import-policy" as const, title: "進口資格", en: "Import criteria" },
 ];
+
+type ClassicDirectoryBoard = "special-index" | "ove-database" | "ppo-performance" | "horse-former-name";
+
+function isClassicDirectory(board: DirectoryBoardId): board is ClassicDirectoryBoard {
+  return board in readers;
+}
 
 export function DirectoryOfficialBoards({
   board,
@@ -445,8 +392,9 @@ export function DirectoryOfficialBoards({
   onBoard: (board: DirectoryBoardId) => void;
 }) {
   const selected = DIRECTORY_COPY.some((item) => item.id === board) ? board : "special-index";
+  const classic = isClassicDirectory(selected) ? selected : null;
   const brandQuery = selected === "horse-former-name" ? brand : undefined;
-  const path = officialBoardPath(selected, brandQuery ? { brand: brandQuery } : {});
+  const path = classic ? officialBoardPath(classic, brandQuery ? { brand: brandQuery } : {}) : null;
   const query = useBoard(path);
   const copy = DIRECTORY_COPY.find((item) => item.id === selected) ?? DIRECTORY_COPY[0]!;
   const invalidBrand = selected === "horse-former-name" && !!brand && !asLocalBrand(brand);
@@ -455,7 +403,7 @@ export function DirectoryOfficialBoards({
       <div className="mx-4 mt-3">
         <Seg value={selected} onChange={onBoard} options={DIRECTORY_COPY.map((item) => ({ value: item.id, label: item.title }))} />
       </div>
-      {invalidBrand ? (
+      {selected === "stats-centre" ? <StatsCentreBoard /> : selected === "horse-ratings" ? <HorseRatingsBoard /> : selected === "horse-news" ? <HorseNewsBoard /> : selected === "import-policy" ? <ImportPolicyBoard /> : !classic ? null : invalidBrand ? (
         <Card title={copy.title} en={copy.en}>
           <p className="text-[12px] leading-relaxed text-ink-2">烙號請用單字母加數字，例如 J313。呢個烙號接口唔接受。</p>
           {note()}
@@ -467,22 +415,22 @@ export function DirectoryOfficialBoards({
           en={copy.en}
           path={path}
           query={query}
-          read={readers[selected]}
-          render={(rows, envelope) => directoryBody(selected, rows, envelope)}
+          read={readers[classic]}
+          render={(rows, envelope) => directoryBody(classic, rows, envelope)}
         />
       )}
     </>
   );
 }
 
-const readers: Record<DirectoryBoardId, (envelope: OfficialEnvelope) => unknown[]> = {
+const readers: Record<ClassicDirectoryBoard, (envelope: OfficialEnvelope) => unknown[]> = {
   "special-index": readSpecialIndex,
   "ove-database": readOveRows,
   "ppo-performance": readPpoRows,
   "horse-former-name": readFormerNames,
 };
 
-function directoryBody(board: DirectoryBoardId, rows: unknown, envelope: OfficialEnvelope): ReactNode {
+function directoryBody(board: ClassicDirectoryBoard, rows: unknown, envelope: OfficialEnvelope): ReactNode {
   if (board === "special-index") return <SpecialList rows={rows as SpecialIndexRow[]} />;
   if (board === "ove-database") {
     return (
