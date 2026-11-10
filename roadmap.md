@@ -165,7 +165,7 @@
 - [x] 三份安全測試15項通過；全套99檔593項通過，未改資料庫或設定。
 - [x] 預覽真實健康心跳正常、無私有job／Bot資料；draw-tune410、新舊sync未授權401、無pageerror。blueprint／AGENTS／dev-log已同步；讀碼review無新漏洞。
 - [ ] GitHub PR交用戶／Verifier獨立核對及真管理員session驗收；未驗證不發布、不合併。詳見docs/reviews/security-public-boundaries-2026-10-26.md。
-- [ ] 收費閘前修 #2 Stripe returnUrl allowlist，順便覆核 ownership；#3 不單獨修（用戶已核實誤報）。
+- [ ] 收費閘前修 #2 Stripe returnUrl allowlist，順便覆核 ownership；#3 不單獨修（用戶已核實誤報）。2026-11-11 已交 PR 待 Verifier 覆核：伺服器只接受天喜網域，portal 只用登入者自己訂閱紀錄客戶編號；未合併、未發布。
 - 本輪不改開關、密鑰、凍結或收費閘；不直接同步 GitHub main。
 
 ## 2026-10-26 工作心跳死信監察（job_ticks stale 讀側＋TG告警）

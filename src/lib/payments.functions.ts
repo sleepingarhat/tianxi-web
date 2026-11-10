@@ -5,6 +5,9 @@ import { type StripeEnv, createStripeClient, getStripeErrorMessage } from "@/lib
 import { resolveEntitlement, type SubRow } from "@/lib/entitlement";
 import { customerBelongsToUser } from "./audit-safety";
 import { DEFAULT_PAYWALL_THRESHOLD, FOUNDING_SLOTS } from "./freeStage";
+import { checkoutReturnUrl, portalReturnUrl } from "./payment-return-url";
+
+const BAD_RETURN_URL = "返回網址不正確。";
 
 const PRO_PRICE_ID = "pro_weekly";
 
@@ -68,6 +71,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
     const m = await loadMembership(ctx, data.environment);
     if (!m.gateOpenAt || !Number.isFinite(Date.parse(m.gateOpenAt))) return { error: "收費閘未開，現階段唔收款。" };
     if (m.entitlement.hasPro) return { error: "你已經係 Pro 會員，唔使再訂閱。" };
+    const returnUrl = checkoutReturnUrl(data.returnUrl, data.environment);
+    if (!returnUrl) return { error: BAD_RETURN_URL };
     try {
       const stripe = createStripeClient(data.environment);
       const prices = await stripe.prices.list({ lookup_keys: [PRO_PRICE_ID] });
@@ -77,7 +82,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
         line_items: [{ price: price.id, quantity: 1 }],
         mode: "subscription",
         ui_mode: "embedded_page",
-        return_url: data.returnUrl,
+        return_url: returnUrl,
         customer: customerId,
         managed_payments: { enabled: true },
         metadata: { userId: ctx.userId, managed_payments: "true" },
@@ -95,9 +100,11 @@ export const createPortalSession = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ url: string } | { error: string }> => {
     const m = await loadMembership(context as unknown as Ctx, data.environment);
     if (!m.customerId) return { error: "搵唔到你嘅訂閱紀錄。" };
+    const returnUrl = portalReturnUrl(data.returnUrl, data.environment);
+    if (!returnUrl) return { error: BAD_RETURN_URL };
     try {
       const stripe = createStripeClient(data.environment);
-      const portal = await stripe.billingPortal.sessions.create({ customer: m.customerId, return_url: data.returnUrl });
+      const portal = await stripe.billingPortal.sessions.create({ customer: m.customerId, return_url: returnUrl });
       return { url: portal.url };
     } catch (error) {
       return { error: getStripeErrorMessage(error) };
