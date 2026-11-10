@@ -13,7 +13,9 @@ import { racePicksFromDay } from "@/lib/race-picks";
 
 
 import { AppShell } from "@/components/tx/AppShell";
+import { MeetingStatusPills } from "@/components/tx/MeetingDayPanel";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } from "@/components/tx/ui";
+import { effectiveCardStatus, effectiveDrawStatus, runnerMeasures } from "@/lib/meeting-card";
 import { canonicalRaceId, finishTime, fmtMeetingDate, txApi } from "@/lib/tx-api";
 
 type Search = { id?: string | undefined };
@@ -117,6 +119,9 @@ function RacePage() {
   const liveWin = (n: unknown) => winOddsMap[String(n).padStart(2, "0")] ?? null;
   const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
   const horses: any[] = d?.horses || d?.entries || [];
+  const cardStatus = effectiveCardStatus(fallbackRace, meeting.data);
+  const drawStatus = effectiveDrawStatus(fallbackRace, meeting.data);
+  const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
   // 引擎首選：只用已核實凍結／全日預測（同日同馬場），唔會用舊後端即時預測
   const dayRacePicks = projectRacePicks(racePicksFromDay(dayPicks.data, raceDate, venueCode, raceNumber), tier.tier);
   const pickRank = new Map<number, number>();
@@ -140,7 +145,13 @@ function RacePage() {
         desc={d ? `${d.class || ""} · ${d.distance || d.distanceM || ""}m · ${d.course || ""}` : undefined}
       />
 
-      <Card title="排位" en="Entries">
+      <Card title={entriesOnly ? "報名名單" : "排位"} en={entriesOnly ? "Entries" : "Card"}>
+        {meeting.data?.drawNote || cardStatus ? (
+          <div className="mb-3 space-y-1.5">
+            <MeetingStatusPills meeting={{ ...meeting.data, cardStatus, drawStatus, drawNote: meeting.data?.drawNote }} />
+            {meeting.data?.drawNote ? <p className="text-[12px] font-bold leading-relaxed text-ink">{meeting.data.drawNote}</p> : null}
+          </div>
+        ) : null}
         {loading ? (
           <Loading />
         ) : !horses.length && race.error ? (
@@ -153,8 +164,13 @@ function RacePage() {
               const horseName = h.nameCh || h.name || "未命名";
               const horseLinkId = h.id || h.horseId;
               const facts = [
-                ["檔位", h.draw ?? "—"],
-                ["負磅", h.weight ?? h.declaredWeight ?? "—"],
+                ...runnerMeasures({
+                  horse: h,
+                  title: d?.title,
+                  cardStatus,
+                  isDeclaredCard: meeting.data?.isDeclaredCard,
+                  drawStatus,
+                }).map((item) => [item.label, item.value] as const),
                 ["獨贏", liveWin(h.horseNumber) ?? h.winOdds ?? "—"],
                 ["位置", livePla(h.horseNumber) ?? "—"],
                 [hasResult ? "名次" : "官方評分", hasResult ? h.finishingPosition ?? "—" : h.rating ?? "—"],
@@ -167,9 +183,13 @@ function RacePage() {
                 >
                   <div className="grid grid-cols-[46px_36px_minmax(0,1fr)_auto] items-center gap-2.5">
                     <Silks source={h} size={46} className="shadow-sm" />
-                    <span className="tabnum grid h-9 w-9 shrink-0 place-items-center rounded-[5px] border border-gold-strong/55 bg-paper-2 font-mono-tx text-[15px] font-bold text-ink">
-                      {h.horseNumber}
-                    </span>
+                    {h.horseNumber != null ? (
+                      <span className="tabnum grid h-9 w-9 shrink-0 place-items-center rounded-[5px] border border-gold-strong/55 bg-paper-2 font-mono-tx text-[15px] font-bold text-ink">
+                        {h.horseNumber}
+                      </span>
+                    ) : (
+                      <span className="w-9 shrink-0" />
+                    )}
                     <div className="min-w-0 border-l border-hairline pl-2">
                       {horseLinkId ? (
                         <Link
@@ -189,10 +209,10 @@ function RacePage() {
                     <div className="flex min-w-9 items-center justify-end"><FollowHorseButton horseId={horseLinkId} horseName={horseName}/>{rank ? <Pill tone="gold">引擎 #{rank}</Pill> : null}</div>
                   </div>
 
-                  <dl className="mt-2.5 grid grid-cols-6 overflow-hidden rounded-[6px] border border-hairline bg-paper-2">
-                    {facts.map(([label, value], index) => (
-                      <div key={label} className={`${index ? "border-l border-hairline" : ""} min-w-0 px-1 py-1.5 text-center`}>
-                        <dt className="whitespace-nowrap text-[10px] font-bold text-ink-3">{label}</dt>
+                  <dl className="mt-2.5 grid grid-cols-3 gap-px overflow-hidden rounded-[6px] border border-hairline bg-hairline lg:grid-cols-7">
+                    {facts.map(([label, value]) => (
+                      <div key={label} className="min-w-0 bg-paper-2 px-1 py-1.5 text-center">
+                        <dt className="whitespace-nowrap text-[11px] font-bold text-ink-3">{label}</dt>
                         <dd className="tabnum mt-0.5 truncate font-mono-tx text-[11px] font-bold text-ink">{String(value)}</dd>
                       </div>
                     ))}
@@ -202,7 +222,7 @@ function RacePage() {
             })}
           </div>
         ) : (
-          <Empty label="此場尚無排位資料" />
+          <Empty label={entriesOnly ? "此場尚無報名名單" : "此場尚無排位資料"} />
         )}
       </Card>
 

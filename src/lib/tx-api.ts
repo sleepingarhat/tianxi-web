@@ -36,6 +36,10 @@ export type Meeting = {
   totalRaces: number;
   mode?: string;
   isEntryListOnly?: boolean;
+  cardStatus?: string | null;
+  isDeclaredCard?: boolean | null;
+  drawStatus?: string | null;
+  drawNote?: string | null;
   fallback?: boolean;
   races?: RaceSummary[];
 };
@@ -54,12 +58,15 @@ export type RaceSummary = {
   prize?: string | null;
   startTime?: string | null;
   videoUrl?: string | null;
+  cardStatus?: string | null;
+  isDeclaredCard?: boolean | null;
+  drawStatus?: string | null;
   horses?: RaceHorse[];
 };
 
 export type RaceHorse = {
   id: string;
-  horseNumber: number;
+  horseNumber?: number | null;
   name?: string;
   nameCh?: string;
   code?: string;
@@ -75,7 +82,9 @@ export type RaceHorse = {
   lbw?: string | null;
   gear?: string | null;
   weight?: number | null;
+  bodyWeight?: number | null;
   declaredWeight?: number | null;
+  actualWeight?: number | null;
   rating?: number | null;
   age?: number | null;
   silksCode?: string | null;
