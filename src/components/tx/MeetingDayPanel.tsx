@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Link } from "@tanstack/react-router";
 
 import {
@@ -9,9 +10,11 @@ import {
   effectiveDrawStatus,
   imposedWeightLabel,
   meetingRacesEmptyLabel,
+  runnerFormCells,
   runnerMeasures,
   showsDeclaredCard,
   type CardStatus,
+  type Measure,
 } from "@/lib/meeting-card";
 import { canonicalHorseId, canonicalRaceId, type Meeting, type RaceHorse, type RaceSummary } from "@/lib/tx-api";
 
@@ -36,6 +39,21 @@ export function MeetingStatusPills({
       {label ? <Pill tone={status === "declared" || status === "resulted" ? "gold" : "ink"}>{label}</Pill> : null}
       {draw ? <Pill>{draw}</Pill> : null}
     </span>
+  );
+}
+
+/** 官方四格：金框同排位表其餘灰格分開，字級沿用排位格。 */
+export function RunnerFormStrip({ cells }: { cells: Measure[] }) {
+  if (!cells.length) return null;
+  return (
+    <dl className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-[6px] border border-gold-strong/45 bg-gold-strong/30 lg:grid-cols-4">
+      {cells.map((cell) => (
+        <div key={cell.label} className="min-w-0 bg-paper px-1 py-1.5 text-center">
+          <dt className="text-[11px] font-bold leading-tight text-ink-3">{cell.label}</dt>
+          <dd className="tabnum mt-0.5 truncate font-mono-tx text-[11px] font-bold text-ink">{cell.value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -71,31 +89,41 @@ function RunnerRoster({
       <Table head={["馬匹", ...labels]}>
         {horses.map((horse) => {
           const row = runnerMeasures({ horse, title: race.title, cardStatus: status, drawStatus });
+          const form = runnerFormCells({ horse, cardStatus: status });
           const name = horse.nameCh || horse.name || "未命名";
           const id = canonicalHorseId(horse.id);
           return (
-            <tr key={horse.id || `${horse.horseNumber}-${name}`} className="border-b border-hairline">
-              <Td first>
-                <span className="flex min-w-0 items-center gap-1.5">
-                  {horse.horseNumber != null ? (
-                    <span className="tabnum grid h-6 w-6 shrink-0 place-items-center rounded-[4px] border border-hairline font-mono-tx text-[11px] font-bold">
-                      {horse.horseNumber}
-                    </span>
-                  ) : null}
-                  <Silks source={horse} size={28} />
-                  {id ? (
-                    <Link to="/horse" search={{ id }} className="truncate font-serif-tc text-[13px] font-bold">
-                      {name}
-                    </Link>
-                  ) : (
-                    <span className="truncate font-serif-tc text-[13px] font-bold">{name}</span>
-                  )}
-                </span>
-              </Td>
-              {labels.map((label) => (
-                <Td key={label}>{row.find((item) => item.label === label)?.value ?? "—"}</Td>
-              ))}
-            </tr>
+            <Fragment key={horse.id || `${horse.horseNumber}-${name}`}>
+              <tr className="border-b border-hairline">
+                <Td first>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    {horse.horseNumber != null ? (
+                      <span className="tabnum grid h-6 w-6 shrink-0 place-items-center rounded-[4px] border border-hairline font-mono-tx text-[11px] font-bold">
+                        {horse.horseNumber}
+                      </span>
+                    ) : null}
+                    <Silks source={horse} size={28} />
+                    {id ? (
+                      <Link to="/horse" search={{ id }} className="truncate font-serif-tc text-[13px] font-bold">
+                        {name}
+                      </Link>
+                    ) : (
+                      <span className="truncate font-serif-tc text-[13px] font-bold">{name}</span>
+                    )}
+                  </span>
+                </Td>
+                {labels.map((label) => (
+                  <Td key={label}>{row.find((item) => item.label === label)?.value ?? "—"}</Td>
+                ))}
+              </tr>
+              {form.length ? (
+                <tr className="border-b border-hairline">
+                  <td colSpan={labels.length + 1} className="px-1 pb-2">
+                    <RunnerFormStrip cells={form} />
+                  </td>
+                </tr>
+              ) : null}
+            </Fragment>
           );
         })}
       </Table>

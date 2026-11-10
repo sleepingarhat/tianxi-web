@@ -86,6 +86,10 @@ export type RaceHorse = {
   declaredWeight?: number | null;
   actualWeight?: number | null;
   rating?: number | null;
+  ratingChange?: number | null;
+  bodyWeightChange?: number | null;
+  bestTime?: string | null;
+  daysSinceRun?: number | null;
   age?: number | null;
   silksCode?: string | null;
 };

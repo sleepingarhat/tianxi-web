@@ -55,6 +55,15 @@ export function effectiveCardStatus(
   return cardStatusOf(race ?? {}) ?? cardStatusOf(meeting ?? {});
 }
 
+/** 場次、賽日，再到正在顯示嘅賽事。單場賽果接口往往冇 cardStatus。 */
+export function displayedCardStatus(
+  race?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
+  meeting?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
+  displayed?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
+): CardStatus | null {
+  return effectiveCardStatus(race, meeting) ?? cardStatusOf(displayed ?? {});
+}
+
 /** 檔位未公布時唔顯示任何檔號，即使上游誤附數字。 */
 export function visibleBarrier(draw: unknown, drawStatus?: string | null): number | null {
   if (drawStatus === "unavailable") return null;
@@ -107,6 +116,14 @@ export function formatPounds(value: number | null): string {
 
 export type Measure = { label: string; value: string };
 
+/** 官方排位四格。減號用 U+2212，同數值嘅 ASCII 正負號分開。 */
+export const OFFICIAL_FORM_LABELS = {
+  ratingChange: "評分+/\u2212",
+  bodyWeightChange: "排位體重+/\u2212",
+  bestTime: "最佳時間",
+  daysSinceRun: "上賽距今日數",
+} as const;
+
 /** 已報名／賽期冇負磅、排位體重、檔位時略去，避免砌成一張空白正式排位。正式排位同賽果兩項磅數都列出。 */
 export function runnerMeasures(input: {
   horse: {
@@ -115,6 +132,10 @@ export function runnerMeasures(input: {
     bodyWeight?: unknown;
     declaredWeight?: unknown;
     actualWeight?: unknown;
+    ratingChange?: unknown;
+    bodyWeightChange?: unknown;
+    bestTime?: unknown;
+    daysSinceRun?: unknown;
   };
   title?: string | null | undefined;
   cardStatus?: string | null | undefined;
@@ -134,6 +155,73 @@ export function runnerMeasures(input: {
     if (row.value == null && omitEmpty) return [];
     return [{ label: row.label, value: formatPounds(row.value) }];
   });
+}
+
+function formatSignedChange(value: unknown): string | null {
+  const text = typeof value === "number" && Number.isInteger(value)
+    ? String(value)
+    : typeof value === "string" && /^[+-]?\d+$/.test(value.trim())
+      ? value.trim()
+      : "";
+  if (!text) return null;
+  const n = Number(text);
+  if (!Number.isInteger(n) || n < -999 || n > 999) return null;
+  if (n > 0) return `+${n}`;
+  return String(n);
+}
+
+/** 只保留馬會排位表寫法（1.42.43）。唔換成秒，亦唔用完成時間頂替。 */
+function formatBestTime(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  const match = text.match(/^(\d{1,2})\.(\d{2})\.(\d{2})$/);
+  if (!match) return null;
+  const seconds = Number(match[2]);
+  const hundredths = Number(match[3]);
+  if (seconds > 59 || hundredths > 99) return null;
+  return text;
+}
+
+function formatDaysSinceRun(value: unknown): string | null {
+  const text = typeof value === "number" && Number.isInteger(value)
+    ? String(value)
+    : typeof value === "string" && /^\d+$/.test(value.trim())
+      ? value.trim()
+      : "";
+  if (!text) return null;
+  const n = Number(text);
+  if (!Number.isInteger(n) || n < 0 || n > 9999) return null;
+  return String(n);
+}
+
+/**
+ * 正式排位同賽果列四格；空白顯示—，唔會用評分、體重、完成時間或檔位補。
+ * 已報名／賽期只喺接口真係有值時先列，四項都空白就略去。
+ */
+export function runnerFormCells(input: {
+  horse: {
+    draw?: unknown;
+    weight?: unknown;
+    bodyWeight?: unknown;
+    ratingChange?: unknown;
+    bodyWeightChange?: unknown;
+    bestTime?: unknown;
+    daysSinceRun?: unknown;
+  };
+  cardStatus?: string | null | undefined;
+  isDeclaredCard?: boolean | null | undefined;
+}): Measure[] {
+  const status = cardStatusOf(input);
+  const cells: { label: string; value: string | null }[] = [
+    { label: OFFICIAL_FORM_LABELS.ratingChange, value: formatSignedChange(input.horse.ratingChange) },
+    { label: OFFICIAL_FORM_LABELS.bodyWeightChange, value: formatSignedChange(input.horse.bodyWeightChange) },
+    { label: OFFICIAL_FORM_LABELS.bestTime, value: formatBestTime(input.horse.bestTime) },
+    { label: OFFICIAL_FORM_LABELS.daysSinceRun, value: formatDaysSinceRun(input.horse.daysSinceRun) },
+  ];
+  if (status === "declared" || status === "resulted") {
+    return cells.map((cell) => ({ label: cell.label, value: cell.value ?? "—" }));
+  }
+  return cells.flatMap((cell) => (cell.value == null ? [] : [{ label: cell.label, value: cell.value }]));
 }
 
 export function meetingRacesEmptyLabel(status: CardStatus | null): string {
