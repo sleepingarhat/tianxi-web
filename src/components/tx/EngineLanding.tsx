@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { MoatSection } from "./MoatSection";
-import { WeeklyRacecoursePosters } from "./RacecoursePhoto";
 import { Check } from "lucide-react";
 import type { ReactNode } from "react";
+import { HOME_H1_LEAD, HOME_H1_TAIL } from "@/lib/homepage-seo";
 import { FoundingMemberOffer } from "./FoundingMemberOffer";
+import { MoatSection } from "./MoatSection";
+import { WeeklyRacecoursePosters } from "./RacecoursePhoto";
 import { TxCta } from "./ui";
 
 /** 首頁：分段講解天喜賽馬預測引擎（參考「一段一功能 + 手機示意 + 編號標註」版式）。示意畫面唔係真實預測。 */
@@ -92,8 +93,8 @@ export function EngineLanding() {
         <div className="relative grid items-center gap-8 md:grid-cols-[1.1fr_1fr]">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-strong/50 bg-gold-bg px-2.5 py-1 text-[11px] font-bold text-gold">● 全站免費中 · TX-Oracle 香港賽馬引擎</span>
-            <h1 className="mt-4 font-serif-tc text-[34px] font-bold leading-[1.15] text-ink md:text-[48px]">
-              賽前凍結四揀，<br /><span className="text-gold">賽後逐場對帳。</span>
+            <h1 className="mt-4 font-serif-tc text-[20px] font-bold leading-[1.25] text-ink min-[390px]:text-[24px] lg:text-[32px] xl:text-[40px]">
+              {HOME_H1_LEAD}<br /><span className="text-gold">{HOME_H1_TAIL}</span>
             </h1>
             <p className="mt-3 max-w-md text-[14px] leading-relaxed text-ink-2">天喜專注沙田、跑馬地。由賽前資料到凍結預測、官方派彩對帳同六彩池盈虧，每一步都公開俾你核對。</p>
             <div className="mt-5 flex flex-wrap gap-2">
