@@ -94,7 +94,7 @@ function ProbeCard({ probes }: { probes: ProbeRow[] }) {
   );
 }
 
-function StatusCard({ status, scrapedAt }: { status: ReturnType<typeof summarizeStatus>; scrapedAt: string | null }) {
+function StatusCard({ status, scrapedAt, past }: { status: ReturnType<typeof summarizeStatus>; scrapedAt: string | null; past: boolean }) {
   if (!status.pools.length) return <Card title="彩池狀態" en="Pool status"><Empty label="呢個賽日未有收錄彩池狀態" /></Card>;
   const multi = (pool: string) => status.featured.filter((x) => x.pool === pool).length > 1;
   return (
@@ -124,6 +124,9 @@ function StatusCard({ status, scrapedAt }: { status: ReturnType<typeof summarize
             </Table>
           </Scroller>
         </div>
+      ) : null}
+      {past && status.pools.some((s) => s.counts["START_SELL"]) ? (
+        <p className="mt-2 rounded-[6px] border border-lose/30 bg-lose/5 px-2.5 py-1.5 text-[12px] text-lose">呢份係賽前收錄嘅狀態，完賽後未有再收錄，所以仍然顯示「開售中」。</p>
       ) : null}
       <p className="mt-2 text-[11px] leading-relaxed text-ink-3">
         狀態係收錄嗰一刻嘅馬會公布{scrapedAt ? `（最後收錄 ${hkStamp(scrapedAt)} 香港時間）` : ""}，唔係即時售票狀態。多寶及預計派彩照錄馬會原文。
@@ -178,11 +181,11 @@ function CrossDividendCard({ rows }: { rows: DividendRow[] }) {
   );
 }
 
-function RaceDividendsCard({ rows }: { rows: DividendRow[] }) {
+function RaceDividendsCard({ rows, past }: { rows: DividendRow[]; past: boolean }) {
   const races = dividendsByRace(rows);
   return (
     <Card title="逐場官方派彩" en="Race dividends">
-      {!races.length ? <div className="tx-wide"><Empty label="呢個賽日未有收錄派彩（未完賽或未收料）" /></div> : (
+      {!races.length ? <div className="tx-wide"><Empty label={past ? "呢個賽日已完賽，但官方派彩未收錄" : "呢個賽日未有收錄派彩（未完賽或未收料）"} /></div> : (
         <div className="tx-wide grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {races.map(({ race, pools }) => (
             <section key={race} className="min-w-0 rounded-[8px] border border-hairline bg-paper px-2.5 py-2">
@@ -207,6 +210,10 @@ function RaceDividendsCard({ rows }: { rows: DividendRow[] }) {
   );
 }
 
+function hkToday() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+}
+
 function OfficialPoolsPage() {
   const search = Route.useSearch();
   const { data } = useSuspenseQuery(poolsQuery(search));
@@ -217,6 +224,8 @@ function OfficialPoolsPage() {
   const jackpots = data.status.filter((r) => r.jackpot);
   const probeLatest = (k: "penetrometer" | "hammer") => [...data.probes].reverse().find((p) => p.instrument === k)?.reading ?? "—";
   const scrapedAt = data.status.reduce<string | null>((a, r) => (r.scrapedAt && (!a || r.scrapedAt > a) ? r.scrapedAt : a), null);
+  // 賽日翌日（香港時間）起仍冇派彩，就唔係「未完賽」，要如實講未收錄。
+  const past = Boolean(m && m.date < hkToday());
   const raceCount = new Set(data.dividends.filter((r) => r.races.length === 1).map((r) => r.races[0])).size;
 
   return (
@@ -247,11 +256,11 @@ function OfficialPoolsPage() {
                 <Stat label="最新探針" value={probeLatest("penetrometer")} sub={`撞錘 ${probeLatest("hammer")}`} />
               </div>
             </Card>
-            <RaceDividendsCard rows={data.dividends} />
+            <RaceDividendsCard rows={data.dividends} past={past} />
             <div className="grid min-w-0 items-start lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
               {cross.length ? <div className="min-w-0"><CrossDividendCard rows={cross} /></div> : null}
-              <div className="min-w-0"><ProbeCard probes={data.probes} />{cross.length ? <StatusCard status={status} scrapedAt={scrapedAt} /> : null}</div>
-              {cross.length ? null : <div className="min-w-0"><StatusCard status={status} scrapedAt={scrapedAt} /></div>}
+              <div className="min-w-0"><ProbeCard probes={data.probes} />{cross.length ? <StatusCard status={status} scrapedAt={scrapedAt} past={past} /> : null}</div>
+              {cross.length ? null : <div className="min-w-0"><StatusCard status={status} scrapedAt={scrapedAt} past={past} /></div>}
             </div>
           </>
         )}
