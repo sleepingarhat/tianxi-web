@@ -13,9 +13,9 @@ import { racePicksFromDay } from "@/lib/race-picks";
 
 
 import { AppShell } from "@/components/tx/AppShell";
-import { MeetingStatusPills } from "@/components/tx/MeetingDayPanel";
+import { MeetingStatusPills, RunnerFormStrip } from "@/components/tx/MeetingDayPanel";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } from "@/components/tx/ui";
-import { effectiveCardStatus, effectiveDrawStatus, runnerMeasures } from "@/lib/meeting-card";
+import { displayedCardStatus, effectiveDrawStatus, runnerFormCells, runnerMeasures } from "@/lib/meeting-card";
 import { canonicalRaceId, finishTime, fmtMeetingDate, txApi } from "@/lib/tx-api";
 
 type Search = { id?: string | undefined };
@@ -119,7 +119,7 @@ function RacePage() {
   const liveWin = (n: unknown) => winOddsMap[String(n).padStart(2, "0")] ?? null;
   const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
   const horses: any[] = d?.horses || d?.entries || [];
-  const cardStatus = effectiveCardStatus(fallbackRace, meeting.data);
+  const cardStatus = displayedCardStatus(fallbackRace, meeting.data, d);
   const drawStatus = effectiveDrawStatus(fallbackRace, meeting.data);
   const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
   // 引擎首選：只用已核實凍結／全日預測（同日同馬場），唔會用舊後端即時預測
@@ -176,6 +176,11 @@ function RacePage() {
                 [hasResult ? "名次" : "官方評分", hasResult ? h.finishingPosition ?? "—" : h.rating ?? "—"],
                 [hasResult ? "時間" : "配備", hasResult ? finishTime(h.finishTime) || "—" : h.gear || "—"],
               ];
+              const form = runnerFormCells({
+                horse: h,
+                cardStatus,
+                isDeclaredCard: meeting.data?.isDeclaredCard,
+              });
               return (
                 <article
                   key={h.id || h.horseNumber}
@@ -217,6 +222,7 @@ function RacePage() {
                       </div>
                     ))}
                   </dl>
+                  <RunnerFormStrip cells={form} />
                 </article>
               );
             })}

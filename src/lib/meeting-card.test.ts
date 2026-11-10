@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   cardStatusLabel,
   cardStatusOf,
+  displayedCardStatus,
   effectiveDrawStatus,
   imposedWeightLabel,
   meetingRacesEmptyLabel,
+  runnerFormCells,
   runnerMeasures,
   runnerWeights,
   visibleBarrier,
@@ -19,6 +21,12 @@ describe("賽日狀態", () => {
     expect(cardStatusLabel("declared")).toBe("正式排位");
     expect(cardStatusLabel("resulted")).toBe("已有賽果");
     expect(cardStatusOf({ cardStatus: "entries", isDeclaredCard: false })).not.toBe("declared");
+  });
+
+  it("單場賽果冇狀態時，用賽日；排位表自己有狀態時唔使等賽日", () => {
+    expect(displayedCardStatus({ cardStatus: null }, { cardStatus: "resulted" }, { cardStatus: null })).toBe("resulted");
+    expect(displayedCardStatus(null, null, { cardStatus: "declared" })).toBe("declared");
+    expect(displayedCardStatus(null, null, { cardStatus: "entries" })).toBe("entries");
   });
 
   it("未有 cardStatus 時，只有 isDeclaredCard 真先當正式排位", () => {
@@ -95,5 +103,93 @@ describe("負磅同排位體重", () => {
 
   it("非讓賽用負磅", () => {
     expect(imposedWeightLabel("一級賽")).toBe("負磅");
+  });
+
+  it("官方四格唔會混入檔位或磅數", () => {
+    expect(runnerMeasures({
+      horse: {
+        draw: 2,
+        weight: 135,
+        bodyWeight: 1101,
+        ratingChange: -1,
+        bodyWeightChange: 29,
+        bestTime: "1.42.43",
+        daysSinceRun: 41,
+      },
+      title: "爵祿讓賽",
+      cardStatus: "declared",
+      drawStatus: "published",
+    })).toEqual([
+      { label: "檔位", value: "2" },
+      { label: "讓磅", value: "135" },
+      { label: "排位體重", value: "1101" },
+    ]);
+  });
+});
+
+describe("官方排位四格", () => {
+  it("正式排位顯示評分變化、排位體重變化、最佳時間同上賽距今日數", () => {
+    expect(runnerFormCells({
+      horse: {
+        ratingChange: -1,
+        bodyWeightChange: 29,
+        bestTime: "1.42.43",
+        daysSinceRun: 41,
+        weight: 135,
+        bodyWeight: 1101,
+        draw: 2,
+      },
+      cardStatus: "declared",
+    })).toEqual([
+      { label: "評分+/\u2212", value: "-1" },
+      { label: "排位體重+/\u2212", value: "+29" },
+      { label: "最佳時間", value: "1.42.43" },
+      { label: "上賽距今日數", value: "41" },
+    ]);
+  });
+
+  it("零同空白分開，最佳時間保持馬會寫法", () => {
+    expect(runnerFormCells({
+      horse: { ratingChange: 0, bodyWeightChange: 0, bestTime: null, daysSinceRun: 23 },
+      cardStatus: "declared",
+    })).toEqual([
+      { label: "評分+/\u2212", value: "0" },
+      { label: "排位體重+/\u2212", value: "0" },
+      { label: "最佳時間", value: "—" },
+      { label: "上賽距今日數", value: "23" },
+    ]);
+    expect(runnerFormCells({
+      horse: { ratingChange: "5", bodyWeightChange: "-13", bestTime: " 1.09.64 ", daysSinceRun: "31" },
+      cardStatus: "declared",
+    })).toEqual([
+      { label: "評分+/\u2212", value: "+5" },
+      { label: "排位體重+/\u2212", value: "-13" },
+      { label: "最佳時間", value: "1.09.64" },
+      { label: "上賽距今日數", value: "31" },
+    ]);
+    expect(runnerFormCells({
+      horse: { ratingChange: 1.5, bodyWeightChange: 29, bestTime: "1:42.43", daysSinceRun: 41.2 },
+      cardStatus: "resulted",
+    })).toEqual([
+      { label: "評分+/\u2212", value: "—" },
+      { label: "排位體重+/\u2212", value: "+29" },
+      { label: "最佳時間", value: "—" },
+      { label: "上賽距今日數", value: "—" },
+    ]);
+  });
+
+  it("已報名四項都空白就略去", () => {
+    expect(runnerFormCells({
+      horse: { ratingChange: null, bodyWeightChange: null, bestTime: null, daysSinceRun: null },
+      cardStatus: "entries",
+      isDeclaredCard: false,
+    })).toEqual([]);
+  });
+
+  it("賽果未回四項時顯示破折號，唔用完成時間補", () => {
+    expect(runnerFormCells({
+      horse: { ratingChange: null, bodyWeightChange: null, bestTime: null, daysSinceRun: null, weight: 126, bodyWeight: 1208 },
+      cardStatus: "resulted",
+    }).map((cell) => cell.value)).toEqual(["—", "—", "—", "—"]);
   });
 });
