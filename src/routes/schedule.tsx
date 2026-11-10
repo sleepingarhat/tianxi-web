@@ -6,8 +6,9 @@ import { AppShell } from "@/components/tx/AppShell";
 import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNotice";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill } from "@/components/tx/ui";
 import { WeatherPanel } from "@/components/tx/WeatherPanel";
-import { fmtMeetingDate, txApi } from "@/lib/tx-api";
 import { useMeetingCancellation } from "@/lib/meeting-status";
+import { scheduleMonthTicker } from "@/lib/schedule-month";
+import { fmtMeetingDate, txApi } from "@/lib/tx-api";
 
 export const Route = createFileRoute("/schedule")({
   head: () => ({
@@ -48,13 +49,17 @@ function SchedulePage() {
     setMonth(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`);
   }
 
-  const meetings = list.data?.meetings || [];
+  const meetings = list.data?.meetings ?? [];
+  const ticker = scheduleMonthTicker({
+    ym,
+    cancellationText: cancellation ? `${fmtMeetingDate(cancellation.date)} · ${cancellation.label}` : null,
+    pending: list.isPending,
+    failed: list.isError,
+    meetingCount: meetings.length,
+  });
 
   return (
-    <AppShell
-      page="schedule"
-      ticker={cancellation ? `${fmtMeetingDate(cancellation.date)} · ${cancellation.label}` : `${ym} · ${meetings.length} 個賽馬日`}
-    >
+    <AppShell page="schedule" ticker={ticker}>
       <PageHead en="Fixtures" title="賽馬日程" desc="按月查看賽馬日，點擊展開當日場次並前往排位表。" />
 
       {cancellation ? <MeetingCancellationNotice cancellation={cancellation} /> : null}
@@ -73,9 +78,9 @@ function SchedulePage() {
       </div>
 
       <Card title="賽馬日" en="Meetings">
-        {list.isLoading ? (
+        {list.isPending ? (
           <Loading />
-        ) : list.error ? (
+        ) : list.isError ? (
           <ErrorNote error={list.error} />
         ) : meetings.length ? (
           <div className="divide-y divide-hairline">
