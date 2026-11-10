@@ -5,7 +5,7 @@ const ORIGIN = "https://tianxi.racing";
 const PATHS = [
   "/", "/predictor", "/cards", "/results", "/schedule", "/track-record", "/value-trend", "/prediction-vs-result",
   "/strategy-pnl", "/freeze-ledger", "/racing-health", "/explain", "/engine", "/engine/audit",
-  "/engine/backtest", "/engine/features", "/engine/monitor", "/engine/residuals", "/pool-odds", "/official-pools", "/headlines",
+  "/engine/backtest", "/engine/features", "/engine/monitor", "/engine/residuals", "/pool-odds", "/official-pools", "/official-boards", "/headlines",
   "/horse", "/race", "/encyclopedia", "/manual", "/features", "/membership", "/dev-log", "/media-credits", "/model", "/prediction-reconciliation", "/elo-log",
   "/privacy", "/terms",
 ];

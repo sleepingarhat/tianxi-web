@@ -127,14 +127,16 @@ describe("負磅同排位體重", () => {
   });
 });
 
-describe("官方排位四格", () => {
-  it("正式排位顯示評分變化、排位體重變化、最佳時間同上賽距今日數", () => {
+describe("官方排位格", () => {
+  it("正式排位顯示評分變化、排位體重變化、最佳時間、上賽距今日數、可能超磅同分齡讓磅", () => {
     expect(runnerFormCells({
       horse: {
         ratingChange: -1,
         bodyWeightChange: 29,
         bestTime: "1.42.43",
         daysSinceRun: 41,
+        possibleOverweight: null,
+        ageAllowance: null,
         weight: 135,
         bodyWeight: 1101,
         draw: 2,
@@ -145,6 +147,32 @@ describe("官方排位四格", () => {
       { label: "排位體重+/\u2212", value: "+29" },
       { label: "最佳時間", value: "1.42.43" },
       { label: "上賽距今日數", value: "41" },
+      { label: "可能超磅", value: "—" },
+      { label: "分齡讓磅", value: "—" },
+    ]);
+  });
+
+  it("可能超磅 1、分齡讓磅空白分開顯示", () => {
+    expect(runnerFormCells({
+      horse: { possibleOverweight: 1, ageAllowance: null },
+      cardStatus: "declared",
+    }).slice(4)).toEqual([
+      { label: "可能超磅", value: "1" },
+      { label: "分齡讓磅", value: "—" },
+    ]);
+    expect(runnerFormCells({
+      horse: { possibleOverweight: "1", ageAllowance: 0 },
+      cardStatus: "resulted",
+    }).slice(4)).toEqual([
+      { label: "可能超磅", value: "1" },
+      { label: "分齡讓磅", value: "0" },
+    ]);
+    expect(runnerFormCells({
+      horse: { possibleOverweight: 1.5, ageAllowance: "x" },
+      cardStatus: "declared",
+    }).slice(4)).toEqual([
+      { label: "可能超磅", value: "—" },
+      { label: "分齡讓磅", value: "—" },
     ]);
   });
 
@@ -157,6 +185,8 @@ describe("官方排位四格", () => {
       { label: "排位體重+/\u2212", value: "0" },
       { label: "最佳時間", value: "—" },
       { label: "上賽距今日數", value: "23" },
+      { label: "可能超磅", value: "—" },
+      { label: "分齡讓磅", value: "—" },
     ]);
     expect(runnerFormCells({
       horse: { ratingChange: "5", bodyWeightChange: "-13", bestTime: " 1.09.64 ", daysSinceRun: "31" },
@@ -166,6 +196,8 @@ describe("官方排位四格", () => {
       { label: "排位體重+/\u2212", value: "-13" },
       { label: "最佳時間", value: "1.09.64" },
       { label: "上賽距今日數", value: "31" },
+      { label: "可能超磅", value: "—" },
+      { label: "分齡讓磅", value: "—" },
     ]);
     expect(runnerFormCells({
       horse: { ratingChange: 1.5, bodyWeightChange: 29, bestTime: "1:42.43", daysSinceRun: 41.2 },
@@ -175,21 +207,44 @@ describe("官方排位四格", () => {
       { label: "排位體重+/\u2212", value: "+29" },
       { label: "最佳時間", value: "—" },
       { label: "上賽距今日數", value: "—" },
+      { label: "可能超磅", value: "—" },
+      { label: "分齡讓磅", value: "—" },
     ]);
   });
 
-  it("已報名四項都空白就略去", () => {
+  it("已報名四項都空白就略去，可能超磅有值都唔顯示", () => {
     expect(runnerFormCells({
       horse: { ratingChange: null, bodyWeightChange: null, bestTime: null, daysSinceRun: null },
       cardStatus: "entries",
       isDeclaredCard: false,
     })).toEqual([]);
+    expect(runnerFormCells({
+      horse: {
+        ratingChange: null,
+        bodyWeightChange: null,
+        bestTime: null,
+        daysSinceRun: null,
+        possibleOverweight: 1,
+        ageAllowance: 5,
+      },
+      cardStatus: "entries",
+      isDeclaredCard: false,
+    })).toEqual([]);
+    expect(runnerFormCells({
+      horse: { possibleOverweight: 1, ageAllowance: null },
+      cardStatus: "fixture",
+    })).toEqual([]);
+    expect(runnerFormCells({
+      horse: { ratingChange: -1, possibleOverweight: 1, ageAllowance: 2 },
+      cardStatus: "entries",
+      isDeclaredCard: false,
+    })).toEqual([{ label: "評分+/\u2212", value: "-1" }]);
   });
 
-  it("賽果未回四項時顯示破折號，唔用完成時間補", () => {
+  it("賽果未回六項時顯示破折號，唔用完成時間補", () => {
     expect(runnerFormCells({
       horse: { ratingChange: null, bodyWeightChange: null, bestTime: null, daysSinceRun: null, weight: 126, bodyWeight: 1208 },
       cardStatus: "resulted",
-    }).map((cell) => cell.value)).toEqual(["—", "—", "—", "—"]);
+    }).map((cell) => cell.value)).toEqual(["—", "—", "—", "—", "—", "—"]);
   });
 });

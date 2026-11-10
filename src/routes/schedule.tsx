@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -9,6 +9,7 @@ import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill } from "@/c
 import { WeatherPanel } from "@/components/tx/WeatherPanel";
 import { useMeetingCancellation } from "@/lib/meeting-status";
 import { scheduleMonthTicker } from "@/lib/schedule-month";
+import { asVenue } from "@/lib/official-boards";
 import { fmtMeetingDate, txApi } from "@/lib/tx-api";
 
 type Search = { month?: string | undefined; date?: string | undefined };
@@ -90,6 +91,9 @@ function SchedulePage() {
   return (
     <AppShell page="schedule" ticker={ticker}>
       <PageHead en="Fixtures" title="賽馬日程" desc="按月查看賽馬日。賽期、已報名、正式排位同賽果分開標示；檔位未公布唔會當成正式排位。" />
+      <p className="mx-4 mt-3 text-[12px]">
+        <Link to="/official-boards" search={{ scope: "directory" }} className="font-bold text-gold underline underline-offset-2">獸醫名單、自購馬往績、曾用名及特別註解 →</Link>
+      </p>
 
       {cancellation ? <MeetingCancellationNotice cancellation={cancellation} /> : null}
 
@@ -114,6 +118,7 @@ function SchedulePage() {
           <div className="divide-y divide-hairline">
             {meetings.map((meeting) => {
               const open = openDate === meeting.date;
+              const officialVenue = open && detail.data?.date === meeting.date ? asVenue(detail.data.venue) : null;
               return (
                 <div key={meeting.id}>
                   <button
@@ -139,7 +144,14 @@ function SchedulePage() {
                     ) : detail.isError ? (
                       <ErrorNote error={detail.error} />
                     ) : detail.data ? (
-                      <MeetingDayPanel meeting={detail.data} activeRaceId={activeRaceId} onRace={setPickedRace} />
+                      <>
+                        <MeetingDayPanel meeting={detail.data} activeRaceId={activeRaceId} onRace={setPickedRace} />
+                        {officialVenue ? (
+                          <p className="pb-2 text-[12px]">
+                            <Link to="/official-boards" search={{ date: detail.data.date, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+                          </p>
+                        ) : null}
+                      </>
                     ) : null
                   ) : null}
                 </div>

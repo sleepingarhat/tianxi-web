@@ -16,6 +16,7 @@ import { AppShell } from "@/components/tx/AppShell";
 import { MeetingStatusPills, RunnerFormStrip } from "@/components/tx/MeetingDayPanel";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } from "@/components/tx/ui";
 import { displayedCardStatus, effectiveDrawStatus, runnerFormCells, runnerMeasures } from "@/lib/meeting-card";
+import { asVenue } from "@/lib/official-boards";
 import { canonicalRaceId, finishTime, fmtMeetingDate, txApi } from "@/lib/tx-api";
 
 type Search = { id?: string | undefined };
@@ -72,6 +73,7 @@ function RacePage() {
     refetchInterval: 60_000,
   });
   const venueCode = idMatch?.[2] ?? "";
+  const officialVenue = asVenue(venueCode);
   const odds = useQuery({
     queryKey: ["odds", raceDate, venueCode, raceNumber],
     queryFn: () => txApi.odds(raceDate, venueCode, raceNumber).catch(() => null),
@@ -144,6 +146,14 @@ function RacePage() {
         title={d ? `第 ${d.raceNumber ?? raceNumber} 場 ${d.title || ""}` : "排位表"}
         desc={d ? `${d.class || ""} · ${d.distance || d.distanceM || ""}m · ${d.course || ""}` : undefined}
       />
+      {raceDate && officialVenue ? (
+        <p className="mx-4 mt-3 text-[12px]">
+          <Link to="/official-boards" search={{ date: raceDate, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+          {entriesOnly ? null : (
+            <Link to="/official-boards" search={{ date: raceDate, venue: officialVenue, board: "finish-photos", raceNo: raceNumber }} className="ml-3 font-bold text-gold underline underline-offset-2">終點照片 →</Link>
+          )}
+        </p>
+      ) : null}
 
       <Card title={entriesOnly ? "報名名單" : "排位"} en={entriesOnly ? "Entries" : "Card"}>
         {meeting.data?.drawNote || cardStatus ? (

@@ -42,11 +42,12 @@ export function MeetingStatusPills({
   );
 }
 
-/** 官方四格：金框同排位表其餘灰格分開，字級沿用排位格。 */
+/** 官方排位格：金框同排位表其餘灰格分開，字級沿用排位格。 */
 export function RunnerFormStrip({ cells }: { cells: Measure[] }) {
   if (!cells.length) return null;
+  const columns = cells.length > 4 ? "sm:grid-cols-3 lg:grid-cols-6" : "lg:grid-cols-4";
   return (
-    <dl className="mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-[6px] border border-gold-strong/45 bg-gold-strong/30 lg:grid-cols-4">
+    <dl className={`mt-1.5 grid grid-cols-2 gap-px overflow-hidden rounded-[6px] border border-gold-strong/45 bg-gold-strong/30 ${columns}`}>
       {cells.map((cell) => (
         <div key={cell.label} className="min-w-0 bg-paper px-1 py-1.5 text-center">
           <dt className="text-[11px] font-bold leading-tight text-ink-3">{cell.label}</dt>

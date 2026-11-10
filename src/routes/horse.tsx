@@ -1,3 +1,4 @@
+import { FormerNameCard } from "@/components/tx/OfficialBoards";
 import { HorseOfficialResearch } from "@/components/tx/OfficialResearchPanels";
 import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { useTier } from "@/lib/useTier";
@@ -336,6 +337,7 @@ function HorsePage() {
           </nav>
 
           <HorseOfficialResearch horseId={horseId} />
+          {has(h.code) ? <FormerNameCard brand={String(h.code)} /> : null}
 
           {/* 身份及現況 */}
           <div id="pedigree" className="scroll-mt-12"><Card title="身份、血統及現況" en="Identity · Pedigree">
