@@ -86,6 +86,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "天喜賽馬 · 香港賽馬數據平台" },
       { property: "og:description", content: "專注沙田與跑馬地賽事，預測、賽果及策略盈虧公開可核對。" },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "zh_HK" },
+      { property: "og:site_name", content: "天喜賽馬" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#0F5E49" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
