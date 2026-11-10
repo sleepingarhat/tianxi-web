@@ -116,12 +116,14 @@ export function formatPounds(value: number | null): string {
 
 export type Measure = { label: string; value: string };
 
-/** 官方排位四格。減號用 U+2212，同數值嘅 ASCII 正負號分開。 */
+/** 官方排位格。減號用 U+2212，同數值嘅 ASCII 正負號分開。 */
 export const OFFICIAL_FORM_LABELS = {
   ratingChange: "評分+/\u2212",
   bodyWeightChange: "排位體重+/\u2212",
   bestTime: "最佳時間",
   daysSinceRun: "上賽距今日數",
+  possibleOverweight: "可能超磅",
+  ageAllowance: "分齡讓磅",
 } as const;
 
 /** 已報名／賽期冇負磅、排位體重、檔位時略去，避免砌成一張空白正式排位。正式排位同賽果兩項磅數都列出。 */
@@ -194,9 +196,22 @@ function formatDaysSinceRun(value: unknown): string | null {
   return String(n);
 }
 
+/** 可能超磅、分齡讓磅係磅數，唔加正號。零保留，小數同超範圍唔顯示。 */
+function formatPlainInteger(value: unknown): string | null {
+  const text = typeof value === "number" && Number.isInteger(value)
+    ? String(value)
+    : typeof value === "string" && /^-?\d+$/.test(value.trim())
+      ? value.trim()
+      : "";
+  if (!text) return null;
+  const n = Number(text);
+  if (!Number.isInteger(n) || n < -999 || n > 999) return null;
+  return String(n);
+}
+
 /**
- * 正式排位同賽果列四格；空白顯示—，唔會用評分、體重、完成時間或檔位補。
- * 已報名／賽期只喺接口真係有值時先列，四項都空白就略去。
+ * 正式排位同賽果列六格；空白顯示—，唔會用評分、體重、完成時間或檔位補。
+ * 已報名／賽期只喺原本四項有值時先列；可能超磅同分齡讓磅唔出現喺報名名單。
  */
 export function runnerFormCells(input: {
   horse: {
@@ -207,6 +222,8 @@ export function runnerFormCells(input: {
     bodyWeightChange?: unknown;
     bestTime?: unknown;
     daysSinceRun?: unknown;
+    possibleOverweight?: unknown;
+    ageAllowance?: unknown;
   };
   cardStatus?: string | null | undefined;
   isDeclaredCard?: boolean | null | undefined;
@@ -219,7 +236,11 @@ export function runnerFormCells(input: {
     { label: OFFICIAL_FORM_LABELS.daysSinceRun, value: formatDaysSinceRun(input.horse.daysSinceRun) },
   ];
   if (status === "declared" || status === "resulted") {
-    return cells.map((cell) => ({ label: cell.label, value: cell.value ?? "—" }));
+    return [
+      ...cells.map((cell) => ({ label: cell.label, value: cell.value ?? "—" })),
+      { label: OFFICIAL_FORM_LABELS.possibleOverweight, value: formatPlainInteger(input.horse.possibleOverweight) ?? "—" },
+      { label: OFFICIAL_FORM_LABELS.ageAllowance, value: formatPlainInteger(input.horse.ageAllowance) ?? "—" },
+    ];
   }
   return cells.flatMap((cell) => (cell.value == null ? [] : [{ label: cell.label, value: cell.value }]));
 }

@@ -18,6 +18,7 @@ import { getMeetingHitRate } from "@/lib/hit-rate.functions";
 import { getRaceDayCardDisplay } from "@/lib/race-day-card.functions";
 import { getRaceHeaders } from "@/lib/race-header.functions";
 import { prizeText, ratingText, trackText, type RaceHeaderRow } from "@/lib/race-header";
+import { asVenue } from "@/lib/official-boards";
 import { getRacedayOfficial } from "@/lib/raceday-official.functions";
 import type { ChallengeBoard, LastRunRow, RacedayFocus } from "@/lib/raceday-official";
 import { bestDraws, changeCountByRace, type DrawStatRow, type RankingRow } from "@/lib/raceday-official";
@@ -106,6 +107,7 @@ function TodayPage() {
 
   const date = tp.date ?? smart.data?.date ?? nextMeeting.data?.date;
   const venue = tp.venue ?? smart.data?.venue ?? nextMeeting.data?.venue;
+  const officialVenue = asVenue(venue);
   const meetingToday = isMeetingToday(date, new Date(nowMs));
   const recentPast = isRecentPastMeeting(date, new Date(nowMs));
   const races = tp.races ?? [];
@@ -279,6 +281,12 @@ function TodayPage() {
         <Pill tone={phase === "locked" ? "win" : phase === "unavailable" ? "lose" : "gold"}>{lockLabel}</Pill>
         {!meetingToday && date ? <Pill tone="ink">{recentPast ? "已完賽 · 下一賽日資料到前保留展示" : "非今日 · 顯示下一賽日"}</Pill> : null}
       </section>
+      {date && officialVenue ? (
+        <p className="mx-4 mt-2 text-[12px]">
+          <Link to="/official-boards" search={{ date, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+          <Link to="/official-boards" search={{ scope: "directory" }} className="ml-3 font-bold text-gold underline underline-offset-2">官方名冊 →</Link>
+        </p>
+      ) : null}
 
       {tp.cancellation ? null : tp.isLoading || tier.loading ? (
         <Loading label="核對賽日預測中…" />
