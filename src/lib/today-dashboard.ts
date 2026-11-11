@@ -191,7 +191,7 @@ export function venueLabel(venue?: string | null): string {
 
 export const RACE_DAY_NAV_LABEL = "賽日";
 export const RACE_DAY_PAGE_TITLE = "賽日";
-export const PRELIMINARY_UNLOCKED_LABEL = "初版.未鎖";
+export const PRELIMINARY_UNLOCKED_LABEL = "初版 · 未鎖";
 export const DAY_HITS_EMPTY = "每一場完結並核實後即顯示該場命中；未完場唔預估。";
 export const DAY_HITS_PARTIAL = "已核實場次先計入；未完場唔預估。";
 export const STRATEGY_PNL_CARD_TITLE = "策略累計盈虧";
@@ -201,7 +201,7 @@ export const DISTANCE_PENDING = "途程待公布";
 export const GOING_PENDING = "地況待公布";
 export const CLASS_PENDING = "班次待公布";
 
-/** 焦點卡標題：`28/10/26 18:45HKT 沙田馬場`。日期、開跑、馬場都係傳入值。 */
+/** 焦點卡標題：`28/10/26 18:45 HKT 沙田馬場`。日期、開跑、馬場都係傳入值。 */
 export function focusRaceHeading(input: {
   date?: string | null | undefined;
   startTime?: string | null | undefined;
@@ -212,7 +212,7 @@ export function focusRaceHeading(input: {
   const clock = String(input.startTime ?? "").trim().match(/^(\d{1,2}):(\d{2})/);
   const hh = clock ? Number(clock[1]) : NaN;
   const mm = clock ? Number(clock[2]) : NaN;
-  const timeLabel = clock && hh <= 23 && mm <= 59 ? `${String(hh).padStart(2, "0")}:${clock[2]}HKT` : "時間待定";
+  const timeLabel = clock && hh <= 23 && mm <= 59 ? `${String(hh).padStart(2, "0")}:${clock[2]} HKT` : "時間待定";
   return `${dateLabel} ${timeLabel} ${venueRacecourse(input.venueName)}`;
 }
 
@@ -267,7 +267,7 @@ export function raceRunStatus(input: {
   return "待開";
 }
 
-/** 只喺初版仍未鎖、而且該場未開跑時標「初版.未鎖」。凍結、進行中、完場唔再標。 */
+/** 只喺初版仍未鎖、而且該場未開跑時標「初版 · 未鎖」。凍結、進行中、完場唔再標。 */
 export function showPreliminaryUnlocked(phase: LockPhase, status: RaceRunStatus): boolean {
   if (status !== "待開") return false;
   return phase === "draft" || phase === "countdown";

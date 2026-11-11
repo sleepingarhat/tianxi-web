@@ -13,7 +13,8 @@ function Source({ rows }: { rows: OfficialRow[] }) {
 function ReferenceTable({ section, fields, headings }: { section: OfficialSection; fields: string[]; headings: string[] }) {
   if (!section.available) return <p role="status" className="py-3 text-[12px] text-ink-3">官方資料暫未能讀取；未當作沒有紀錄。</p>;
   if (!section.rows.length) return <Empty label="此項官方紀錄尚未收錄" />;
-  return <div className="overflow-x-auto"><Table head={headings}>{section.rows.map((row, i) => <tr key={i} className="border-b border-hairline last:border-0">{fields.map((field,j) => <Td key={field} first={j===0} className="whitespace-nowrap">{row[field] ?? "—"}</Td>)}</tr>)}</Table></div>;
+  const textCols = fields.flatMap((field, j) => j > 0 && section.rows.some(row => { const v = row[field]; return v != null && v !== "" && !/^[-+]?\d+(\.\d+)?%?$/.test(String(v).trim()); }) ? [j] : []);
+  return <div className="overflow-x-auto lg:max-w-[720px]"><Table head={headings} left={textCols}>{section.rows.map((row, i) => <tr key={i} className="border-b border-hairline last:border-0">{fields.map((field,j) => <Td key={field} first={j===0 || textCols.includes(j)} mono={!textCols.includes(j)} className="whitespace-nowrap">{row[field] ?? "—"}</Td>)}</tr>)}</Table></div>;
 }
 export function HorseOfficialResearch({ horseId }: { horseId: string }) {
   const fn = useServerFn(getHorseOfficialResearch);

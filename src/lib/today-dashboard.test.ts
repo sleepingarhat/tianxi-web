@@ -119,8 +119,8 @@ describe("today-dashboard", () => {
   });
 
   it("焦點卡用賽日、開跑同馬場，唔寫死例子", () => {
-    expect(focusRaceHeading({ date: "2026-10-28", startTime: "18:45", venueName: "沙田" })).toBe("28/10/26 18:45HKT 沙田馬場");
-    expect(focusRaceHeading({ date: "2026-11-01", startTime: "13:00:00", venueName: "跑馬地馬場" })).toBe("01/11/26 13:00HKT 跑馬地馬場");
+    expect(focusRaceHeading({ date: "2026-10-28", startTime: "18:45", venueName: "沙田" })).toBe("28/10/26 18:45 HKT 沙田馬場");
+    expect(focusRaceHeading({ date: "2026-11-01", startTime: "13:00:00", venueName: "跑馬地馬場" })).toBe("01/11/26 13:00 HKT 跑馬地馬場");
     expect(focusRaceHeading({ date: null, startTime: null, venueName: null })).toBe("日期待定 時間待定 馬場待定");
     expect(RACE_DAY_PAGE_TITLE).toBe("賽日");
     expect(RACE_DAY_NAV_LABEL).toBe("賽日");
@@ -146,7 +146,7 @@ describe("today-dashboard", () => {
     expect(showPreliminaryUnlocked("draft", "完場")).toBe(false);
     expect(showPreliminaryUnlocked("draft", "進行中")).toBe(false);
     expect(showPreliminaryUnlocked("pending", "待開")).toBe(false);
-    expect(PRELIMINARY_UNLOCKED_LABEL).toBe("初版.未鎖");
+    expect(PRELIMINARY_UNLOCKED_LABEL).toBe("初版 · 未鎖");
     expect(raceRunStatus({ countdownLabel: "已開跑" })).toBe("進行中");
     expect(raceRunStatus({ hitCount: 2 })).toBe("完場");
     expect(raceRunStatus({})).toBe("待開");

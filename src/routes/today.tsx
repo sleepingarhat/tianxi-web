@@ -539,7 +539,7 @@ function NowCard({
     >
       <div className="mb-3 flex flex-wrap items-end gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-ink-3">開跑倒數</p>
+          <p className="text-[11px] text-ink-3">開跑倒數</p>
           <p className="tabnum font-mono-tx text-[28px] font-bold leading-none text-ink">{cd || "—"}</p>
           <p className="mt-1 text-[11px] text-ink-3">{start ? `${start} HKT` : "時間待定"}</p>
         </div>
@@ -616,6 +616,12 @@ type OfficialData = { ranking: { jockey: RankingRow[]; trainer: RankingRow[]; as
 
 const VENUE_SHORT: Record<string, string> = { ST: "沙田", HV: "跑馬地", CH: "從化" };
 
+/** `YYYY-MM-DD…` → `DD/MM`，同全頁日期次序一致。 */
+function dayMonth(iso: string): string {
+  const m = String(iso).match(/^\d{4}-(\d{2})-(\d{2})/);
+  return m ? `${m[2]}/${m[1]}` : String(iso);
+}
+
 function OfficialFocusCard({ data }: { data: OfficialData }) {
   const focus = data?.focus;
   if (!focus) return null;
@@ -623,9 +629,11 @@ function OfficialFocusCard({ data }: { data: OfficialData }) {
     <Card title="賽日頭條" en="Raceday focus">
       <p className="font-serif-tc text-[15px] font-bold leading-snug text-ink">{focus.title}</p>
       {focus.lead ? <p className="mt-1.5 text-[12px] leading-relaxed text-ink-2">{focus.lead}</p> : null}
-      <a href={focus.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-[12px] font-bold text-gold underline underline-offset-2">睇馬會原文 →</a>
-      <Link to="/headlines" className="ml-3 inline-block text-[12px] font-bold text-gold underline underline-offset-2">所有賽日頭條</Link>
-      <Link to="/official-pools" className="ml-3 inline-block text-[12px] font-bold text-gold underline underline-offset-2">官方派彩及彩池</Link>
+      <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] font-bold">
+        <a href={focus.url} target="_blank" rel="noopener noreferrer" className="text-gold underline underline-offset-2">睇馬會原文 →</a>
+        <Link to="/headlines" className="text-gold underline underline-offset-2">所有賽日頭條</Link>
+        <Link to="/official-pools" className="text-gold underline underline-offset-2">官方派彩及彩池</Link>
+      </p>
       <p className="mt-2 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：只顯示標題及導語，全文請睇馬會網頁。不計入預測。</p>
     </Card>
   );
@@ -638,14 +646,14 @@ function OfficialLastRunCard({ data, raceNumber }: { data: OfficialData; raceNum
   const rows = inRace.length ? inRace : all;
   return (
     <Card title="上仗備忘" en="Last-run reminder">
-      <p className="text-[11px] text-ink-3">{inRace.length ? `第 ${raceNumber} 場精選馬` : `全日精選馬 ${all.length} 匹`}{all[0]?.updatedAt ? ` · 馬會更新 ${all[0].updatedAt.slice(5, 10).replace("-", "/")} ${all[0].updatedAt.slice(11, 16)}` : ""}</p>
+      <p className="text-[11px] text-ink-3">{inRace.length ? `第 ${raceNumber} 場精選馬` : `全日精選馬 ${all.length} 匹`}{all[0]?.updatedAt ? ` · 馬會更新 ${dayMonth(all[0].updatedAt)} ${all[0].updatedAt.slice(11, 16)}` : ""}</p>
       <ul className="mt-2 divide-y divide-hairline">
         {rows.map((r) => (
           <li key={`${r.raceNumber}-${r.horseNumber}`} className="py-2 first:pt-0 last:pb-0">
             <p className="flex min-w-0 flex-wrap items-baseline gap-x-2 text-[12px]">
               <span className="tabnum font-mono-tx text-ink-3">R{r.raceNumber} · {r.horseNumber}號</span>
               <span className="font-serif-tc font-bold text-ink">{r.horseName}</span>
-              <span className="text-[11px] text-ink-3">上仗 {r.lastDate.slice(5).replace("-", "/")} {VENUE_SHORT[r.lastVenue] ?? r.lastVenue}{r.track ? ` ${r.track}` : ""}{r.cls ? ` ${r.cls}班` : ""}{r.distance ? ` ${r.distance}米` : ""}{r.draw ? ` 檔${r.draw}` : ""}{r.positions ? ` · 走位 ${r.positions}` : ""}</span>
+              <span className="text-[11px] text-ink-3">上仗 {dayMonth(r.lastDate)} {VENUE_SHORT[r.lastVenue] ?? r.lastVenue}{r.track ? ` ${r.track}` : ""}{r.cls ? ` ${r.cls}班` : ""}{r.distance ? ` ${r.distance}米` : ""}{r.draw ? ` 檔${r.draw}` : ""}{r.positions ? ` · 走位 ${r.positions}` : ""}</span>
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{r.memo}</p>
           </li>
@@ -731,13 +739,13 @@ function OfficialDrawCard({ data, raceNumber }: { data: OfficialData; raceNumber
     <Card title={`第 ${raceNumber} 場檔位統計`} en="Draw stats">
       <ul className="space-y-1">
         {rows.map((r) => (
-          <li key={r.draw} className="grid grid-cols-[28px_minmax(0,1fr)] items-center gap-x-2 gap-y-1 py-1 text-[11px] sm:grid-cols-[28px_minmax(0,1fr)_auto]">
+          <li key={r.draw} className="grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-x-3 py-1 text-[11px]">
             <span className={`tabnum font-mono-tx font-bold ${best.has(r.draw) ? "text-gold" : "text-ink"}`}>{r.draw}檔</span>
             <span className="relative h-2 rounded-full bg-paper-2">
               <span className="absolute inset-y-0 left-0 rounded-full bg-ink-3/40" style={{ width: `${(r.placePct / max) * 100}%` }} />
               <span className="absolute inset-y-0 left-0 rounded-full bg-gold" style={{ width: `${(r.winPct / max) * 100}%` }} />
             </span>
-            <span className="tabnum col-start-2 grid grid-cols-3 gap-2 whitespace-nowrap font-mono-tx text-ink-3 sm:col-start-auto sm:flex sm:justify-end"><span>勝 {r.winPct}%</span><span>位 {r.placePct}%</span><span className="text-right">{r.starts} 次</span></span>
+            <span className="tabnum grid grid-cols-[44px_44px_32px] gap-x-1 whitespace-nowrap text-right font-mono-tx text-ink-3"><span>勝 {r.winPct}%</span><span>位 {r.placePct}%</span><span>{r.starts}次</span></span>
           </li>
         ))}
       </ul>

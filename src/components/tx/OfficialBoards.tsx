@@ -212,9 +212,9 @@ function SpecialList({ rows }: { rows: SpecialIndexRow[] }) {
   return (
     <>
       <Count n={rows.length} />
-      <ul className="mt-2 divide-y divide-hairline">
+      <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3">
         {rows.map((row) => (
-          <li key={row.code} className="flex items-baseline gap-2 py-2">
+          <li key={row.code} className="flex items-baseline gap-3 border-b border-hairline/60 py-2">
             <span className="tabnum w-14 shrink-0 font-mono-tx text-[12px] font-bold text-gold">{row.code}</span>
             <span className="text-[12px] leading-relaxed text-ink">{row.noteCh}</span>
           </li>

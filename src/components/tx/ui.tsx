@@ -50,7 +50,7 @@ export function PageHead({ en, title, desc }: { en: string; title: string; desc?
   return (
     <section className="relative overflow-hidden border-b border-hairline bg-gradient-to-b from-paper-2 to-paper px-4 pb-4 pt-5">
       <span aria-hidden className="absolute left-4 top-0 h-[3px] w-10 rounded-b bg-gold" />
-      <p className="font-mono-tx text-[11px] font-bold uppercase tracking-[0.28em] text-ink-3">{en}</p>
+      <p className="font-mono-tx text-[11px] font-medium tracking-[0.06em] text-ink-3">{en}</p>
       <h1 className="fx-spotlight mt-1 font-serif-tc text-[26px] font-bold leading-tight tracking-wide text-ink">{title}</h1>
       {desc ? <p className="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-2">{desc}</p> : null}
     </section>
@@ -77,7 +77,7 @@ export function Card({
           <h2 className="min-w-0 font-serif-tc text-[15px] font-bold leading-relaxed text-ink">
             {title}
             {en ? (
-              <small className="mt-0.5 block font-mono-tx text-[11px] font-bold uppercase tracking-[0.14em] text-ink-3">
+              <small className="mt-0.5 block font-mono-tx text-[11px] font-medium tracking-[0.02em] text-ink-3">
                 {en}
               </small>
             ) : null}
@@ -225,7 +225,8 @@ export function Scroller({ children }: { children: ReactNode }) {
   return <div className="no-scrollbar -mx-3 overflow-x-auto px-3">{children}</div>;
 }
 
-export function Table({ head, children }: { head: ReactNode[]; children: ReactNode }) {
+/** `left` lists extra text columns (names) that align left like the first column. */
+export function Table({ head, children, left = [] }: { head: ReactNode[]; children: ReactNode; left?: number[] }) {
   return (
     <table className="w-full border-collapse text-[12px] [&_tbody_tr]:border-b [&_tbody_tr]:border-hairline/60 [&_tbody_tr:last-child]:border-0 [&_tbody_tr:hover]:bg-paper/60">
       <thead>
@@ -234,7 +235,7 @@ export function Table({ head, children }: { head: ReactNode[]; children: ReactNo
             <th
               key={i}
               className={`whitespace-nowrap px-1.5 py-2 font-mono-tx text-[11px] font-bold uppercase tracking-wider text-ink-3 ${
-                i === 0 ? "text-left" : "text-right"
+                i === 0 || left.includes(i) ? "text-left" : "text-right"
               }`}
             >
               {h}
