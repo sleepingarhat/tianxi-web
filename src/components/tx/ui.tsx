@@ -247,6 +247,7 @@ export function Table({ head, children }: { head: ReactNode[]; children: ReactNo
   );
 }
 
+/** First cells size flex rows with w-max: WebKit under-measures flex rows in auto tables, so names overlapped the next column on iPhone. */
 export function Td({
   children,
   first,
@@ -260,7 +261,7 @@ export function Td({
 }) {
   return (
     <td
-      className={`whitespace-nowrap px-1.5 py-1.5 ${first ? "text-left" : "text-right"} ${
+      className={`whitespace-nowrap px-1.5 py-1.5 ${first ? "text-left [&>.flex]:w-max" : "text-right"} ${
         mono && !first ? "tabnum font-mono-tx" : ""
       } ${className}`}
     >

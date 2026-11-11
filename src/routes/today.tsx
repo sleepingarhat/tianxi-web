@@ -561,23 +561,25 @@ function NowCard({
 
       {access === "full" ? (
         <>
-          <div className="mb-2 flex flex-wrap gap-1.5">
+          <ol className="mb-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4" aria-label="四揀">
             {top4.map((p, i) => (
-              <span
+              <li
                 key={p.horseNumber}
-                className={`rounded-[6px] border px-2 py-1 ${i === 0 ? "border-gold-strong/50 bg-gold-bg" : "border-hairline bg-paper"}`}
+                className={`grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-1.5 rounded-[6px] border px-2 py-1.5 ${i === 0 ? "border-gold-strong/50 bg-gold-bg" : "border-hairline bg-paper"}`}
               >
-                <span className="tabnum font-mono-tx text-[11px] font-bold">#{p.horseNumber}</span>{" "}
-                <span className="font-serif-tc text-[12px] font-bold">{p.nameCh || "—"}</span>
-                <span className="ml-1 tabnum font-mono-tx text-[11px] text-ink-3">{pct(p.pWin)}</span>
-              </span>
+                <span className="tabnum font-mono-tx text-[11px] font-bold">#{p.horseNumber}</span>
+                <span className="truncate font-serif-tc text-[13px] font-bold">{p.nameCh || "—"}</span>
+                <span className="tabnum font-mono-tx text-[11px] text-ink-3">{pct(p.pWin)}</span>
+              </li>
             ))}
             {fifth ? (
-              <span className="rounded-[6px] border border-dashed border-hairline px-2 py-1 text-[11px] text-ink-2">
-                第五選 #{fifth.horseNumber} {fifth.nameCh || ""}
-              </span>
+              <li className="col-span-full flex min-w-0 items-baseline gap-1.5 rounded-[6px] border border-dashed border-hairline px-2 py-1 text-[11px] text-ink-2">
+                <span className="shrink-0 text-ink-3">第五選</span>
+                <span className="tabnum shrink-0 font-mono-tx font-bold">#{fifth.horseNumber}</span>
+                <span className="truncate font-serif-tc">{fifth.nameCh || ""}</span>
+              </li>
             ) : null}
-          </div>
+          </ol>
           <p className="text-[11px] leading-relaxed text-ink-2">
             首選模型 vs 市場：
             {gap == null ? (
