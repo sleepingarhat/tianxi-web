@@ -39,7 +39,7 @@ export function WeatherPanel({ venue }: { venue?: string | undefined }) {
   return (
     <Card
       title="馬場即時天氣"
-      en="Live Weather"
+      en="Live weather"
       action={
         venues.length > 1 ? (
           <div className="flex gap-1">

@@ -28,7 +28,7 @@ function Versions() {
   ]);
   return (
     <>
-      <AdminHead title="模型版本" en="Model Versions" desc="香港賽馬所有登記版本，包括已歸檔版本。每個版本由定版日起獨立計成績，唔回填。前台只顯示現行版本。" onRefresh={() => mv.refetch()} refreshing={mv.isFetching} />
+      <AdminHead title="模型版本" en="Model versions" desc="香港賽馬所有登記版本，包括已歸檔版本。每個版本由定版日起獨立計成績，唔回填。前台只顯示現行版本。" onRefresh={() => mv.refetch()} refreshing={mv.isFetching} />
       <Panel title="版本登記表" en="model_versions">
         <div className="hidden md:block"><DataTable data={rows} columns={cols} empty={mv.isLoading ? "讀取中…" : "未有版本"} /></div>
         <div className="divide-y divide-hairline md:hidden">

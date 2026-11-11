@@ -31,7 +31,7 @@ function AuditPage() {
   const d = q.data;
   return (
     <AppShell page="engine" ticker="完整性審計 · 每日自動更新">
-      <PageHead en="Integrity Audit & Gates" title="完整性審計與閘結果" desc="三層公開檢查並排：數據完整性審計、引擎健康閘、最近一次重訓閘。全部直接讀每日自動產生嘅報告原檔，唔經人手改寫。" />
+      <PageHead en="Integrity audit & gates" title="完整性審計與閘結果" desc="三層公開檢查並排：數據完整性審計、引擎健康閘、最近一次重訓閘。全部直接讀每日自動產生嘅報告原檔，唔經人手改寫。" />
       <div className="mx-4 mt-3 flex flex-wrap gap-3 text-[11px] font-bold text-gold">
         <Link to="/engine/monitor">引擎監控清單 →</Link><Link to="/racing-health">後端任務健康 →</Link><Link to="/track-record">公開戰績 →</Link>
       </div>

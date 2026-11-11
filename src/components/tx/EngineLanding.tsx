@@ -130,7 +130,7 @@ export function EngineLanding() {
         </section>
       ))}
       <section className="border-t border-hairline px-5 py-8 md:px-10">
-        <p className="font-mono-tx text-[11px] font-bold uppercase tracking-[0.18em] text-ink-3">QUICK ACCESS · 快速入口</p>
+        <p className="font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">Quick access · 快速入口</p>
         <h2 className="mt-1 font-serif-tc text-[18px] font-bold text-ink">天喜賽馬功能一覽</h2>
         <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
           {[
@@ -146,7 +146,7 @@ export function EngineLanding() {
             <Link key={l.to} to={l.to} className="rounded-[8px] border border-hairline bg-paper-2 px-3 py-2.5 text-center text-[12px] font-bold text-ink hover:border-gold-strong hover:bg-gold-bg">{l.label}</Link>
           ))}
         </div>
-        <p className="mb-1.5 mt-4 font-mono-tx text-[11px] font-bold uppercase tracking-[0.16em] text-ink-3">公開 GitHub 來源</p>
+        <p className="mb-1.5 mt-4 font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">公開 GitHub 來源</p>
         <a href="https://github.com/sleepingarhat/tianxi-racing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[6px] border border-hairline bg-paper px-3 py-1.5 text-[11px] font-bold text-ink hover:border-gold-strong">天喜賽馬數據庫及引擎 ↗</a>
       </section>
 

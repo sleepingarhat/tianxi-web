@@ -75,7 +75,7 @@ function AdminLayout() {
     return (
       <div className="tx-admin flex min-h-screen items-center justify-center p-6 text-center">
         <div>
-          <p className="font-mono-tx text-[10px] uppercase tracking-[0.2em] text-gold">TIANXI OPS</p>
+          <p className="font-mono-tx text-[11px] tracking-[0.04em] text-gold">Tianxi ops</p>
           <p className="mt-2 text-[13px] text-ink-2">{isAdmin === null ? "核實權限中…" : "此帳號未獲授權進入監控端"}</p>
           {isAdmin === false ? <Link to="/" className="mt-3 inline-block text-[12px] text-gold underline">返回首頁</Link> : null}
         </div>
@@ -162,7 +162,7 @@ function Brand() {
   return (
     <div className="px-4 py-3">
       <p className="text-[14px] font-bold text-ink">天喜<span className="text-gold">·</span>監控端</p>
-      <p className="font-mono-tx text-[10.5px] uppercase tracking-[0.2em] text-ink-3">TIANXI OPS</p>
+      <p className="font-mono-tx text-[10.5px] tracking-[0.04em] text-ink-3">Tianxi ops</p>
     </div>
   );
 }

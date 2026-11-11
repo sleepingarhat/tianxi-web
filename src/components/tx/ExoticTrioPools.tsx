@@ -22,7 +22,7 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
   const net = ret - cost;
 
   return (
-    <Card title="孖T／三T 二拖三" en="Double Trio · Triple Trio">
+    <Card title="孖T／三T 二拖三" en="Double trio · Triple trio">
       <p className="mb-3 text-[12px] font-bold text-gold">孖T／三T跨場組口盈虧由 19/10/2026 起計；之前賽日不計跨場組口。</p>
       <p className="mb-2 text-[11px] leading-relaxed text-ink-3">
         <b className="text-ink-2">買法：孖T／三T 用引擎凍結預測排序頭 5 隻</b>——每場第 1、2 選做膽，拖第 3、4、5 選，共 3 組；每注 $10。孖T 每口 9 注（$90），兩場都中先算正獎；三T 每口 27 注（$270），三場都中先算正獎，頭兩場中、第三場唔中算安慰獎。

@@ -125,7 +125,7 @@ function ResultsPage() {
 
   return (
     <AppShell page="" ticker={activeDate ? `${fmtMeetingDate(activeDate)} 賽果核對` : "載入賽事…"}>
-      <PageHead en="Results Audit" title="賽果核對" desc="引擎預測在賽前凍結，賽後與官方賽果逐場比對。" />
+      <PageHead en="Results audit" title="賽果核對" desc="引擎預測在賽前凍結，賽後與官方賽果逐場比對。" />
       <p className="mx-4 mt-2 text-[12px]">
         <Link to="/official-pools" search={activeDate ? { date: activeDate } : {}} className="font-bold text-gold underline underline-offset-2">馬會官方派彩、彩池狀態及場地探針 →</Link>
         {activeDate && officialVenue ? (
@@ -159,7 +159,7 @@ function ResultsPage() {
         </p>
       ) : null}
 
-      <Card title={races.some(r => r.redacted) ? "可見場次命中率" : "當日命中率"} en="Hit Rate">
+      <Card title={races.some(r => r.redacted) ? "可見場次命中率" : "當日命中率"} en="Hit rate">
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (
@@ -169,7 +169,7 @@ function ResultsPage() {
             <div className="grid grid-cols-2 gap-2">
               <KpiTile
                 label="四揀平均中"
-                en="Top4 Avg"
+                en="Top4 avg"
                 value={num(s.top4AvgIntersect, 2)}
                 unit="／4"
                 ratio={s.top4AvgIntersect != null ? Number(s.top4AvgIntersect) / 4 : null}
@@ -179,7 +179,7 @@ function ResultsPage() {
               />
               <KpiTile
                 label="前三平均中"
-                en="Top3 Avg"
+                en="Top3 avg"
                 value={num(s.top3AvgIntersect, 2)}
                 unit="／3"
                 ratio={s.top3AvgIntersect != null ? Number(s.top3AvgIntersect) / 3 : null}
@@ -203,7 +203,7 @@ function ResultsPage() {
         )}
       </Card>
 
-      <Card title="逐場核對" en="Per Race">
+      <Card title="逐場核對" en="Per race">
         {hr.isLoading ? (
           <Loading />
         ) : hr.error ? (

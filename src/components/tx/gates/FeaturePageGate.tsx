@@ -8,11 +8,14 @@ import { useTier } from "@/lib/useTier";
 export function FeaturePageGate({
   min,
   title,
+  en = "Members only",
   children,
   preview,
 }: {
   min: "registered" | "pro";
   title: string;
+  /** Page eyebrow shown on the locked view, matching the unlocked page. */
+  en?: string;
   children: ReactNode;
   preview?: ReactNode;
 }) {
@@ -28,7 +31,7 @@ export function FeaturePageGate({
   if (tier.has(min)) return <>{children}</>;
   return (
     <AppShell columns={false}>
-      <PageHead en="Membership" title={title} />
+      <PageHead en={en} title={title} />
       <TierGate min={min} feature={title} mode={preview ? "preview" : "lock"} preview={preview}>
         {null}
       </TierGate>

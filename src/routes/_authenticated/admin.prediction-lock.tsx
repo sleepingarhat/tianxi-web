@@ -14,7 +14,7 @@ function LockPage() {
 
   return (
     <>
-      <AdminHead title="預測鎖定" en="Prediction Lock" desc="賽馬首場前 90 分鐘鎖全日。鎖定紀錄只增不改，呢度只讀。" onRefresh={() => { lock.refetch(); }} refreshing={lock.isFetching} />
+      <AdminHead title="預測鎖定" en="Prediction lock" desc="賽馬首場前 90 分鐘鎖全日。鎖定紀錄只增不改，呢度只讀。" onRefresh={() => { lock.refetch(); }} refreshing={lock.isFetching} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="賽馬今日" value={lock.data?.locked ? "已鎖" : lock.data ? "未鎖" : "—"} tone={lock.data?.locked ? "win" : "gold"} sub={lock.data ? `${lock.data.date} · ${lock.data.frozenRows ?? 0} 行` : ""} />
       </div>

@@ -217,7 +217,7 @@ export function EnginePipeline({ defaultOpen }: { defaultOpen?: number }) {
                 ))}
                 {s.math?.length ? (
                   <div className="mt-2 space-y-1.5 border-t border-hairline pt-2">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink-3">
+                    <div className="text-[11px] font-medium tracking-[0.04em] text-ink-3">
                       數學公式 · Formulas
                     </div>
                     {s.math.map((m, k) => (

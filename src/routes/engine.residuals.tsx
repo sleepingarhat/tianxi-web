@@ -22,7 +22,7 @@ export const Route = createFileRoute("/engine/residuals")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <FeaturePageGate min="registered" title="殘差診斷"><ResidualsPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Residual diagnostics" min="registered" title="殘差診斷"><ResidualsPage /></FeaturePageGate>,
 });
 
 type Row = {
@@ -87,7 +87,7 @@ function ResidualsPage() {
   return (
     <AppShell page="engine" ticker="殘差診斷 · 系統性偏差">
       <PageHead
-        en="Residual Diagnostics"
+        en="Residual diagnostics"
         title="殘差診斷"
         desc="把已對賬嘅凍結預測按班次、路程、場地狀況、賠率區間、馬場拆開，比較「引擎預測機率」同「實際發生率」。正數＝引擎低估（實際好過預測），負數＝高估。"
       />
@@ -108,7 +108,7 @@ function ResidualsPage() {
             </StatGrid>
           </Card>
 
-          <Card title="偏差警示" en="Flagged Bias">
+          <Card title="偏差警示" en="Flagged bias">
             {flagged.length === 0 ? (
               <p className="text-[11px] text-ink-3">樣本 ≥ 60 匹嘅組別中，冇一組三甲偏差超過 5 個百分點。</p>
             ) : (
@@ -135,7 +135,7 @@ function ResidualsPage() {
             </p>
           </Card>
 
-          <Card title="逐組拆解" en="By Group">
+          <Card title="逐組拆解" en="By group">
             <div className="mb-2">
               <Seg value={dim} onChange={(v) => setDim(v as Dim)} options={DIMS.map((d) => ({ value: d.value, label: d.label }))} />
             </div>

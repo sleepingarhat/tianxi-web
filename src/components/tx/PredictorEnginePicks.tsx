@@ -21,7 +21,7 @@ export function PredictorEnginePicks({ race, invalidInput, tp, start, sub, liveO
   return (
       <Card
         title={race ? `第 ${race.raceNumber} 場 ${invalidInput ? "原凍結事故紀錄（非有效預測）" : "引擎首選"}` : "引擎首選"}
-        en="Engine Picks"
+        en="Engine picks"
         action={
           race?.raceId ? (
             <Link to="/race" search={{ id: race.raceId }} className="text-[11px] font-bold text-gold">

@@ -33,7 +33,7 @@ function Members() {
     <>
       <AdminHead
         title="會員"
-        en="Users & Membership"
+        en="Users & membership"
         desc="真實登記帳戶人數、收費閘及創始名額進度。"
       />
       <NoteBox tone="gold">
@@ -102,7 +102,7 @@ function MemberList({ threshold }: { threshold: number }) {
   });
   const rows = list.data ?? [];
   return (
-    <Panel title="註冊帳戶清單" en="Accounts · admin only" className="mt-4">
+    <Panel title="註冊帳戶清單" en="Accounts · Admin only" className="mt-4">
       <p className="mb-3 text-[11px] leading-relaxed text-ink-3">
         只限管理員睇到。標記為「測試」嘅帳號唔計入登記人數同 {threshold} 人門檻，亦唔佔創始會員名額；隨時可以取消標記。
       </p>

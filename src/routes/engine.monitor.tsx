@@ -66,12 +66,12 @@ function MonitorPage() {
   return (
     <AppShell page="engine" ticker="守門狀態 · PASS／WATCH／FAIL">
       <PageHead
-        en="Engine Monitor"
+        en="Engine monitor"
         title="引擎監控清單"
         desc="同後端倉庫 ENGINE_HEALTH 報告、用戶端引擎頁共用一份資料。休季期間無當日 live 曲線屬預期。"
       />
 
-      <Card title="運作模式 · 初版／最終版" en="Draft / Final">
+      <Card title="運作模式 · 初版／最終版" en="Draft / final">
         <p className="text-[12px] text-ink-2">
           公開四擇必須標明此輪係<b className="text-ink"> 初版 </b>定<b className="text-ink"> 最終版 </b>。已完場對賬只用最終版。
         </p>
@@ -105,7 +105,7 @@ function MonitorPage() {
         </StatGrid>
       </Card>
 
-      <Card title="機率品質" en="Probability Quality" >
+      <Card title="機率品質" en="Probability quality" >
         {acc.isLoading ? (
           <Loading />
         ) : acc.error ? (

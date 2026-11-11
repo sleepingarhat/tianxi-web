@@ -108,8 +108,8 @@ function RacePage() {
   if (!raceId) {
     return (
       <AppShell columns={false} page="" ticker="請選擇一場賽事">
-        <PageHead en="Race Card" title="排位表" desc="從下一個賽馬日選擇場次。" />
-        <Card title="下一賽事場次" en="Select Race">
+        <PageHead en="Race card" title="排位表" desc="從下一個賽馬日選擇場次。" />
+        <Card title="下一賽事場次" en="Select race">
           {next.isLoading ? (
             <Loading />
           ) : (
@@ -147,7 +147,7 @@ function RacePage() {
       }
     >
       <PageHead
-        en="Race Card"
+        en="Race card"
         title={d ? `第 ${d.raceNumber ?? raceNumber} 場 ${d.title || ""}` : "排位表"}
         desc={d ? `${d.class || ""} · ${d.distance || d.distanceM || ""}m · ${d.course || ""}` : undefined}
       />
@@ -261,7 +261,7 @@ function RacePage() {
         </Card>
       ) : null}
 
-      <Card title="引擎首選" en="Engine Picks">
+      <Card title="引擎首選" en="Engine picks">
         {dayPicks.isLoading ? (
           <Loading />
         ) : dayRacePicks.length ? (

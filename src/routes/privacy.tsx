@@ -25,7 +25,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Privacy() {
   return <AppShell page="dashboard" ticker="私隱政策 · 會員資料保障">
-    <PageHead en="Privacy Policy" title="私隱政策" desc={`最後更新：${UPDATED}。本政策說明天喜（tianxi.racing）如何收集、使用、保存及保護你的個人資料。`} />
+    <PageHead en="Privacy policy" title="私隱政策" desc={`最後更新：${UPDATED}。本政策說明天喜（tianxi.racing）如何收集、使用、保存及保護你的個人資料。`} />
 
     <Section title="我們收集的資料">
       <p>1. 帳戶資料：當你透過 Google 登入註冊或登入天喜，我們會從 Google 取得你的電郵地址、姓名及基本個人檔案資料，用作建立及識別你的會員帳戶。我們不會取得或保存你的 Google 密碼。</p>

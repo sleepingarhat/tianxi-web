@@ -83,7 +83,7 @@ export function AlphaGuard({
         <p className="flex items-center gap-1.5 text-[11px] font-bold leading-none text-ink-2">
           <span className={`tx-blink inline-block h-[7px] w-[7px] rounded-full ${t.dot}`} />
           集成比重 α 健康
-          <span className="font-mono-tx text-[10px] uppercase tracking-[0.18em] text-ink-3">Alpha Guard</span>
+          <span className="font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">Alpha guard</span>
         </p>
         <p className={`tabnum shrink-0 font-mono-tx text-[12px] font-bold leading-none ${t.text}`}>
           {t.label} · α={value}

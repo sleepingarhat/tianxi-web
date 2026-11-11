@@ -39,7 +39,7 @@ function RacingHealthPage() {
 
   return (
     <AppShell page="engine" ticker="賽馬後端健康 · 每分鐘自動刷新">
-      <PageHead en="Racing Backend Health" title="賽馬後端健康" desc="派彩收料、定時任務、Telegram 告警通道，一頁睇晒；任何一項轉紅即時見到。" />
+      <PageHead en="Racing backend health" title="賽馬後端健康" desc="派彩收料、定時任務、Telegram 告警通道，一頁睇晒；任何一項轉紅即時見到。" />
       {q.isLoading ? (
         <Loading label="檢查後端…" />
       ) : q.error ? (
@@ -59,7 +59,7 @@ function RacingHealthPage() {
             </StatGrid>
           </div>
 
-          <Card title="定時任務狀態" en="Scheduled Jobs">
+          <Card title="定時任務狀態" en="Scheduled jobs">
             <Scroller>
               <Table head={["任務", "狀態", "最後運行（香港）", "距今"]}>
                 {d.workflows.map((w) => (
@@ -78,7 +78,7 @@ function RacingHealthPage() {
           </Card>
 
           {d.jobTicks.length ? (
-            <Card title="工作心跳（每五分鐘任務）" en="Job Heartbeats">
+            <Card title="工作心跳（每五分鐘任務）" en="Job heartbeats">
               <Scroller>
                 <Table head={["任務", "狀態", "最後心跳（香港）", "距今"]}>
                   {d.jobTicks.map((t) => {
@@ -101,7 +101,7 @@ function RacingHealthPage() {
             </Card>
           ) : null}
 
-          <Card title="告警紀錄（未恢復）" en="Open Alerts">
+          <Card title="告警紀錄（未恢復）" en="Open alerts">
             {d.telegram.openAlerts ? (
               <p className="text-[11px] text-lose">{d.telegram.openAlerts} 項未恢復告警。</p>
             ) : (

@@ -32,7 +32,7 @@ export const Route = createFileRoute("/engine/features")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <FeaturePageGate min="registered" title="特徵選取表"><FeatureCatalogPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Feature catalog" min="registered" title="特徵選取表"><FeatureCatalogPage /></FeaturePageGate>,
 });
 
 const STATUS_TONE: Record<FeatureStatus, "win" | "gold" | "ink"> = {
@@ -73,7 +73,7 @@ function FeatureCatalogPage() {
   return (
     <AppShell page="engine" ticker="特徵選取表 · 引擎用咗咩、冇用咩，全部公開">
       <PageHead
-        en="Feature Catalog"
+        en="Feature catalog"
         title="特徵選取表"
         desc="天喜預測引擎全部特徵因子逐項列明：已採用者附模型重要度，未採用者附原因。唔係越多特徵越好——加錯特徵會令命中率下跌，所以每一項都要過回測。"
       />
@@ -92,7 +92,7 @@ function FeatureCatalogPage() {
 
       <Card
         title="逐項清單"
-        en="All Features"
+        en="All features"
         action={
           <button
             type="button"
@@ -171,7 +171,7 @@ function FeatureCatalogPage() {
         </div>
       </Card>
 
-      <Card title="引擎出預測流程" en="Engine Pipeline">
+      <Card title="引擎出預測流程" en="Engine pipeline">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
           由收料到鎖定共八步，逐步展開睇白話解釋，並標明呢一步會唔會改動最終四揀。
         </p>

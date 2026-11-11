@@ -26,7 +26,7 @@ export function EngineValueCompare() {
   const css = (v: string) => typeof window === "undefined" ? "#888" : getComputedStyle(document.documentElement).getPropertyValue(v).trim() || "#888";
 
   return (
-    <Card title={`引擎價值對照${from ? `（由 ${fmtMeetingDate(from)} 起）` : ""}`} en="Value vs Market">
+    <Card title={`引擎價值對照${from ? `（由 ${fmtMeetingDate(from)} 起）` : ""}`} en="Value vs market">
       {hist.isLoading || q.isLoading ? <Loading /> : hist.error || q.error ? <div><ErrorNote error={hist.error || q.error} /><Button variant="outline" onClick={() => { if (hist.error) void hist.refetch(); else void q.refetch(); }}>重新讀取市場對照</Button></div> : !s || !s.races ? <Empty label="當前版本未有已入帳賽日" /> : (
         <div className="space-y-2.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-[10px] border border-hairline bg-paper p-3">

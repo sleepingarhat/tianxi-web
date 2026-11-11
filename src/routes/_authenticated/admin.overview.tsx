@@ -60,7 +60,7 @@ function Overview() {
             <li className="flex gap-2"><span className="text-ink-3">賽馬</span><span className="ml-auto text-ink-2">{lock.data ? `${lock.data.venue ?? ""} 首場 ${hkDateTime(lock.data.firstPostAt)} · 鎖定 ${hkDateTime(lock.data.lockAt)}` : "今日無賽事"}</span></li>
           </ul>
         </Panel>
-        <Panel title="現行模型版本" en="Active Versions" right={<Link to="/admin/model-versions" className="text-[10px] text-gold">全部</Link>}>
+        <Panel title="現行模型版本" en="Active versions" right={<Link to="/admin/model-versions" className="text-[10px] text-gold">全部</Link>}>
           <ul className="space-y-1.5">
             {active.map((v) => (
               <li key={v.version} className="flex min-w-0 items-center gap-2 text-[12px]">
@@ -72,7 +72,7 @@ function Overview() {
             {!active.length ? <li className="text-[12px] text-ink-3">{mv.isLoading ? "讀取中…" : "未登記"}</li> : null}
           </ul>
         </Panel>
-        <Panel title="API 健康" en="API Health">
+        <Panel title="API 健康" en="API health">
           <ul className="space-y-1.5 text-[12px]">
             {[
               ["賽馬引擎健康", eh], ["賽馬後端定時任務", rh], ["賽馬鎖定狀態", lock],

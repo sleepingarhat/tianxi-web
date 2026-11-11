@@ -20,7 +20,7 @@ export const Route = createFileRoute("/cross-race-pools")({
     { property: "og:description", content: "逐場核對孖T／三T原注及命中，逐口列成本與派彩；缺證據不結算。" },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
-  component: () => <FeaturePageGate min="pro" title="孖T／三T 組合"><CrossRacePoolsPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Double trio · Triple trio" min="pro" title="孖T／三T 組合"><CrossRacePoolsPage /></FeaturePageGate>,
 });
 
 function CrossRacePoolsPage() {
@@ -31,7 +31,7 @@ function CrossRacePoolsPage() {
   const date = picked || requestedDate || dates[0] || "";
   const options = date && !dates.includes(date) ? [date, ...dates] : dates;
   return <AppShell page="engine" columns={false} ticker="孖T／三T · 跨場原注核對">
-    <PageHead title="跨場彩池明細" en="Double Trio · Triple Trio" />
+    <PageHead title="跨場彩池明細" en="Double trio · Triple trio" />
     <div className="mx-4 my-4 flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2"><label htmlFor="cross-day" className="text-sm font-bold">賽馬日</label>
         <select id="cross-day" value={date} onChange={e => setPicked(e.target.value)} className="tx-field max-w-full">{options.map(d => <option key={d} value={d}>{d}</option>)}</select>

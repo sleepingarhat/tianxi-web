@@ -61,7 +61,7 @@ export function ModelVersions({ engine }: { engine: "racing" }) {
     <section className="mx-4 my-3 rounded-[8px] border border-hairline bg-paper-2 p-3 shadow-sm">
       <h2 className="font-serif-tc text-[15px] font-bold text-ink">
         模型版本
-        <small className="ml-2 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">Model Versions</small>
+        <small className="ml-2 font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">Model versions</small>
       </h2>
       {q.isLoading ? <Loading /> : q.error ? <div><ErrorNote error={q.error} /><Button variant="outline" onClick={() => void q.refetch()}>重新讀取版本</Button></div> : rows.length ? <ul>{rows.map(renderRow)}</ul> : <Empty label="未有模型版本登記" />}
       {engine === "racing" ? <details className="mt-3 border-t border-hairline pt-2"><summary className="cursor-pointer text-[12px] font-bold text-ink">已結算預測版本紀錄 · 鎖點待核（{history.data?.versions.length ?? "—"} 組）</summary>

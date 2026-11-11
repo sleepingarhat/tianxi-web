@@ -17,7 +17,7 @@ export const Route = createFileRoute("/features")({
     ],
   }),
   component: () => (
-    <FeaturePageGate min="registered" title="特徵排序表">
+    <FeaturePageGate en="Feature ranking" min="registered" title="特徵排序表">
       <FeaturesWorkspace />
     </FeaturePageGate>
   ),

@@ -210,7 +210,7 @@ function HorsePage() {
   if (!horseId) {
     return (
       <AppShell page="" ticker="請選擇一匹馬">
-        <PageHead en="Horse Profile" title="馬匹研究檔案" desc="從評分榜或百科進入個別馬匹檔案。" />
+        <PageHead en="Horse profile" title="馬匹研究檔案" desc="從評分榜或百科進入個別馬匹檔案。" />
         <Card title="天喜Elo 排行" en="Leaderboard">
           {leaders.isLoading ? (
             <Loading />
@@ -291,8 +291,8 @@ function HorsePage() {
             <div className="flex items-start gap-3">
               <Silks source={h} size={60} className="rounded-[8px]" />
               <div className="min-w-0 flex-1">
-                <p className="font-mono-tx text-[11px] font-bold uppercase tracking-[0.22em] text-gold">
-                  HORSE DOSSIER{has(h.code) ? ` · ${h.code}` : ""}
+                <p className="font-mono-tx text-[11px] font-medium tracking-[0.04em] text-gold">
+                  Horse dossier{has(h.code) ? ` · ${h.code}` : ""}
                 </p>
                 <h1 className="mt-1 flex flex-wrap items-center gap-2 font-serif-tc text-[27px] font-bold leading-tight text-ink">
                   <span className="fx-spotlight">{h.nameCh || h.nameEn}</span><FollowHorseButton horseId={horseId} horseName={h.nameCh || h.nameEn || horseId} variant="pill"/>
@@ -384,7 +384,7 @@ function HorsePage() {
 
           {/* 研究信號 */}
           {signals.length ? (
-            <Card title="研究信號" en="Research Signals">
+            <Card title="研究信號" en="Research signals">
               <div className="space-y-2">
                 {signals.map((s: any) => (
                   <div key={s.key} className="rounded-[8px] border border-hairline bg-paper px-2.5 py-2">
@@ -415,7 +415,7 @@ function HorsePage() {
 
           {/* 表現切片 */}
           {perfGroups.some(([k]) => performanceRows(k).length) ? (
-            <div id="splits" className="scroll-mt-12"><Card title="表現切片" en="Performance Splits">
+            <div id="splits" className="scroll-mt-12"><Card title="表現切片" en="Performance splits">
               <div className="space-y-2">
                 <div className="no-scrollbar flex gap-1 overflow-x-auto pb-1">
                   {perfGroups.filter(([k]) => performanceRows(k).length).map(([k, label]) => (
@@ -459,7 +459,7 @@ function HorsePage() {
           {/* 近期往績 */}
           <div id="form" className="scroll-mt-12"><Card
             title="近期往績"
-            en="Post-race History"
+            en="Post-race history"
             action={
               <span className="tabnum font-mono-tx text-[10.5px] text-ink-3">
                 {forms.length ? `${forms.length} 場` : ""}

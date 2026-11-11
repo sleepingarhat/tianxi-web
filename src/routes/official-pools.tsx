@@ -45,8 +45,8 @@ const NOTE = "馬會官方 · 只屬研究參考：派彩屬賽後事實，唔�
 function OfficialPoolsError({ reset }: { reset: () => void }) {
   return (
     <AppShell>
-      <PageHead en="OFFICIAL POOLS" title="官方派彩及彩池" desc={NOTE} />
-      <div className="mx-auto max-w-3xl space-y-3 p-4">
+      <PageHead en="Official pools" title="官方派彩及彩池" desc={NOTE} />
+      <div className="space-y-3 p-4">
         <p className="rounded-[6px] border border-hairline bg-paper p-3 text-[12px] text-ink-2">暫時讀唔到官方派彩存檔；呢個唔代表馬會冇公布派彩。</p>
         <button type="button" onClick={reset} className="text-sm font-bold text-gold underline">再試一次</button>
       </div>
@@ -230,7 +230,7 @@ function OfficialPoolsPage() {
 
   return (
     <AppShell>
-      <PageHead en="OFFICIAL POOLS" title="官方派彩及彩池" desc={NOTE} />
+      <PageHead en="Official pools" title="官方派彩及彩池" desc={NOTE} />
       <div className="mx-auto max-w-[1200px] pb-6">
         <div className="mx-4 mt-3 flex flex-wrap items-center gap-1.5">
           {data.meetings.slice(0, 12).map((x) => {

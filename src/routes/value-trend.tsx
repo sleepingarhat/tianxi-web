@@ -18,7 +18,7 @@ export const Route = createFileRoute("/value-trend")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <FeaturePageGate min="pro" title="值博長期走勢"><ValueTrendPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Value Δ trend · Research" min="pro" title="值博長期走勢"><ValueTrendPage /></FeaturePageGate>,
 });
 
 const money = (v: number) => `${v >= 0 ? "+" : "−"}$${Math.abs(Math.round(v)).toLocaleString()}`;
@@ -50,7 +50,7 @@ function ValueTrendPage() {
   const t = rows.reduce((s, r) => ({ n: s.n + r.pos_n, w: s.w + r.pos_wins, m: s.m + r.pos_exp_mk, e: s.e + r.pos_exp_model, p: s.p + r.pos_pnl }), { n: 0, w: 0, m: 0, e: 0, p: 0 });
   return (
     <AppShell page="engine" ticker="值博長期走勢 · 只作研究參考">
-      <PageHead en="Value Δ Trend · Research" title="值博長期走勢" desc="值博Δ＝凍結獨贏機率 − 收市獨贏隱含機率（兩者每場歸一化、已去抽水）。只統計已結算賽日嘅凍結紀錄，唔改凍結預測。" />
+      <PageHead en="Value Δ trend · Research" title="值博長期走勢" desc="值博Δ＝凍結獨贏機率 − 收市獨贏隱含機率（兩者每場歸一化、已去抽水）。只統計已結算賽日嘅凍結紀錄，唔改凍結預測。" />
       <div className="mx-4 mt-3 rounded-[8px] border border-gold-strong/40 bg-gold-bg px-3 py-2 text-[11px] font-semibold leading-relaxed text-gold">
         只作研究參考，唔係投注建議，亦唔代表有長期優勢。收市盤喺凍結之後先出現，模型從未用過呢個數。
       </div>
@@ -68,7 +68,7 @@ function ValueTrendPage() {
             <Chart rows={rows} />
             <p className="mt-2 text-[11px] leading-relaxed text-ink-3">實際線貼近市場線＝收市盤已反映晒；貼近模型線＝凍結機率較準。模型預期高過實際，代表凍結機率對呢批馬偏高。</p>
           </Card>
-          <Card title="逐賽日值博Δ" en="Per Meeting">
+          <Card title="逐賽日值博Δ" en="Per meeting">
             <Scroller>
               <Table head={["賽日", "Δ>0", "勝出", "市場預期", "模型預期", "平注盈虧", "平均|Δ|"]}>
                 {[...rows].reverse().map((r) => (

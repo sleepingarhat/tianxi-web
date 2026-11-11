@@ -20,7 +20,7 @@ export const Route = createFileRoute("/engine/backtest")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <FeaturePageGate min="registered" title="訓練數據與回測"><BacktestPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Training data & backtest" min="registered" title="訓練數據與回測"><BacktestPage /></FeaturePageGate>,
 });
 
 const fmt = (key: string, v: number) => (key === "top4" ? v.toFixed(2) : `${(v * 100).toFixed(1)}%`);
@@ -39,7 +39,7 @@ function BacktestPage() {
   return (
     <AppShell page="engine" ticker="訓練數據 · 回測 · 引擎 vs 隨機 vs 市場">
       <PageHead
-        en="Training Data & Backtest"
+        en="Training data & backtest"
         title="訓練數據與回測"
         desc="用凍結四揀逐場同兩條基準比：完全隨機揀 4 匹（按每場實際出賽匹數精確計），同臨場賠率最熱 4 匹（賽後先知，只作對照）。"
       />
@@ -61,7 +61,7 @@ function BacktestPage() {
             </StatGrid>
           </div>
 
-          <Card title="目標：四揀平均中匹數超過市場熱門" en="Target vs Market">
+          <Card title="目標：四揀平均中匹數超過市場熱門" en="Target vs market">
             <p className="text-[13px] leading-relaxed text-ink">
               引擎 <span className="font-bold text-gold">{top4.engine.toFixed(2)}</span> 匹，遠高過隨機 {top4.random.toFixed(2)} 匹——證明唔係隨機揀馬。
               下一個目標係超過市場熱門 <span className="font-bold">{top4.market.toFixed(2)}</span> 匹：
@@ -75,7 +75,7 @@ function BacktestPage() {
             <p className="mt-1 text-[11px] text-ink-3">市場熱門用賽後最終賠率，引擎鎖定時睇唔到；凍結四揀唔會因追目標而改寫。</p>
           </Card>
 
-          <Card title="逐彩池命中：引擎 vs 隨機 vs 市場" en="Hit Rate vs Baselines">
+          <Card title="逐彩池命中：引擎 vs 隨機 vs 市場" en="Hit rate vs baselines">
             <Scroller>
               <Table head={["指標", "引擎", "隨機", "倍數", "市場熱門"]}>
                 {d.metrics.map((m) => (
@@ -112,7 +112,7 @@ function BacktestPage() {
             <p className="mt-2 text-[11px] text-ink-3">每場都買、唔揀場；派彩為馬會官方金額。負數照實展示。</p>
           </Card>
 
-          <Card title="逐賽日四揀中匹數" en="Per Meeting">
+          <Card title="逐賽日四揀中匹數" en="Per meeting">
             <Scroller>
               <Table head={["賽日", "場數", "引擎", "隨機", "市場"]}>
                 {d.perMeeting.slice().reverse().map((m) => (
@@ -130,7 +130,7 @@ function BacktestPage() {
         </>
       ) : null}
 
-      <Card title="訓練數據" en="Training Data">
+      <Card title="訓練數據" en="Training data">
         {tr.isLoading ? (
           <Loading />
         ) : tr.error ? (

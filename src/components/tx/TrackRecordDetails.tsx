@@ -53,7 +53,7 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
             <div className="grid grid-cols-2 gap-2">
               <KpiTile
                 label="四揀平均中"
-                en="Top4 Avg"
+                en="Top4 avg"
                 value={num(s?.top4AvgIntersect, 2)}
                 unit="／4"
                 ratio={s?.top4AvgIntersect != null ? Number(s.top4AvgIntersect) / 4 : null}
@@ -64,7 +64,7 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
               />
               <KpiTile
                 label="前三平均中"
-                en="Top3 Avg"
+                en="Top3 avg"
                 value={num(s?.top3AvgIntersect, 2)}
                 unit="／3"
                 ratio={s?.top3AvgIntersect != null ? Number(s.top3AvgIntersect) / 3 : null}
@@ -90,7 +90,7 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
 
       <Card
         title="逐賽日對賬"
-        en="By Meeting"
+        en="By meeting"
         action={
           <Link to="/freeze-ledger" className="font-mono-tx text-[11px] font-bold text-gold">
             凍結對帳表 →

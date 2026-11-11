@@ -22,6 +22,8 @@ export const Route = createFileRoute("/race-changes")({
 
 const hkNow = () => new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
 const hkTime = (iso: string | null | undefined) => iso && Number.isFinite(Date.parse(iso)) ? new Date(Date.parse(iso) + 8 * 3600_000).toISOString().replace("T", " ").slice(0, 19) : '—';
+/** Compact "MM-DD HH:MM HKT" for per-change progress rows; missing values stay a bare dash. */
+const hkShort = (iso: string | null | undefined) => { const t = hkTime(iso); return t === '—' ? t : `${t.slice(5, 16)} HKT`; };
 
 function RaceChangesPage() {
   const tp = useTodayPicks();
@@ -39,15 +41,15 @@ function RaceChangesPage() {
 
   return (
     <AppShell>
-      <PageHead en="OFFICIAL CHANGES" title="賽事更改及重算通知" desc="官方公告 · 排位更新 · 重算狀態；鎖後原紀錄維持不變。" />
-      <div className="mx-auto max-w-3xl space-y-3 p-4 lg:max-w-none">
-        <Link to="/withdrawals" search={{date}} className="inline-block text-sm text-gold underline">退出馬追蹤與存證</Link>
-        {progress.error ? <ErrorNote error={progress.error} /> : null}
-        {q.isLoading ? <Loading /> : q.error ? <ErrorNote error={q.error} /> : !snap ? (
+      <PageHead en="Official changes" title="賽事更改及重算通知" desc="官方公告 · 排位更新 · 重算狀態；鎖後原紀錄維持不變。" />
+      <div className="py-1">
+        <Link to="/withdrawals" search={{date}} className="mx-4 mt-3 inline-block text-sm text-gold underline">退出馬追蹤與存證</Link>
+        {progress.error ? <div className="mx-4 mt-3"><ErrorNote error={progress.error} /></div> : null}
+        {q.isLoading ? <Loading /> : q.error ? <div className="mx-4 mt-3"><ErrorNote error={q.error} /></div> : !snap ? (
           <Empty label={`${date} 未有已存檔嘅官方更改紀錄`} />
         ) : (
           <>
-            <Card title="官方來源" en="SOURCE">
+            <Card title="官方來源" en="Source">
               <dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-2 gap-y-1 text-[11px]">
                 <dt className="text-ink-3">賽日</dt><dd className="font-mono-tx text-ink">{snap.race_date} · {snap.venue === "ST" ? "沙田" : "跑馬地"}</dd>
                 <dt className="text-ink-3">擷取時間</dt><dd className="font-mono-tx text-ink">{hkTime(snap.fetched_at)} HKT</dd>
@@ -55,7 +57,7 @@ function RaceChangesPage() {
                 <dt className="text-ink-3">來源</dt><dd><a href={snap.source_url} target="_blank" rel="noreferrer" className="break-all text-gold underline">{snap.source_url}</a></dd>
               </dl>
             </Card>
-            <Card title={`更易事項（${changes.length} 項）`} en="CHANGES">
+            <Card title={`更易事項（${changes.length} 項）`} en="Changes">
               {changes.length ? (
                 <ul className="divide-y divide-hairline">
                   {[...byRace.entries()].sort((a, b) => a[0] - b[0]).map(([race, list]) => (
@@ -71,9 +73,9 @@ function RaceChangesPage() {
                               <p className="text-ink"><b>{c.horseName}</b> {c.text}</p>
                               <p className="mt-1 text-ink-2">{progressLabel(update)}</p>
                               <dl className="mt-1 grid grid-cols-[72px_minmax(0,1fr)] gap-1 text-ink-3">
-                                <dt>更新開始</dt><dd className="font-mono-tx">{hkTime(update?.requested_at)} HKT</dd>
-                                <dt>重算核對</dt><dd className="font-mono-tx">{verifiedUpdate(update) ? hkTime(update?.recomputed_at) : '—'} HKT</dd>
-                                <dt>預測生成</dt><dd className="font-mono-tx">{verifiedUpdate(update) ? hkTime(update?.generated_at) : '—'} HKT</dd>
+                                <dt>更新開始</dt><dd className="tabnum whitespace-nowrap font-mono-tx">{hkShort(update?.requested_at)}</dd>
+                                <dt>重算核對</dt><dd className="tabnum whitespace-nowrap font-mono-tx">{verifiedUpdate(update) ? hkShort(update?.recomputed_at) : '—'}</dd>
+                                <dt>預測生成</dt><dd className="tabnum whitespace-nowrap font-mono-tx">{verifiedUpdate(update) ? hkShort(update?.generated_at) : '—'}</dd>
                               </dl>
                               <div className="mt-0.5 flex flex-wrap gap-1">
                                 <Pill tone={c.kind === "other" ? "ink" : "lose"}>{c.kind === "replaced" ? "退出・後備補上" : c.kind === "scratched" ? "退出" : "其他更改"}</Pill>

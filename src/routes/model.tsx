@@ -46,7 +46,7 @@ function Src({ path }: { path: string }) {
 
 function ModelPage() {
   return <AppShell page="dashboard" ticker="模型說明 · 公式與特徵公開">
-    <PageHead en="公開模型" title="模型說明" desc="TX-Oracle v3：Elo 評分加 LightGBM 排名模型。以下內容逐項對照公開源碼，可自行核對。" />
+    <PageHead en="Public model" title="模型說明" desc="TX-Oracle v3：Elo 評分加 LightGBM 排名模型。以下內容逐項對照公開源碼，可自行核對。" />
 
     <div className="mx-4 my-3 flex flex-wrap gap-4 text-[12px] text-gold"><Link to="/prediction-reconciliation">預測分與賽果對帳</Link><Link to="/elo-log">Elo 每日更新</Link><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.md" target="_blank" rel="noopener noreferrer">繁體中文文件</a><a href="https://github.com/sleepingarhat/tianxi-racing/blob/main/MODEL.en.md" target="_blank" rel="noopener noreferrer">English 原始資料</a></div>
     <div className="mx-4 my-3"><P>中文為主要說明；公式及特徵英文識別保留，方便與原始程式逐項對照。overall 指總體軸，gain 指樹分裂改善量，split 指分裂使用次數，LambdaRank 指名次排序訓練。</P></div>

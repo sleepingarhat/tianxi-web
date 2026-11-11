@@ -26,7 +26,7 @@ const DATA_SCALE_ITEM = "__DATA_SCALE__";
 
 const SECTIONS: Record<Tab, { en: string; title: string; blocks: { h: string; items: string[] }[] }> = {
   data: {
-    en: "DATA · AUTOMATION & SOURCING",
+    en: "Data · Automation & sourcing",
     title: "① 數據篇 · 數據點嚟、點爬、穩唔穩",
     blocks: [
       {
@@ -68,7 +68,7 @@ const SECTIONS: Record<Tab, { en: string; title: string; blocks: { h: string; it
     ],
   },
   tech: {
-    en: "TECH · MODEL & THEORY",
+    en: "Tech · Model & theory",
     title: "② 技術篇 · 引擎點計、用咩模型",
     blocks: [
       {
@@ -91,7 +91,7 @@ const SECTIONS: Record<Tab, { en: string; title: string; blocks: { h: string; it
     ],
   },
   use: {
-    en: "USAGE · FEATURE GUIDE",
+    en: "Usage · Feature guide",
     title: "③ 使用篇 · 逐個功能點用",
     blocks: [
       {

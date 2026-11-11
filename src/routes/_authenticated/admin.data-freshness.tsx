@@ -38,7 +38,7 @@ function Freshness() {
 
   return (
     <>
-      <AdminHead title="資料新鮮度" en="Data Freshness" desc="香港賽馬資料最後更新時間同 GitHub 定時任務狀態；過時、缺失、失敗會標出。" onRefresh={() => { rh.refetch();  }} refreshing={rh.isFetching} />
+      <AdminHead title="資料新鮮度" en="Data freshness" desc="香港賽馬資料最後更新時間同 GitHub 定時任務狀態；過時、缺失、失敗會標出。" onRefresh={() => { rh.refetch();  }} refreshing={rh.isFetching} />
       <div className="grid gap-3 md:grid-cols-1">
         <Panel title="賽馬派彩" en="Racing">
           <p className="font-mono-tx text-[16px] text-ink">{rh.data?.lastDividend?.date ?? "—"}</p>

@@ -286,8 +286,8 @@ function ComparePage() {
     <AppShell page="" ticker={metaLine || "載入賽事…"}>
       <section className="px-5 pb-2 pt-[22px]">
         <h1 className="font-serif-tc text-[24px] font-bold leading-[1.15] tracking-[-0.005em] text-ink">
-          <small className="mb-1.5 block font-mono-tx text-[11px] font-bold uppercase tracking-[0.22em] text-ink-3">
-            Prediction vs Result
+          <small className="mb-1.5 block font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">
+            Prediction vs result
           </small>
           <span className="fx-spotlight block">預測與賽果</span>
         </h1>
@@ -300,7 +300,7 @@ function ComparePage() {
       {!tier.loading && !tier.has("registered") ? <UpgradeCard need="registered" feature="預測對賽果明細（全部賽日）" /> : null}
       <section className="grid grid-cols-2 gap-2.5 border-b border-hairline px-5 pb-3.5 pt-2">
         <div>
-          <label htmlFor="cmp-date" className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">
+          <label htmlFor="cmp-date" className="mb-1.5 block text-[11px] font-medium tracking-[0.04em] text-ink-3">
             賽事日期
           </label>
           <select
@@ -338,7 +338,7 @@ function ComparePage() {
           ) : null}
         </div>
         <div>
-          <label htmlFor="cmp-race" className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3">
+          <label htmlFor="cmp-race" className="mb-1.5 block text-[11px] font-medium tracking-[0.04em] text-ink-3">
             場次
           </label>
           <select
@@ -390,7 +390,7 @@ function ComparePage() {
           <div className="flex items-baseline justify-between gap-2">
             <p className="font-serif-tc text-[13px] font-bold text-ink">
               賽日總覽
-              <small className="ml-2 font-mono-tx text-[10px] uppercase tracking-[0.2em] text-ink-3">Meeting Recap</small>
+              <small className="ml-2 font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">Meeting recap</small>
             </p>
             <p className="tabnum font-mono-tx text-[11px] text-ink-3">{frozenSummary.racesEvaluated ?? 0} 場已評核</p>
           </div>

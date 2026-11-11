@@ -67,7 +67,7 @@ function RaceBlock({ r }: { r: ExplainRace }) {
 
       <div className="mt-2.5 grid grid-cols-2 gap-2">
         <div className="min-w-0">
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">凍結四揀</p>
+          <p className="mb-1 text-[11px] font-medium tracking-[0.04em] text-ink-3">凍結四揀</p>
           {r.picks.map((p) => (
             <div
               key={p.rank}
@@ -89,7 +89,7 @@ function RaceBlock({ r }: { r: ExplainRace }) {
         </div>
 
         <div className="min-w-0">
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink-3">實際頭 4</p>
+          <p className="mb-1 text-[11px] font-medium tracking-[0.04em] text-ink-3">實際頭 4</p>
           {r.actualTop4.map((a) => (
             <div
               key={a.position}
@@ -135,7 +135,7 @@ function ExplainMeetingPage() {
   if (loading) {
     return (
       <AppShell page="engine">
-        <PageHead en="EXPLAIN · MEETING" title={`${date} 拆解`} desc="讀取已入帳命中率資料…" />
+        <PageHead en="Explain · Meeting" title={`${date} 拆解`} desc="讀取已入帳命中率資料…" />
         <Loading label="讀取中…" />
       </AppShell>
     );
@@ -145,11 +145,11 @@ function ExplainMeetingPage() {
     return (
       <AppShell page="engine">
         <PageHead
-          en="EXPLAIN · MEETING"
+          en="Explain · Meeting"
           title={`${date} 拆解`}
           desc="呢個賽日未有凍結拆解——未鎖或未有完整賽果嘅賽日一律唔出拆解，唔係故障。"
         />
-        <Card title="可選賽日" en="AVAILABLE">
+        <Card title="可選賽日" en="Available">
           <div className="flex flex-wrap gap-1.5">
             {dates.map((d) => (
               <Link
@@ -179,13 +179,13 @@ function ExplainMeetingPage() {
   return (
     <AppShell page="engine">
       <PageHead
-        en="EXPLAIN · MEETING"
+        en="Explain · Meeting"
         title={`${m.date} ${VENUE_ZH[m.venue ?? ""] ?? m.venue ?? ""} 逐場拆解`}
         desc="每場列出已鎖凍結四揀同實際頭 4 名，綠框代表兩邊重疊。排名一律照凍結版本，呢頁唔會重算。"
       />
 
       <TierGate min={need} feature={need === "pro" ? "賽前拆解" : "賽後拆解"} mode="lock">
-      <Card title="賽日主尺" en="MEETING">
+      <Card title="賽日主尺" en="Meeting">
         <StatGrid cols={3}>
           <Stat label="平均中匹數" value={fixed(avg)} sub={`／4 · ${withOverlap.length} 場`} />
           <Stat label="只中 3 匹" value={three} sub="場" />

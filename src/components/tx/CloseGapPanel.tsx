@@ -101,7 +101,7 @@ export function CloseGapPanel() {
   const firstPostHkt = l?.firstPostAt ? new Date(l.firstPostAt).toLocaleString("zh-HK", { timeZone: "Asia/Hong_Kong", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) : null;
 
   return (
-    <Card title="closeGap 分位追蹤" en="Close-Gap Quantiles">
+    <Card title="closeGap 分位追蹤" en="Close-gap quantiles">
       {hr2.isLoading || lock.isLoading ? (
         <Loading />
       ) : !pts ? (

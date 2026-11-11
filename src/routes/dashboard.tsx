@@ -107,7 +107,7 @@ function DashboardPage() {
       page="horse"
       ticker={m ? `${fmtMeetingDate(m.date)} · ${m.venueName} · ${m.trackCondition || "場地待定"}` : "載入中…"}
     >
-      <PageHead en="TX-ORACLE · HORSE RACING" title="天喜賽馬引擎" desc="當前賽馬日、引擎首選與長期表現指標。" />
+      <PageHead en="tx-oracle · Horse racing" title="天喜賽馬引擎" desc="當前賽馬日、引擎首選與長期表現指標。" />
 
       <TierGate min="registered" feature="引擎儀表板" mode="lock">
       {/* 主指標概覽 */}
@@ -115,7 +115,7 @@ function DashboardPage() {
         <BeamCard className="p-3">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
             <div className="min-w-0">
-              <p className="font-mono-tx text-[10px] uppercase tracking-[0.22em] text-ink-3">Core KPI</p>
+              <p className="font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">Core KPI</p>
               <p className="mt-0.5 font-serif-tc text-[15px] font-bold text-ink">四揀平均命中匹數</p>
               <p className="tabnum mt-1 font-mono-tx text-[28px] font-bold leading-none text-gold">
                 {num(r90?.top4AvgIntersect, 2)}
@@ -149,17 +149,17 @@ function DashboardPage() {
           className="rounded-[10px] bg-deep px-3 py-2.5 text-center text-deep-fg shadow-[0_2px_0_var(--tx-hairline)]"
         >
           <span className="block font-serif-tc text-[13px] font-bold">天喜策略累計盈虧</span>
-          <span className="mt-0.5 block font-mono-tx text-[10px] uppercase tracking-[0.2em] text-gold">Strategy P&amp;L</span>
+          <span className="mt-0.5 block font-mono-tx text-[11px] tracking-[0.04em] text-gold">Strategy P&amp;L</span>
         </Link>
         <Link to="/prediction-vs-result" className="rounded-[10px] border border-gold bg-gold-bg px-3 py-2.5 text-center">
           <span className="block font-serif-tc text-[13px] font-bold text-ink">預測與賽果</span>
-          <span className="mt-0.5 block font-mono-tx text-[10px] uppercase tracking-[0.2em] text-ink-3">Picks vs Results</span>
+          <span className="mt-0.5 block font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">Picks vs results</span>
         </Link>
       </div>
 
       <Card
         title="下一個賽馬日"
-        en="Next Meeting"
+        en="Next meeting"
         action={
           <Link to="/schedule" className="text-[11px] font-bold text-gold">
             賽期 →
@@ -283,7 +283,7 @@ function DashboardPage() {
         )}
       </Card>
 
-      <Card title="模型狀態" en="Model Status">
+      <Card title="模型狀態" en="Model status">
         <div className="space-y-2">
           <ChipRow>
             <DataChip k="全日預測" v={races.length ? "就緒" : "準備中"} tone={races.length ? "win" : "lose"} />
@@ -414,7 +414,7 @@ function DashboardPage() {
       <TierGate min="registered" feature="完整排行榜" mode="lock">
       <Card
         title="馬匹排行"
-        en="Horse Leaderboard"
+        en="Horse leaderboard"
         action={
           <Seg
             value={board}
@@ -461,7 +461,7 @@ function DashboardPage() {
 
       <Card
         title="人馬榜"
-        en="Jockeys / Trainers"
+        en="Jockeys / trainers"
         action={
           <Seg
             value={people}

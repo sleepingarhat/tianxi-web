@@ -25,7 +25,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Terms() {
   return <AppShell page="dashboard" ticker="服務條款 · 使用細則">
-    <PageHead en="Terms of Service" title="服務條款" desc={`最後更新：${UPDATED}。使用天喜（tianxi.racing）服務前，請細閱以下條款。使用本服務即代表你同意本條款。`} />
+    <PageHead en="Terms of service" title="服務條款" desc={`最後更新：${UPDATED}。使用天喜（tianxi.racing）服務前，請細閱以下條款。使用本服務即代表你同意本條款。`} />
 
     <Section title="服務性質">
       <p>天喜是一個香港賽馬數據分析及研究平台，提供公開、可審計的模型預測、歷史戰績及賽事資料。天喜<strong className="text-ink">不是博彩營運商</strong>，不接受投注、不處理彩金，亦不保證任何預測結果。所有預測及分析只供參考及研究用途。</p>

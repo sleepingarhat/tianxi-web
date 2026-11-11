@@ -26,7 +26,7 @@ export function OfficialRaceAudit({ accounting = false, meetings = [] }: { accou
   const query = useQuery({ queryKey: ['original-race-audit', userId, date], enabled: !!date && signedIn !== null, queryFn: async (): Promise<AuditDay> => await readFrozen({ data: { date } }) as unknown as AuditDay, retry: false, staleTime: 60_000 });
   const day = query.data;
   const summary = day ? summarizeOfficialMetrics(day.races.filter(r=>!r.redacted).map(r=>r.metricInput)) : null;
-  return <Card title={accounting ? '原注逐場核對' : '原四揀正式命中 · 逐場核對'} en="Original Frozen Selections">
+  return <Card title={accounting ? '原注逐場核對' : '原四揀正式命中 · 逐場核對'} en="Original frozen selections">
     <label className="flex flex-wrap items-center gap-2 text-[12px] text-ink">賽日
       <select aria-label="原四揀核對賽事" value={date} disabled={!options.length} onChange={e=>setDate(e.target.value)} className="tx-field-sm min-w-0 max-w-full">
         {!options.length ? <option value="">未有賽事</option> : options.map(row => <option key={row.date} value={row.date}>{row.date}{row.venue === 'ST' ? ' · 沙田' : row.venue === 'HV' ? ' · 跑馬地' : ''}</option>)}

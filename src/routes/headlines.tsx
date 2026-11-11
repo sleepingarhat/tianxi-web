@@ -36,8 +36,8 @@ export const Route = createFileRoute("/headlines")({
 function HeadlinesError({ reset }: { reset: () => void }) {
   return (
     <AppShell>
-      <PageHead en="RACEDAY FOCUS" title="賽日頭條" desc="馬會官方 · 只屬研究參考" />
-      <div className="mx-auto max-w-3xl space-y-3 p-4">
+      <PageHead en="Raceday focus" title="賽日頭條" desc="馬會官方 · 只屬研究參考" />
+      <div className="space-y-3 p-4">
         <p className="rounded-[6px] border border-hairline bg-paper p-3 text-[12px] text-ink-2">暫時讀唔到頭條存檔；呢個唔代表馬會冇公布頭條。</p>
         <button type="button" onClick={reset} className="text-sm font-bold text-gold underline">再試一次</button>
       </div>
@@ -74,21 +74,21 @@ function HeadlinesPage() {
 
   return (
     <AppShell>
-      <PageHead en="RACEDAY FOCUS" title="賽日頭條" desc="馬會官方 · 只屬研究參考：只列標題同導語，全文請睇馬會原文。" />
-      <div className="mx-auto max-w-3xl space-y-3 p-4">
-        <Link to="/today" className="inline-block text-sm text-gold underline">返賽日頁</Link>
+      <PageHead en="Raceday focus" title="賽日頭條" desc="馬會官方 · 只屬研究參考：只列標題同導語，全文請睇馬會原文。" />
+      <div className="py-1">
+        <Link to="/today" className="mx-4 mt-3 inline-block text-sm text-gold underline">返賽日頁</Link>
         {!rows.length ? <Empty label="未有已收錄嘅賽日頭條" /> : null}
         {current.length ? (
-          <Card title={`${currentLabel}（${current.length} 篇）`} en="LATEST">
+          <Card title={`${currentLabel}（${current.length} 篇）`} en="Latest">
             <div className="divide-y divide-hairline">{current.map((r) => <HeadlineItem key={`${r.date}-${r.venue}`} row={r} />)}</div>
           </Card>
         ) : null}
         {archive.length ? (
-          <Card title={`過往賽日頭條（${archive.length} 篇）`} en="ARCHIVE">
+          <Card title={`過往賽日頭條（${archive.length} 篇）`} en="Archive">
             <div className="divide-y divide-hairline">{archive.map((r) => <HeadlineItem key={`${r.date}-${r.venue}`} row={r} />)}</div>
           </Card>
         ) : null}
-        <p className="text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：頭條係馬會編輯文章，天喜只保存標題、導語、版本同原文指紋，唔轉載正文同圖片，亦唔計入預測及凍結選馬。</p>
+        <p className="mx-4 mb-4 text-[11px] leading-relaxed text-ink-3">馬會官方 · 只屬研究參考：頭條係馬會編輯文章，天喜只保存標題、導語、版本同原文指紋，唔轉載正文同圖片，亦唔計入預測及凍結選馬。</p>
       </div>
     </AppShell>
   );

@@ -46,7 +46,7 @@ function CardsPage() {
       }
     >
       <PageHead
-        en="Race Cards"
+        en="Race cards"
         title="逐場預測"
         desc="全日每場首選次序、綵衣、檔位、負磅、實時賠率，附賽事質素分級與投注組合期望覆蓋率。"
       />

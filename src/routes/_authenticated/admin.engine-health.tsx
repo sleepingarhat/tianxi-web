@@ -31,7 +31,7 @@ function EngineHealth() {
 
   return (
     <>
-      <AdminHead title="引擎健康" en="Engine Health" desc="香港賽馬 TX-Oracle 守門閘、現行版本與四揀指標。只讀，唔會改任何設定。" onRefresh={() => eh.refetch()} refreshing={eh.isFetching} updatedAt={d.generatedHKT} />
+      <AdminHead title="引擎健康" en="Engine health" desc="香港賽馬 TX-Oracle 守門閘、現行版本與四揀指標。只讀，唔會改任何設定。" onRefresh={() => eh.refetch()} refreshing={eh.isFetching} updatedAt={d.generatedHKT} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="賽馬總閘" value={d.overall ?? "—"} tone={d.overall === "PASS" ? "win" : d.overall === "FAIL" ? "lose" : "gold"} sub={d.engine ?? ""} />
         <Kpi label="PASS / WATCH / FAIL" value={`${d.counts?.pass ?? 0} / ${d.counts?.watch ?? 0} / ${d.counts?.fail ?? 0}`} />
@@ -40,7 +40,7 @@ function EngineHealth() {
       </div>
       {d.summary ? <div className="mt-3"><NoteBox>{d.summary}</NoteBox></div> : null}
       <div className="mt-4 grid gap-3 lg:grid-cols-3">
-        <Panel title="賽馬守門閘" en="Racing Gates" className="lg:col-span-2">
+        <Panel title="賽馬守門閘" en="Racing gates" className="lg:col-span-2">
           {checks.length ? <DataTable data={checks} columns={cols} searchable={false} pageSize={30} /> : <p className="text-[12px] text-ink-3">{eh.isLoading ? "讀取中…" : "後端未提供逐項檢查"}</p>}
         </Panel>
         <Panel title="版本指紋" en="Fingerprint">

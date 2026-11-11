@@ -234,7 +234,7 @@ export function Table({ head, children, left = [] }: { head: ReactNode[]; childr
           {head.map((h, i) => (
             <th
               key={i}
-              className={`whitespace-nowrap px-1.5 py-2 font-mono-tx text-[11px] font-bold uppercase tracking-wider text-ink-3 ${
+              className={`whitespace-nowrap px-1.5 py-2 font-mono-tx text-[11px] font-medium tracking-[0.02em] text-ink-3 ${
                 i === 0 || left.includes(i) ? "text-left" : "text-right"
               }`}
             >

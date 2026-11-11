@@ -15,7 +15,7 @@ export const Route=createFileRoute('/withdrawals')({
   loaderDeps:({search})=>({date:search.date}),
   loader:async({context,deps})=>{const dates=await context.queryClient.ensureQueryData(datesOptions);await context.queryClient.ensureQueryData(options(pickDate(dates,deps.date)));},
   head:()=>({meta:[{title:'退出馬追蹤 · 天喜 TIANXI'},{name:'description',content:'官方退出原因、公布時間、原凍結四揀及訓練驗收狀態逐項核對。'},{property:'og:title',content:'退出馬追蹤 · 天喜 TIANXI'},{property:'og:description',content:'官方原文指紋、凍結證據及鎖後換騎分組，缺證據不補造。'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),
-  errorComponent:({error})=><AppShell><PageHead en="WITHDRAWAL EVIDENCE" title="退出馬追蹤"/><div className="p-4"><ErrorNote error={error}/></div></AppShell>,
+  errorComponent:({error})=><AppShell><PageHead en="Withdrawal evidence" title="退出馬追蹤"/><div className="p-4"><ErrorNote error={error}/></div></AppShell>,
   component:WithdrawalPage,
 });
 function WithdrawalPage(){
@@ -23,10 +23,10 @@ function WithdrawalPage(){
   const labels:Record<string,string>={available:'已核實原副本','no-archive':'未有原始凍結副本','not-verified':'副本未核實','verification-failed':'副本核對未通過','read-failed':'暫時未能讀取'};
   const group=data.summary?.groups['post-lock-jockey-change'];
   return <AppShell columns={false}>
-    <PageHead en="WITHDRAWAL EVIDENCE" title="退出馬追蹤"/>
-    <div className="flex flex-wrap gap-4 border-b border-hairline p-4 text-sm">
-      {(dates.length?dates:[date]).map(d=><Link key={d} to="/withdrawals" search={{date:d}} aria-current={date===d?'page':undefined} className={date===d?'font-bold text-gold underline':'text-ink-2'}>{d}</Link>)}
-      <Link to="/race-changes" className="text-gold underline">官方更改</Link>
+    <PageHead en="Withdrawal evidence" title="退出馬追蹤"/>
+    <div className="flex flex-wrap items-center gap-2 border-b border-hairline p-4 text-sm">
+      {(dates.length?dates:[date]).map(d=><Link key={d} to="/withdrawals" search={{date:d}} aria-current={date===d?'page':undefined} className={`tabnum min-h-8 whitespace-nowrap rounded-full border px-3 py-1.5 font-mono-tx text-[12px] font-bold transition-colors ${date===d?'border-gold-strong bg-gold-bg text-gold':'border-hairline bg-paper text-ink-2 hover:border-gold-strong/40'}`}>{d}</Link>)}
+      <Link to="/race-changes" className="ml-2 text-gold underline">官方更改</Link>
     </div>
     <div className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
       <Stat label="賽日" value={date}/><Stat label="退出／被替換" value={data.withdrawals.length}/>

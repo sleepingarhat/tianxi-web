@@ -140,7 +140,7 @@ function FreezeLedgerPage() {
   return (
     <AppShell page="engine" ticker="凍結對帳表 · 只讀已鎖凍結 · 先量、唔改模型">
       <PageHead
-        en="Freeze Ledger"
+        en="Freeze ledger"
         title="凍結對帳表"
         desc="只讀已鎖 prediction_log —— 禁回測、禁 live 重算。主尺係四揀（入圍數／頭四覆蓋／平均相交），Top3 旁註；副尺係位置命中。獨贏頭馬同市場隱含 logloss、模擬 EV 只作旁註，用嚟知市場有幾硬，唔會回寫模型或指紋。"
       />
@@ -155,20 +155,20 @@ function FreezeLedgerPage() {
         ) : (
           <div className="space-y-2.5">
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">主尺 · 四揀</p>
+              <p className="mb-1 font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">主尺 · 四揀</p>
               <KV k="平均相交（四揀入實際頭四）" v={`${num(season?.top4AvgIntersect, 2)}／4`} />
               <KV k="頭四覆蓋" v={num(season?.top4CoveragePct) + "%"} />
               <KV k="四揀全中場數" v={`${season?.top4FullHits ?? 0} 場`} />
               <KV k="評核樣本" v={`${season?.racesEvaluated ?? 0} 場 / ${season?.meetings ?? 0} 日`} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">旁註 · Top3 ／ 副尺 · 位置</p>
+              <p className="mb-1 font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">旁註 · Top3 ／ 副尺 · 位置</p>
               <KV k="Top3 平均相交" v={`${num(season?.top3AvgIntersect, 2)}／3`} />
               <KV k="Top3 任中" v={num(season?.top3AnyHitPct) + "%"} />
               <KV k="位置命中（四揀入位置）" v={num(season?.placeHitPct) + "%"} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
-              <p className="mb-1 font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-ink-3">旁註 · 市場硬度（唔用嚟改模型）</p>
+              <p className="mb-1 font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">旁註 · 市場硬度（唔用嚟改模型）</p>
               <KV k="獨贏頭馬命中" v={num(season?.winnerHitPct) + "%"} />
               <KV k="市場大熱命中" v={num(season?.favouriteHitPct) + "%"} />
               <KV k="模型獨贏 logloss" v={num(season?.modelWinLogloss, 3)} />
@@ -182,7 +182,7 @@ function FreezeLedgerPage() {
         )}
       </Card>
 
-      <Card title="逐賽日" en="By Meeting">
+      <Card title="逐賽日" en="By meeting">
         {q.isLoading ? (
           <Loading />
         ) : q.error && !meetings.length ? (
@@ -235,7 +235,7 @@ function FreezeLedgerPage() {
       </Card>
 
       {[...graded].sort((a, b) => b.date.localeCompare(a.date)).map((m) => (
-        <Card key={`races-${m.date}`} title={`逐場明細 · ${fmtMeetingDate(m.date)}`} en="Per Race">
+        <Card key={`races-${m.date}`} title={`逐場明細 · ${fmtMeetingDate(m.date)}`} en="Per race">
           {m.postLockRaces?.length ? (
             <p className="mb-2 font-mono-tx text-[11px] text-ink-3">
               第 {m.postLockRaces.join("、")} 場：{m.postLockNote ?? "鎖後、唔計分"}——鎖點當刻未有快照，唔入凍結戰績、唔回填。
@@ -269,7 +269,7 @@ function FreezeLedgerPage() {
         </Card>
       ))}
 
-      <Card title="呢張表唔做嘅事" en="Out of Scope">
+      <Card title="呢張表唔做嘅事" en="Out of scope">
         <div className="space-y-1.5 text-[12px] leading-relaxed text-ink-2">
           <p>· 唔做 α／τ refit、唔加特徵、唔換模型（CatBoost 等）。</p>
           <p>· 模擬 EV 永不寫入健康頁當 PASS —— 健康頁只守結構閘。</p>

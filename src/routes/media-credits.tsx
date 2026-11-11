@@ -22,7 +22,7 @@ const ITEMS = [
 
 function MediaCredits() {
   return <AppShell page="dashboard" ticker="圖片來源 · 可追溯授權">
-    <PageHead en="Media Credits" title="圖片來源與授權" desc="只採用可核實商用授權素材；未有清晰授權嘅圖片不會公開。" />
+    <PageHead en="Media credits" title="圖片來源與授權" desc="只採用可核實商用授權素材；未有清晰授權嘅圖片不會公開。" />
     <Card title="馬場實景" en="Racecourses">
       <div className="divide-y divide-hairline">
         {ITEMS.map((item) => <article key={item.source} className="py-3 first:pt-0 last:pb-0">

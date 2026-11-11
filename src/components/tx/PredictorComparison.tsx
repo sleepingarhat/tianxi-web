@@ -25,7 +25,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             }`}
           >
             <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
-              天喜預測 <span className="font-mono-tx text-[10px] font-normal text-ink-3">TIANXI</span>
+              天喜預測 <span className="font-mono-tx text-[10px] font-normal text-ink-3">Tianxi</span>
               {locked ? (
                 <span className="ml-auto shrink-0 rounded-[3px] border border-win/45 bg-win/10 px-1 font-mono-tx text-[10px] font-bold text-win">
                   已鎖定
@@ -85,7 +85,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             }`}
           >
             <p className="mb-2 flex min-h-[18px] items-center gap-1 font-serif-tc text-[12px] font-bold text-ink">
-              市場穩陣 <span className="font-mono-tx text-[10px] font-normal text-ink-3">MARKET</span>
+              市場穩陣 <span className="font-mono-tx text-[10px] font-normal text-ink-3">Market</span>
               {locked ? (
                 <span className="ml-auto shrink-0 rounded-[3px] border border-gold-strong/45 bg-gold-bg px-1 font-mono-tx text-[10px] font-bold text-gold">
                   已鎖定

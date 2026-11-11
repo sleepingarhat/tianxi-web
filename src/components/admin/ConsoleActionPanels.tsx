@@ -84,7 +84,7 @@ export function OpsPanel() {
         </button>
       </Card>
 
-      <Card title="引擎參數" en="Set Alpha">
+      <Card title="引擎參數" en="Set alpha">
         <div className="flex gap-2">
           <input
             value={alpha}
@@ -160,7 +160,7 @@ export function OpsPanel() {
         </div>
       </Card>
 
-      <Card title="資料表行數" en="Table Counts" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={tables.reload}>刷新</button>}>
+      <Card title="資料表行數" en="Table counts" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={tables.reload}>刷新</button>}>
         {tables.loading && <Loading />}
         {tables.error ? <ErrorNote error={tables.error} /> : null}
         {tables.data && (() => {
@@ -200,7 +200,7 @@ export function OpsPanel() {
       </Card>
 
 
-      <Card title="操作紀錄" en="Action Log">
+      <Card title="操作紀錄" en="Action log">
         {log.length === 0 ? (
           <Empty label="尚未執行操作" />
         ) : (
@@ -243,7 +243,7 @@ export function SqlPanel() {
   const cols = rows && rows.length ? Object.keys(rows[0]) : [];
 
   return (
-    <Card title="唯讀 SQL" en="SQL Read">
+    <Card title="唯讀 SQL" en="SQL read">
       <textarea
         value={sql}
         onChange={(e) => setSql(e.target.value)}

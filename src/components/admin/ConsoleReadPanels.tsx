@@ -60,7 +60,7 @@ export function StatusPanel() {
         ) : <Empty label="無警報" />)}
       </Card>
 
-      <Card title="資料庫總量" en="Row Counts" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={status.reload}>刷新</button>}>
+      <Card title="資料庫總量" en="Row counts" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={status.reload}>刷新</button>}>
         {status.loading && <Loading />}
         {status.error ? <ErrorNote error={status.error} /> : null}
         {status.data && (
@@ -79,7 +79,7 @@ export function StatusPanel() {
         )}
       </Card>
 
-      <Card title="可疑月份（賽馬日不足）" en="Suspect Months">
+      <Card title="可疑月份（賽馬日不足）" en="Suspect months">
         {gaps.loading && <Loading />}
         {gaps.error ? <ErrorNote error={gaps.error} /> : null}
         {gaps.data && (gaps.data.suspectMonths?.length ? (
@@ -91,7 +91,7 @@ export function StatusPanel() {
         ) : <Empty label="無缺口" />)}
       </Card>
 
-      <Card title="最近工作流" en="Workflow Runs" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={runs.reload}>刷新</button>}>
+      <Card title="最近工作流" en="Workflow runs" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={runs.reload}>刷新</button>}>
         {runs.loading && <Loading />}
         {runs.error ? <ErrorNote error={runs.error} /> : null}
         {runs.data && (runs.data.runs?.length ? (
@@ -194,7 +194,7 @@ export function FeaturePanel() {
 
   return (
     <>
-      <Card title="特徵覆蓋審計" en="Feature Audit" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={reload}>刷新</button>}>
+      <Card title="特徵覆蓋審計" en="Feature audit" action={<button type="button" className="text-[11px] text-ink-3 underline" onClick={reload}>刷新</button>}>
         {loading && <Loading />}
         {error ? <ErrorNote error={error} /> : null}
         {data && (
@@ -216,7 +216,7 @@ export function FeaturePanel() {
         ) : null}
       </Card>
 
-      <Card title="天喜LGB 預測儲存" en="天喜LGB Predictions">
+      <Card title="天喜LGB 預測儲存" en="天喜LGB predictions">
         {lgb.loading && <Loading />}
         {lgb.error ? <ErrorNote error={lgb.error} /> : null}
         {lgb.data && (

@@ -52,7 +52,7 @@ function PoolOddsPage() {
       page="predictor"
       ticker={smart.data ? `${fmtMeetingDate(smart.data.date)} · ${smart.data.venueName} · 賠率排序` : "載入中…"}
     >
-      <PageHead en="Pool Odds" title="彩池賠率" desc="以獨贏賠率由熱至冷排序，快速看出市場焦點與被忽略的馬匹。" />
+      <PageHead en="Pool odds" title="彩池賠率" desc="以獨贏賠率由熱至冷排序，快速看出市場焦點與被忽略的馬匹。" />
 
       <div className="no-scrollbar mx-4 mb-1 flex gap-1 overflow-x-auto">
         {races.map((r) => {
@@ -74,7 +74,7 @@ function PoolOddsPage() {
 
       <Card
         title={race ? `第 ${race.raceNumber} 場 賠率` : "賠率"}
-        en="Win Odds"
+        en="Win odds"
         action={
           raceLink ? (
             <Link to="/race" search={{ id: raceLink }} className="text-[11px] font-bold text-gold">

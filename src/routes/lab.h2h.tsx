@@ -74,7 +74,7 @@ export const Route = createFileRoute("/lab/h2h")({
     ],
   }),
   component: () => (
-    <FeaturePageGate min="pro" title={H2H_PRODUCT_LABEL}>
+    <FeaturePageGate en="Independent comparison" min="pro" title={H2H_PRODUCT_LABEL}>
       <H2hPage />
     </FeaturePageGate>
   ),

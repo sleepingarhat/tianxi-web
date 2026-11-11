@@ -59,7 +59,7 @@ function EnginePage() {
   return (
     <AppShell page="engine" ticker="TX-Oracle v3.2 · 兩層集成 · 健康閘運行中">
       <PageHead
-        en="Prediction Engine"
+        en="Prediction engine"
         title="預測引擎 TX-Oracle v3"
         desc="可驗證的賽事前預測：同一場出賽名單內排序，賽後用官方名次對賬。"
       />
@@ -79,7 +79,7 @@ function EnginePage() {
         <EnginePipeline />
       </Card>
 
-      <Card title="運作模式 · 初版／最終版" en="Draft / Final">
+      <Card title="運作模式 · 初版／最終版" en="Draft / final">
 
         <p className="mb-2 text-[12px] text-ink-2">
           每輪公開預測必須標明係未鎖初版定已鎖最終版。命中率只對最終版。
@@ -98,7 +98,7 @@ function EnginePage() {
 
       <Card
         title="實戰命中率 · 過去 90 日"
-        en="Verified Hit Rate"
+        en="Verified hit rate"
         action={
           <Link to="/track-record" className="text-[11px] font-bold text-gold">
             完整戰績 →
@@ -123,7 +123,7 @@ function EnginePage() {
 
       <Card
         title="引擎健康 · 逐項守門"
-        en="Health Gates"
+        en="Health gates"
         action={
           <Link to="/engine/monitor" className="text-[11px] font-bold text-gold">
             監控清單 →

@@ -61,7 +61,7 @@ export function MeterBar({
       <div className="flex items-baseline justify-between gap-1.5">
         <p className="min-w-0 truncate text-[10px] font-bold leading-none text-ink-3">
           {label}
-          {en ? <span className="ml-1 font-mono-tx text-[10px] uppercase tracking-[0.16em] text-ink-3">{en}</span> : null}
+          {en ? <span className="ml-1 font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">{en}</span> : null}
         </p>
         <p className={`tabnum shrink-0 font-mono-tx text-[13px] font-bold leading-none ${txt}`}>{value}</p>
       </div>
@@ -183,7 +183,7 @@ export function KpiTile({
       <span className={`absolute inset-x-0 top-0 h-[2px] ${bar}`} aria-hidden />
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-1">
         <p className="min-w-0 truncate text-[10px] font-bold leading-none text-ink-3">{label}</p>
-        {en ? <p className="shrink-0 font-mono-tx text-[10px] uppercase tracking-[0.18em] text-ink-3">{en}</p> : null}
+        {en ? <p className="shrink-0 font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">{en}</p> : null}
       </div>
       <p className={`tabnum mt-1.5 font-mono-tx text-[22px] font-bold leading-none ${txt}`}>
         {value}

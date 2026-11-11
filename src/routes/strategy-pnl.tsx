@@ -29,16 +29,16 @@ export const Route = createFileRoute("/strategy-pnl")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <FeaturePageGate min="pro" title="策略盈虧"><StrategyPnlPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Strategy P&L · Cumulative" min="pro" title="策略盈虧"><StrategyPnlPage /></FeaturePageGate>,
 });
 
 const VENUE: Record<string, string> = { ST: "沙田", HV: "跑馬地" };
 
 const POOLS: { key: string; nm: string; en: string; unit: string }[] = [
   { key: "FF", nm: "四連環", en: "F4 · 任序首4", unit: "$10" },
-  { key: "TRIO", nm: "單T", en: "TRIO · 任序首3", unit: "$40" },
-  { key: "TIERCE", nm: "三重彩", en: "TIERCE · 依序首3", unit: "$240" },
-  { key: "QUARTET", nm: "四重彩", en: "QUARTET · 依序首4", unit: "$240" },
+  { key: "TRIO", nm: "單T", en: "Trio · 任序首3", unit: "$40" },
+  { key: "TIERCE", nm: "三重彩", en: "Tierce · 依序首3", unit: "$240" },
+  { key: "QUARTET", nm: "四重彩", en: "Quartet · 依序首4", unit: "$240" },
   { key: "DT", nm: "孖T", en: "二拖三 · 跨兩場", unit: "$90" },
   { key: "TT", nm: "三T", en: "二拖三 · 跨三場", unit: "$270" },
 ];
@@ -227,13 +227,13 @@ function StrategyPnlPage() {
             ))}
           </div>
 
-          <Card title="累計盈虧走勢" en="Cumulative Curve">
+          <Card title="累計盈虧走勢" en="Cumulative curve">
             <CumChart points={points.map((p) => ({ date: p.date, cum: Number(p.cum) || 0 }))} />
           </Card>
 
           {supplemented || missing ? <p className="mx-4 mt-3 text-[11px] leading-relaxed text-gold">跨場紀錄含 {supplemented} 口賽後補第五選試算；{missing} 口缺預測未計成本／派彩。並非全期賽前凍結實績。</p> : null}
 
-          <Card title="逐個彩池" en="By Pool" action={<Button variant="outline" size="sm" asChild><Link to="/cross-race-pools">跨場明細</Link></Button>}>
+          <Card title="逐個彩池" en="By pool" action={<Button variant="outline" size="sm" asChild><Link to="/cross-race-pools">跨場明細</Link></Button>}>
             {filtered ? <p className="mb-2 text-[11px] leading-relaxed text-ink-3">後端只提供四個單場彩池嘅全期分池數字，所選時段唔夠全期時暫唔顯示，避免同上面累計對唔上；孖T／三T 按所選時段計。</p> : null}
             <div className="grid grid-cols-2 gap-2">
               {POOLS.map((p) => {
@@ -260,7 +260,7 @@ function StrategyPnlPage() {
             </div>
           </Card>
 
-          <Card title="逐日紀錄" en="Daily Log">
+          <Card title="逐日紀錄" en="Daily log">
             {sortedDesc.length ? (
               <Scroller>
                 <Table head={["賽日", "場數", "成本", "派彩", "盈虧", "累計"]}>

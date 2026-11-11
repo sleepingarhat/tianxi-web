@@ -60,12 +60,12 @@ function SettingsPage() {
         <TelegramSettingsPanel />
         <CryptoPassPanel settings />
         <PaymentAcceptancePanel />
-        <Panel title="接口" en="API Endpoints">
+        <Panel title="接口" en="API endpoints">
           <ul className="space-y-1.5">
             {ENDPOINTS.map(([n, u]) => <EndpointRow key={String(n)} n={String(n)} u={String(u)} />)}
           </ul>
         </Panel>
-        <Panel title="自動更新" en="Refresh Interval">
+        <Panel title="自動更新" en="Refresh interval">
           <div className="flex items-center gap-2">
             <input type="number" min={15} max={3600} value={sec} onChange={(e) => setSec(Number(e.target.value))} className="tx-field-sm w-24 font-mono-tx" />
             <span className="text-[12px] text-ink-3">秒（15–3600）</span>

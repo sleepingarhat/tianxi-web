@@ -35,7 +35,7 @@ const COMPARE: [string, string, string][] = [
 export function MoatSection() {
   return (
     <section className="border-t border-hairline bg-paper-2/60 px-5 py-10 md:px-10 md:py-14">
-      <p className="font-mono-tx text-[11px] font-bold text-gold">WHY TIANXI · 點解揀天喜</p>
+      <p className="font-mono-tx text-[11px] font-bold text-gold">Why Tianxi · 點解揀天喜</p>
       <h2 className="mt-2 font-serif-tc text-[26px] font-bold leading-tight text-ink md:text-[34px]">
         數據管道＋模型閘＋<span className="text-gold">公開可驗證軌跡</span>
       </h2>

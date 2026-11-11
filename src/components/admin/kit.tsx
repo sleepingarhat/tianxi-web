@@ -30,7 +30,7 @@ export function AdminHead({
   return (
     <header className="mb-4 flex flex-wrap items-end gap-3 border-b border-hairline pb-3">
       <div className="min-w-0 flex-1">
-        <p className="font-mono-tx text-[10px] font-bold uppercase tracking-[0.2em] text-gold">{en}</p>
+        <p className="font-mono-tx text-[11px] font-medium tracking-[0.04em] text-gold">{en}</p>
         <h1 className="mt-0.5 text-[20px] font-bold text-ink">{title}</h1>
         {desc ? <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-ink-3">{desc}</p> : null}
       </div>
@@ -55,7 +55,7 @@ export function Panel({ title, en, children, right, className = "" }: { title: s
     <section className={`min-w-0 rounded-[12px] border border-hairline bg-paper-2 p-4 ${className}`}>
       <div className="mb-3 flex items-baseline gap-2">
         <h2 className="text-[13px] font-bold text-ink">{title}</h2>
-        {en ? <span className="font-mono-tx text-[10.5px] uppercase tracking-[0.18em] text-ink-3">{en}</span> : null}
+        {en ? <span className="font-mono-tx text-[10.5px] tracking-[0.04em] text-ink-3">{en}</span> : null}
         <div className="ml-auto">{right}</div>
       </div>
       {children}

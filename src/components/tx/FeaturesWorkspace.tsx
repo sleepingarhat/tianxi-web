@@ -104,12 +104,12 @@ export function FeaturesWorkspace() {
       }
     >
       <PageHead
-        en="Feature Ranking"
+        en="Feature ranking"
         title="特徵排序表"
         desc="引擎特徵目錄全部列出。可即場排序唔等於未採用；Pro 可調權重（愈高愈好）即場重排綜合分。"
       />
 
-      <Card title="選擇賽事" en="Select Race">
+      <Card title="選擇賽事" en="Select race">
         {list.isLoading ? (
           <Loading />
         ) : list.error ? (

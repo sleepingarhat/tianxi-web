@@ -25,12 +25,12 @@ function LoginPage() {
   return (
     <AppShell ticker="會員登入 · 核實有效會籍">
       <PageHead
-        en="Pro Sign In"
+        en="Pro sign in"
         title="Pro 會員登入"
         desc="請用購買時同一個帳戶登入。付款完成頁、電郵或會員編號本身不會直接解鎖。"
       />
 
-      <Card title="登入" en="Sign In">
+      <Card title="登入" en="Sign in">
         {sent ? (
           <p className="text-[12px] leading-relaxed text-ink-2">
             已收到 <b className="text-ink">{email}</b>。會籍核實系統仍在接入中，接通後會即時以此電郵驗證你的 Pro 權限。

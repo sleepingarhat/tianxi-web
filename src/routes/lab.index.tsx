@@ -21,7 +21,7 @@ export const Route = createFileRoute("/lab/")({
     ],
   }),
   component: () => (
-    <FeaturePageGate min="pro" title="功能">
+    <FeaturePageGate en="Features" min="pro" title="功能">
       <LabPage />
     </FeaturePageGate>
   ),

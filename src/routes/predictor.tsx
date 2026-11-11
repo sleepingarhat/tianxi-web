@@ -45,7 +45,7 @@ export const Route = createFileRoute("/predictor")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <FeaturePageGate min="registered" title="選馬神器" preview={<div className="mx-4 grid grid-cols-2 gap-3 border-y border-hairline py-4" aria-label="選馬分析預覽">{["模型搏冷", "市場穩陣"].map(label => <div key={label}><p className="font-bold text-ink-3">{label}</p>{[1,2,3,4].map(n => <div key={n} className="mt-2 h-8 bg-paper-2" />)}</div>)}</div>}><PredictorPage /></FeaturePageGate>,
+  component: () => <FeaturePageGate en="Predictor" min="registered" title="選馬神器" preview={<div className="mx-4 grid grid-cols-2 gap-3 border-y border-hairline py-4" aria-label="選馬分析預覽">{["模型搏冷", "市場穩陣"].map(label => <div key={label}><p className="font-bold text-ink-3">{label}</p>{[1,2,3,4].map(n => <div key={n} className="mt-2 h-8 bg-paper-2" />)}</div>)}</div>}><PredictorPage /></FeaturePageGate>,
 });
 
 function PredictorPage() {
@@ -226,7 +226,7 @@ function PredictorPage() {
       <div className="mx-4 mt-3">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span
-            className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono-tx text-[10px] font-bold uppercase tracking-[0.14em] ${
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono-tx text-[11px] font-medium tracking-[0.04em] ${
               tp.frozen
                 ? "border-gold-strong bg-gold-bg text-gold"
                 : "border-hairline bg-paper text-ink-3"
@@ -244,7 +244,7 @@ function PredictorPage() {
         </div>
 
         {tp.date ? <p className="mb-2 text-[13px] font-bold text-ink">賽事日期：{fmtMeetingDate(tp.date)}{venueName ? ` · ${venueName}` : ""}</p> : null}
-        <p className="mb-1.5 font-mono-tx text-[10px] font-bold uppercase tracking-[0.18em] text-ink-3">全日場次</p>
+        <p className="mb-1.5 font-mono-tx text-[11px] font-medium tracking-[0.04em] text-ink-3">全日場次</p>
         <div className="no-scrollbar flex gap-1 overflow-x-auto pb-1">
           {races.map((r: any) => {
             const on = Number(r.raceNumber) === Number(race?.raceNumber);
@@ -269,7 +269,7 @@ function PredictorPage() {
       <div className="mx-4 mb-2.5 mt-2">
         <label
           htmlFor="tp-race-select"
-          className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.12em] text-ink-3"
+          className="mb-1.5 block text-[11px] font-medium tracking-[0.04em] text-ink-3"
         >
           揀場次
         </label>
@@ -339,7 +339,7 @@ function PredictorPage() {
       {race && !invalidInput ? <PredictorComparison modelCol={modelCol} marketCol={marketCol} locked={locked} sub={sub} /> : null}
 
       {race?.picks?.length && !invalidInput ? (
-        <Card title={`第 ${race.raceNumber} 場 模型 vs 市場`} en="Model vs Market" className="mx-4 mb-3">
+        <Card title={`第 ${race.raceNumber} 場 模型 vs 市場`} en="Model vs market" className="mx-4 mb-3">
           <ModelVsMarketDumbbell
             picks={(race.picks || []).map((p: any) => ({
               horseNumber: p.horseNumber,
@@ -411,7 +411,7 @@ function PredictorPage() {
       <PredictorEnginePicks race={race} invalidInput={invalidInput} tp={tp} start={start} sub={sub} liveOdds={liveOdds} />
 
       {race && !invalidInput ? (
-        <Card title="本場一句" en="Race Explain">
+        <Card title="本場一句" en="Race explain">
           <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
             只讀本場四揀同獨贏／位置機率填空。唔改排名、唔用 TreeSHAP、頭馬接近章未校準所以唔出。
           </p>
@@ -426,11 +426,11 @@ function PredictorPage() {
 
       {tp.date && race && !invalidInput ? <RacePositionMap date={tp.date} raceId={race.raceId ?? featRaceId ?? undefined} distance={Number(race.distance) || 0} picks={picks} frozen={Boolean(tp.frozen)} /> : null}
 
-      <Card title="點解揀佢" en="Why These Picks">
+      <Card title="點解揀佢" en="Why these picks">
         {tp.publicationPending ? <Loading label="副本核實後公開解釋…" /> : tp.isLoading ? <Loading label="核對本場預測中…" /> : tp.error ? <Empty label="預測讀取未成功，解釋暫未能提供" /> : invalidInput ? <Empty label="本場原凍結輸入無效，不提供入選解釋" /> : (race?.picks || []).length ? (race.picks || []).slice(0, 4).map((p: any) => <div key={p.horseNumber} className="flex items-start gap-1"><FollowHorseButton horseId={p.horseId} horseName={p.nameCh}/><div className="min-w-0 flex-1"><LivePickEvidence raceId={race.raceId ?? featRaceId ?? undefined} horseId={p.horseId} name={`#${p.horseNumber} ${p.nameCh}`} frozen={tp.frozen} /></div></div>) : <Empty label="未有本場預測" />}
       </Card>
 
-      <TierGate min="pro" feature="特徵排序實驗室"><Card title="特徵排序實驗室" en="Feature Lab">
+      <TierGate min="pro" feature="特徵排序實驗室"><Card title="特徵排序實驗室" en="Feature lab">
         <p className="mb-2 text-[11px] leading-relaxed text-ink-2">
           十項特徵（同場對賽、同程、檔位、最快時間、最快末段、騎練合作等）逐項排名，並可自選組合運算綜合排序，全部由歷史賽事資料實時計算。屬研究輔助，非預測模型。
         </p>

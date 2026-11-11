@@ -45,7 +45,7 @@ export function WeeklyRacecoursePosters() {
   const hv = useWeeklyPhoto("HV");
   return (
     <section className="border-t border-hairline px-5 py-8 md:px-10">
-      <p className="font-mono-tx text-[11px] font-bold text-gold">THIS WEEK · 本週馬場</p>
+      <p className="font-mono-tx text-[11px] font-bold text-gold">This week · 本週馬場</p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         {([["沙田馬場", st], ["跑馬地馬場", hv]] as const).map(([t, p]) => (
           <figure key={t} className="overflow-hidden rounded-[10px] border border-hairline bg-paper-2">

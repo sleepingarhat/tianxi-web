@@ -48,7 +48,7 @@ export function WhyPicked({
         aria-expanded={open}
       >
         <span className="font-serif-tc text-[11px] font-bold text-ink">點解揀佢</span>
-        <span className="font-mono-tx text-[10px] uppercase tracking-[0.16em] text-ink-3">WHY</span>
+        <span className="font-mono-tx text-[11px] tracking-[0.04em] text-ink-3">Why</span>
         {name ? <span className="truncate font-serif-tc text-[11px] text-ink-2">· {name}</span> : null}
         <span
           className={`tabnum ml-auto shrink-0 rounded-[3px] border px-1 font-mono-tx text-[10px] font-bold ${
@@ -76,7 +76,7 @@ export function WhyPicked({
         <div className="border-t border-hairline px-2.5 pb-2.5 pt-1.5">
           <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
             <div className="min-w-0">
-              <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-win">推高排名</p>
+              <p className="mb-0.5 text-[11px] font-medium tracking-[0.04em] text-win">推高排名</p>
               {why.up.length ? (
                 why.up.map((f) => <FactorRow key={f.id} f={f} maxAbs={why.maxAbs} tone="win" />)
               ) : (
@@ -84,7 +84,7 @@ export function WhyPicked({
               )}
             </div>
             <div className="min-w-0">
-              <p className="mb-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-lose">拉低排名</p>
+              <p className="mb-0.5 text-[11px] font-medium tracking-[0.04em] text-lose">拉低排名</p>
               {why.down.length ? (
                 why.down.map((f) => <FactorRow key={f.id} f={f} maxAbs={why.maxAbs} tone="lose" />)
               ) : (

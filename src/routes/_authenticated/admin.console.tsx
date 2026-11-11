@@ -93,7 +93,7 @@ function AdminPage() {
 
   return (
     <AppShell ticker="內部監控台 · 只限管理員">
-      <PageHead en="Internal Console" title="內部監控台" desc="經伺服器代理讀寫 tianxi-backend /admin/api/*，token 不會外露。" />
+      <PageHead en="Internal console" title="內部監控台" desc="經伺服器代理讀寫 tianxi-backend /admin/api/*，token 不會外露。" />
 
       <Scroller>
         <div className="flex gap-2 pb-2">
