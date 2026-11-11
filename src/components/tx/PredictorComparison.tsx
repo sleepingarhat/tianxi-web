@@ -67,10 +67,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                         ) : null}
                       </div>
                     </div>
-                    <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[10px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[10px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
-                    </div>
+                    <PickStats pWin={p.pWin} od={p.od} />
                   </div>
                 ))
               ) : (
@@ -112,10 +109,7 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
                         <p className="tabnum mt-0.5 truncate font-mono-tx text-[10px] text-ink-3">檔 {p.draw ?? "—"} · 三甲 {pct(p.pTop3)}</p>
                       </div>
                     </div>
-                    <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-[4px] bg-paper-2 px-1.5 py-1">
-                      <span className="text-[10px] text-ink-3">引擎勝算 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-ink">{pct(p.pWin)}</b></span>
-                      <span className="text-right text-[10px] text-ink-3">即時獨贏 <b className="tabnum ml-0.5 font-mono-tx text-[11px] text-gold">{p.od != null ? Number(p.od).toFixed(1) : "—"}</b></span>
-                    </div>
+                    <PickStats pWin={p.pWin} od={p.od} />
                   </div>
                 ))
               ) : (
@@ -124,5 +118,21 @@ export function PredictorComparison({ modelCol, marketCol, locked, sub }: {
             </div>
           </div>
         </div>
+  );
+}
+
+// 引擎勝算／即時獨贏固定「標籤在上、數字在下」兩欄，避免窄欄時有啲換行、有啲唔換行而一高一低。
+function PickStats({ pWin, od }: { pWin: DisplayPick["pWin"]; od: DisplayPick["od"] }) {
+  return (
+    <div className="mt-1.5 grid grid-cols-2 gap-2 rounded-[4px] bg-paper-2 px-2 py-1.5">
+      <div className="min-w-0">
+        <span className="block truncate text-[10px] leading-4 text-ink-3">引擎勝算</span>
+        <b className="tabnum block font-mono-tx text-[12px] leading-4 text-ink">{pct(pWin)}</b>
+      </div>
+      <div className="min-w-0 text-right">
+        <span className="block truncate text-[10px] leading-4 text-ink-3">即時獨贏</span>
+        <b className="tabnum block font-mono-tx text-[12px] leading-4 text-gold">{od != null ? Number(od).toFixed(1) : "—"}</b>
+      </div>
+    </div>
   );
 }
