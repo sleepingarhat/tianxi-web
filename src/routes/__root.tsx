@@ -17,6 +17,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
 import { TxCta } from "@/components/tx/ui";
 import { supabase } from "@/integrations/supabase/client";
+import { authCacheAction, type KnownIdentity } from "@/lib/auth-cache-identity";
 import { PendingFollowHandler } from "@/components/tx/PendingFollowHandler";
 import { TierPreviewProvider } from "@/components/tx/gates/TierPreview";
 
@@ -146,13 +147,16 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useEffect(() => { if ('serviceWorker' in navigator && window.top === window.self) void navigator.serviceWorker.register('/sw.js').catch(() => {}); }, []);
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange(event => {
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-        const privateReads = new Set(['todayPicksAll','verified-results-audit','pvr-frozen','freezeLedger','prediction-reconciliation','original-race-audit','exotic-trio-verified-original','withdrawal-tracker','topPicks','cmpStyles']);
-        void queryClient.cancelQueries({ predicate: (q: Query) => privateReads.has(String(q.queryKey[0])) });
-        queryClient.removeQueries({ predicate: (q: Query) => privateReads.has(String(q.queryKey[0])) });
-      }
-      if (event === "SIGNED_OUT") {
+    let identity: KnownIdentity = undefined;
+    const privateReads = new Set(['todayPicksAll','verified-results-audit','pvr-frozen','freezeLedger','prediction-reconciliation','original-race-audit','exotic-trio-verified-original','withdrawal-tracker','topPicks','cmpStyles']);
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      // 切返分頁時同一帳戶會再收到 SIGNED_IN；只有身份真係改變先清私人快取，避免畫面無故跳返載入中。
+      const next = authCacheAction(identity, event, session?.user.id ?? null);
+      identity = next.identity;
+      if (next.action === "none") return;
+      void queryClient.cancelQueries({ predicate: (q: Query) => privateReads.has(String(q.queryKey[0])) });
+      queryClient.removeQueries({ predicate: (q: Query) => privateReads.has(String(q.queryKey[0])) });
+      if (next.action === "sign-out") {
         queryClient.removeQueries({ queryKey: ["tier"] });
         queryClient.removeQueries({ queryKey: ["watchlist"] });
         queryClient.removeQueries({ queryKey: ["watch-notifications"] });
@@ -160,7 +164,7 @@ function RootComponent() {
         queryClient.removeQueries({ queryKey: ["my-membership"] });
         queryClient.removeQueries({ queryKey: ["telegram-link"] });
         queryClient.removeQueries({ queryKey: ["notification-prefs"] });
-      } else if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+      } else {
         void queryClient.invalidateQueries({ queryKey: ["tier"] });
         void queryClient.invalidateQueries({ queryKey: ["watchlist"] });
         void queryClient.invalidateQueries({ queryKey: ["watch-notifications"] });

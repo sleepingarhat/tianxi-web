@@ -8,6 +8,7 @@ import {
   distanceText,
   focusRaceHeading,
   goingPill,
+  hitHorseNumbers,
   hkCalendarDate,
   isMeetingToday,
   LAB_TOOLS,
@@ -183,5 +184,25 @@ describe("today-dashboard", () => {
     expect(LAB_TOOLS.every((t) => t.status === "soon" || t.status === "locked")).toBe(true);
     expect(LAB_TOOLS.some((t) => t.status === "ready")).toBe(false);
     expect(LAB_TOOLS.some((t) => t.key === "going" || t.key === "backtest" || t.key === "compare" || t.key === "pace" || t.key === "pool-opt")).toBe(false);
+  });
+
+  describe("hitHorseNumbers 金框只標已核實命中", () => {
+    const shown = [{ horseNumber: 12 }, { horseNumber: 6 }, { horseNumber: 8 }, { horseNumber: 1 }];
+    it("命中 2/4：只標入咗頭四嘅兩匹", () => {
+      expect([...hitHorseNumbers({ hitCount: 2, shown, actualTop4: [6, 3, 1, 9] })].sort((a, b) => a - b)).toEqual([1, 6]);
+    });
+    it("命中數同實際頭四對唔上就一匹都唔標", () => {
+      expect(hitHorseNumbers({ hitCount: 3, shown, actualTop4: [6, 3, 1, 9] }).size).toBe(0);
+    });
+    it("未核實（無命中數）或未有賽果唔標", () => {
+      expect(hitHorseNumbers({ hitCount: null, shown, actualTop4: [6, 3, 1, 9] }).size).toBe(0);
+      expect(hitHorseNumbers({ hitCount: 2, shown, actualTop4: null }).size).toBe(0);
+    });
+    it("顯示唔夠四匹唔標", () => {
+      expect(hitHorseNumbers({ hitCount: 1, shown: shown.slice(0, 3), actualTop4: [6, 3, 2, 9] }).size).toBe(0);
+    });
+    it("只睇實際頭四，第五名唔算命中", () => {
+      expect([...hitHorseNumbers({ hitCount: 1, shown, actualTop4: [6, 3, 2, 9, 12] })]).toEqual([6]);
+    });
   });
 });

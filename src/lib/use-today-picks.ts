@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayPicksAll } from "./picks.functions";
 import { useMeetingCancellation } from "./meeting-status";
 import { txApi } from "./tx-api";
-import { picksEdition, editionAfterError, assertPicksResponse, shouldRetryPicks, PICKS_RETRY_DELAY_MS } from "./picks-refresh";
+import { picksEdition, editionAfterError, assertPicksResponse, assertNoMeetingConsistent, shouldRetryPicks, PICKS_RETRY_DELAY_MS } from "./picks-refresh";
 import { identityMatchedEntry, evidenceDraw } from './racing-runner-identity';
 import { useHkjcChanges, useChangeProgress } from './use-hkjc-changes';
 import { changeRevision, verifiedUpdate } from './racing-change-progress';
@@ -53,6 +53,7 @@ export function useTodayPicks() {
     queryFn: async () => {
       const data = await fetchAll();
       assertPicksResponse(data);
+      assertNoMeetingConsistent(queryClient.getQueryData<{ date?: string; races?: unknown[] }>(["todayPicksAll"]), data);
       return data;
     },
     staleTime: 60_000,
@@ -79,7 +80,10 @@ export function useTodayPicks() {
   const revision = changesSnapshot ? `${date}:${changesSnapshot.sha256}` : null;
   useEffect(() => {
     if (!date || !revision || lastRevision.current === revision) return;
+    const firstSeen = lastRevision.current === null;
     lastRevision.current = revision;
+    // 入頁第一次讀到更改紀錄時，四揀啱啱讀完，唔使即刻再讀一次（避免畫面一入去就重新載入）。
+    if (firstSeen) return;
     void queryClient.invalidateQueries({ queryKey: ['meeting', date], exact: true });
     // 只刷新讀取；瀏覽器唔觸發運算，鎖後仍走原副本驗證。
     void queryClient.invalidateQueries({ queryKey: ['todayPicksAll'], exact: true });

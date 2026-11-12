@@ -288,6 +288,27 @@ export function displayedRaceHit(input: {
   return null;
 }
 
+/**
+ * 全日場次要加金框嘅命中馬號。只喺已核實命中數存在、而畫面顯示嘅四揀同實際頭四
+ * 相交數目完全等於該命中數時先標；對唔上（例如退出、資料未齊）就一匹都唔標。
+ */
+export function hitHorseNumbers(input: {
+  hitCount: number | null | undefined;
+  shown: readonly { horseNumber?: number | string | null }[] | null | undefined;
+  actualTop4: readonly (number | string | null | undefined)[] | null | undefined;
+}): Set<number> {
+  const none = new Set<number>();
+  if (typeof input.hitCount !== "number" || !Number.isInteger(input.hitCount) || input.hitCount < 0) return none;
+  const actual = new Set(
+    (input.actualTop4 ?? []).slice(0, 4).map((n) => Number(n)).filter((n) => Number.isInteger(n) && n > 0),
+  );
+  if (!actual.size) return none;
+  const shown = (input.shown ?? []).slice(0, 4).map((p) => Number(p.horseNumber)).filter((n) => Number.isInteger(n) && n > 0);
+  if (shown.length !== 4 || new Set(shown).size !== 4) return none;
+  const hits = new Set(shown.filter((n) => actual.has(n)));
+  return hits.size === input.hitCount ? hits : none;
+}
+
 /** 累計只加已核實場次。未有命中嘅場唔入分母，唔使等全日完。 */
 export function sumVerifiedHits(counts: readonly (number | null | undefined)[]): { hits: number; racesCounted: number } {
   let hits = 0;

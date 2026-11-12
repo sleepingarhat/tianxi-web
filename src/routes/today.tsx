@@ -32,6 +32,7 @@ import {
   focusRaceHeading,
   goingPill,
   goingText,
+  hitHorseNumbers,
   isMeetingToday,
   isRecentPastMeeting,
   lockPhase,
@@ -42,6 +43,7 @@ import {
   PRELIMINARY_UNLOCKED_LABEL,
   RACE_DAY_PAGE_TITLE,
   raceRunStatus,
+  actualTop4FromPicks,
   rankedPicks,
   showPreliminaryUnlocked,
   STRATEGY_PNL_CARD_TITLE,
@@ -197,18 +199,21 @@ function TodayPage() {
   const changeCounts = useMemo(() => changeCountByRace(official.data?.changes ?? []), [official.data]);
 
   const hitByRace = useMemo(() => {
-    const map = new Map<number, { count: number | null; redacted: boolean }>();
+    const map = new Map<number, { count: number | null; redacted: boolean; actualTop4: number[] | null }>();
     for (const r of hitRate.data?.races ?? []) {
       const n = Number(r.raceNumber);
+      const actualTop4 = Array.isArray(r.actualTop4)
+        ? r.actualTop4.map((a: { horseNumber?: number | string | null }) => Number(a?.horseNumber))
+        : null;
       if (r.redacted) {
-        map.set(n, { count: null, redacted: true });
+        map.set(n, { count: null, redacted: true, actualTop4 });
         continue;
       }
       if (typeof r.top4IntersectCount === "number") {
-        map.set(n, { count: r.top4IntersectCount, redacted: false });
+        map.set(n, { count: r.top4IntersectCount, redacted: false, actualTop4 });
         continue;
       }
-      map.set(n, { count: null, redacted: false });
+      map.set(n, { count: null, redacted: false, actualTop4 });
     }
     return map;
   }, [hitRate.data]);
@@ -337,6 +342,13 @@ function TodayPage() {
                   const start = cleanTime(r.startTime);
                   const top = rankedPicks(r.picks, 4);
                   const hit = raceHit(r);
+                  const hitHorses = access === "full"
+                    ? hitHorseNumbers({
+                        hitCount: hit,
+                        shown: top,
+                        actualTop4: hitByRace.get(Number(r.raceNumber))?.actualTop4 ?? actualTop4FromPicks(r.picks),
+                      })
+                    : new Set<number>();
                   const status = raceRunStatus({
                     settled: r.settled === true,
                     hasResult: r.hasResult === true,
@@ -359,14 +371,22 @@ function TodayPage() {
                       {changeCounts.get(Number(r.raceNumber)) ? <p className="mt-0.5 text-[11px] text-lose">馬會更易 {changeCounts.get(Number(r.raceNumber))} 項（已存檔）</p> : null}
                       {access === "full" ? (
                         <div className="mt-1.5 flex flex-wrap gap-1">
-                          {top.map((p) => (
-                            <span
-                              key={p.horseNumber}
-                              className="tabnum rounded-[4px] border border-hairline bg-paper px-1.5 py-0.5 font-mono-tx text-[11px] font-bold text-ink"
-                            >
-                              #{p.horseNumber} {p.nameCh || ""}
-                            </span>
-                          ))}
+                          {top.map((p) => {
+                            const isHit = hitHorses.has(Number(p.horseNumber));
+                            return (
+                              <span
+                                key={p.horseNumber}
+                                className={
+                                  isHit
+                                    ? "tabnum rounded-[4px] border border-gold-strong bg-gold-bg px-1.5 py-0.5 font-mono-tx text-[11px] font-bold text-ink shadow-[inset_0_0_0_1px_var(--color-gold-strong)]"
+                                    : "tabnum rounded-[4px] border border-hairline bg-paper px-1.5 py-0.5 font-mono-tx text-[11px] font-bold text-ink"
+                                }
+                              >
+                                #{p.horseNumber} {p.nameCh || ""}
+                                {isHit ? <span className="sr-only">（命中）</span> : null}
+                              </span>
+                            );
+                          })}
                           {!top.length ? <span className="text-[11px] text-ink-3">等臨場盤口／預測</span> : null}
                         </div>
                       ) : access === "name" ? (

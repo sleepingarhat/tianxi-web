@@ -46,3 +46,17 @@ export function editionAfterError(
   const lockAt = typeof data?.lockAt === "string" ? Date.parse(data.lockAt) : NaN;
   return Number.isFinite(lockAt) && now < lockAt ? "draft" : "unavailable";
 }
+
+/** 已讀到今日（香港時間）或之後賽日嘅場次，背景重讀突然話「無賽馬日」屬上游短暫異常（例如資料庫過載），
+ *  唔可以用空白蓋過已顯示嘅預測；拋錯交俾重試，重試仍失敗就照常顯示未能核實。取消賽事另有公告流程處理。 */
+export function assertNoMeetingConsistent(
+  previous: { date?: unknown; races?: unknown } | null | undefined,
+  next: unknown,
+  now: number = Date.now(),
+): void {
+  if (!next || typeof next !== 'object' || !('noMeeting' in next) || next.noMeeting !== true) return;
+  const prevDate = typeof previous?.date === 'string' ? previous.date : null;
+  if (!prevDate || !Array.isArray(previous?.races) || previous.races.length === 0) return;
+  const hkToday = new Date(now + 8 * 3600_000).toISOString().slice(0, 10);
+  if (prevDate >= hkToday) throw new Error('賽日資料暫未能核實，正在重新讀取');
+}

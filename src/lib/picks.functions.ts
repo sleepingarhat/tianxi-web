@@ -18,6 +18,12 @@ export function isPastMeetingDate(date: unknown, now = new Date()): boolean {
   return date < hk;
 }
 
+/** 賽日日期等於今日（香港時間）。 */
+export function isMeetingToday(date: unknown, now = new Date()): boolean {
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  return date === new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
+}
+
 export async function fetchTodayPicksUpstream() {
   const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
@@ -37,6 +43,7 @@ export async function fetchTodayPicksUpstream() {
   // 午夜後 lock-state 無賽程日期。先用公開賽程定位上一賽日，
   // 直接核實原始副本，避免先等即時預測（可能觸發慢運算）再棄用。
   // 賽程只定位日期，唔代證凍結；下一賽日仍走原有即時／鎖定流程。
+  let scheduledDate: string | undefined = lock.date;
   if (!lock.date) {
     const { optionalRacingReference } = await import('./optional-racing-reference');
     const meeting = await optionalRacingReference(async signal => {
@@ -44,6 +51,7 @@ export async function fetchTodayPicksUpstream() {
       if (!response.ok) throw new Error('賽程日期暫未能讀取');
       return await response.json() as { date?: string; venue?: string };
     });
+    scheduledDate = meeting?.date;
     if (meeting && isPastMeetingDate(meeting.date) && ['ST', 'HV'].includes(meeting.venue ?? '')) {
       const { readFrozenRacing } = await import('./frozen-racing.server');
       const frozen = await readFrozenRacing(meeting.date as string);
@@ -70,6 +78,8 @@ export async function fetchTodayPicksUpstream() {
     throw new Error(`預測服務回應異常（${res.status}）`);
   }
   if (json?.error && /賽馬日記錄不存在/.test(String(json.error))) {
+    // 賽程顯示今日有賽事，上游卻話無紀錄：屬短暫讀取異常（例如資料庫過載），唔可以當成今日無賽事。
+    if (isMeetingToday(scheduledDate)) throw new Error('賽日資料暫未能核實，正在重新讀取');
     // 今日未有賽馬日：屬正常狀態，回空場次而唔係報錯
     const empty = { races: [], noMeeting: true, message: String(json.error) };
     return empty;

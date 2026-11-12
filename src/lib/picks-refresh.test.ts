@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createPicksRefresh, picksEdition, editionAfterError, assertPicksResponse, shouldRetryPicks } from "./picks-refresh";
+import { createPicksRefresh, picksEdition, editionAfterError, assertPicksResponse, shouldRetryPicks, assertNoMeetingConsistent } from "./picks-refresh";
 import { raceStatus } from "./prediction-status";
 
 describe("今日預測最終版讀取", () => {
@@ -81,5 +81,22 @@ describe("今日預測最終版讀取", () => {
     expect(editionAfterError({ edition: "final", lockAt }, true, before)).toBe("unavailable");
     expect(editionAfterError(undefined, true, before)).toBe("unavailable");
     expect(editionAfterError({ edition: "draft" }, true, before)).toBe("unavailable");
+  });
+});
+
+describe("背景重讀唔可以用「無賽馬日」蓋過今日預測", () => {
+  const now = Date.parse("2026-11-11T10:20:00Z"); // 香港 18:20
+  const today = { date: "2026-11-11", races: [{ raceNumber: 1 }] };
+  it("今日已有場次時，上游突然話無賽馬日要重試", () => {
+    expect(() => assertNoMeetingConsistent(today, { races: [], noMeeting: true }, now)).toThrow();
+  });
+  it("首次讀取話無賽馬日照常接受", () => {
+    expect(() => assertNoMeetingConsistent(undefined, { races: [], noMeeting: true }, now)).not.toThrow();
+  });
+  it("上一個賽日已完結後無賽馬日照常接受", () => {
+    expect(() => assertNoMeetingConsistent({ date: "2026-11-08", races: [{ raceNumber: 1 }] }, { races: [], noMeeting: true }, now)).not.toThrow();
+  });
+  it("正常場次回應不受影響", () => {
+    expect(() => assertNoMeetingConsistent(today, today, now)).not.toThrow();
   });
 });
