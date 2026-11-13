@@ -23,6 +23,11 @@ import {
   raceRunStatus,
   raceStartMs,
   rankedPicks,
+  RESULT_FAST_POLL_MS,
+  RESULT_IDLE_POLL_MS,
+  resultPollMs,
+  resultRaceNumbers,
+  withResultFlags,
   showPreliminaryUnlocked,
   STRATEGY_PNL_CARD_TITLE,
   STRATEGY_PNL_NOTE,
@@ -204,5 +209,50 @@ describe("today-dashboard", () => {
     it("只睇實際頭四，第五名唔算命中", () => {
       expect([...hitHorseNumbers({ hitCount: 1, shown, actualTop4: [6, 3, 2, 9, 12] })]).toEqual([6]);
     });
+  });
+});
+
+describe("賽果快讀", () => {
+  const date = "2026-11-15";
+  const races = [
+    { raceNumber: 1, startTime: "13:00", settled: true },
+    { raceNumber: 2, startTime: "13:30" },
+    { raceNumber: 3, startTime: "14:00" },
+  ];
+  const at = (hhmm: string) => Date.parse(`${date}T${hhmm}:00+08:00`);
+
+  it("開跑前1分鐘起至開跑後45分鐘未有賽果，每10秒讀一次", () => {
+    expect(resultPollMs(races, date, at("13:28"), new Set())).toBe(RESULT_IDLE_POLL_MS);
+    expect(resultPollMs(races, date, at("13:29"), new Set())).toBe(RESULT_FAST_POLL_MS);
+    expect(RESULT_FAST_POLL_MS).toBe(10_000);
+    expect(resultPollMs(races, date, at("13:35"), new Set())).toBe(RESULT_FAST_POLL_MS);
+  });
+
+  it("賽果入帳後即回復每分鐘", () => {
+    expect(resultPollMs(races, date, at("13:35"), new Set([2]))).toBe(RESULT_IDLE_POLL_MS);
+  });
+
+  it("開跑後超過45分鐘仍未入帳，唔再加快", () => {
+    const one = [{ raceNumber: 2, startTime: "13:30" }];
+    expect(resultPollMs(one, date, at("14:15"), new Set())).toBe(RESULT_FAST_POLL_MS);
+    expect(resultPollMs(one, date, at("14:16"), new Set())).toBe(RESULT_IDLE_POLL_MS);
+  });
+
+  it("有頭四或已核實命中數先當有賽果；會籍隱藏場次有頭四亦算", () => {
+    const got = resultRaceNumbers([
+      { raceNumber: 1, top4IntersectCount: 2, actualTop4: [] },
+      { raceNumber: 2, actualTop4: [{ horseNumber: 3 }] },
+      { raceNumber: 3, actualTop4: [] },
+      { raceNumber: "x" as unknown as number, top4IntersectCount: 1 },
+    ]);
+    expect([...got].sort()).toEqual([1, 2]);
+  });
+
+  it("有賽果嘅場次即時轉完場，焦點跳去下一場", () => {
+    const flagged = withResultFlags(races, new Set([2]));
+    expect(flagged[1]).toMatchObject({ raceNumber: 2, hasResult: true });
+    expect(flagged[2]).not.toHaveProperty("hasResult");
+    expect(pickFocusRace(flagged, date, at("13:35"))?.race.raceNumber).toBe(3);
+    expect(pickFocusRace(races, date, at("13:35"))?.race.raceNumber).toBe(2);
   });
 });

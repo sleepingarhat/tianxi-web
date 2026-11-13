@@ -87,6 +87,56 @@ export function pickFocusRace(
   return last ? { race: last, kind: "last" } : null;
 }
 
+/** 賽果快讀：開跑前 1 分鐘起每 10 秒讀一次賽果，完場入帳即顯示；45 分鐘仍未入帳就回復每分鐘。 */
+export const RESULT_FAST_POLL_MS = 10_000;
+export const RESULT_IDLE_POLL_MS = 60_000;
+export const RESULT_WATCH_LEAD_MS = 60_000;
+export const RESULT_WATCH_WINDOW_MS = 45 * 60_000;
+
+/** 對帳回應入面已有官方賽果（頭四或已核實命中數）嘅場次。會籍隱藏場次照樣有賽果，可當已完場。 */
+export function resultRaceNumbers(
+  rows: readonly { raceNumber?: number | string | null; top4IntersectCount?: number | null; actualTop4?: readonly unknown[] | null }[] | null | undefined,
+): Set<number> {
+  const out = new Set<number>();
+  for (const r of rows ?? []) {
+    const n = Number(r?.raceNumber);
+    if (!Number.isInteger(n) || n <= 0) continue;
+    if (typeof r.top4IntersectCount === "number" || (Array.isArray(r.actualTop4) && r.actualTop4.length > 0)) out.add(n);
+  }
+  return out;
+}
+
+/** 有場次啱啱開跑（或即將開跑）而賽果未入帳。只睇開跑時間同已入帳賽果，唔估名次。 */
+export function awaitingRaceResult(
+  races: readonly RaceClockRow[],
+  meetingDate: string | null | undefined,
+  nowMs: number,
+  resolved: ReadonlySet<number>,
+): boolean {
+  for (const r of races) {
+    if (r.settled === true || r.hasResult === true || resolved.has(Number(r.raceNumber))) continue;
+    const start = raceStartMs(r.startTime, meetingDate);
+    if (start == null) continue;
+    if (nowMs >= start - RESULT_WATCH_LEAD_MS && nowMs - start <= RESULT_WATCH_WINDOW_MS) return true;
+  }
+  return false;
+}
+
+export function resultPollMs(
+  races: readonly RaceClockRow[],
+  meetingDate: string | null | undefined,
+  nowMs: number,
+  resolved: ReadonlySet<number>,
+): number {
+  return awaitingRaceResult(races, meetingDate, nowMs, resolved) ? RESULT_FAST_POLL_MS : RESULT_IDLE_POLL_MS;
+}
+
+/** 對帳已有賽果嘅場次標 hasResult，焦點卡同場次狀態即時轉完場，唔使等下一次預測重讀。只加標記，唔改四揀。 */
+export function withResultFlags<T extends RaceClockRow>(races: readonly T[], resolved: ReadonlySet<number>): T[] {
+  if (!resolved.size) return races as T[];
+  return races.map((r) => (r.hasResult === true || !resolved.has(Number(r.raceNumber)) ? r : { ...r, hasResult: true }));
+}
+
 export type LockPhase = "pending" | "draft" | "countdown" | "locked" | "unavailable" | "loading";
 
 export function lockPhase(input: {

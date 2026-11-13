@@ -39,6 +39,9 @@ import {
   lockStatusLabel,
   modelMarketGapPp,
   pickFocusRace,
+  resultPollMs,
+  resultRaceNumbers,
+  withResultFlags,
   positiveDistance,
   PRELIMINARY_UNLOCKED_LABEL,
   RACE_DAY_PAGE_TITLE,
@@ -112,7 +115,39 @@ function TodayPage() {
   const officialVenue = asVenue(venue);
   const meetingToday = isMeetingToday(date, new Date(nowMs));
   const recentPast = isRecentPastMeeting(date, new Date(nowMs));
-  const races = tp.races ?? [];
+  const baseRaces = tp.races ?? [];
+  const hitRate = useQuery({
+    queryKey: ["meetingHitRate", "today-page", date, tier.tier],
+    queryFn: () => hitFn({ data: { date: date! } }),
+    // 等會籍讀完先讀，避免同一頁先讀訪客版再讀會員版。
+    enabled: !!date && (meetingToday || recentPast) && !tp.cancellation && !tier.loading,
+    staleTime: 60_000,
+    // 開跑前1分鐘起加快讀賽果，完場入帳即跳出命中；其餘時間每分鐘一次。
+    refetchInterval: (query) =>
+      resultPollMs(baseRaces, date, Date.now(), resultRaceNumbers((query.state.data as { races?: any[] } | undefined)?.races)),
+  });
+  const hitByRace = useMemo(() => {
+    const map = new Map<number, { count: number | null; redacted: boolean; actualTop4: number[] | null }>();
+    for (const r of hitRate.data?.races ?? []) {
+      const n = Number(r.raceNumber);
+      const actualTop4 = Array.isArray(r.actualTop4)
+        ? r.actualTop4.map((a: { horseNumber?: number | string | null }) => Number(a?.horseNumber))
+        : null;
+      if (r.redacted) {
+        map.set(n, { count: null, redacted: true, actualTop4 });
+        continue;
+      }
+      if (typeof r.top4IntersectCount === "number") {
+        map.set(n, { count: r.top4IntersectCount, redacted: false, actualTop4 });
+        continue;
+      }
+      map.set(n, { count: null, redacted: false, actualTop4 });
+    }
+    return map;
+  }, [hitRate.data]);
+
+  const resolvedRaces = useMemo(() => resultRaceNumbers(hitRate.data?.races), [hitRate.data]);
+  const races = useMemo(() => withResultFlags(baseRaces, resolvedRaces), [baseRaces, resolvedRaces]);
   const venueName =
     tp.meeting?.venueName || smart.data?.venueName || nextMeeting.data?.venueName || venueLabel(venue);
   const storedGoing = goingText(tp.trackCondition) || goingText(smart.data?.trackCondition);
@@ -143,14 +178,6 @@ function TodayPage() {
   );
   const focusRace = focus ? races.find((r: { raceNumber: number }) => Number(r.raceNumber) === Number(focus.race.raceNumber)) : null;
   const focusAccess = focusRace ? cardAccess(tier.tier, Number(focusRace.raceNumber)) : "locked";
-
-  const hitRate = useQuery({
-    queryKey: ["meetingHitRate", "today-page", date, tier.tier],
-    queryFn: () => hitFn({ data: { date: date! } }),
-    enabled: !!date && (meetingToday || recentPast) && !tp.cancellation,
-    staleTime: 60_000,
-    refetchInterval: 60_000,
-  });
 
   const missingDistance = useMemo(
     () => races.filter((r) => positiveDistance(r) == null).map((r) => Number(r.raceNumber)),
@@ -197,26 +224,6 @@ function TodayPage() {
     staleTime: 10 * 60_000,
   });
   const changeCounts = useMemo(() => changeCountByRace(official.data?.changes ?? []), [official.data]);
-
-  const hitByRace = useMemo(() => {
-    const map = new Map<number, { count: number | null; redacted: boolean; actualTop4: number[] | null }>();
-    for (const r of hitRate.data?.races ?? []) {
-      const n = Number(r.raceNumber);
-      const actualTop4 = Array.isArray(r.actualTop4)
-        ? r.actualTop4.map((a: { horseNumber?: number | string | null }) => Number(a?.horseNumber))
-        : null;
-      if (r.redacted) {
-        map.set(n, { count: null, redacted: true, actualTop4 });
-        continue;
-      }
-      if (typeof r.top4IntersectCount === "number") {
-        map.set(n, { count: r.top4IntersectCount, redacted: false, actualTop4 });
-        continue;
-      }
-      map.set(n, { count: null, redacted: false, actualTop4 });
-    }
-    return map;
-  }, [hitRate.data]);
 
   const raceHit = (race: { raceNumber?: number; verifiedHitCount?: number | null }) => {
     const row = hitByRace.get(Number(race.raceNumber));
