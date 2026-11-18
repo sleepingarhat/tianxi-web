@@ -157,7 +157,9 @@ export function officialBoardPath(board: BoardId, query: BoardQuery = {}): strin
   if (board === "racecard-files") return `/api/official/racecard-files${queryString(base)}`;
   if (board === "jt-combo") {
     const section = query.section === "combo" || query.section === "debut" ? query.section : null;
-    return `/api/official/jt-combo${queryString(section ? [...base, ["section", section]] : base)}`;
+    // includeReserve: this reader renders the 後備 flag, so reserve debutants are safe to show.
+    const pairs: [string, string][] = section ? [...base, ["section", section]] : [...base];
+    return `/api/official/jt-combo${queryString([...pairs, ["includeReserve", "1"]])}`;
   }
   if (board === "finish-photos") {
     const raceNo = raceNoParam(query.raceNo);
@@ -276,6 +278,7 @@ export type JtRow = {
   section: "combo" | "debut";
   raceNo: number;
   horseNo: number | null;
+  reserve: boolean;
   horseName: string | null;
   importType: string | null;
   trainerName: string | null;
@@ -402,6 +405,7 @@ export function readJtRows(envelope: OfficialEnvelope): JtRow[] {
       section,
       raceNo,
       horseNo: intField(row["horseNo"], 1, 20),
+      reserve: row["reserve"] === true,
       horseName: textOrNull(row["horseName"]),
       importType: textOrNull(row["importType"]),
       trainerName: textOrNull(row["trainerName"]),

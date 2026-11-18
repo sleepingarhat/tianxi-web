@@ -87,7 +87,7 @@ function ConghuaList({ rows }: { rows: ConghuaRow[] }) {
       <Count n={rows.length} />
       <ul className="mt-2 divide-y divide-hairline">
         {view.slice.map((row) => (
-          <li key={`${row.raceNo}-${row.horseNo}-${row.horseNameCh}`} className="py-2">
+          <li key={`${row.raceNo}-${row.reserve ? "r" : "s"}-${row.horseNo}-${row.horseNameCh}-${row.arrivedDate ?? ""}`} className="py-2">
             {horseLine(row.raceNo, row.horseNo, row.horseNameCh, row.reserve ? "後備" : row.horseNameEn)}
             <p className="mt-1 text-[11px] text-ink-3">抵埗 {row.arrivedDate ?? "—"} · 返回 {row.returnedDate ?? "—"}</p>
           </li>
@@ -111,8 +111,8 @@ function JtList({ rows }: { rows: JtRow[] }) {
           <p className="text-[12px] font-bold text-ink">初出</p>
           <ul className="mt-1 divide-y divide-hairline">
             {debut.map((row) => (
-              <li key={`debut-${row.raceNo}-${row.horseNo}`} className="py-2">
-                {horseLine(row.raceNo, row.horseNo, row.horseName ?? "—", [row.importType, row.trainerName].filter(Boolean).join(" · "))}
+              <li key={`debut-${row.raceNo}-${row.reserve ? "r" : "s"}-${row.horseNo}`} className="py-2">
+                {horseLine(row.raceNo, row.horseNo, row.horseName ?? "—", [row.reserve ? "後備" : "", row.importType, row.trainerName].filter(Boolean).join(" · "))}
                 <p className="mt-1 tabnum font-mono-tx text-[11px] text-ink-2">勝出 {formatOfficialRate(row.winRate)} · 位置 {formatOfficialRate(row.placeRate)}{row.asOfText ? ` · 截至 ${row.asOfText}` : ""}</p>
               </li>
             ))}

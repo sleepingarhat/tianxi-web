@@ -49,8 +49,8 @@ describe("官方資料路徑", () => {
   });
 
   it("騎練、終點照片同挑戰賠率只附合法篩選", () => {
-    expect(officialBoardPath("jt-combo", { date: "2026-11-11", venue: "HV", section: "combo" })).toBe("/api/official/jt-combo?date=2026-11-11&venue=HV&section=combo");
-    expect(officialBoardPath("jt-combo", { date: "2026-11-11", venue: "HV", section: "nope" })).toBe("/api/official/jt-combo?date=2026-11-11&venue=HV");
+    expect(officialBoardPath("jt-combo", { date: "2026-11-11", venue: "HV", section: "combo" })).toBe("/api/official/jt-combo?date=2026-11-11&venue=HV&section=combo&includeReserve=1");
+    expect(officialBoardPath("jt-combo", { date: "2026-11-11", venue: "HV", section: "nope" })).toBe("/api/official/jt-combo?date=2026-11-11&venue=HV&includeReserve=1");
     expect(officialBoardPath("finish-photos", { date: "2026-11-08", venue: "ST", raceNo: 1 })).toBe("/api/official/finish-photos?date=2026-11-08&venue=ST&raceNo=1");
     expect(officialBoardPath("finish-photos", { date: "2026-11-08", venue: "ST", raceNo: 0 })).toBe("/api/official/finish-photos?date=2026-11-08&venue=ST");
     expect(officialBoardPath("challenge-odds", { date: "2026-11-08", venue: "ST", pool: "jkc" })).toBe("/api/official/challenge-odds?pool=jkc&date=2026-11-08&venue=ST");
@@ -126,6 +126,14 @@ describe("官方行", () => {
     expect(formatOfficialRate(rows[0]?.placeRate)).toBe("9.0%");
     expect(rows[1]?.horseName).toBe("輝煌猛將");
     expect(formatOfficialRate("nope")).toBe("—");
+  });
+
+  it("騎練合作後備初出馬保留後備標記", () => {
+    const rows = readJtRows(envelope([
+      { section: "debut", raceNo: 7, horseNo: 6, reserve: false, horseName: "獅子精神", importType: "自購馬", trainerName: "徐雨石", winRate: "0.0000", placeRate: "0.0700", asOfText: "17/11/2026 12:00", notRaceResult: true },
+      { section: "debut", raceNo: 7, horseNo: 2, reserve: true, horseName: "川河靈駒", importType: "自購馬", trainerName: "方嘉柏", winRate: "0.1000", placeRate: "0.3000", asOfText: "17/11/2026 12:00", notRaceResult: true },
+    ]));
+    expect(rows.map((row) => [row.horseNo, row.reserve])).toEqual([[6, false], [2, true]]);
   });
 
   it("特別獎金同曾用名照收錄原文", () => {
