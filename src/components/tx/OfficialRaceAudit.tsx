@@ -8,9 +8,10 @@ import { useServerFn } from '@tanstack/react-start';
 import { getViewerFrozenRacing } from '@/lib/frozen-reconciliation.functions';
 import { useAuthState } from '@/lib/useAuthState';
 import { RedactedNote } from './RedactedNote';
+import { REBUILD_EXPLANATION, REBUILD_LABEL, type RebuildProvenance } from '@/lib/freeze-provenance';
 
 type AuditRace = { redacted?: boolean; raceNumber: number; effectiveTop4: { original: number[]; valid?: number[]; withdrawn?: number[]; status: string; prelockNotRecomputed?: boolean }; metricInput: OfficialMetricInput; officialMetric: { eligible: boolean; originalHits: number | null }; changeClassification: { hasWithdrawal: boolean; postLockJockeyChange: boolean } };
-type AuditDay = { snapshot: { sha256: string }; races: AuditRace[]; officialChanges: { source: string } | null };
+type AuditDay = { snapshot: { sha256: string; rebuild?: RebuildProvenance | null }; races: AuditRace[]; officialChanges: { source: string } | null };
 export function OfficialRaceAudit({ accounting = false, meetings = [] }: { accounting?: boolean; meetings?: { date: string; venue?: string | undefined }[] }) {
   const [pickedDate, setDate] = useState('');
   const { userId, signedIn } = useAuthState();
@@ -42,6 +43,7 @@ export function OfficialRaceAudit({ accounting = false, meetings = [] }: { accou
       <p className="mt-2 font-mono-tx text-[12px] text-ink-2">原四揀 {r.effectiveTop4.original.join('–')} · 正式命中 {r.officialMetric.originalHits ?? '—'}／4{r.effectiveTop4.withdrawn?.length ? `（有效${4 - r.effectiveTop4.withdrawn.length}匹，${r.effectiveTop4.withdrawn.join('、')}號鎖後無效）` : ''}</p>
       {accounting ? <p className="mt-2 text-[11px] text-ink-3">原注成本／官方退款／派彩：待結算讀回核實；鎖後退出馬按馬會規則退款，唔補位。</p> : null}
     </article>)}
-    {day ? <div className="mt-3 text-[11px] text-ink-3"><p className="break-all">原凍結 SHA-256：{day.snapshot.sha256}</p>{day.officialChanges ? <a href={day.officialChanges.source} target="_blank" rel="noreferrer" className="mt-1 inline-block text-gold underline">馬會官方更易事項</a> : null}</div> : null}
+    {day?.snapshot.rebuild ? <p className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-2"><Pill tone="gold">{REBUILD_LABEL}</Pill><span className="min-w-0">{REBUILD_EXPLANATION}</span></p> : null}
+    {day ? <div className="mt-3 text-[11px] text-ink-3"><p className="break-all">{day.snapshot.rebuild ? `${REBUILD_LABEL}副本 SHA-256：` : '原凍結 SHA-256：'}{day.snapshot.sha256}</p>{day.officialChanges ? <a href={day.officialChanges.source} target="_blank" rel="noreferrer" className="mt-1 inline-block text-gold underline">馬會官方更易事項</a> : null}</div> : null}
   </Card>;
 }

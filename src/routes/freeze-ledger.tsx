@@ -21,6 +21,7 @@ import {
 import { KV } from "@/components/tx/viz";
 import { fmtMeetingDate, num } from "@/lib/tx-api";
 import { isTimeoutError, timeoutSignal } from "@/lib/fetch-timeout";
+import { REBUILD_EXPLANATION, REBUILD_LABEL } from "@/lib/freeze-provenance";
 
 type LedgerRace = {
   redacted?: boolean;
@@ -61,6 +62,8 @@ type LedgerMeeting = {
   postLockNote?: string | null;
   /** source=blocked／read-error 時嘅原因（只影響呢一日） */
   blockedReason?: string | null;
+  /** 經擁有人批准嘅鎖後補建副本（計入戰績） */
+  rebuild?: "post-lock-rebuild" | null;
 };
 
 type Ledger = {
@@ -207,6 +210,9 @@ function FreezeLedgerPage() {
                     >
                       {SOURCE_LABEL[m.source] ?? m.source}
                     </span>
+                    {m.rebuild === "post-lock-rebuild" ? (
+                      <span className="ml-1 font-sans-tc text-[10px] font-bold text-gold" title={REBUILD_EXPLANATION}>{REBUILD_LABEL}</span>
+                    ) : null}
                   </Td>
                   <Td>
                     {m.racesEvaluated || "—"}

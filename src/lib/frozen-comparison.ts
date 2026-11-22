@@ -1,6 +1,6 @@
 import { officialRaceMetric } from './racing-official-metrics';
 
-export function frozenComparison(data: { frozen?: boolean; races?: any[] }) {
+export function frozenComparison(data: { frozen?: boolean; races?: any[]; snapshot?: { rebuild?: import('./freeze-provenance').RebuildProvenance | null } }) {
   if (!data.frozen || !data.races?.length) throw new Error('原凍結預測暫未能核實；紀錄不變，請稍後重新讀取。');
   const races = data.races.map(r => {
     if ('redacted' in r && r.redacted) return { ...r, predictedTop4: [], top4IntersectCount: null, top3IntersectCount: null };
@@ -11,7 +11,7 @@ export function frozenComparison(data: { frozen?: boolean; races?: any[] }) {
   });
   const scored = races.filter(r=>r.top4IntersectCount != null);
   const threes = scored.filter(r=>r.top3IntersectCount != null);
-  return {races,summary:scored.length ? {racesEvaluated:scored.length,
+  return {races,rebuild:data.snapshot?.rebuild ?? null,summary:scored.length ? {racesEvaluated:scored.length,
     top4AvgIntersect:scored.reduce((s,r)=>s+(r.top4IntersectCount ?? 0),0)/scored.length,
     top3AvgIntersect:threes.length ? threes.reduce((s,r)=>s+(r.top3IntersectCount ?? 0),0)/threes.length : null} : null};
 }

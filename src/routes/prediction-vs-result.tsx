@@ -29,6 +29,7 @@ import { frozenComparison } from '@/lib/frozen-comparison';
 import { Button } from '@/components/ui/button';
 import { getViewerFrozenRacing } from "@/lib/frozen-reconciliation.functions";
 import { RedactedNote } from "@/components/tx/RedactedNote";
+import { frozenSourceLabel } from "@/lib/freeze-provenance";
 
 /** 每個讀取最多等 15 秒（即時重算 20 秒），失敗只重試一次，之後顯示錯誤同重新讀取掣，唔會無限「載入中」。 */
 const PVR_TIMEOUT_MS = 15_000;
@@ -454,7 +455,7 @@ function ComparePage() {
               {picksSourceLabel}
               {frozenAlpha != null ? ` · α=${frozenAlpha.toFixed(2)}` : ""} · TOP 4
               <span className="mt-0.5 block font-sans-tc text-[10px] font-bold tracking-normal text-ink-3">
-                {frozenTop4.length ? (legacy ? "舊紀錄，未經原始副本核實" : "已核實原始凍結副本") : "原凍結核對中"}
+                {frozenSourceLabel({ legacy, hasFrozen: frozenTop4.length > 0, rebuild: frozen.data?.rebuild })}
               </span>
 
             </small>

@@ -34,6 +34,7 @@ function gates(s: any): Gate[] {
     { key: "avg4", label: "四揀平均中匹數", status: gate(avg4, 3, 2.5), note: `天喜LGB 排名預測四匹，目標平均命中三匹：${avg4 ?? "—"} / 4（目標 3.0，警戒 2.5）` },
     { key: "top3", label: "三甲任中率", status: gate(top3, 60, 45), note: `${pctRate(top3)}（門檻 60% / 45%）` },
     { key: "trio", label: "三重彩覆蓋", status: gate(n(s?.trioHitRate), 10, 5), note: `天喜LGB 四匹混合複式中三重彩，目標門檻 10%：${pctRate(s?.trioHitRate)}` },
+    // 用字決定（2026-11-18 用戶決定）：監控頁維持「賽季閘」「休季期間」，唔改做「馬季」；其他頁改用字前先問用戶。
     { key: "season", label: "賽季閘", status: races ? "PASS" : "WATCH", note: "休季期間無當日 live 曲線屬預期" },
     {
       key: "lock",

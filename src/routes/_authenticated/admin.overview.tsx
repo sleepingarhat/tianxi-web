@@ -4,6 +4,7 @@ import { AdminHead, CountUp, Kpi, Panel, StatusBadge, type Status } from "@/comp
 import { ago, useEngineHealth, useLockState, useModelVersions, useRacingHealth, useRollup } from "@/components/admin/data";
 import { useCurrentOps } from "@/components/admin/useCurrentOps";
 import { hkDateTime } from "@/lib/hkTime";
+import { lockSummary } from "@/lib/lock-summary";
 
 export const Route = createFileRoute("/_authenticated/admin/overview")({
   head: () => ({ meta: [{ title: "系統總覽 · 天喜監控端" }, { name: "description", content: "系統總覽 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:title", content: "系統總覽 · 天喜監控端" }, { property: "og:description", content: "系統總覽 · 天喜監控端：香港賽馬專用監控與唯讀對帳。" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex" }] }),
@@ -30,6 +31,7 @@ function Overview() {
     },
   ];
 
+  const lockView = lockSummary(lock.data);
   const refresh = () => { ops.refresh(); lock.refetch(); };
 
   return (
@@ -38,7 +40,7 @@ function Overview() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="賽馬引擎守門" value={eh.data?.overall ?? "—"} tone={eh.data?.overall === "PASS" ? "win" : "gold"} sub={`${eh.data?.counts?.pass ?? "—"} 過 · ${eh.data?.counts?.watch ?? 0} 留意 · ${eh.data?.counts?.fail ?? 0} 失敗`} />
         <Kpi label="四揀平均中匹數（90 日）" value={<CountUp value={roll.data?.top4AvgIntersect} digits={2} />} tone="gold" sub={`${roll.data?.racesEvaluated ?? "—"} 場`} />
-        <Kpi label="今日賽馬鎖定" value={lock.data?.locked ? "已鎖" : lock.data ? "未鎖" : "—"} tone={lock.data?.locked ? "win" : undefined} sub={lock.data ? `${lock.data.date} · ${lock.data.frozenRows ?? 0} 行凍結` : "—"} />
+        <Kpi label="今日賽馬鎖定" value={lockView.value} tone={lockView.locked ? "win" : undefined} sub={lockView.sub} />
         <Kpi label="現時失敗" value={<CountUp value={wfFail} />} tone={wfFail ? "lose" : "win"} sub="與日誌共用核對範圍" />
       </div>
 
@@ -57,7 +59,7 @@ function Overview() {
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         <Panel title="今日預測發布" en="Publish">
           <ul className="space-y-2 text-[12px]">
-            <li className="flex gap-2"><span className="text-ink-3">賽馬</span><span className="ml-auto text-ink-2">{lock.data ? `${lock.data.venue ?? ""} 首場 ${hkDateTime(lock.data.firstPostAt)} · 鎖定 ${hkDateTime(lock.data.lockAt)}` : "今日無賽事"}</span></li>
+            <li className="flex gap-2"><span className="text-ink-3">賽馬</span><span className="ml-auto text-ink-2">{lockView.meeting && lock.data ? `${lock.data.venue ?? ""} 首場 ${hkDateTime(lock.data.firstPostAt)} · 鎖定 ${hkDateTime(lock.data.lockAt)}` : "今日無賽事"}</span></li>
           </ul>
         </Panel>
         <Panel title="現行模型版本" en="Active versions" right={<Link to="/admin/model-versions" className="text-[10px] text-gold">全部</Link>}>

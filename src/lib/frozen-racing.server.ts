@@ -7,6 +7,7 @@ import { officialRaceMetric } from './racing-official-metrics';
 import { mergeMeetingMetadata, type RacingMeetingMetadata } from './racing-meeting-metadata';
 import { readChangesEvidence, changesAwareStatus } from './changes-evidence';
 import { optionalRacingReference } from './optional-racing-reference';
+import { rebuildProvenance } from './freeze-provenance';
 
 /** SELECT only. Never calls compute, capture or recovery. */
 export async function readFrozenRacing(date: string) {
@@ -94,5 +95,5 @@ export async function readFrozenRacing(date: string) {
       resultsEvidence: cloudResults.find(r=>r.raceNumber===raceNumber) ? {source:'lovable-cloud-official-archive',complete:true,sha256:cloudResults.find(r=>r.raceNumber===raceNumber)?.sha256,dividendsVerified:false} : {source:'legacy-results',complete:null,dividendsVerified:false},
     };
   });
-  return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt:new Date().toISOString(),snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock'},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:snap?{source:snap.source_url,sha256:snap.sha256,fetchedAt:snap.fetched_at,count:officialChanges.length,readOk:true}:changesReadOk?null:{readOk:false,count:null},resultsSource:'official-race-results',races };
+  return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt:new Date().toISOString(),snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock',rebuild:rebuildProvenance(snapshot)},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:snap?{source:snap.source_url,sha256:snap.sha256,fetchedAt:snap.fetched_at,count:officialChanges.length,readOk:true}:changesReadOk?null:{readOk:false,count:null},resultsSource:'official-race-results',races };
 }
