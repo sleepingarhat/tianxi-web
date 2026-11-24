@@ -1,14 +1,22 @@
 import { summarizeOfficialMetrics, type OfficialMetricInput } from './racing-official-metrics';
+import { displayFinishPosition, placedHorseNumbers } from './race-settlement-display';
 /** View adapter: verified originals only, never alternative selections for KPI. */
 export function resultsAudit(snapshot: { races: any[] }) {
   const races = snapshot.races.map(r => {
-    if (r.redacted) return { ...r, actualTop4: (r.actualTop4 ?? []).map((n: number, i: number) => ({ ...r.results?.find((p: any) => p.horseNumber === n), horseNumber: n, position: i + 1 })) };
+    if (r.redacted) return { ...r, actualTop4: (r.actualTop4 ?? []).map((n: number, i: number) => {
+      const result = r.results?.find((p: any) => p.horseNumber === n);
+      return { ...result, horseNumber: n, position: displayFinishPosition(result?.finishingPosition, i) };
+    }) };
     const input = r.metricInput as OfficialMetricInput;
     const eligible = r.officialMetric.eligible;
-    const top3 = new Set(input.actualTop4.slice(0, 3));
+    const placedTop3 = placedHorseNumbers(r.results, 3);
+    const top3 = placedTop3.complete ? new Set(placedTop3.numbers) : new Set(input.actualTop4.slice(0, 3));
     const top3Hits = eligible ? input.original.slice(0, 3).filter(n => top3.has(n)).length : null;
     const predictedTop4 = input.original.map((n, i) => ({ ...r.picks.find((p: any) => p.horseNumber === n), horseNumber: n, rank: i + 1, hit: eligible && input.actualTop4.includes(n) }));
-    const actualTop4 = input.actualTop4.map((n, i) => ({ ...r.picks.find((p: any) => p.horseNumber === n), ...r.results.find((p: any) => p.horseNumber === n), horseNumber: n, position: i + 1, hit: eligible && input.original.includes(n) }));
+    const actualTop4 = input.actualTop4.map((n, i) => {
+      const result = r.results.find((p: any) => p.horseNumber === n);
+      return { ...r.picks.find((p: any) => p.horseNumber === n), ...result, horseNumber: n, position: displayFinishPosition(result?.finishingPosition, i), hit: eligible && input.original.includes(n) };
+    });
     return { ...r, predictedTop4, actualTop4, top4IntersectCount: r.officialMetric.originalHits,
       top3IntersectCount: top3Hits, top3AnyHit: eligible ? Number(top3Hits) > 0 : null,
       trioHit: eligible ? top3Hits === 3 : null, first4Hit: eligible ? r.officialMetric.originalHits === 4 : null };

@@ -3,7 +3,9 @@
  * 現行 /api/meetings/smart/current 對已出正式排位的賽日仍會回 isEntryListOnly=true。
  */
 
-export type CardStatus = "fixture" | "entries" | "declared" | "resulted";
+import { raceVoidOf } from "./race-settlement-display";
+
+export type CardStatus = "fixture" | "entries" | "declared" | "resulted" | "cancelled";
 export type DrawStatus = "unavailable" | "published";
 
 const CARD_STATUS: Record<CardStatus, string> = {
@@ -11,6 +13,7 @@ const CARD_STATUS: Record<CardStatus, string> = {
   entries: "已報名",
   declared: "正式排位",
   resulted: "已有賽果",
+  cancelled: "取消",
 };
 
 const CARRIED_MIN = 80;
@@ -19,7 +22,15 @@ const CARRIED_MAX = 180;
 export function cardStatusOf(input: {
   cardStatus?: string | null | undefined;
   isDeclaredCard?: boolean | null | undefined;
+  status?: string | null | undefined;
+  cancelled?: boolean | null | undefined;
+  void?: boolean | null | undefined;
+  refund?: boolean | null | undefined;
+  label?: string | null | undefined;
+  reason?: string | null | undefined;
+  officialMessage?: string | null | undefined;
 }): CardStatus | null {
+  if (raceVoidOf(input)) return "cancelled";
   const raw = input.cardStatus;
   if (raw === "fixture" || raw === "entries" || raw === "declared" || raw === "resulted") return raw;
   if (input.isDeclaredCard === true) return "declared";
@@ -48,18 +59,20 @@ export function effectiveDrawStatus(
   return drawStatusOf(race?.drawStatus) ?? drawStatusOf(meeting?.drawStatus);
 }
 
+type CardStatusInput = Parameters<typeof cardStatusOf>[0];
+
 export function effectiveCardStatus(
-  race?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
-  meeting?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
+  race?: CardStatusInput | null,
+  meeting?: CardStatusInput | null,
 ): CardStatus | null {
   return cardStatusOf(race ?? {}) ?? cardStatusOf(meeting ?? {});
 }
 
 /** 場次、賽日，再到正在顯示嘅賽事。單場賽果接口往往冇 cardStatus。 */
 export function displayedCardStatus(
-  race?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
-  meeting?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
-  displayed?: { cardStatus?: string | null | undefined; isDeclaredCard?: boolean | null | undefined } | null,
+  race?: CardStatusInput | null,
+  meeting?: CardStatusInput | null,
+  displayed?: CardStatusInput | null,
 ): CardStatus | null {
   return effectiveCardStatus(race, meeting) ?? cardStatusOf(displayed ?? {});
 }
@@ -249,6 +262,7 @@ export function meetingRacesEmptyLabel(status: CardStatus | null): string {
   if (status === "fixture") return "賽期已公布，出賽名單未公布";
   if (status === "entries") return "已報名，暫未讀到出賽名單";
   if (status === "declared") return "正式排位暫未讀到";
+  if (status === "cancelled") return "此場賽事取消";
   return "此日未有場次資料";
 }
 

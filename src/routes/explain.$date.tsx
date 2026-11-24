@@ -92,7 +92,7 @@ function RaceBlock({ r }: { r: ExplainRace }) {
           <p className="mb-1 text-[11px] font-medium tracking-[0.04em] text-ink-3">實際頭 4</p>
           {r.actualTop4.map((a) => (
             <div
-              key={a.position}
+              key={`${a.position}-${a.horseNumber}`}
               className={`mb-1 rounded-[6px] border px-2 py-1.5 ${
                 a.inPicks ? "border-win/40 bg-win/5" : "border-hairline bg-paper"
               }`}
@@ -110,6 +110,7 @@ function RaceBlock({ r }: { r: ExplainRace }) {
           ))}
         </div>
       </div>
+      {r.actualTop4.some((a, i) => r.actualTop4.findIndex((b) => b.position === a.position) !== i) ? <p className="mt-1 text-[11px] text-ink-3">平頭名次照馬會公布。</p> : null}
 
       <div className="mt-2 flex flex-wrap gap-1.5">
         {r.sixup_leg != null ? <Pill tone={r.sixup_leg ? "win" : "ink"}>六環單關 {r.sixup_leg ? "包到" : "未包"}</Pill> : null}
