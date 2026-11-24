@@ -78,7 +78,7 @@ export async function syncHkjcEvidenceToRepository() {
     }
     if (added) {
       await writeManifestWithConflictRetry({
-        initial: { manifest, sha: current?.sha },
+        initial: current ? { manifest, sha: current.sha } : { manifest },
         pending,
         read: async () => {
           const latest = await read(manifestPath);

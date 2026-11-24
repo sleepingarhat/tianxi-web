@@ -131,7 +131,7 @@ it('re-reads the manifest on 409 and retries with the fresh SHA instead of hard-
       },
     }),
     write: async (text, sha) => {
-      writes.push({ sha, text });
+      writes.push(sha === undefined ? { text } : { sha, text });
       return writes.length === 1 ? { ok: false, status: 409 } : { ok: true, status: 200 };
     },
   });
