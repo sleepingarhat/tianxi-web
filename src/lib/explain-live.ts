@@ -45,7 +45,10 @@ export function mapHitRate(date: string, j: any): ExplainMeeting | null {
           scoreSource: p.scoreSource ?? null,
           shapTop5: null,
         })),
-        actualTop4: r.actualTop4.slice(0, 4).map((a: any) => ({
+        actualTop4: (Array.isArray(r.actualTop4) ? r.actualTop4 : []).filter((a: any) => {
+          const position = Number(a?.position);
+          return !Number.isInteger(position) || (position >= 1 && position <= 4);
+        }).map((a: any) => ({
           position: a.position,
           horseNumber: a.horseNumber ?? null,
           nameCh: a.nameCh ?? null,

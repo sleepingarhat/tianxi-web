@@ -21,6 +21,9 @@ import { canonicalHorseId, canonicalRaceId, type Meeting, type RaceHorse, type R
 import { brandOf, profileForRunner, reservesForRace } from "@/lib/official-records";
 
 import { OfficialLink, RaceFilesBlock, ReserveList, RunnerProfileStrip, useRacecardOfficial, type RacecardOfficial } from "./RacecardOfficial";
+import { raceVoidOf } from "@/lib/race-settlement-display";
+
+import { RaceVoidNotice } from "./RaceVoidNotice";
 import { Pill, Scroller, Silks, Table, Td } from "./ui";
 
 export function MeetingStatusPills({
@@ -39,7 +42,7 @@ export function MeetingStatusPills({
   if (!label && !draw) return null;
   return (
     <span className="flex flex-wrap items-center gap-1.5">
-      {label ? <Pill tone={status === "declared" || status === "resulted" ? "gold" : "ink"}>{label}</Pill> : null}
+      {label ? <Pill tone={status === "cancelled" ? "lose" : status === "declared" || status === "resulted" ? "gold" : "ink"}>{label}</Pill> : null}
       {draw ? <Pill>{draw}</Pill> : null}
     </span>
   );
@@ -76,17 +79,22 @@ function RunnerRoster({
   official: RacecardOfficial;
 }) {
   const horses = race.horses || [];
+  const voided = raceVoidOf(race);
   const status = effectiveCardStatus(race, meeting);
   const drawStatus = effectiveDrawStatus(race, meeting);
   const declared = showsDeclaredCard(status);
+  if (voided && !horses.length) return <RaceVoidNotice race={voided} />;
   if (!horses.length) return <p className="py-2 text-[12px] text-ink-3">此場未有馬匹</p>;
   if (!declared) {
     return (
+      <>
+      {voided ? <RaceVoidNotice race={voided} /> : null}
       <ul className="divide-y divide-hairline">
         {horses.map((horse) => (
           <EntryRow key={horse.id || horse.code || horse.nameCh} horse={horse} />
         ))}
       </ul>
+      </>
     );
   }
   const labels = ["檔位", imposedWeightLabel(race.title), "排位體重"];
@@ -191,19 +199,22 @@ export function MeetingDayPanel({
             const open = race.id === activeRaceId;
             const raceId = canonicalRaceId(race.id);
             const horses = race.horses || [];
+            const voided = raceVoidOf(race);
             return (
               <div key={race.id}>
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={() => onRace(race.id)} className="flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left">
                     <span className="tabnum w-7 shrink-0 font-mono-tx text-[11px] font-bold text-gold">R{race.raceNumber}</span>
                     <span className="min-w-0 flex-1 truncate text-[12px]">{race.title || `第 ${race.raceNumber} 場`}</span>
-                    <span className="tabnum shrink-0 font-mono-tx text-[11px] text-ink-3">
-                      {[raceDistance(race), horses.length ? `${horses.length} 匹` : ""].filter(Boolean).join(" · ")}
-                    </span>
+                    {voided ? <Pill tone="lose">{voided.label}</Pill> : (
+                      <span className="tabnum shrink-0 font-mono-tx text-[11px] text-ink-3">
+                        {[raceDistance(race), horses.length ? `${horses.length} 匹` : ""].filter(Boolean).join(" · ")}
+                      </span>
+                    )}
                   </button>
-                  {declared && raceId ? (
+                  {(declared || voided) && raceId ? (
                     <Link to="/race" search={{ id: raceId }} className="shrink-0 text-[11px] font-bold text-gold">
-                      排位表 →
+                      {voided ? "場次 →" : "排位表 →"}
                     </Link>
                   ) : null}
                 </div>

@@ -20,4 +20,7 @@ describe("保留展示期間場次狀態", () => {
   it("當日賽事開跑未有賽果仍係進行中", () => {
     expect(raceRunStatus({ countdownLabel: "已開跑" })).toBe("進行中");
   });
+  it("單場取消唔標完場", () => {
+    expect(raceRunStatus({ countdownLabel: "已開跑", meetingPast: true, voided: true })).toBe("取消");
+  });
 });
