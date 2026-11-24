@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingStatusPills } from "@/components/tx/MeetingDayPanel";
+import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
+import { raceVoidOf } from "@/lib/race-settlement-display";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Scroller, Table, Td } from "@/components/tx/ui";
 import { effectiveCardStatus, effectiveDrawStatus, imposedWeightLabel, runnerMeasures, showsDeclaredCard } from "@/lib/meeting-card";
 import { canonicalRaceId, fmtMeetingDate, txApi } from "@/lib/tx-api";
@@ -41,6 +43,7 @@ function PoolOddsPage() {
   const horses = [...(race?.horses || [])].sort(
     (a, b) => (a.winOdds ?? 999) - (b.winOdds ?? 999),
   );
+  const voided = raceVoidOf(race);
   const cardStatus = effectiveCardStatus(race, meeting.data);
   const drawStatus = effectiveDrawStatus(race, meeting.data);
   const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
@@ -66,7 +69,7 @@ function PoolOddsPage() {
                 on ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-2"
               }`}
             >
-              R{r.raceNumber}
+              R{r.raceNumber}{raceVoidOf(r) ? " 取消" : ""}
             </button>
           );
         })}
@@ -93,6 +96,8 @@ function PoolOddsPage() {
           <Loading />
         ) : meeting.error ? (
           <ErrorNote error={meeting.error} />
+        ) : voided ? (
+          <RaceVoidNotice race={voided} />
         ) : horses.length ? (
           <Scroller>
           <Table head={["馬匹", ...measureLabels, "賠率", "熱度"]}>
