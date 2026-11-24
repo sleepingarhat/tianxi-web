@@ -1,9 +1,12 @@
 import { expect, it } from 'vitest';
 import {
+  EVIDENCE_METADATA_SELECT,
   HKJC_EVIDENCE_CONTENTS_BASE,
   HKJC_EVIDENCE_FAILURE_LEAD,
+  HKJC_EVIDENCE_READ_FAILURE,
   HKJC_EVIDENCE_REPO,
   HKJC_EVIDENCE_SYNC_ALERT_KEY,
+  evidenceRawHtmlFilters,
   formatHkjcEvidenceFailureAlert,
   formatHkjcEvidenceRecoveryAlert,
   mergeManifestSnapshots,
@@ -79,8 +82,77 @@ it('paginates past 2000 rows instead of hard-failing the job', async () => {
   expect(pages).toEqual([[0, 999], [1000, 1999], [2000, 2999]]);
 });
 
-it('still stops if a page cannot be read completely', async () => {
-  await expect(paginateEvidenceRows(async () => ({ data: null, error: { message: 'boom' } }))).rejects.toThrow('官方事件未能完整讀取，停止同步');
+it('stops and names the sanitized supabase code and message when a page cannot be read', async () => {
+  const token = 'ghp_' + 'b'.repeat(36);
+  const jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.aaaa.bbbb';
+  await expect(paginateEvidenceRows(async () => ({
+    data: null,
+    error: { code: '57014', message: `canceling statement due to statement timeout Bearer ${token}` },
+  }))).rejects.toThrow(`${HKJC_EVIDENCE_READ_FAILURE}（code=57014 message=canceling statement due to statement timeout [redacted]）`);
+  await expect(paginateEvidenceRows(async () => ({
+    data: null,
+    error: { message: `status 401 ${jwt}` },
+  }))).rejects.toThrow(`${HKJC_EVIDENCE_READ_FAILURE}（message=status 401 [redacted]）`);
+  await expect(paginateEvidenceRows(async () => ({ data: null, error: { code: 'PGRST000' } }))).rejects.toThrow(
+    `${HKJC_EVIDENCE_READ_FAILURE}（code=PGRST000）`,
+  );
+});
+
+it('stops without inventing a cause when the page has no supabase error fields', async () => {
+  await expect(paginateEvidenceRows(async () => ({ data: null, error: null }))).rejects.toThrow(
+    new RegExp(`^${HKJC_EVIDENCE_READ_FAILURE}$`),
+  );
+  await expect(paginateEvidenceRows(async () => ({ data: null, error: { details: 'secret row' } }))).rejects.toThrow(
+    new RegExp(`^${HKJC_EVIDENCE_READ_FAILURE}$`),
+  );
+});
+
+it('truncates a long supabase message and keeps the thrown error inside the alert budget', async () => {
+  const message = 'y'.repeat(400);
+  let caught: Error | null = null;
+  try {
+    await paginateEvidenceRows(async () => ({ data: null, error: { code: '54000', message } }));
+  } catch (error) {
+    caught = error as Error;
+  }
+  if (!(caught instanceof Error)) throw new Error('expected read failure');
+  expect(caught.message.startsWith(`${HKJC_EVIDENCE_READ_FAILURE}（code=54000 message=`)).toBe(true);
+  expect(caught.message.endsWith('…）')).toBe(true);
+  expect(caught.message.length).toBeLessThanOrEqual(240);
+  expect(caught.message).not.toContain('y'.repeat(161));
+});
+
+it('selects manifest metadata without raw_html, then addresses one pending body', () => {
+  expect(EVIDENCE_METADATA_SELECT.hkjc_changes_snapshots).toBe('race_date,venue,source_url,sha256,fetched_at');
+  expect(EVIDENCE_METADATA_SELECT.hkjc_cancellation_snapshots).toBe('race_date,source_url,sha256,fetched_at');
+  expect(EVIDENCE_METADATA_SELECT.racing_dividend_snapshots).toBe('race_date,venue,source_url,source_sha256,fetched_at');
+  for (const select of Object.values(EVIDENCE_METADATA_SELECT)) expect(select).not.toContain('raw_html');
+
+  const sourceUrl = 'https://racing.hkjc.com/zh-hk/local/information/resultsall?RaceDate=2026/11/18';
+  expect(evidenceRawHtmlFilters('racing_dividend_snapshots', {
+    race_date: '2026-11-18', venue: 'HV', source_url: sourceUrl, sha256: 'abc',
+  })).toEqual([
+    { column: 'race_date', value: '2026-11-18' },
+    { column: 'venue', value: 'HV' },
+    { column: 'source_sha256', value: 'abc' },
+  ]);
+  expect(evidenceRawHtmlFilters('hkjc_changes_snapshots', {
+    race_date: '2026-11-25', venue: 'HV', source_url: 'https://racing.hkjc.com/zh-hk/local/information/changes', sha256: 'def',
+  })).toEqual([
+    { column: 'race_date', value: '2026-11-25' },
+    { column: 'venue', value: 'HV' },
+    { column: 'sha256', value: 'def' },
+  ]);
+  expect(evidenceRawHtmlFilters('hkjc_cancellation_snapshots', {
+    race_date: '2026-11-25', source_url: 'https://racing.hkjc.com/zh-hk/local/information/changes', sha256: 'ghi',
+  })).toEqual([
+    { column: 'race_date', value: '2026-11-25' },
+    { column: 'source_url', value: 'https://racing.hkjc.com/zh-hk/local/information/changes' },
+    { column: 'sha256', value: 'ghi' },
+  ]);
+  expect(() => evidenceRawHtmlFilters('racing_dividend_snapshots', {
+    race_date: '2026-11-18', source_url: sourceUrl, sha256: 'abc',
+  })).toThrow(HKJC_EVIDENCE_READ_FAILURE);
 });
 
 it('merges pending snapshots without rewriting or dropping already published ones', () => {
