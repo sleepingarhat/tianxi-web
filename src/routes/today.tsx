@@ -9,9 +9,7 @@ import { AppShell } from "@/components/tx/AppShell";
 import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNotice";
 import { RacingChangesNotice } from "@/components/tx/RacingChangesNotice";
 import { UpgradeCard } from "@/components/tx/gates/UpgradeCard";
-import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, TxCta } from "@/components/tx/ui";
-import { raceVoidOf } from "@/lib/race-settlement-display";
 import { cardAccess } from "@/lib/tier-projection";
 import { useTier } from "@/lib/useTier";
 import { useTodayPicks } from "@/lib/use-today-picks";
@@ -350,9 +348,8 @@ function TodayPage() {
                   const access = cardAccess(tier.tier, Number(r.raceNumber));
                   const start = cleanTime(r.startTime);
                   const top = rankedPicks(r.picks, 4);
-                  const voided = raceVoidOf(r);
-                  const hit = voided ? null : raceHit(r);
-                  const hitHorses = !voided && access === "full"
+                  const hit = raceHit(r);
+                  const hitHorses = access === "full"
                     ? hitHorseNumbers({
                         hitCount: hit,
                         shown: top,
@@ -365,7 +362,6 @@ function TodayPage() {
                     hitCount: hit,
                     countdownLabel: start ? countdown(r.startTime, new Date(nowMs), date) : "",
                     meetingPast: recentPast,
-                    voided: voided != null,
                   });
                   const meters = positiveDistance(r) ?? cardByRace.get(Number(r.raceNumber))?.distance ?? headerByRace.get(Number(r.raceNumber))?.distance ?? null;
                   return (
@@ -374,12 +370,11 @@ function TodayPage() {
                         <b className="font-serif-tc text-[14px]">第 {r.raceNumber} 場</b>
                         <span className="tabnum font-mono-tx text-[11px] text-ink-3">{start || "時間待定"}</span>
                         <span className="text-[11px] text-ink-3">{classDistanceLine(r.className || r.class, meters)}</span>
-                        <Pill tone={status === "取消" ? "lose" : status === "完場" ? "ink" : status === "進行中" ? "gold" : "ink"}>{status}</Pill>
+                        <Pill tone={status === "完場" ? "ink" : status === "進行中" ? "gold" : "ink"}>{status}</Pill>
                         {showPreliminaryUnlocked(phase, status) ? <Pill tone="gold">{PRELIMINARY_UNLOCKED_LABEL}</Pill> : null}
                         {typeof hit === "number" ? <Pill tone="win">命中 {hit}/4</Pill> : null}
                       </div>
                       <RaceHeaderLine header={headerByRace.get(Number(r.raceNumber))} />
-                      {voided ? <RaceVoidNotice race={voided} compact hideLabel /> : null}
                       {changeCounts.get(Number(r.raceNumber)) ? <p className="mt-0.5 text-[11px] text-lose">馬會更易 {changeCounts.get(Number(r.raceNumber))} 項（已存檔）</p> : null}
                       {access === "full" ? (
                         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -540,9 +535,8 @@ function NowCard({
       </Card>
     );
   }
-  const voided = raceVoidOf(race);
   const start = cleanTime(race.startTime);
-  const cd = voided ? voided.label : isRecentPastMeeting(meetingDate, new Date(nowMs)) ? "已完賽" : countdown(race.startTime, new Date(nowMs), meetingDate);
+  const cd = isRecentPastMeeting(meetingDate, new Date(nowMs)) ? "已完賽" : countdown(race.startTime, new Date(nowMs), meetingDate);
   const top = rankedPicks(race.picks, 5);
   const top4 = top.slice(0, 4);
   const fifth = top[4];
@@ -572,20 +566,16 @@ function NowCard({
     >
       <div className="mb-3 flex flex-wrap items-end gap-3">
         <div>
-          <p className="text-[11px] text-ink-3">{voided ? "賽事狀態" : "開跑倒數"}</p>
+          <p className="text-[11px] text-ink-3">開跑倒數</p>
           <p className="tabnum font-mono-tx text-[28px] font-bold leading-none text-ink">{cd || "—"}</p>
           <p className="mt-1 text-[11px] text-ink-3">{start ? `${start} HKT` : "時間待定"}</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {voided ? <Pill tone="lose">{voided.label}</Pill> : (
-            <>
-              <Pill>{race.className || race.class || "班次待公布"}</Pill>
-              <Pill>{distanceText(distanceM)}</Pill>
-              <Pill>{goingPill(goingLabel)}</Pill>
-              {trackText(header ?? { track: null, course: null }) ? <Pill>{trackText(header!)}</Pill> : null}
-              {ratingText(header?.ratingRange ?? null) ? <Pill>{ratingText(header!.ratingRange)}</Pill> : null}
-            </>
-          )}
+          <Pill>{race.className || race.class || "班次待公布"}</Pill>
+          <Pill>{distanceText(distanceM)}</Pill>
+          <Pill>{goingPill(goingLabel)}</Pill>
+          {trackText(header ?? { track: null, course: null }) ? <Pill>{trackText(header!)}</Pill> : null}
+          {ratingText(header?.ratingRange ?? null) ? <Pill>{ratingText(header!.ratingRange)}</Pill> : null}
         </div>
       </div>
       {header?.raceName || header?.prize ? (
@@ -595,7 +585,6 @@ function NowCard({
           <span className="ml-2 text-[11px] text-ink-3">來源：馬會排位表</span>
         </p>
       ) : null}
-      {voided ? <RaceVoidNotice race={voided} /> : null}
 
       {access === "full" ? (
         <>

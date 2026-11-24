@@ -22,7 +22,6 @@ import {
 } from "@/components/tx/ui";
 import { HitStrip, KpiTile, KV, Spark } from "@/components/tx/viz";
 import { fmtMeetingDate, num, txApi } from "@/lib/tx-api";
-import { formatMeetingQp } from "@/lib/race-settlement-display";
 import { useAuthState } from '@/lib/useAuthState';
 import { Button } from '@/components/ui/button';
 
@@ -116,7 +115,7 @@ export function TrackRecordDetails({ rollup }: { rollup: any }) {
                 </Td>
                 <Td>{num(m.top3AvgIntersect, 2)}</Td>
                 <Td>{num(m.top3AnyHitRate) + "%"}</Td>
-                <Td>{formatMeetingQp(m)}</Td>
+                <Td>{num(m.qpHitRate) + "%"}</Td>
                 <Td>{num(m.trioHitRate) + "%"}</Td>
                 <Td>{num(m.first4HitRate) + "%"}</Td>
               </tr>

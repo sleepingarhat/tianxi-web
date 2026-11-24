@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { Card, Empty, PageHead, Pill, Scroller, Stat, Table, Td } from "@/components/tx/ui";
@@ -8,9 +8,6 @@ import {
   CROSS_RACE_POOLS, DIVIDEND_KIND_LABEL, PROBE_LABEL, SELL_STATUS_LABEL, crossRaceDividends, dividendsByRace, hkd, poolLabel, raceSpan, summarizeStatus,
   type DividendRow, type ProbeRow,
 } from "@/lib/official-pools";
-import { raceVoidOf, type RaceVoid } from "@/lib/race-settlement-display";
-import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
-import { txApi } from "@/lib/tx-api";
 
 type Search = { date?: string | undefined; venue?: "ST" | "HV" | undefined };
 
@@ -184,19 +181,11 @@ function CrossDividendCard({ rows }: { rows: DividendRow[] }) {
   );
 }
 
-function RaceDividendsCard({ rows, past, voids }: { rows: DividendRow[]; past: boolean; voids: { raceNumber: number; voided: RaceVoid }[] }) {
+function RaceDividendsCard({ rows, past }: { rows: DividendRow[]; past: boolean }) {
   const races = dividendsByRace(rows);
-  const listed = new Set(races.map((race) => race.race));
-  const missingVoids = voids.filter((race) => !listed.has(race.raceNumber));
   return (
     <Card title="逐場官方派彩" en="Race dividends">
-      {missingVoids.map((race) => (
-        <section key={race.raceNumber} className="mb-3">
-          <h3 className="mb-1 font-serif-tc text-[14px] font-bold text-ink">第 {race.raceNumber} 場</h3>
-          <RaceVoidNotice race={race.voided} compact hideLabel />
-        </section>
-      ))}
-      {!races.length && !missingVoids.length ? <div className="tx-wide"><Empty label={past ? "呢個賽日已完賽，但官方派彩未收錄" : "呢個賽日未有收錄派彩（未完賽或未收料）"} /></div> : races.length ? (
+      {!races.length ? <div className="tx-wide"><Empty label={past ? "呢個賽日已完賽，但官方派彩未收錄" : "呢個賽日未有收錄派彩（未完賽或未收料）"} /></div> : (
         <div className="tx-wide grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {races.map(({ race, pools }) => (
             <section key={race} className="min-w-0 rounded-[8px] border border-hairline bg-paper px-2.5 py-2">
@@ -215,7 +204,7 @@ function RaceDividendsCard({ rows, past, voids }: { rows: DividendRow[]; past: b
             </section>
           ))}
         </div>
-      ) : null}
+      )}
       <p className="mt-2 text-[11px] leading-relaxed text-ink-3">金額以每 $10 一注計；馬會以部分單位公布嘅派彩（例如四重彩每 $1）已按比例換算，並列出原文。</p>
     </Card>
   );
@@ -238,16 +227,6 @@ function OfficialPoolsPage() {
   // 賽日翌日（香港時間）起仍冇派彩，就唔係「未完賽」，要如實講未收錄。
   const past = Boolean(m && m.date < hkToday());
   const raceCount = new Set(data.dividends.filter((r) => r.races.length === 1).map((r) => r.races[0])).size;
-  const meetingCard = useQuery({
-    queryKey: ["meeting", m?.date],
-    queryFn: () => txApi.meeting(m?.date ?? ""),
-    enabled: !!m?.date,
-    staleTime: 60_000,
-  });
-  const voids = (meetingCard.data?.races ?? []).flatMap((race) => {
-    const voided = raceVoidOf(race);
-    return voided ? [{ raceNumber: Number(race.raceNumber), voided }] : [];
-  });
 
   return (
     <AppShell>
@@ -277,7 +256,7 @@ function OfficialPoolsPage() {
                 <Stat label="最新探針" value={probeLatest("penetrometer")} sub={`撞錘 ${probeLatest("hammer")}`} />
               </div>
             </Card>
-            <RaceDividendsCard rows={data.dividends} past={past} voids={voids} />
+            <RaceDividendsCard rows={data.dividends} past={past} />
             <div className="grid min-w-0 items-start lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
               {cross.length ? <div className="min-w-0"><CrossDividendCard rows={cross} /></div> : null}
               <div className="min-w-0"><ProbeCard probes={data.probes} />{cross.length ? <StatusCard status={status} scrapedAt={scrapedAt} past={past} /> : null}</div>

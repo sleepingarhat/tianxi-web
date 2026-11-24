@@ -1,0 +1,11 @@
+DROP TRIGGER IF EXISTS membership_signup_gate ON auth.users;
+CREATE OR REPLACE FUNCTION public.open_membership_gate_if_ready() RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RETURN false; END $$;
+COMMENT ON FUNCTION public.open_membership_gate_if_ready() IS 'DEPRECATED: gate never opens automatically; admin_open_gate_now after owner approval';
+REVOKE ALL ON FUNCTION public.open_membership_gate_if_ready() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.membership_signup_gate() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.admin_open_gate_now() FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.admin_member_list() FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.admin_set_test_account(uuid, boolean) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_open_gate_now() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_member_list() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_set_test_account(uuid, boolean) TO authenticated;

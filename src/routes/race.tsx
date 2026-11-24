@@ -14,8 +14,6 @@ import { racePicksFromDay } from "@/lib/race-picks";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingStatusPills, RunnerFormStrip } from "@/components/tx/MeetingDayPanel";
-import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
-import { raceVoidOf } from "@/lib/race-settlement-display";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } from "@/components/tx/ui";
 import { displayedCardStatus, effectiveDrawStatus, runnerFormCells, runnerMeasures, showsDeclaredCard } from "@/lib/meeting-card";
 import { brandOf, profileForRunner, reservesForRace } from "@/lib/official-records";
@@ -100,7 +98,6 @@ function RacePage() {
   const liveWin = (n: unknown) => winOddsMap[String(n).padStart(2, "0")] ?? null;
   const livePla = (n: unknown) => plaOddsMap[String(n).padStart(2, "0")] ?? null;
   const horses: any[] = d?.horses || d?.entries || [];
-  const voided = raceVoidOf(fallbackRace) ?? raceVoidOf(race.data) ?? raceVoidOf(d);
   const cardStatus = displayedCardStatus(fallbackRace, meeting.data, d);
   const drawStatus = effectiveDrawStatus(fallbackRace, meeting.data);
   const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
@@ -152,25 +149,24 @@ function RacePage() {
       <PageHead
         en="Race card"
         title={d ? `第 ${d.raceNumber ?? raceNumber} 場 ${d.title || ""}` : "排位表"}
-        desc={voided ? voided.reason || voided.label : d ? `${d.class || ""} · ${d.distance || d.distanceM || ""}m · ${d.course || ""}` : undefined}
+        desc={d ? `${d.class || ""} · ${d.distance || d.distanceM || ""}m · ${d.course || ""}` : undefined}
       />
       {raceDate && officialVenue ? (
         <p className="mx-4 mt-3 text-[12px]">
           <Link to="/official-boards" search={{ date: raceDate, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
-          {entriesOnly || voided ? null : (
+          {entriesOnly ? null : (
             <Link to="/official-boards" search={{ date: raceDate, venue: officialVenue, board: "finish-photos", raceNo: raceNumber }} className="ml-3 font-bold text-gold underline underline-offset-2">終點照片 →</Link>
           )}
         </p>
       ) : null}
 
-      <Card title={voided ? "賽事取消" : entriesOnly ? "報名名單" : "排位"} en={voided ? "Cancelled" : entriesOnly ? "Entries" : "Card"}>
+      <Card title={entriesOnly ? "報名名單" : "排位"} en={entriesOnly ? "Entries" : "Card"}>
         {meeting.data?.drawNote || cardStatus ? (
           <div className="mb-3 space-y-1.5">
             <MeetingStatusPills meeting={{ ...meeting.data, cardStatus, drawStatus, drawNote: meeting.data?.drawNote }} />
             {meeting.data?.drawNote ? <p className="text-[12px] font-bold leading-relaxed text-ink">{meeting.data.drawNote}</p> : null}
           </div>
         ) : null}
-        {voided && horses.length ? <RaceVoidNotice race={voided} /> : null}
         {loading ? (
           <Loading />
         ) : !horses.length && race.error ? (
@@ -248,8 +244,6 @@ function RacePage() {
               );
             })}
           </div>
-        ) : voided ? (
-          <RaceVoidNotice race={voided} />
         ) : (
           <Empty label={entriesOnly ? "此場尚無報名名單" : "此場尚無排位資料"} />
         )}
@@ -272,7 +266,6 @@ function RacePage() {
           <Loading />
         ) : dayRacePicks.length ? (
           <div className="divide-y divide-hairline">
-            {voided ? <p className="pb-2 text-[12px] leading-relaxed text-ink-3">凍結四揀保留。呢場作廢，唔計入戰績。</p> : null}
             {dayRacePicks.map((p: any) => (
 
               <div key={p.horseNumber} className="grid grid-cols-[26px_32px_minmax(0,1fr)_auto] items-center gap-2 py-2">
@@ -287,8 +280,6 @@ function RacePage() {
               </div>
             ))}
           </div>
-        ) : voided ? (
-          <p className="text-[12px] leading-relaxed text-ink-2">凍結四揀保留。呢場作廢，唔計入戰績。</p>
         ) : (
           <Empty label="尚未產生預測" />
         )}

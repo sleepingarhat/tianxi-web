@@ -15,7 +15,6 @@ import { horseDisplayName } from './horse-name';
 import { freezePublicationPending } from './freeze-publication-window';
 import { mergeMeetingMetadata } from './racing-meeting-metadata';
 import { positiveDistance } from './today-dashboard';
-import { raceVoidOf } from './race-settlement-display';
 
 export type MergedPick = {
   horseNumber: number;
@@ -112,9 +111,8 @@ export function useTodayPicks() {
 
   const races = (picks.data?.races || []).map((r: any) => {
     const info = (meeting.data?.races || []).find((x: any) => Number(x.raceNumber) === Number(r.raceNumber)) as
-      | { id?: string; title?: string | null; class?: string | null; className?: string | null; distance?: number | null; distanceM?: number | null; going?: string | null; track?: string | null; course?: string | null; startTime?: string | null; status?: string | null; cardStatus?: string | null; cancelled?: boolean | null; void?: boolean | null; refund?: boolean | null; label?: string | null; reason?: string | null; officialMessage?: string | null }
+      | { id?: string; title?: string | null; class?: string | null; className?: string | null; distance?: number | null; distanceM?: number | null; going?: string | null; track?: string | null; course?: string | null; startTime?: string | null }
       | undefined;
-    const voided = raceVoidOf(info) ?? raceVoidOf(r);
     // 途程／地況／班次只作顯示：預測冇欄就用排位表，唔寫返凍結。
     const meta = mergeMeetingMetadata(
       {
@@ -152,15 +150,6 @@ export function useTodayPicks() {
       going: meta.going,
       track: meta.track ?? r.track ?? null,
       course: meta.course ?? r.course ?? null,
-      status: info?.status ?? r.status ?? null,
-      cardStatus: info?.cardStatus ?? r.cardStatus ?? null,
-      cancelled: info?.cancelled ?? r.cancelled ?? null,
-      void: info?.void ?? r.void ?? null,
-      refund: info?.refund ?? r.refund ?? null,
-      label: info?.label ?? r.label ?? null,
-      reason: info?.reason ?? r.reason ?? null,
-      officialMessage: info?.officialMessage ?? r.officialMessage ?? null,
-      voided: voided != null,
       picks: (r.picks || []).map((p: any): MergedPick => {
         const candidate = entryIndex.get(`${r.raceNumber}-${p.horseNumber}`);
         // Never attach another runner's draw, silks, names or connections by number alone.

@@ -8,9 +8,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { AppShell } from "@/components/tx/AppShell";
 import { MeetingCancellationNotice } from "@/components/tx/MeetingCancellationNotice";
-import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
-import { raceVoidOf } from "@/lib/race-settlement-display";
-import { positiveDistance } from "@/lib/today-dashboard";
 import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Scroller, Silks, Table, Td } from "@/components/tx/ui";
 import { cleanTime, fmtMeetingDate, pct } from "@/lib/tx-api";
 import { useTodayPicks } from "@/lib/use-today-picks";
@@ -66,11 +63,8 @@ function CardsPage() {
       ) : races.length ? (
         races.map((r: any) => {
           const start = cleanTime(r.startTime);
-          const voided = raceVoidOf(r);
-          const meters = positiveDistance(r);
           const access = cardAccess(tier.tier, Number(r.raceNumber));
           if (access !== "full") return <Card key={r.raceNumber} title={`第 ${r.raceNumber} 場`} en={start || "開跑時間待定"}>
-            {voided ? <RaceVoidNotice race={voided} compact /> : null}
             {tier.loading ? <Loading label="核對會籍中…" /> : access === "name" ? <p className="font-serif-tc font-bold text-ink">{r.picks?.[0]?.nameCh || "首選待定"}</p> : null}
             {!tier.loading && <UpgradeCard inline need={access === "name" ? "pro" : "registered"} feature={access === "name" ? "全日逐場預測" : "其他場次首選"} />}
           </Card>;
@@ -79,7 +73,7 @@ function CardsPage() {
             <Card
               key={r.raceNumber}
               title={`第 ${r.raceNumber} 場`}
-              en={[meters ? `${meters}米` : voided ? voided.label : "途程待定", start].filter(Boolean).join(" · ")}
+              en={`${r.distance}m${start ? ` · ${start}` : ""}`}
               action={
                 r.raceId ? (
                   <Link to="/race" search={{ id: r.raceId }} className="text-[11px] font-bold text-gold">
@@ -88,9 +82,7 @@ function CardsPage() {
                 ) : null
               }
             >
-              {voided ? <RaceVoidNotice race={voided} compact /> : null}
               <div className="mb-2 flex flex-wrap gap-1.5">
-                {voided ? <Pill tone="lose">{voided.label}</Pill> : null}
                 <Pill>{r.going || "場地待公布"}</Pill>
                 <Pill>{racingClassLabel(r.class ?? r.className)}</Pill>
                 {r.scoreSource ? (

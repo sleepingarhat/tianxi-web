@@ -15,8 +15,6 @@ import {
 } from "@/components/tx/ui";
 import { HitStrip, KpiTile, KV } from "@/components/tx/viz";
 import { fmtMeetingDate, num, txApi } from "@/lib/tx-api";
-import { auditStatusLabel, raceVoidOf } from "@/lib/race-settlement-display";
-import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
 import { meetingCancellationForDate } from "@/lib/meeting-status";
 import { resultsAudit } from "@/lib/results-audit";
 import { FrozenEvidenceError, frozenEvidenceCodeOf, type FrozenEvidenceCode } from "@/lib/frozen-racing";
@@ -122,17 +120,6 @@ function ResultsPage() {
     divByRace.set(d.race_no, arr);
   }
 
-  const dayMeeting = useQuery({
-    queryKey: ["meeting", activeDate],
-    queryFn: () => txApi.meeting(activeDate ?? ""),
-    enabled: !!activeDate,
-    staleTime: 60_000,
-  });
-  const voidByRace = new Map<number, NonNullable<ReturnType<typeof raceVoidOf>>>();
-  for (const race of dayMeeting.data?.races ?? []) {
-    const voided = raceVoidOf(race);
-    if (voided) voidByRace.set(Number(race.raceNumber), voided);
-  }
   const activeVenue = meetings.find((meeting) => meeting.date === activeDate)?.venue;
   const officialVenue = activeVenue === "ST" || activeVenue === "HV" ? activeVenue : null;
 
@@ -202,7 +189,7 @@ function ResultsPage() {
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper p-2.5">
               <p className="mb-1.5 text-[11px] font-bold text-ink-3">逐場四揀達標（≥3 匹）</p>
-              <HitStrip hits={races.map((r: any) => (voidByRace.has(Number(r.raceNumber)) ? "void" : r.top4IntersectCount == null ? null : r.top4IntersectCount >= 3))} />
+              <HitStrip hits={races.map((r: any) => (r.top4IntersectCount == null ? null : r.top4IntersectCount >= 3))} />
             </div>
             <div className="rounded-[10px] border border-hairline bg-paper px-2.5 py-1.5">
               <KV k="三重彩（頭三名複式）" v={`${num(s.trioHitRate)}% · ${s.trioHits} 場`} />
@@ -223,32 +210,23 @@ function ResultsPage() {
           <div><EvidenceNote error={hr.error} date={activeDate} /><Button variant="outline" size="sm" onClick={() => hr.refetch()}><RotateCw />重新核對</Button></div>
         ) : races.length ? (
           <div className="divide-y divide-hairline">
-            {races.map((r) => {
-              const voided = voidByRace.get(Number(r.raceNumber)) ?? null;
-              return r.redacted ? (
-              <article key={r.raceNumber} className="py-2.5"><b className="text-gold">R{r.raceNumber}</b>{voided ? <Pill tone="lose">{voided.label}</Pill> : null}<RedactedNote />{voided ? <RaceVoidNotice race={voided} compact hideLabel /> : <div className="text-sm text-ink-2">{(r.actualTop4 ?? []).map((a: any) => `${a.position}. ${a.horseNumber} ${a.nameCh ?? ""}`).join(" · ")}</div>}</article>
+            {races.map((r) => r.redacted ? (
+              <article key={r.raceNumber} className="py-2.5"><b className="text-gold">R{r.raceNumber}</b><RedactedNote /><div className="text-sm text-ink-2">{(r.actualTop4 ?? []).map((a: any) => `${a.position}. ${a.horseNumber} ${a.nameCh ?? ""}`).join(" · ")}</div></article>
             ) : (
               <details key={r.raceNumber} open={Number(r.raceNumber) === 1} className="py-2.5">
                 <summary className="flex cursor-pointer list-none items-center gap-2">
                   <span className="tabnum w-7 font-mono-tx text-[13px] font-bold text-gold">R{r.raceNumber}</span>
                   <span className="tabnum font-mono-tx text-[11px] text-ink-3">
-                    {voided ? "作廢，唔計入戰績" : `${r.distance == null ? "途程待核" : `${r.distance}m`} · ${r.going ?? "場地待核"}`}
+                    {r.distance == null ? "途程待核" : `${r.distance}m`} · {r.going ?? "場地待核"}
                   </span>
                   <span className="ml-auto flex gap-1">
-                    <Pill tone={voided ? "lose" : (r.top4IntersectCount ?? 0) >= 3 ? "win" : "ink"}>
-                      {auditStatusLabel({
-                        voided: voided != null,
-                        eligible: Boolean(r.officialMetric.eligible),
-                        hits: r.top4IntersectCount,
-                        invalidPrelock: r.metricInput.status === "invalid-prelock-input",
-                      })}
-                      {!voided && r.officialMetric.eligible && r.effectiveTop4?.withdrawn?.length ? `（有效${4 - r.effectiveTop4.withdrawn.length}匹）` : ""}
+                    <Pill tone={(r.top4IntersectCount ?? 0) >= 3 ? "win" : "ink"}>
+                      {r.officialMetric.eligible ? `原四揀中 ${r.top4IntersectCount}/4${r.effectiveTop4?.withdrawn?.length ? `（有效${4 - r.effectiveTop4.withdrawn.length}匹）` : ''}` : r.metricInput.status === "invalid-prelock-input" ? "鎖前輸入無效" : "待核，不計分"}
                     </Pill>
-                    {voided ? null : <Pill tone={r.top3AnyHit ? "win" : "ink"}>入頭三 {r.top3IntersectCount}</Pill>}
+                    <Pill tone={r.top3AnyHit ? "win" : "ink"}>入頭三 {r.top3IntersectCount}</Pill>
                   </span>
                   <span className="text-[11px] text-ink-3">▼</span>
                 </summary>
-                {voided ? <RaceVoidNotice race={voided} /> : null}
                 {r.changeClassification.hasWithdrawal && <p className="mt-2 text-xs text-ink-2">退出場次 · 原凍結保留{r.officialMetric.eligible ? "並計正式戰績" : "，不計命中或場次分母"}</p>}
                 {r.changeClassification.postLockJockeyChange && <p className="mt-2 text-xs text-ink-2">鎖後換騎 · 原四揀照計，不重算</p>}
                 <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -266,8 +244,8 @@ function ResultsPage() {
                     ))}
                   </div>
                   <div className="rounded-[8px] border border-hairline bg-paper p-2">
-                    <p className="mb-1 text-[11px] font-bold text-ink-3">{voided ? "官方賽果" : "官方頭四名"}</p>
-                    {voided ? <p className="text-[12px] leading-relaxed text-ink-2">{voided.label}。冇名次可比。</p> : (r.actualTop4 || []).map((a: any) => (
+                    <p className="mb-1 text-[11px] font-bold text-ink-3">官方頭四名</p>
+                    {(r.actualTop4 || []).map((a: any) => (
                       <div key={a.horseNumber} className="flex items-center gap-1.5 py-0.5">
                         <span className="tabnum w-4 font-mono-tx text-[11px] font-bold text-ink-3">{a.position}</span>
                         <span className="tabnum w-5 rounded-[3px] bg-deep px-0.5 text-center font-mono-tx text-[11px] font-bold text-deep-fg">
@@ -279,12 +257,11 @@ function ResultsPage() {
                     ))}
                   </div>
                 </div>
-                {!voided && (r.actualTop4 || []).some((a: any, i: number, list: any[]) => list.findIndex((b: any) => b.position === a.position) !== i) ? <p className="mt-1 text-[11px] text-ink-3">平頭名次照馬會公布。</p> : null}
-                {voided ? null : <div className="mt-1.5 flex flex-wrap gap-1">
+                <div className="mt-1.5 flex flex-wrap gap-1">
                   <Pill tone={r.trioHit ? "win" : "ink"}>三重彩</Pill>
                   <Pill tone={r.first4Hit ? "win" : "ink"}>四重彩</Pill>
-                </div>}
-                {voided ? null : (divByRace.get(Number(r.raceNumber)) ?? []).length ? (
+                </div>
+                {(divByRace.get(Number(r.raceNumber)) ?? []).length ? (
                   <div className="mt-1.5 rounded-[8px] border border-hairline bg-paper px-2 py-1.5">
                     <p className="mb-1 text-[11px] font-bold text-ink-3">官方派彩（每 ${divByRace.get(Number(r.raceNumber))?.[0]?.unit ?? 10} 注）</p>
                     <div className="grid grid-cols-2 gap-x-3 sm:grid-cols-3">
@@ -298,8 +275,7 @@ function ResultsPage() {
                   </div>
                 ) : null}
               </details>
-            );
-            })}
+            ))}
           </div>
         ) : (
           <Empty />

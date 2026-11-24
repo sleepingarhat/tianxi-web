@@ -8,8 +8,6 @@ export type RaceClockRow = {
   startTime?: string | null;
   settled?: boolean;
   hasResult?: boolean;
-  /** 官方單場取消。唔會等賽果，焦點會跳去下一場。 */
-  voided?: boolean;
 };
 
 export type PickLike = {
@@ -76,7 +74,7 @@ export function pickFocusRace(
   for (const r of sorted) {
     const start = raceStartMs(r.startTime, meetingDate);
     if (start == null) continue;
-    if (r.settled === true || r.hasResult === true || r.voided === true) continue;
+    if (r.settled === true || r.hasResult === true) continue;
     if (nowMs < start) {
       next = r;
       break;
@@ -116,7 +114,7 @@ export function awaitingRaceResult(
   resolved: ReadonlySet<number>,
 ): boolean {
   for (const r of races) {
-    if (r.settled === true || r.hasResult === true || r.voided === true || resolved.has(Number(r.raceNumber))) continue;
+    if (r.settled === true || r.hasResult === true || resolved.has(Number(r.raceNumber))) continue;
     const start = raceStartMs(r.startTime, meetingDate);
     if (start == null) continue;
     if (nowMs >= start - RESULT_WATCH_LEAD_MS && nowMs - start <= RESULT_WATCH_WINDOW_MS) return true;
@@ -302,9 +300,9 @@ export function classDistanceLine(className: string | null | undefined, meters: 
   return `${klass || CLASS_PENDING} · ${distanceText(meters)}`;
 }
 
-export type RaceRunStatus = "完場" | "進行中" | "待開" | "取消";
+export type RaceRunStatus = "完場" | "進行中" | "待開";
 
-/** 有已核實命中先當完場；未核實唔靠開跑倒數預估命中。單場取消唔當完場。 */
+/** 有已核實命中先當完場；未核實唔靠開跑倒數預估命中。 */
 export function raceRunStatus(input: {
   settled?: boolean;
   hasResult?: boolean;
@@ -312,10 +310,7 @@ export function raceRunStatus(input: {
   countdownLabel?: string | null;
   /** 賽日已過（保留展示期間）：全部場次已跑完，唔再顯示進行中。 */
   meetingPast?: boolean;
-  /** 官方單場取消。優先於完場。 */
-  voided?: boolean;
 }): RaceRunStatus {
-  if (input.voided === true) return "取消";
   if (input.meetingPast === true) return "完場";
   if (input.settled === true || input.hasResult === true || typeof input.hitCount === "number") return "完場";
   if (input.countdownLabel === "已開跑") return "進行中";

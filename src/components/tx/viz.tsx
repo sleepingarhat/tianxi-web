@@ -336,15 +336,15 @@ export function TrendChart({
 
 
 /** 命中／落空格仔（近況串） */
-export function HitStrip({ hits, max = 24 }: { hits: readonly (boolean | null | "void")[]; max?: number }) {
+export function HitStrip({ hits, max = 24 }: { hits: (boolean | null)[]; max?: number }) {
   const arr = hits.slice(-max);
   return (
     <div className="flex flex-wrap gap-[3px]">
       {arr.map((h, i) => (
         <span
           key={i}
-          title={h === "void" ? "取消，不計入" : h == null ? "未核對" : h ? "命中" : "落空"}
-          className={`h-3 w-3 rounded-[2px] ${h === "void" ? "border border-lose bg-transparent" : h == null ? "bg-paper-3" : h ? "bg-win" : "bg-lose/35"}`}
+          title={h == null ? "未核對" : h ? "命中" : "落空"}
+          className={`h-3 w-3 rounded-[2px] ${h == null ? "bg-paper-3" : h ? "bg-win" : "bg-lose/35"}`}
         />
       ))}
       {!arr.length ? <span className="text-[10px] text-ink-3">暫無</span> : null}

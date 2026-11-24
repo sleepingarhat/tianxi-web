@@ -30,8 +30,6 @@ import { Button } from '@/components/ui/button';
 import { getViewerFrozenRacing } from "@/lib/frozen-reconciliation.functions";
 import { RedactedNote } from "@/components/tx/RedactedNote";
 import { frozenSourceLabel } from "@/lib/freeze-provenance";
-import { comparisonMark, finishersThrough, raceVoidOf } from "@/lib/race-settlement-display";
-import { RaceVoidNotice } from "@/components/tx/RaceVoidNotice";
 
 /** 每個讀取最多等 15 秒（即時重算 20 秒），失敗只重試一次，之後顯示錯誤同重新讀取掣，唔會無限「載入中」。 */
 const PVR_TIMEOUT_MS = 15_000;
@@ -205,9 +203,10 @@ function ComparePage() {
         ? "天喜ELO"
         : "天喜引擎";
 
-  const meetingRace = races.find((r: any) => Number(r.raceNumber) === Number(selectedRaceNumber));
-  const voided = raceVoidOf(meetingRace) ?? raceVoidOf(raceDetail.data);
-  const right: Horse[] = voided ? [] : finishersThrough((raceDetail.data?.horses || []) as Horse[], 4);
+  const right: Horse[] = ((raceDetail.data?.horses || []) as Horse[])
+    .filter((h) => h?.finishingPosition != null && h.finishingPosition >= 1 && h.finishingPosition <= 4)
+    .sort((a, b) => (a.finishingPosition ?? 9) - (b.finishingPosition ?? 9))
+    .slice(0, 4);
 
   const styles = useQuery({
     queryKey: ["cmpStyles", raceId, left.length, right.length],
@@ -422,10 +421,8 @@ function ComparePage() {
               const rid = races.find((r: any) => Number(r.raceNumber) === Number(fr.raceNumber))?.id;
               const n = fr.top4IntersectCount == null ? null : Number(fr.top4IntersectCount);
               const on = Number(selectedRaceNumber) === Number(fr.raceNumber);
-              const navVoid = raceVoidOf(races.find((race: any) => Number(race.raceNumber) === Number(fr.raceNumber))) != null;
-              const tone = navVoid
-                ? "border-lose bg-lose/[0.06] text-lose"
-                : n != null && n >= 3 ? "border-win bg-win/10 text-win" : n != null && n >= 2 ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-3";
+              const tone =
+                n != null && n >= 3 ? "border-win bg-win/10 text-win" : n != null && n >= 2 ? "border-gold-strong bg-gold-bg text-gold" : "border-hairline bg-paper text-ink-3";
               return (
                 <button
                   key={fr.raceNumber}
@@ -437,7 +434,7 @@ function ComparePage() {
                   }`}
                 >
                   <span className="block font-mono-tx text-[10px] font-bold leading-none">R{fr.raceNumber}</span>
-                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-bold leading-none">{comparisonMark({ voided: navVoid, redacted: Boolean(fr.redacted), hits: n })}</span>
+                  <span className="tabnum mt-[3px] block font-mono-tx text-[11px] font-bold leading-none">{fr.redacted ? '需登入' : n == null ? '待核' : `${n}/4`}</span>
                 </button>
               );
             })}
@@ -482,9 +479,7 @@ function ComparePage() {
             {loading ? (
               <Loading />
             ) : right.length ? (
-              right.map((h, i) => <Cell key={keyOf(h) || i} h={h} rank={Number.isInteger(Number(h.finishingPosition)) ? Number(h.finishingPosition) : i + 1} matched={isMatch(h, leftKeys)} />)
-            ) : voided ? (
-              <RaceVoidNotice race={voided} />
+              right.map((h, i) => <Cell key={keyOf(h) || i} h={h} rank={i + 1} matched={isMatch(h, leftKeys)} />)
             ) : raceDetail.isError ? (
               <>
                 <EmptySide title="賽果暫時讀唔到" />
@@ -502,9 +497,6 @@ function ComparePage() {
           </div>
         </div>
 
-        {right.some((horse, index, list) => list.findIndex((other) => other.finishingPosition === horse.finishingPosition) !== index) ? (
-          <p className="mx-auto mt-2 max-w-[560px] text-center text-[11px] text-ink-3 lg:max-w-[900px]">平頭名次照馬會公布。</p>
-        ) : null}
         {left.length && right.length ? (
           <>
             <p className="tabnum mx-auto mt-[11px] max-w-[560px] lg:max-w-[900px] text-center font-mono-tx text-[12px] tracking-[0.04em] text-ink-2">

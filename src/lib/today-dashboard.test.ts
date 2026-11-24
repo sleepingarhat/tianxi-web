@@ -70,16 +70,6 @@ describe("today-dashboard", () => {
     expect(pickFocusRace(races, "2026-10-26", after)?.kind).toBe("last");
   });
 
-  it("取消場唔會霸住焦點，亦唔會加快等賽果", () => {
-    const races = [
-      { raceNumber: 6, startTime: "15:25", voided: true },
-      { raceNumber: 7, startTime: "16:00" },
-    ];
-    const during = Date.parse("2026-11-14T15:28:00+08:00");
-    expect(pickFocusRace(races, "2026-11-14", during)?.race.raceNumber).toBe(7);
-    expect(resultPollMs(races, "2026-11-14", during, new Set())).toBe(RESULT_IDLE_POLL_MS);
-  });
-
   it("鎖定狀態標籤：初版／倒數／已鎖／副本／未能核實", () => {
     expect(lockPhase({ isLoading: true })).toBe("loading");
     expect(lockPhase({ publicationPending: true })).toBe("pending");
@@ -164,7 +154,6 @@ describe("today-dashboard", () => {
     expect(showPreliminaryUnlocked("pending", "待開")).toBe(false);
     expect(PRELIMINARY_UNLOCKED_LABEL).toBe("初版 · 未鎖");
     expect(raceRunStatus({ countdownLabel: "已開跑" })).toBe("進行中");
-    expect(raceRunStatus({ countdownLabel: "已開跑", meetingPast: true, voided: true })).toBe("取消");
     expect(raceRunStatus({ hitCount: 2 })).toBe("完場");
     expect(raceRunStatus({})).toBe("待開");
   });

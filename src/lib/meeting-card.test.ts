@@ -23,12 +23,6 @@ describe("賽日狀態", () => {
     expect(cardStatusOf({ cardStatus: "entries", isDeclaredCard: false })).not.toBe("declared");
   });
 
-  it("單場取消唔繼承賽日已有賽果", () => {
-    expect(displayedCardStatus({ cardStatus: "cancelled", isDeclaredCard: true, status: "cancelled", cancelled: true, void: true }, { cardStatus: "resulted" }, null)).toBe("cancelled");
-    expect(cardStatusLabel("cancelled")).toBe("取消");
-    expect(displayedCardStatus({ status: "resulted", cancelled: false, void: false, isDeclaredCard: true }, { cardStatus: "resulted" }, null)).toBe("declared");
-  });
-
   it("單場賽果冇狀態時，用賽日；排位表自己有狀態時唔使等賽日", () => {
     expect(displayedCardStatus({ cardStatus: null }, { cardStatus: "resulted" }, { cardStatus: null })).toBe("resulted");
     expect(displayedCardStatus(null, null, { cardStatus: "declared" })).toBe("declared");
