@@ -297,8 +297,8 @@ function TodayPage() {
       </section>
       {date && officialVenue ? (
         <p className="mx-4 mt-2 text-[12px]">
-          <Link to="/official-boards" search={{ date, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
-          <Link to="/official-boards" search={{ scope: "directory" }} className="ml-3 font-bold text-gold underline underline-offset-2">官方名冊 →</Link>
+          <Link to="/official" search={{ date, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+          <Link to="/official" className="ml-3 font-bold text-gold underline underline-offset-2">官方名冊 →</Link>
         </p>
       ) : null}
 

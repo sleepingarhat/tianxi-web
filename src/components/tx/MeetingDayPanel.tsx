@@ -21,6 +21,7 @@ import { canonicalHorseId, canonicalRaceId, type Meeting, type RaceHorse, type R
 import { brandOf, profileForRunner, reservesForRace } from "@/lib/official-records";
 
 import { OfficialLink, RaceFilesBlock, ReserveList, RunnerProfileStrip, useRacecardOfficial, type RacecardOfficial } from "./RacecardOfficial";
+import { OfficialRunnerNotes, useMeetingOfficialNotes } from "./OfficialRunnerNotes";
 import { raceVoidOf } from "@/lib/race-settlement-display";
 
 import { RaceVoidNotice } from "./RaceVoidNotice";
@@ -73,10 +74,12 @@ function RunnerRoster({
   race,
   meeting,
   official,
+  notes,
 }: {
   race: RaceSummary;
   meeting: Meeting;
   official: RacecardOfficial;
+  notes: ReturnType<typeof useMeetingOfficialNotes>;
 }) {
   const horses = race.horses || [];
   const voided = raceVoidOf(race);
@@ -109,6 +112,12 @@ function RunnerRoster({
           const name = horse.nameCh || horse.name || "未命名";
           const id = canonicalHorseId(horse.id);
           const profile = profileForRunner(official.profiles, raceNo, horse.horseNumber, brandOf(horse.code, horse.id));
+          const facts = notes.factsFor({
+            raceNo,
+            horseNo: typeof horse.horseNumber === "number" ? horse.horseNumber : null,
+            brand: brandOf(horse.code, horse.id),
+            reserve: false,
+          });
           return (
             <Fragment key={horse.id || `${horse.horseNumber}-${name}`}>
               <tr className="border-b border-hairline">
@@ -133,11 +142,12 @@ function RunnerRoster({
                   <Td key={label}>{row.find((item) => item.label === label)?.value ?? "—"}</Td>
                 ))}
               </tr>
-              {form.length || profile ? (
+              {form.length || profile || facts.length ? (
                 <tr className="border-b border-hairline">
                   <td colSpan={labels.length + 1} className="px-1 pb-2">
                     <RunnerFormStrip cells={form} />
                     {profile ? <RunnerProfileStrip row={profile} /> : null}
+                    <OfficialRunnerNotes facts={facts} />
                   </td>
                 </tr>
               ) : null}
@@ -146,7 +156,10 @@ function RunnerRoster({
         })}
       </Table>
     </Scroller>
-    <ReserveList rows={reservesForRace(official.profiles, raceNo)} />
+    <ReserveList
+      rows={reservesForRace(official.profiles, raceNo)}
+      notesFor={(row) => notes.factsFor({ raceNo: row.raceNo, horseNo: row.horseNo, brand: row.brand, reserve: true })}
+    />
     <div className="py-2">
       <RaceFilesBlock official={official} raceNo={raceNo} showAll={false} />
     </div>
@@ -186,6 +199,7 @@ export function MeetingDayPanel({
   const races = meeting.races || [];
   const declared = showsDeclaredCard(status);
   const official = useRacecardOfficial(meeting.date, meeting.venue, declared);
+  const notes = useMeetingOfficialNotes(meeting.date, meeting.venue, official.enabled);
   return (
     <div className="pb-3 pl-1">
       {declared && official.files.allPdf ? (
@@ -218,7 +232,7 @@ export function MeetingDayPanel({
                     </Link>
                   ) : null}
                 </div>
-                {open ? <RunnerRoster race={race} meeting={meeting} official={official} /> : null}
+                {open ? <RunnerRoster race={race} meeting={meeting} official={official} notes={notes} /> : null}
               </div>
             );
           })}

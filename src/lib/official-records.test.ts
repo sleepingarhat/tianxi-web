@@ -191,6 +191,8 @@ describe("排位檔案", () => {
     expect(grouped.races).toHaveLength(1);
     expect(grouped.races[0]).toMatchObject({ raceNo: 1, distance: 1650 });
     expect(trackMapCaption(grouped.races[0]!)).toBe("1650米 · 草地");
+    expect(trackMapCaption({ distance: 1200, surfaceCode: "awt" })).toBe("1200米 · AWT");
+    expect(trackMapCaption({ distance: null, surfaceCode: null })).toBe("");
   });
 
   it("有表但冇行就係空", () => {

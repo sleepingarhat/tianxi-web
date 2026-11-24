@@ -92,7 +92,7 @@ function SchedulePage() {
     <AppShell page="schedule" ticker={ticker}>
       <PageHead en="Fixtures" title="賽馬日程" desc="按月查看賽馬日。賽期、已報名、正式排位同賽果分開標示；檔位未公布唔會當成正式排位。" />
       <p className="mx-4 mt-3 text-[12px]">
-        <Link to="/official-boards" search={{ scope: "directory" }} className="font-bold text-gold underline underline-offset-2">獸醫名單、自購馬往績、曾用名及特別註解 →</Link>
+        <Link to="/official" className="font-bold text-gold underline underline-offset-2">官方資料庫：評分、消息、曾用名、獸醫名單 →</Link>
       </p>
 
       {cancellation ? <MeetingCancellationNotice cancellation={cancellation} /> : null}
@@ -148,7 +148,7 @@ function SchedulePage() {
                         <MeetingDayPanel meeting={detail.data} activeRaceId={activeRaceId} onRace={setPickedRace} />
                         {officialVenue ? (
                           <p className="pb-2 text-[12px]">
-                            <Link to="/official-boards" search={{ date: detail.data.date, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+                            <Link to="/official" search={{ date: detail.data.date, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
                           </p>
                         ) : null}
                       </>

@@ -150,7 +150,7 @@ function FwbList({ rows }: { rows: FwbRow[] }) {
         {rows.map((row) => (
           <li key={`${row.raceNo}-${row.horseNo}-${row.brand}`} className="py-2">
             {horseLine(row.raceNo, row.horseNo, row.horseNameCh, [row.brand, row.reserve ? "後備" : ""].filter(Boolean).join(" · "))}
-            <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{row.bonusCh}</p>
+            <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{row.bonusCh || row.bonusEn}</p>
           </li>
         ))}
       </ul>
@@ -256,7 +256,7 @@ function FormerFacts({ row }: { row: FormerNameRow }) {
       </p>
       <p className="mt-1 text-[12px] text-ink-2">曾用名 {row.formerName ?? "—"}</p>
       <p className="mt-1 text-[11px] leading-relaxed text-ink-3">
-        {[row.importTypeCh, row.originCh, row.age != null ? `${row.age}歲` : "", row.foalingDate ? `出生 ${row.foalingDate}` : "", row.sire ? `父系 ${row.sire}` : "", row.dam ? `母系 ${row.dam}` : ""].filter(Boolean).join(" · ")}
+        {[row.importTypeCh ?? row.importType, row.originCh ?? row.originCode, row.age != null ? `${row.age}歲` : "", row.foalingDate ? `出生 ${row.foalingDate}` : "", row.sire ? `父系 ${row.sire}` : "", row.dam ? `母系 ${row.dam}` : ""].filter(Boolean).join(" · ")}
       </p>
     </>
   );
@@ -322,19 +322,23 @@ export function MeetingOfficialBoards({
   venue,
   raceNo,
   focus,
+  only,
 }: {
   date: string;
   venue: VenueCode;
   raceNo?: number | undefined;
   focus?: MeetingBoardId | undefined;
+  /** 官方資料庫一次只打開一項，避免八塊板疊埋一頁。 */
+  only?: MeetingBoardId | undefined;
 }) {
   const meeting = { date, venue };
-  const ovePath = officialBoardPath("ove-record", meeting);
-  const conghuaPath = officialBoardPath("conghua-movement", meeting);
-  const jtPath = officialBoardPath("jt-combo", meeting);
-  const fwbPath = officialBoardPath("fwb-declared", meeting);
-  const photoPath = officialBoardPath("finish-photos", raceNo == null ? meeting : { ...meeting, raceNo });
-  const oddsPath = officialBoardPath("challenge-odds", meeting);
+  const show = (id: MeetingBoardId) => only == null || only === id;
+  const ovePath = show("ove-record") ? officialBoardPath("ove-record", meeting) : null;
+  const conghuaPath = show("conghua-movement") ? officialBoardPath("conghua-movement", meeting) : null;
+  const jtPath = show("jt-combo") ? officialBoardPath("jt-combo", meeting) : null;
+  const fwbPath = show("fwb-declared") ? officialBoardPath("fwb-declared", meeting) : null;
+  const photoPath = show("finish-photos") ? officialBoardPath("finish-photos", raceNo == null ? meeting : { ...meeting, raceNo }) : null;
+  const oddsPath = show("challenge-odds") ? officialBoardPath("challenge-odds", meeting) : null;
   const ove = useBoard(ovePath);
   const conghua = useBoard(conghuaPath);
   const jt = useBoard(jtPath);
@@ -352,15 +356,18 @@ export function MeetingOfficialBoards({
     <RacecardFilesBoard key="racecard-files" date={date} venue={venue} />,
   ];
   const ordered = focus ? [...cards.filter((card) => card.key === focus), ...cards.filter((card) => card.key !== focus)] : cards;
+  const visible = only ? ordered.filter((card) => card.key === only) : ordered;
   return (
     <>
-      <nav aria-label="賽日官方資料" className="no-scrollbar mx-4 mt-3 flex gap-1 overflow-x-auto">
-        {MEETING_COPY.map((item) => (
-          <a key={item.id} href={`#official-${item.id}`} className="shrink-0 rounded-full border border-hairline bg-paper px-3 py-1.5 text-[12px] font-bold text-ink-2">{item.title}</a>
-        ))}
-      </nav>
-      {raceNo ? <p className="mx-4 mt-2 text-[11px] text-ink-3">終點照片先顯示第{raceNo}場。其餘賽日資料係全日。</p> : null}
-      {ordered}
+      {only ? null : (
+        <nav aria-label="賽日官方資料" className="no-scrollbar mx-4 mt-3 flex gap-1 overflow-x-auto">
+          {MEETING_COPY.map((item) => (
+            <a key={item.id} href={`#official-${item.id}`} className="shrink-0 rounded-full border border-hairline bg-paper px-3 py-1.5 text-[12px] font-bold text-ink-2">{item.title}</a>
+          ))}
+        </nav>
+      )}
+      {raceNo && (!only || only === "finish-photos") ? <p className="mx-4 mt-2 text-[11px] text-ink-3">終點照片先顯示第{raceNo}場。其餘賽日資料係全日。</p> : null}
+      {visible}
     </>
   );
 }
@@ -386,10 +393,13 @@ export function DirectoryOfficialBoards({
   board,
   brand,
   onBoard,
+  embedded = false,
 }: {
   board: DirectoryBoardId;
   brand?: string | undefined;
   onBoard: (board: DirectoryBoardId) => void;
+  /** 外層已經有分類導航時，唔再重複一條橫向標籤。 */
+  embedded?: boolean;
 }) {
   const selected = DIRECTORY_COPY.some((item) => item.id === board) ? board : "special-index";
   const classic = isClassicDirectory(selected) ? selected : null;
@@ -400,9 +410,11 @@ export function DirectoryOfficialBoards({
   const invalidBrand = selected === "horse-former-name" && !!brand && !asLocalBrand(brand);
   return (
     <>
-      <div className="mx-4 mt-3">
-        <Seg value={selected} onChange={onBoard} options={DIRECTORY_COPY.map((item) => ({ value: item.id, label: item.title }))} />
-      </div>
+      {embedded ? null : (
+        <div className="mx-4 mt-3">
+          <Seg value={selected} onChange={onBoard} options={DIRECTORY_COPY.map((item) => ({ value: item.id, label: item.title }))} />
+        </div>
+      )}
       {selected === "stats-centre" ? <StatsCentreBoard /> : selected === "horse-ratings" ? <HorseRatingsBoard /> : selected === "horse-news" ? <HorseNewsBoard /> : selected === "import-policy" ? <ImportPolicyBoard /> : !classic ? null : invalidBrand ? (
         <Card title={copy.title} en={copy.en}>
           <p className="text-[12px] leading-relaxed text-ink-2">烙號請用單字母加數字，例如 J313。呢個烙號接口唔接受。</p>

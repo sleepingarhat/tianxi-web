@@ -1,4 +1,5 @@
 import { FormerNameCard } from "@/components/tx/OfficialBoards";
+import { HorseRatingListCard } from "@/components/tx/OfficialLibrary";
 import { HorseOfficialResearch } from "@/components/tx/OfficialResearchPanels";
 import { FollowHorseButton } from "@/components/tx/FollowHorseButton";
 import { useTier } from "@/lib/useTier";
@@ -337,6 +338,7 @@ function HorsePage() {
           </nav>
 
           <HorseOfficialResearch horseId={horseId} />
+          {has(h.code) ? <HorseRatingListCard code={String(h.code)} /> : null}
           {has(h.code) ? <FormerNameCard brand={String(h.code)} /> : null}
 
           {/* 身份及現況 */}

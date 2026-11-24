@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { filterRows, officialBoardPath, pageOf, type PolicyPage, type RatingBoard, type VenueCode } from "@/lib/official-boards";
+import { newsPlaceLabel } from "@/lib/official-library";
 import {
   RATING_BOARDS,
   groupNews,
@@ -135,20 +136,23 @@ function NewsList({ rows }: { rows: NewsRow[] }) {
   if (!group) return <Empty label="呢個範圍未有收錄。" />;
   return (
     <>
-      <Seg value={group.view} onChange={setPicked} options={groups.map((item) => ({ value: item.view, label: item.label }))} />
+      <Seg wrap value={group.view} onChange={setPicked} options={groups.map((item) => ({ value: item.view, label: item.label }))} />
       <p className="mt-2 text-[11px] text-ink-3">{group.label} · 共 {group.rows.length} 條 · 官方檔案只提供外連</p>
       <ul className="mt-1 divide-y divide-hairline">
-        {group.rows.map((row) => (
+        {group.rows.map((row) => {
+          const place = newsPlaceLabel(row.venue, row.simulcastCode);
+          return (
           <li key={`${row.view}-${row.lineNo}-${row.title}`} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2 py-2">
             <div className="min-w-0">
               <p className="text-[12px] leading-relaxed text-ink">{row.title}</p>
-              <p className="tabnum font-mono-tx text-[11px] text-ink-3">發布 {officialStamp(row.publishedAt)}{row.fileDate ? ` · 檔案日期 ${row.fileDate}` : ""}</p>
+              <p className="tabnum font-mono-tx text-[11px] text-ink-3">發布 {officialStamp(row.publishedAt)}{row.fileDate ? ` · 檔案日期 ${row.fileDate}` : ""}{place ? ` · ${place}` : ""}</p>
             </div>
             <span className="shrink-0 text-[12px]">
               {row.fileUrl ? <OfficialLink href={row.fileUrl}>官方檔案 ↗</OfficialLink> : <span className="text-[11px] text-ink-3">檔案未核對</span>}
             </span>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </>
   );

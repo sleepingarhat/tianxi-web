@@ -275,13 +275,16 @@ export function Seg<T extends string | number>({
   options,
   value,
   onChange,
+  wrap = false,
 }: {
   options: { value: T; label: string }[];
   value: T;
   onChange: (v: T) => void;
+  /** 分類多過一條橫列時換行，避免要左右掃先見到。 */
+  wrap?: boolean;
 }) {
   return (
-    <div className="no-scrollbar flex gap-1 overflow-x-auto">
+    <div className={wrap ? "flex flex-wrap gap-1" : "no-scrollbar flex gap-1 overflow-x-auto"}>
       {options.map((o) => {
         const on = o.value === value;
         return (
