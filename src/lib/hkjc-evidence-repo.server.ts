@@ -1,9 +1,18 @@
 /** Append official raw evidence first; publish its manifest last with GitHub SHA concurrency checks. */
+import {
+  HKJC_EVIDENCE_CONTENTS_BASE,
+  HKJC_EVIDENCE_PAGE_SIZE,
+  paginateEvidenceRows,
+  writeManifestWithConflictRetry,
+  type EvidenceManifest,
+  type EvidenceManifestEntry,
+} from './hkjc-evidence-sync.functions';
+
 export async function syncHkjcEvidenceToRepository() {
   const token = process.env['GITHUB_TOKEN'];
   if (!token) throw new Error('官方事件資料倉未設定授權');
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-  const base = 'https://api.github.com/repos/sleepingarhat/tianxi-database/contents/';
+  const base = HKJC_EVIDENCE_CONTENTS_BASE;
   const headers = { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'user-agent': 'tianxi-official-evidence' };
   const read = async (path: string) => {
     const r = await fetch(base + path, { headers, signal: AbortSignal.timeout(12_000) });
@@ -18,9 +27,18 @@ export async function syncHkjcEvidenceToRepository() {
     return btoa(binary);
   };
   const decode = (text: string) => new TextDecoder().decode(Uint8Array.from(atob(text.replace(/\s/g, '')), c => c.charCodeAt(0)));
+  const parseManifest = (text: string): EvidenceManifest => {
+    const manifest = JSON.parse(text) as EvidenceManifest;
+    if (!Array.isArray(manifest.snapshots)) throw new Error('官方事件清單格式不符');
+    return manifest;
+  };
   const write = async (path: string, text: string, sha?: string) => {
     const r = await fetch(base + path, { method: 'PUT', headers: { ...headers, 'content-type': 'application/json' },
       body: JSON.stringify({ message: 'archive: official HKJC evidence (append-only)', content: encode(text), ...(sha ? { sha } : {}) }), signal: AbortSignal.timeout(15_000) });
+    return r;
+  };
+  const writeOrThrow = async (path: string, text: string, sha?: string) => {
+    const r = await write(path, text, sha);
     if (!r.ok) throw new Error(`官方事件同步失敗 ${r.status}，等待重試`);
   };
   const sha256Of = async (text: string) => {
@@ -29,21 +47,21 @@ export async function syncHkjcEvidenceToRepository() {
   };
 
   type SnapshotRow = { race_date: string; source_url: string; sha256: string; source_sha256?:string; raw_html: string; venue?: string };
-  type ManifestEntry = { path: string; sha256: string; sourceUrl: string; date: string; kind: string; venue?: string };
-  type Manifest = { snapshots: ManifestEntry[] };
 
   type EvidenceTable = 'hkjc_changes_snapshots' | 'hkjc_cancellation_snapshots' | 'racing_dividend_snapshots';
   /** Sync one evidence table into one repo folder; one write per run, later runs resume from the manifest. */
   const syncTable = async (opts: { table: EvidenceTable; folder: string; select: string; name: (row: SnapshotRow) => string }) => {
-    const { data, error } = await supabaseAdmin.from(opts.table)
-      .select(opts.select).order('fetched_at').limit(2001);
-    if (error || !data || data.length > 2000) throw new Error('官方事件未能完整讀取，停止同步');
-    const rows = (data as unknown as SnapshotRow[]).map(r=>({...r,sha256:r.sha256 ?? r.source_sha256 ?? ''}));
+    const rawRows = await paginateEvidenceRows(async (from, to) => {
+      const { data, error } = await supabaseAdmin.from(opts.table)
+        .select(opts.select).order('fetched_at').range(from, to);
+      return { data: data as SnapshotRow[] | null, error };
+    }, HKJC_EVIDENCE_PAGE_SIZE);
+    const rows = rawRows.map(r=>({...r,sha256:r.sha256 ?? r.source_sha256 ?? ''}));
     const manifestPath = `data/${opts.folder}/manifest.json`;
     const current = await read(manifestPath);
-    const manifest = current ? JSON.parse(decode(current.content)) as Manifest : { snapshots: [] };
-    if (!Array.isArray(manifest.snapshots)) throw new Error('官方事件清單格式不符');
+    const manifest = current ? parseManifest(decode(current.content)) : { snapshots: [] as EvidenceManifestEntry[] };
     const known = new Set(manifest.snapshots.map(s => s.sha256));
+    const pending: EvidenceManifestEntry[] = [];
     let added = 0;
     for (const row of rows.filter(r => !known.has(r.sha256)).slice(0, 1)) {
       const sha = await sha256Of(row.raw_html);
@@ -51,13 +69,28 @@ export async function syncHkjcEvidenceToRepository() {
       const path = `data/${opts.folder}/${row.race_date}/${opts.name(row)}`;
       const existing = await read(path);
       if (existing && decode(existing.content) !== row.raw_html) throw new Error('資料倉已有原文不符，禁止覆寫');
-      if (!existing) await write(path, row.raw_html);
-      const entry: ManifestEntry = { path, sha256: sha, sourceUrl: row.source_url, date: row.race_date, kind: opts.folder };
+      if (!existing) await writeOrThrow(path, row.raw_html);
+      const entry: EvidenceManifestEntry = { path, sha256: sha, sourceUrl: row.source_url, date: row.race_date, kind: opts.folder };
       if (row.venue) entry.venue = row.venue;
+      pending.push(entry);
       manifest.snapshots.push(entry);
       known.add(sha); added++;
     }
-    if (added) await write(manifestPath, JSON.stringify(manifest, null, 2), current?.sha);
+    if (added) {
+      await writeManifestWithConflictRetry({
+        initial: current ? { manifest, sha: current.sha } : { manifest },
+        pending,
+        read: async () => {
+          const latest = await read(manifestPath);
+          if (!latest) return null;
+          return { sha: latest.sha, manifest: parseManifest(decode(latest.content)) };
+        },
+        write: async (text, sha) => {
+          const r = await write(manifestPath, text, sha);
+          return { ok: r.ok, status: r.status };
+        },
+      });
+    }
     return { added, remaining: rows.filter(r => !known.has(r.sha256)).length };
   };
 

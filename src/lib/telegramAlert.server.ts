@@ -4,6 +4,16 @@
  * 只報不修：任何告警都唔會改凍結預測、帳本或鎖定規則。
  * 去重：同一檢查項 12 小時內只發一次；恢復正常會發「已恢復」通知（24 小時內）。
  */
+
+import {
+  HKJC_EVIDENCE_SYNC_ALERT_KEY,
+  formatHkjcEvidenceFailureAlert,
+  formatHkjcEvidenceRecoveryAlert,
+  sanitizeAlertError,
+  shouldSendDedupedFailureAlert,
+  shouldSendRecoveryAlert,
+} from "./hkjc-evidence-sync.functions";
+
 const GATEWAY = "https://connector-gateway.lovable.dev/telegram";
 const GH = "https://api.github.com";
 const OWNER = "sleepingarhat";
@@ -225,4 +235,39 @@ export async function runAlertChecks(trigger = "manual", matches?: Fixture[]): P
   } catch (e) {
     return { ...out, ok: false, detail: String(e) };
   }
+}
+
+/* ---------- 更易原文資料倉同步告警（復用 12 小時去重） ---------- */
+
+export async function reportHkjcEvidenceSyncFailure(error: unknown): Promise<void> {
+  console.error("[hkjc-evidence-sync]", error);
+  const fail = sanitizeAlertError(error);
+  const sb = await stateClient();
+  const { data: prev } = await sb.from("telegram_alert_state").select("key,value,updated_at").eq("key", HKJC_EVIDENCE_SYNC_ALERT_KEY).maybeSingle();
+  const row = prev as { value?: { sent_at?: string | null; fail?: string | null } } | null;
+  const shouldSend = shouldSendDedupedFailureAlert(row, fail, Date.now(), DEDUPE_MS);
+  let sent = false;
+  if (shouldSend) {
+    const result = await sendTelegramAlert(formatHkjcEvidenceFailureAlert(error));
+    sent = result.sent;
+  }
+  const prevSent = row?.value?.sent_at ?? null;
+  await sb.from("telegram_alert_state").upsert({
+    key: HKJC_EVIDENCE_SYNC_ALERT_KEY,
+    value: { fail, sent_at: sent ? new Date().toISOString() : prevSent },
+  } as never);
+}
+
+export async function reportHkjcEvidenceSyncSuccess(): Promise<void> {
+  const sb = await stateClient();
+  const { data: prev } = await sb.from("telegram_alert_state").select("key,value,updated_at").eq("key", HKJC_EVIDENCE_SYNC_ALERT_KEY).maybeSingle();
+  const row = prev as { value?: { sent_at?: string | null; fail?: string | null } } | null;
+  if (shouldSendRecoveryAlert(row, Date.now(), RECOVERY_MS)) {
+    const result = await sendTelegramAlert(formatHkjcEvidenceRecoveryAlert(row?.value?.fail ?? ""));
+    if (!result.sent) return;
+  }
+  await sb.from("telegram_alert_state").upsert({
+    key: HKJC_EVIDENCE_SYNC_ALERT_KEY,
+    value: { fail: null, sent_at: null },
+  } as never);
 }
