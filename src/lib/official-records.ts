@@ -26,6 +26,12 @@ function date(value: unknown): string | null {
   return typeof value === "string" && DATE.test(value) ? value : null;
 }
 
+function shortCode(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const code = value.trim().toUpperCase();
+  return /^[A-Z0-9]{1,6}$/.test(code) ? code : null;
+}
+
 // ---------------------------------------------------------------------------
 // 官方網址白名單
 // ---------------------------------------------------------------------------
@@ -169,6 +175,10 @@ export type NewsRow = {
   publishedAt: string | null;
   fileDate: string | null;
   fileUrl: string | null;
+  /** 沙田／跑馬地，或接口交來嘅其他馬場代號。 */
+  venue: string | null;
+  /** 海外賽事代號，例如 S1。檔名標記唔另列。 */
+  simulcastCode: string | null;
 };
 
 export type NewsGroup = { view: string; label: string; rows: NewsRow[] };
@@ -187,6 +197,8 @@ export function readNewsRows(envelope: OfficialEnvelope): NewsRow[] {
       publishedAt: text(row["publishedAt"]),
       fileDate: date(row["fileDate"]),
       fileUrl: officialAssetUrl(row["artifactPath"], "link"),
+      venue: shortCode(row["venue"]),
+      simulcastCode: shortCode(row["simulcastCode"]),
     }];
   });
 }
@@ -447,8 +459,9 @@ export function groupRacecardFiles(rows: RacecardFile[]): { allPdf: string | nul
   return { allPdf, races: [...races.values()].sort((a, b) => a.raceNo - b.raceNo) };
 }
 
-/** 1650 米 · 草地。路面代號唔識就唔估。 */
+/** 1650 米 · 草地。只把已核對嘅 t 寫成草地；其他代號照原文，唔翻譯。 */
 export function trackMapCaption(race: Pick<RaceFiles, "distance" | "surfaceCode">): string {
-  const surface = race.surfaceCode === "t" ? "草地" : "";
+  const code = race.surfaceCode?.trim() ?? "";
+  const surface = code === "t" ? "草地" : /^[A-Za-z0-9]{1,8}$/.test(code) ? code.toUpperCase() : "";
   return [race.distance ? `${race.distance}米` : "", surface].filter(Boolean).join(" · ");
 }

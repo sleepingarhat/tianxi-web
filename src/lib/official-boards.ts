@@ -323,7 +323,9 @@ export type FormerNameRow = {
   formerName: string | null;
   sire: string | null;
   dam: string | null;
+  importType: string | null;
   importTypeCh: string | null;
+  originCode: string | null;
   originCh: string | null;
   age: number | null;
   foalingDate: string | null;
@@ -424,7 +426,8 @@ export function readFwbRows(envelope: OfficialEnvelope): FwbRow[] {
     const raceNo = intField(row["raceNo"], 1, 15);
     const horseNameCh = textOrNull(row["horseNameCh"]);
     const bonusCh = textOrNull(row["bonusCh"]);
-    if (raceNo == null || !horseNameCh || !bonusCh) return [];
+    const bonusEn = textOrNull(row["bonusEn"]);
+    if (raceNo == null || !horseNameCh || (!bonusCh && !bonusEn)) return [];
     return [{
       raceNo,
       horseNo: intField(row["horseNo"], 1, 20),
@@ -432,8 +435,8 @@ export function readFwbRows(envelope: OfficialEnvelope): FwbRow[] {
       horseNameCh,
       horseNameEn: textOrNull(row["horseNameEn"]),
       brand: textOrNull(row["brand"]),
-      bonusCh,
-      bonusEn: textOrNull(row["bonusEn"]),
+      bonusCh: bonusCh ?? "",
+      bonusEn,
       notRaceResult: displayFlag(row),
     }];
   });
@@ -502,7 +505,9 @@ export function readFormerNames(envelope: OfficialEnvelope): FormerNameRow[] {
       formerName: textOrNull(row["formerName"]),
       sire: textOrNull(row["sire"]),
       dam: textOrNull(row["dam"]),
+      importType: textOrNull(row["importType"]),
       importTypeCh: textOrNull(row["importTypeCh"]),
+      originCode: textOrNull(row["originCode"]),
       originCh: textOrNull(row["originCh"]),
       age: intField(row["age"], 0, 30),
       foalingDate: asDate(row["foalingDate"]),

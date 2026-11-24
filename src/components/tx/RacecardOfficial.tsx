@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 
 import { asVenue, emptyBoardLabel, officialBoardPath } from "@/lib/official-boards";
+import type { RunnerFact } from "@/lib/official-library";
 import {
   groupRacecardFiles,
   profileCells,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/official-records";
 
 import { useBoard } from "./OfficialBoardParts";
+import { OfficialRunnerNotes } from "./OfficialRunnerNotes";
 
 /** 官方圖片：只收已核對嘅官方網址。圖顯示唔到都保留可打開嘅連結。 */
 export function OfficialImage({ src, href, alt, className = "" }: { src: string; href?: string | null; alt: string; className?: string }) {
@@ -87,7 +89,7 @@ export function RunnerProfileStrip({ row }: { row: RacecardProfileRow }) {
   );
 }
 
-export function ReserveList({ rows }: { rows: RacecardProfileRow[] }) {
+export function ReserveList({ rows, notesFor }: { rows: RacecardProfileRow[]; notesFor?: (row: RacecardProfileRow) => RunnerFact[] }) {
   if (!rows.length) return null;
   return (
     <div className="mt-2 rounded-[6px] border border-hairline bg-paper-2 px-2 py-2">
@@ -101,6 +103,7 @@ export function ReserveList({ rows }: { rows: RacecardProfileRow[] }) {
               {row.brand ? <span className="tabnum font-mono-tx text-[11px] text-ink-3">{row.brand}</span> : null}
             </p>
             <RunnerProfileStrip row={row} />
+            {notesFor ? <OfficialRunnerNotes facts={notesFor(row)} /> : null}
           </li>
         ))}
       </ul>

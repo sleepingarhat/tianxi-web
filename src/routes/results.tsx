@@ -142,7 +142,7 @@ function ResultsPage() {
       <p className="mx-4 mt-2 text-[12px]">
         <Link to="/official-pools" search={activeDate ? { date: activeDate } : {}} className="font-bold text-gold underline underline-offset-2">馬會官方派彩、彩池狀態及場地探針 →</Link>
         {activeDate && officialVenue ? (
-          <Link to="/official-boards" search={{ date: activeDate, venue: officialVenue }} className="ml-3 font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+          <Link to="/official" search={{ date: activeDate, venue: officialVenue }} className="ml-3 font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
         ) : null}
       </p>
 

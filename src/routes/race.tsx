@@ -20,6 +20,7 @@ import { Card, Disclaimer, Empty, ErrorNote, Loading, PageHead, Pill, Silks } fr
 import { displayedCardStatus, effectiveDrawStatus, runnerFormCells, runnerMeasures, showsDeclaredCard } from "@/lib/meeting-card";
 import { brandOf, profileForRunner, reservesForRace } from "@/lib/official-records";
 import { RaceFilesBlock, ReserveList, RunnerProfileStrip, useRacecardOfficial } from "@/components/tx/RacecardOfficial";
+import { OfficialRunnerNotes, useMeetingOfficialNotes } from "@/components/tx/OfficialRunnerNotes";
 import { asVenue } from "@/lib/official-boards";
 import { canonicalRaceId, finishTime, fmtMeetingDate, txApi } from "@/lib/tx-api";
 
@@ -106,6 +107,7 @@ function RacePage() {
   const entriesOnly = cardStatus === "entries" || cardStatus === "fixture";
   // 馬會官方排位資料同檔案：只限正式排位或完場；已報名唔讀
   const official = useRacecardOfficial(raceDate, venueCode, !!raceDate && showsDeclaredCard(cardStatus));
+  const meetingNotes = useMeetingOfficialNotes(raceDate, venueCode, official.enabled);
 
 
   if (!raceId) {
@@ -156,9 +158,12 @@ function RacePage() {
       />
       {raceDate && officialVenue ? (
         <p className="mx-4 mt-3 text-[12px]">
-          <Link to="/official-boards" search={{ date: raceDate, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
+          <Link to="/official" search={{ surface: "meeting", date: raceDate, venue: officialVenue }} className="font-bold text-gold underline underline-offset-2">今場官方資料 →</Link>
           {entriesOnly || voided ? null : (
-            <Link to="/official-boards" search={{ date: raceDate, venue: officialVenue, board: "finish-photos", raceNo: raceNumber }} className="ml-3 font-bold text-gold underline underline-offset-2">終點照片 →</Link>
+            <>
+              <Link to="/official" search={{ surface: "photos", date: raceDate, venue: officialVenue, raceNo: raceNumber }} className="ml-3 font-bold text-gold underline underline-offset-2">終點照片 →</Link>
+              <Link to="/official" search={{ surface: "files", date: raceDate, venue: officialVenue }} className="ml-3 font-bold text-gold underline underline-offset-2">跑道圖 →</Link>
+            </>
           )}
         </p>
       ) : null}
@@ -244,6 +249,12 @@ function RacePage() {
                   </dl>
                   <RunnerFormStrip cells={form} />
                   {profile ? <RunnerProfileStrip row={profile} /> : null}
+                  <OfficialRunnerNotes facts={meetingNotes.factsFor({
+                    raceNo: raceNumber,
+                    horseNo: typeof h.horseNumber === "number" ? h.horseNumber : null,
+                    brand: brandOf(h.code, h.brand, h.id, h.horseId),
+                    reserve: false,
+                  })} />
                 </article>
               );
             })}
@@ -253,7 +264,13 @@ function RacePage() {
         ) : (
           <Empty label={entriesOnly ? "此場尚無報名名單" : "此場尚無排位資料"} />
         )}
-        {official.enabled ? <ReserveList rows={reservesForRace(official.profiles, raceNumber)} /> : null}
+        {official.enabled ? (
+          <ReserveList
+            rows={reservesForRace(official.profiles, raceNumber)}
+            notesFor={(row) => meetingNotes.factsFor({ raceNo: row.raceNo, horseNo: row.horseNo, brand: row.brand, reserve: true })}
+          />
+        ) : null}
+        {meetingNotes.error ? <p className="mt-2 text-[11px] text-ink-3">暫時讀唔到賽日附屬官方資料。</p> : null}
       </Card>
 
       {official.enabled ? (

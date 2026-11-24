@@ -30,6 +30,7 @@ import { Route as MediaCreditsRouteImport } from './routes/media-credits'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as ModelRouteImport } from './routes/model'
 import { Route as MyHorsesRouteImport } from './routes/my-horses'
+import { Route as OfficialRouteImport } from './routes/official'
 import { Route as OfficialBoardsRouteImport } from './routes/official-boards'
 import { Route as OfficialPoolsRouteImport } from './routes/official-pools'
 import { Route as PoolOddsRouteImport } from './routes/pool-odds'
@@ -225,6 +226,11 @@ const ModelRoute = ModelRouteImport.update({
 const MyHorsesRoute = MyHorsesRouteImport.update({
   id: '/my-horses',
   path: '/my-horses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfficialRoute = OfficialRouteImport.update({
+  id: '/official',
+  path: '/official',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OfficialBoardsRoute = OfficialBoardsRouteImport.update({
@@ -745,6 +751,7 @@ export interface FileRoutesByFullPath {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/my-horses': typeof MyHorsesRoute
+  '/official': typeof OfficialRoute
   '/official-boards': typeof OfficialBoardsRoute
   '/official-pools': typeof OfficialPoolsRoute
   '/pool-odds': typeof PoolOddsRoute
@@ -858,6 +865,7 @@ export interface FileRoutesByTo {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/my-horses': typeof MyHorsesRoute
+  '/official': typeof OfficialRoute
   '/official-boards': typeof OfficialBoardsRoute
   '/official-pools': typeof OfficialPoolsRoute
   '/pool-odds': typeof PoolOddsRoute
@@ -973,6 +981,7 @@ export interface FileRoutesById {
   '/membership': typeof MembershipRoute
   '/model': typeof ModelRoute
   '/my-horses': typeof MyHorsesRoute
+  '/official': typeof OfficialRoute
   '/official-boards': typeof OfficialBoardsRoute
   '/official-pools': typeof OfficialPoolsRoute
   '/pool-odds': typeof PoolOddsRoute
@@ -1089,6 +1098,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/my-horses'
+    | '/official'
     | '/official-boards'
     | '/official-pools'
     | '/pool-odds'
@@ -1202,6 +1212,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/my-horses'
+    | '/official'
     | '/official-boards'
     | '/official-pools'
     | '/pool-odds'
@@ -1316,6 +1327,7 @@ export interface FileRouteTypes {
     | '/membership'
     | '/model'
     | '/my-horses'
+    | '/official'
     | '/official-boards'
     | '/official-pools'
     | '/pool-odds'
@@ -1432,6 +1444,7 @@ export interface RootRouteChildren {
   MembershipRoute: typeof MembershipRoute
   ModelRoute: typeof ModelRoute
   MyHorsesRoute: typeof MyHorsesRoute
+  OfficialRoute: typeof OfficialRoute
   OfficialBoardsRoute: typeof OfficialBoardsRoute
   OfficialPoolsRoute: typeof OfficialPoolsRoute
   PoolOddsRoute: typeof PoolOddsRoute
@@ -1651,6 +1664,13 @@ declare module '@tanstack/react-router' {
       path: '/my-horses'
       fullPath: '/my-horses'
       preLoaderRoute: typeof MyHorsesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/official': {
+      id: '/official'
+      path: '/official'
+      fullPath: '/official'
+      preLoaderRoute: typeof OfficialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/official-boards': {
@@ -2402,6 +2422,7 @@ const rootRouteChildren: RootRouteChildren = {
   MembershipRoute: MembershipRoute,
   ModelRoute: ModelRoute,
   MyHorsesRoute: MyHorsesRoute,
+  OfficialRoute: OfficialRoute,
   OfficialBoardsRoute: OfficialBoardsRoute,
   OfficialPoolsRoute: OfficialPoolsRoute,
   PoolOddsRoute: PoolOddsRoute,
