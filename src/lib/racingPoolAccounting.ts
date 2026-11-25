@@ -23,11 +23,18 @@ export type PoolCalc = {
 type Match = boolean | null;
 const isAny = (s: string) => s === "任何組合" || s === "F";
 const setOf = (s: string) => new Set(s.split(",").map(Number).filter(n => Number.isInteger(n) && n > 0));
-function ticketHit(ticket: number[], part: string): Match {
+// 官方退出馬寫法（2026-11-01 沙田／跑馬地 R1 10號 WV、R9 5號 WV-A 原文核實）：
+// 「6,8>1,10」＝必含 6、8，再加 1 或 10 其中一匹（10號退出，改計大熱門1號）。無「>」即三匹固定組合。
+export function ticketHit(ticket: number[], part: string): Match {
   if (isAny(part)) return true;
-  if (!/^\d+\s*,\s*\d+\s*,\s*\d+$/.test(part)) return null;
-  const win = setOf(part);
-  return win.size === 3 ? ticket.every(n => win.has(n)) : null;
+  const m = /^\s*(\d+(?:\s*,\s*\d+)*)\s*(?:>\s*(\d+(?:\s*,\s*\d+)*))?\s*$/.exec(part);
+  if (!m || ticket.length !== 3 || new Set(ticket).size !== 3) return null;
+  const fixed = setOf(m[1] ?? ''), alt = m[2] ? setOf(m[2]) : new Set<number>();
+  if ([...fixed].some(n => alt.has(n))) return null;
+  if (!m[2]) return fixed.size === 3 ? ticket.every(n => fixed.has(n)) : null;
+  const need = 3 - fixed.size;
+  if (need < 1 || alt.size <= need) return null;
+  return [...fixed].every(n => ticket.includes(n)) && ticket.filter(n => alt.has(n)).length === need;
 }
 const combinationHit = (hits: Match[]): Match => hits.includes(false) ? false : hits.includes(null) ? null : true;
 

@@ -79,17 +79,34 @@ describe('跨場共用明細及無存證', () => {
   });
   it('未知特殊組合可能命中時不能猜成未中或零派彩', () => {
     const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
-    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'1,2,3/7>2,8,13',dividend:1000,unit:10}],{1:leg(1),2:leg(2)});
+    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'1,2,3/7#2?8',dividend:1000,unit:10}],{1:leg(1),2:leg(2)});
     expect(p).toMatchObject({missing:true,pendingSettlement:true,mainHit:false,payout:0});
   });
   it('另一段確定未中時無需猜特殊組合，整張原票確定未中', () => {
     const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
-    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'6,7,8/7>2,8,13',dividend:1000,unit:10}],{1:leg(1),2:leg(2)});
+    const [p] = calcPools([{race_no:2,pool:'孖T',combo:'6,7,8/7#2?8',dividend:1000,unit:10}],{1:leg(1),2:leg(2)});
     expect(p).toMatchObject({missing:false,mainHit:false,payout:0});
   });
   it('安慰獎不重複派給正獎票，只計餘下兩張', () => {
     const leg = (race:number) => ({race,bankers:[1,2],legs:[3,4,5],fifthFromLive:false as const});
     const [p] = calcPools([{race_no:2,pool:'孖T',combo:'1,2,3/1,2,3',dividend:1000,unit:10},{race_no:2,pool:'孖T(安慰獎)',combo:'1,2,3/F',dividend:50,unit:10}],{1:leg(1),2:leg(2)});
     expect(p).toMatchObject({payout:1000,consUnits:2,consPayout:100});
+  });
+});
+import { ticketHit as wvTicketHit } from "./racingPoolAccounting";
+describe("孖T 退出馬組合（官方 2026-11-01 原文）", () => {
+  it("第一口 6,8>1,10：6、8 加 1 或 10 都中", () => {
+    expect(wvTicketHit([1, 8, 6], "6,8>1,10")).toBe(true);
+    expect(wvTicketHit([10, 6, 8], "6,8>1,10")).toBe(true);
+    expect(wvTicketHit([1, 12, 8], "6,8>1,10")).toBe(false);
+    expect(wvTicketHit([1, 10, 8], "6,8>1,10")).toBe(false);
+  });
+  it("第五口 12>1,5,6：12 加其餘任何兩匹", () => {
+    expect(wvTicketHit([12, 5, 6], "12>1,5,6")).toBe(true);
+    expect(wvTicketHit([1, 5, 6], "12>1,5,6")).toBe(false);
+  });
+  it("普通三匹組合照舊", () => {
+    expect(wvTicketHit([2, 6, 8], "2,6,8")).toBe(true);
+    expect(wvTicketHit([2, 6, 9], "2,6,8")).toBe(false);
   });
 });
