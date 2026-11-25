@@ -23,7 +23,8 @@ describe('10月19日真實退出案例回歸', () => {
     expect(pool).toMatchObject({ missing: false, units: 9, cost: 90, mainHit: false, payout: 0 });
     expect(r10.legs).toEqual([1,3,4]);
     expect(r11.legs).toEqual([6,2,10]);
-    expect(pool?.detail[0]?.settled?.legs).toEqual([1,1,4]);
-    expect(pool?.detail[1]?.settled?.legs).toEqual([6,1,10]);
+    const s0 = pool?.detail[0]?.settled, s1 = pool?.detail[1]?.settled;
+    expect(s0 && 'legs' in s0 ? s0.legs : null).toEqual([1,1,4]);
+    expect(s1 && 'legs' in s1 ? s1.legs : null).toEqual([6,1,10]);
   });
 });

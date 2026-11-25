@@ -110,3 +110,51 @@ describe("孖T 退出馬組合（官方 2026-11-01 原文）", () => {
     expect(wvTicketHit([2, 6, 9], "2,6,8")).toBe(false);
   });
 });
+
+describe('孖T四揀複式（2026-11-25 起）', () => {
+  const full4 = (race: number, s: number[]) => ({ race, selections: s, fifthFromLive: false as const });
+  const banker = (race: number) => ({ race, bankers: [1, 2], legs: [3, 4, 5], fifthFromLive: false as const });
+  it('孖T兩場四揀複式＝16注$160，唔係二拖三嘅9注$90', () => {
+    const legs = { 1: banker(1), 2: banker(2) };
+    const full = { 1: full4(1, [1, 2, 3, 4]), 2: full4(2, [1, 2, 3, 4]) };
+    const divs = [{ race_no: 2, pool: '孖T', combo: '1,2,3/1,2,4', dividend: 1000, unit: 10 }];
+    const [p] = calcPools(divs, legs, {}, {}, {}, full);
+    expect(p).toMatchObject({ units: 16, cost: 160, payout: 1000, mainHit: true });
+    expect(p?.detail.map(d => d.hit)).toEqual([true, true]);
+  });
+  it('冇傳四揀複式腳時孖T維持二拖三9注$90（歷史賽日不變）', () => {
+    const legs = { 1: banker(1), 2: banker(2) };
+    const [p] = calcPools([{ race_no: 2, pool: '孖T', combo: '1,2,3/1,2,4', dividend: 1000, unit: 10 }], legs);
+    expect(p).toMatchObject({ units: 9, cost: 90 });
+  });
+  it('三T同日都改四揀複式64注$640', () => {
+    const legs = { 5: banker(5), 6: banker(6), 7: banker(7) };
+    const full = { 5: full4(5, [1, 2, 3, 4]), 6: full4(6, [1, 2, 3, 4]), 7: full4(7, [1, 2, 3, 4]) };
+    const [p] = calcPools([{ race_no: 7, pool: '三T', combo: '1,2,3/1,2,4/1,3,4', dividend: 5000, unit: 10 }], legs, {}, {}, {}, full);
+    expect(p).toMatchObject({ units: 64, cost: 640, payout: 5000, mainHit: true });
+  });
+  it('冇傳四揀複式腳時三T維持二拖三27注$270（歷史賽日不變）', () => {
+    const legs = { 5: banker(5), 6: banker(6), 7: banker(7) };
+    const [p] = calcPools([{ race_no: 7, pool: '三T', combo: '1,2,3/1,2,4/1,2,5', dividend: 5000, unit: 10 }], legs);
+    expect(p).toMatchObject({ units: 27, cost: 270, payout: 5000, mainHit: true });
+  });
+  it('四揀複式退出馬按官方熱門替補，逐張組合結算', () => {
+    const legs = { 1: banker(1), 2: banker(2) };
+    const full = { 1: full4(1, [1, 10, 7, 3]), 2: full4(2, [1, 2, 3, 4]) };
+    const [p] = calcPools([{ race_no: 2, pool: '孖T', combo: '1,8,10/1,2,3', dividend: 800, unit: 10 }], legs, { 1: new Set([7]) }, { 1: [1, 8, 10, 2] }, {}, full);
+    expect(p).toMatchObject({ missing: false, units: 16, cost: 160, payout: 800, mainHit: true });
+    expect(p?.detail[0]?.settledCombinations).toEqual([[1, 10, 8], [1, 10, 3], [1, 8, 3], [10, 1, 3]]);
+  });
+  it('四揀複式缺官方熱門存證時退出票列待核，唔當輸', () => {
+    const legs = { 1: banker(1), 2: banker(2) };
+    const full = { 1: full4(1, [1, 10, 7, 3]), 2: full4(2, [1, 2, 3, 4]) };
+    const [p] = calcPools([{ race_no: 2, pool: '孖T', combo: '1,2,3/1,2,3', dividend: 800, unit: 10 }], legs, { 1: new Set([7]) }, {}, {}, full);
+    expect(p).toMatchObject({ missing: true, pendingWithdrawal: true, payout: 0 });
+  });
+  it('四揀複式有一場缺原凍結腳就唔結算', () => {
+    const legs = { 1: banker(1), 2: banker(2) };
+    const full = { 1: full4(1, [1, 2, 3, 4]), 2: null };
+    const [p] = calcPools([{ race_no: 2, pool: '孖T', combo: '1,2,3/1,2,3', dividend: 800, unit: 10 }], legs, {}, {}, {}, full);
+    expect(p).toMatchObject({ missing: true, payout: 0 });
+  });
+});

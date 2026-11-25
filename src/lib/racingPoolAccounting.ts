@@ -1,23 +1,24 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchRaceDividendEvidence, type DividendRow } from "./raceDividends";
-import { frozenPoolLegs, type FrozenPoolRace, type FrozenPoolLeg } from "./frozen-pool-legs";
-import { settleWithdrawnLeg } from "./exotic-withdrawal";
+import { frozenPoolLegs, frozenPoolLegsFull4, type FrozenPoolRace, type FrozenPoolLeg, type FrozenPoolLegFull4 } from "./frozen-pool-legs";
+import { settleWithdrawnLeg, settleWithdrawnLegFull4 } from "./exotic-withdrawal";
 import { getOfficialFavourites } from "./official-favourites.functions";
 import { favouriteOrderForSettlement, type OfficialFavourites } from "./official-favourites";
 import { getHkjcChanges } from "./hkjc-changes.functions";
 import { officialWithdrawal } from './hkjc-changes';
 import { supabase } from '@/integrations/supabase/client';
-import { CROSS_POOL_START } from './strategy-accounting';
+import { CROSS_POOL_START, DT_FULL4_START } from './strategy-accounting';
 
 const UNIT = 10;
 
 type Leg = FrozenPoolLeg | null;
+type AnyLeg = FrozenPoolLeg | FrozenPoolLegFull4;
 type PoolEvidenceRace = Omit<FrozenPoolRace, 'picks'> & {picks: Array<{horseNumber:number;rank:number;nameCh?:string;horseId?:string}>};
 export type PoolCalc = {
   name: string; races: number[]; units: number; cost: number;
   mainHit: boolean; payout: number; consUnits: number; consPayout: number;
   mainDividend: number | null; consolationDividend: number | null;
-  missing: boolean; pendingWithdrawal: boolean; pendingSettlement: boolean; detail: { race: number; hit: boolean | null; original: Leg; settled: Leg; settledCombinations: number[][] | null; winningCombination: string | null }[];
+  missing: boolean; pendingWithdrawal: boolean; pendingSettlement: boolean; detail: { race: number; hit: boolean | null; original: AnyLeg | null; settled: AnyLeg | null; settledCombinations: number[][] | null; winningCombination: string | null }[];
 };
 
 type Match = boolean | null;
@@ -38,7 +39,7 @@ export function ticketHit(ticket: number[], part: string): Match {
 }
 const combinationHit = (hits: Match[]): Match => hits.includes(false) ? false : hits.includes(null) ? null : true;
 
-export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, withdrawnByRace: Record<number, Set<number>> = {}, favouritesByRace: Record<number, number[] | undefined> = {}, officialTrios: Record<number,string> = {}): PoolCalc[] {
+export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, withdrawnByRace: Record<number, Set<number>> = {}, favouritesByRace: Record<number, number[] | undefined> = {}, officialTrios: Record<number,string> = {}, full4LegsByRace: Record<number, FrozenPoolLegFull4 | null> | null = null): PoolCalc[] {
   const groups = new Map<string, { name: string; main: DividendRow[]; cons: DividendRow[] }>();
   for (const d of divs) {
     if (!/孖T|三T/.test(d.pool)) continue;
@@ -55,13 +56,20 @@ export function calcPools(divs: DividendRow[], legsByRace: Record<number, Leg>, 
     if (!ref) continue;
     const n = /三T/.test(g.name) ? 3 : 2;
     const races = Array.from({ length: n }, (_, i) => ref.race_no - n + 1 + i);
-    const original = races.map(r => legsByRace[r] ?? null);
-    const settlements = original.map((leg, i) => leg ? settleWithdrawnLeg(leg, withdrawnByRace[races[i] ?? 0] ?? new Set(), favouritesByRace[races[i] ?? 0]) : null);
+    // 孖T／三T 由 2026-11-25 起用四揀複式（每場4組）；舊賽日維持二拖三。
+    const full4 = full4LegsByRace;
+    const original: (AnyLeg | null)[] = races.map(r => (full4 ? full4[r] : legsByRace[r]) ?? null);
+    const settlements = original.map((leg, i) => {
+      if (!leg) return null;
+      const w = withdrawnByRace[races[i] ?? 0] ?? new Set();
+      const f = favouritesByRace[races[i] ?? 0];
+      return 'selections' in leg ? settleWithdrawnLegFull4(leg, w, f) : settleWithdrawnLeg(leg, w, f);
+    });
     const pendingWithdrawal = settlements.some(s => s?.status === 'pending');
     const verifiedMainParts = races.map(r => officialTrios[r] ?? '');
     const hasVerifiedTrios = verifiedMainParts.every(s => /^\d+,\d+,\d+$/.test(s) && setOf(s).size === 3);
     let missing = pendingWithdrawal || original.some(l => !l) || (!g.main.length && !hasVerifiedTrios);
-    const units = original.reduce((acc, l) => acc * (l?.legs.length ?? 0), 1);
+    const units = original.reduce((acc, l) => acc * (l ? ('selections' in l ? 4 : l.legs.length) : 0), 1);
     const mainParts = g.main[0]?.combo.split('/').map(s => s.trim()) ?? (hasVerifiedTrios ? verifiedMainParts : []);
     const detail = races.map((race, i) => {
       const tickets = settlements[i]?.combinations;
@@ -143,7 +151,8 @@ export const exoticPoolOptions = (date: string) => queryOptions({
         favourites[r.raceNumber] = favouriteOrderForSettlement(r) ?? undefined;
       }
     }
-    return { pools: calcPools(dividends.rows, legs, withdrawn, favourites, dividends.trios), legs, favourites, evidence, venue, noArchive: !!noArchive, dividendSource: dividends.source };
+    const full4Legs = date >= DT_FULL4_START && races ? frozenPoolLegsFull4(races) : null;
+    return { pools: calcPools(dividends.rows, legs, withdrawn, favourites, dividends.trios, full4Legs), legs, favourites, evidence, venue, noArchive: !!noArchive, dividendSource: dividends.source };
   },
 });
 

@@ -1,4 +1,7 @@
 export const CROSS_POOL_START = "2026-10-19";
+// 2026-11-25 起孖T／三T改用四揀複式：每場頭4選全拖，孖T 4×4＝16注×$10＝$160、三T 4×4×4＝64注×$10＝$640（用戶2026-11-25決定）。
+// 之前賽日維持二拖三結算，歷史戰績不覆寫。
+export const DT_FULL4_START = "2026-11-25";
 export type StrategyPoint = { date: string; cost: number; payout: number; [key: string]: unknown };
 type CrossPool = { name: string; cost: number; payout: number; consPayout: number; missing: boolean; mainHit: boolean };
 export type CrossDay = { pools: CrossPool[]; noArchive?: boolean };

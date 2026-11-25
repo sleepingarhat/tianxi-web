@@ -2,12 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 
 import { exoticPoolOptions } from "@/lib/racingPoolAccounting";
+import { DT_FULL4_START } from "@/lib/strategy-accounting";
 
 import { Card, Pill } from "./ui";
 
 /**
- * 孖T／三T 二拖三：每場引擎凍結頭兩匹做膽，拖第 3、4、5 選。
- * 每場 3 組三重彩組合；孖T 3×3＝9 注、三T 3×3×3＝27 注，每注 $10。
+ * 孖T／三T 跨場組口：
+ * 2026-11-25 起孖T／三T用四揀複式——每場頭 4 選全拖，孖T 4×4＝16 注（$160）、三T 4×4×4＝64 注（$640）。
+ * 之前賽日＝二拖三：每場頭兩匹做膽，拖第 3、4、5 選，孖T 3×3＝9 注（$90）、三T 27 注（$270），歷史不覆寫。
+ * 每注 $10。
  * 跨場分布直接由官方派彩檔推算：派彩行喺第 R 場、組合有 n 段 → 覆蓋第 R−n+1…R 場。
  * 第 1–5 選只用已核實原始副本；缺第五選或鎖前無效輸入不結算。
  */
@@ -25,7 +28,10 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
     <Card title="孖T／三T 二拖三" en="Double trio · Triple trio">
       <p className="mb-3 text-[12px] font-bold text-gold">孖T／三T跨場組口盈虧由 19/10/2026 起計；之前賽日不計跨場組口。</p>
       <p className="mb-2 text-[11px] leading-relaxed text-ink-3">
-        <b className="text-ink-2">買法：孖T／三T 用引擎凍結預測排序頭 5 隻</b>——每場第 1、2 選做膽，拖第 3、4、5 選，共 3 組；每注 $10。孖T 每口 9 注（$90），兩場都中先算正獎；三T 每口 27 注（$270），三場都中先算正獎，頭兩場中、第三場唔中算安慰獎。
+        <b className="text-ink-2">買法：孖T／三T 用引擎凍結預測排序頭 5 隻</b>——{date >= DT_FULL4_START
+          ? "由 25/11/2026 起改用四揀複式：每場頭 4 選全拖，孖T 4×4＝16 注（$160），兩場都中先算正獎；三T 4×4×4＝64 注（$640），三場都中先算正獎，頭兩場中、第三場唔中算安慰獎。"
+          : "每場第 1、2 選做膽，拖第 3、4、5 選，共 3 組；孖T 每口 9 注（$90），兩場都中先算正獎；三T 每口 27 注（$270），三場都中先算正獎，頭兩場中、第三場唔中算安慰獎。"}
+        每注 $10。
         跨邊幾場以馬會派彩紀錄為準。第 5 選只用已核實原凍結；缺第五選或鎖前無效輸入不入正式合計。孖T／三T 會用到第 5 選。
       </p>
       {q.isLoading ? (
@@ -61,7 +67,9 @@ export function ExoticTrioPools({ date, detailed = false }: { date: string; deta
                 {detailed ? <div className="mt-3 grid gap-3 md:grid-cols-3">
                   {p.detail.map(d => <div key={d.race} className="min-w-0 border-l-2 border-hairline pl-3 text-[11px] leading-relaxed">
                     <p className="flex items-center gap-2"><b>第 {d.race} 場</b><Pill tone={d.hit === true ? "win" : "ink"}>{d.hit === true ? "命中" : d.hit === false ? "未中" : "待核"}</Pill></p>
-                    <p className="mt-1 text-ink-2">原凍結：膽 {d.original?.bankers.join("、") ?? "—"} ／ 拖 {d.original?.legs.join("、") ?? "—"}</p>
+                    <p className="mt-1 text-ink-2">{d.original && 'selections' in d.original
+                      ? <>原凍結：四揀複式 {d.original.selections.join("、")}</>
+                      : <>原凍結：膽 {d.original?.bankers.join("、") ?? "—"} ／ 拖 {d.original?.legs.join("、") ?? "—"}</>}</p>
                     <p className="text-ink-2">結算注項：{d.settledCombinations?.map(t => t.join("、")).join(" ／ ") ?? "待核"}</p>
                     <p className="text-ink-3">官方正獎組合：{d.winningCombination ?? "未有紀錄"}</p>
                   </div>)}
