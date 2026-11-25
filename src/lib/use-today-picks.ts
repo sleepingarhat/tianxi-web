@@ -16,6 +16,7 @@ import { freezePublicationPending } from './freeze-publication-window';
 import { mergeMeetingMetadata } from './racing-meeting-metadata';
 import { positiveDistance } from './today-dashboard';
 import { raceVoidOf } from './race-settlement-display';
+import { presentRacingReadError } from './racing-read-error';
 
 export type MergedPick = {
   horseNumber: number;
@@ -46,18 +47,22 @@ export function useTodayPicks() {
   }, []);
   const queryClient = useQueryClient();
   const lastRevision = useRef<string | null>(null);
+  const verifyOnNext = useRef(false);
   // 引擎自動偵測停賽（人手覆寫 → 馬會公告 → 賽日結構）
   const { cancellation } = useMeetingCancellation();
   const fetchAll = useServerFn(getTodayPicksAll);
   const picks = useQuery({
     queryKey: ["todayPicksAll"],
     queryFn: async () => {
-      const data = await fetchAll();
+      const verify = verifyOnNext.current;
+      verifyOnNext.current = false;
+      const data = await fetchAll({ data: { verify } });
       assertPicksResponse(data);
       assertNoMeetingConsistent(queryClient.getQueryData<{ date?: string; races?: unknown[] }>(["todayPicksAll"]), data);
       return data;
     },
     staleTime: 60_000,
+    // 鎖後自動重取只刷新賽果；手動重新核對先再做一次 SHA／身份核實。
     refetchInterval: 30_000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
@@ -186,6 +191,7 @@ export function useTodayPicks() {
   const edition = editionAfterError(picks.data, Boolean(picks.error));
   const publicationPending = !picks.error && picks.data?.edition === 'pending' && freezePublicationPending(picks.data.lockAt, 'no-archive', clock);
   const publicationExpired = picks.data?.edition === 'pending' && clock > Date.parse(picks.data.publicationDeadline ?? '');
+  const readError = edition === "unavailable" ? picks.error ?? (publicationExpired ? new Error('凍結副本未能在首場前60分鐘完成核實') : null) : null;
   return {
     date: cancellation?.date ?? date,
     venue: picks.data?.venue as string | undefined,
@@ -201,9 +207,12 @@ export function useTodayPicks() {
     meeting: meeting.data,
     cancellation,
     isLoading: cancellation ? false : picks.isPending,
-    error: edition === "unavailable" ? picks.error ?? (publicationExpired ? new Error('凍結副本未能在首場前60分鐘完成核實') : null) : null,
+    error: readError == null ? null : presentRacingReadError(readError),
     isFetching: picks.isFetching,
-    refetch: picks.refetch,
+    refetch: () => {
+      verifyOnNext.current = true;
+      return picks.refetch();
+    },
     changesSnapshot,
     changesError: changes.isError,
   };

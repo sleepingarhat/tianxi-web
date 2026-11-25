@@ -88,7 +88,7 @@ function RacePage() {
   const fetchAllPicks = useServerFn(getTodayPicksAll);
   const dayPicks = useQuery({
     queryKey: ["todayPicksAll"],
-    queryFn: () => fetchAllPicks(),
+    queryFn: () => fetchAllPicks({ data: { verify: false } }),
     staleTime: 60_000,
     enabled: !!raceId,
   });

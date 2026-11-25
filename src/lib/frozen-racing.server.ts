@@ -9,11 +9,76 @@ import { readChangesEvidence, changesAwareStatus } from './changes-evidence';
 import { optionalRacingReference } from './optional-racing-reference';
 import { rebuildProvenance } from './freeze-provenance';
 
-/** SELECT only. Never calls compute, capture or recovery. */
-export async function readFrozenRacing(date: string) {
+type SavedOriginal = { snapshot_json: string; sha256: string; captured_at: string; ok: number | null };
+type ValidatedSnapshot = Awaited<ReturnType<typeof validateFrozenSnapshot>>;
+type VerifiedFreeze = {
+  date: string;
+  original: SavedOriginal;
+  snapshot: ValidatedSnapshot;
+  raceInfo: FrozenRow[];
+  names: FrozenRow[];
+  card: RunnerIdentity[];
+  cardInfo: RacingMeetingMetadata[];
+  verifiedAt: string;
+};
+type LiveEvidence = Awaited<ReturnType<typeof loadSettlement>>;
+
+const verifiedFreezes = new Map<string, VerifiedFreeze>();
+const inflightVerify = new Map<string, Promise<{ verified: VerifiedFreeze; live: LiveEvidence }>>();
+
+/** Drops the in-memory verified snapshot. Tests only; it does not write the ledger. */
+export function clearVerifiedFreezeCache() {
+  verifiedFreezes.clear();
+  inflightVerify.clear();
+}
+
+export type FrozenReadOptions = { verify?: boolean; reuseVerified?: boolean };
+
+/**
+ * SELECT only. Never calls compute, capture or recovery, and never writes the ledger.
+ * Public reads verify SHA and identity every time. A caller that passes reuseVerified
+ * may reuse a snapshot that already passed that check and re-read only results,
+ * official changes and settlement inputs. verify forces the SHA and card read again.
+ */
+export async function readFrozenRacing(date: string, options?: FrozenReadOptions) {
+  const reuse = options?.reuseVerified === true && options.verify !== true;
+  if (reuse) {
+    const cached = verifiedFreezes.get(date);
+    if (cached?.snapshot.date === date) return finish(cached, await loadSettlement(date, cached.snapshot.venue));
+  }
+  const read = await verifyAndStore(date);
+  return finish(read.verified, read.live);
+}
+
+async function finish(verified: VerifiedFreeze, live: LiveEvidence) {
+  try {
+    return await assemble(verified, live);
+  } catch (error) {
+    if (error instanceof FrozenEvidenceError && error.code === 'verification-failed') verifiedFreezes.delete(verified.date);
+    throw error;
+  }
+}
+
+function verifyAndStore(date: string) {
+  const existing = inflightVerify.get(date);
+  if (existing) return existing;
+  const job = readAndValidate(date).then((result) => {
+    verifiedFreezes.set(date, result.verified);
+    return result;
+  }).catch((error: unknown) => {
+    if (error instanceof FrozenEvidenceError && error.code !== 'read-failed') verifiedFreezes.delete(date);
+    throw error;
+  }).finally(() => {
+    if (inflightVerify.get(date) === job) inflightVerify.delete(date);
+  });
+  inflightVerify.set(date, job);
+  return job;
+}
+
+async function readAndValidate(date: string) {
   // Independent mandatory reads run together; all must still pass validation.
   const [saved, rows, metas] = await Promise.all([
-    query<{ snapshot_json: string; sha256: string; captured_at: string; ok: number | null }>(`SELECT s.snapshot_json,s.sha256,s.captured_at,p.ok FROM prediction_original_snapshots s LEFT JOIN prediction_recovery_status p ON p.date=s.date AND p.engine=s.engine WHERE s.date=? AND s.engine='v12'`,[date]),
+    query<SavedOriginal>(`SELECT s.snapshot_json,s.sha256,s.captured_at,p.ok FROM prediction_original_snapshots s LEFT JOIN prediction_recovery_status p ON p.date=s.date AND p.engine=s.engine WHERE s.date=? AND s.engine='v12'`,[date]),
     query<FrozenRow>(`SELECT ${frozenColumns.join(',')} FROM prediction_log WHERE date=? AND engine='v12' AND variant='baseline' ORDER BY race_number,predicted_rank`,[date]),
     query<FrozenRow>("SELECT * FROM prediction_lock_meta WHERE date=? AND engine='v12'",[date]),
   ]);
@@ -24,18 +89,14 @@ export async function readFrozenRacing(date: string) {
       ? '呢個賽日未有已核實嘅原始凍結副本（凍結存證未建立），故唔會展示該日最終預測'
       : '原始凍結副本嘅核實狀態未確認，暫停提供最終預測');
   }
-  let snapshot; try { snapshot = await validateFrozenSnapshot(original,date,rows,metas[0] ?? null); }
+  let snapshot: ValidatedSnapshot;
+  try { snapshot = await validateFrozenSnapshot(original, date, rows, metas[0] ?? null); }
   catch (error) { throw new FrozenEvidenceError('verification-failed', error instanceof Error ? error.message : '凍結副本核實失敗'); }
-  const [raceInfo, legacyResultRows, names, meeting, card, officialSnap, cardInfo, cloudResults] = await Promise.all([
+  const settlement = loadSettlement(date, snapshot.venue);
+  const [raceInfo, names, card, cardInfo, live] = await Promise.all([
     query<FrozenRow>(`SELECT r.id raceId,r.race_number raceNumber,r.start_time startTime,r.title,r.class,r.distance,r.going,r.track,r.course FROM races r JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number`,[date,snapshot.venue]),
-    query<FrozenRow>(`SELECT r.race_number raceNumber,rr.horse_id horseId,rr.horse_number horseNumber,rr.finishing_position finishingPosition,rr.win_odds winOdds,rr.running_position runningPosition FROM race_results rr JOIN races r ON r.id=rr.race_id JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number,rr.finishing_position`,[date,snapshot.venue]),
     query<FrozenRow>(`SELECT DISTINCT h.id horseId,h.name_ch nameCh,h.name_en nameEn FROM horses h JOIN prediction_log p ON p.horse_id=h.id WHERE p.date=? AND p.engine='v12' AND p.variant='baseline'`,[date]),
-    optionalRacingReference(async signal => {
-      const r = await fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/meetings/${date}`, { cache: 'no-store', signal });
-      return r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null;
-    }),
     query<RunnerIdentity>(`SELECT race_number raceNumber,horse_number horseNumber,horse_id horseId FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 ORDER BY race_number,horse_number`,[date,snapshot.venue]),
-    readChangesEvidence(()=>import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date,snapshot.venue))),
     query<RacingMeetingMetadata>(`SELECT race_number raceNumber,
       CASE WHEN COUNT(DISTINCT post_time)=1 THEN MIN(post_time) END startTime,
       CASE WHEN COUNT(DISTINCT distance)=1 THEN MIN(distance) END distance,
@@ -43,8 +104,30 @@ export async function readFrozenRacing(date: string) {
       CASE WHEN COUNT(DISTINCT track)=1 THEN MIN(track) END track,
       CASE WHEN COUNT(DISTINCT course)=1 THEN MIN(course) END course
       FROM entries_upcoming WHERE race_date=? AND venue=? AND race_number>0 GROUP BY race_number`,[date,snapshot.venue]),
-    import('./hkjc-results-collector.server').then(m=>m.readCloudOfficialResults(date,snapshot.venue)),
+    settlement,
   ]);
+  return {
+    verified: { date, original, snapshot, raceInfo, names, card, cardInfo, verifiedAt: new Date().toISOString() },
+    live,
+  };
+}
+
+async function loadSettlement(date: string, venue: string) {
+  const [legacyResultRows, meeting, officialSnap, cloudResults] = await Promise.all([
+    query<FrozenRow>(`SELECT r.race_number raceNumber,rr.horse_id horseId,rr.horse_number horseNumber,rr.finishing_position finishingPosition,rr.win_odds winOdds,rr.running_position runningPosition FROM race_results rr JOIN races r ON r.id=rr.race_id JOIN race_meetings m ON m.id=r.meeting_id WHERE m.date=? AND m.venue=? ORDER BY r.race_number,rr.finishing_position`,[date,venue]),
+    optionalRacingReference(async signal => {
+      const r = await fetch(`https://tianxi-backend.tianxi-entertainment.workers.dev/api/meetings/${date}`, { cache: 'no-store', signal });
+      return r.ok ? await r.json() as {venue?:string;trackCondition?:string;races?:FrozenRow[]} : null;
+    }),
+    readChangesEvidence(()=>import('./hkjc-changes.server').then(m=>m.readLatestHkjcChanges(date,venue))),
+    import('./hkjc-results-collector.server').then(m=>m.readCloudOfficialResults(date,venue)),
+  ]);
+  return { legacyResultRows, meeting, officialSnap, cloudResults };
+}
+
+async function assemble(verified: VerifiedFreeze, live: LiveEvidence) {
+  const { date, original, snapshot, raceInfo, names, card, cardInfo, verifiedAt } = verified;
+  const { legacyResultRows, meeting, officialSnap, cloudResults } = live;
   const cloudRaceNumbers = new Set(cloudResults.map(r=>r.raceNumber));
   const resultRows: FrozenRow[] = [...legacyResultRows.filter(r=>!cloudRaceNumbers.has(r.raceNumber)),...cloudResults.flatMap(r=>r.results)];
   const nameMap = new Map(names.map(n=>[n.horseId,n]));
@@ -61,7 +144,7 @@ export async function readFrozenRacing(date: string) {
   const withdrawn = new Set(snapshot.rows.filter(r=>changeFor(r)).map(r=>`${r.race_number}:${r.horse_number}`));
   const frozenIdentities = snapshot.rows.map(r=>({raceNumber:r.race_number,horseNumber:r.horse_number,horseId:r.horse_id}));
   const identityResults = resultsForFrozenIdentity(frozenIdentities, resultRows.map(r=>({raceNumber:r.raceNumber,horseNumber:r.horseNumber,horseId:r.horseId,finishingPosition:r.finishingPosition})), verifiedWithdrawnIds);
-  // 身份核對失敗係「核實未通過」，唔係讀取失敗。
+  // 身份核對失敗係「核實未通過」，唔係讀取失敗。用已核實排位，唔再讀一次副本。
   let identityCheck: ReturnType<typeof verifyRunnerIdentities>;
   try { identityCheck = verifyRunnerIdentities(frozenIdentities,card,identityResults,withdrawn); }
   catch (error) { throw new FrozenEvidenceError('verification-failed', error instanceof Error ? error.message : '排位身份未能核實'); }
@@ -95,5 +178,5 @@ export async function readFrozenRacing(date: string) {
       resultsEvidence: cloudResults.find(r=>r.raceNumber===raceNumber) ? {source:'lovable-cloud-official-archive',complete:true,sha256:cloudResults.find(r=>r.raceNumber===raceNumber)?.sha256,dividendsVerified:false} : {source:'legacy-results',complete:null,dividendsVerified:false},
     };
   });
-  return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt:new Date().toISOString(),snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock',rebuild:rebuildProvenance(snapshot)},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:snap?{source:snap.source_url,sha256:snap.sha256,fetchedAt:snap.fetched_at,count:officialChanges.length,readOk:true}:changesReadOk?null:{readOk:false,count:null},resultsSource:'official-race-results',races };
+  return { schemaVersion:1,date,venue:snapshot.venue,edition:'final' as const,frozen:true,source:'verified-original-snapshot',lockAt:snapshot.lockAt,generatedAt:snapshot.rows[0]?.generated_at,verifiedAt,snapshot:{sha256:original.sha256,capturedAt:original.captured_at,rows:snapshot.rows.length,races:races.length,captureTiming:Date.parse(original.captured_at)>Date.parse(snapshot.lockAt)?'after-lock':'at-or-before-lock',rebuild:rebuildProvenance(snapshot)},probabilityEvidence:{pTop4:'not-saved-in-original'},identityEvidence:'current-card-cross-check-not-prelock-provenance',identityCheck,officialChanges:snap?{source:snap.source_url,sha256:snap.sha256,fetchedAt:snap.fetched_at,count:officialChanges.length,readOk:true}:changesReadOk?null:{readOk:false,count:null},resultsSource:'official-race-results',races };
 }
