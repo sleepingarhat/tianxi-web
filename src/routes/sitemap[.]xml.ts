@@ -7,7 +7,7 @@ const PATHS = [
   "/strategy-pnl", "/freeze-ledger", "/racing-health", "/explain", "/engine", "/engine/audit",
   "/engine/backtest", "/engine/features", "/engine/monitor", "/engine/residuals", "/pool-odds", "/official-pools", "/official", "/official-boards", "/headlines",
   "/horse", "/race", "/encyclopedia", "/manual", "/features", "/membership", "/dev-log", "/media-credits", "/model", "/prediction-reconciliation", "/elo-log",
-  "/privacy", "/terms",
+  "/privacy", "/terms", "/dialogue",
 ];
 
 export const Route = createFileRoute("/sitemap.xml")({

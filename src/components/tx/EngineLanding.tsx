@@ -101,6 +101,9 @@ export function EngineLanding() {
               <TxCta asChild variant="gold"><Link to="/predictor">睇今日四揀 →</Link></TxCta>
               <TxCta asChild variant="outline"><Link to="/strategy-pnl">策略盈虧紀錄</Link></TxCta>
             </div>
+            <p className="mt-3">
+              <Link to="/dialogue" className="text-[12px] font-bold text-gold underline underline-offset-4">與開發者對話</Link>
+            </p>
             <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-ink-3">
               {["限時免費 · Pro 全站功能", "凍結預測唔改", "負數照實列"].map((t) => <li key={t} className="flex items-center gap-1"><Check className="h-3.5 w-3.5 text-win" aria-hidden />{t}</li>)}
             </ul>
@@ -142,6 +145,7 @@ export function EngineLanding() {
             { to: "/encyclopedia", label: "馬匹百科" },
             { to: "/engine", label: "引擎健康與回測" },
             { to: "/track-record", label: "戰績" },
+            { to: "/dialogue", label: "與開發者對話" },
           ].map((l) => (
             <Link key={l.to} to={l.to} className="rounded-[8px] border border-hairline bg-paper-2 px-3 py-2.5 text-center text-[12px] font-bold text-ink hover:border-gold-strong hover:bg-gold-bg">{l.label}</Link>
           ))}
