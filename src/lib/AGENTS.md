@@ -5,6 +5,7 @@
 - Strategy page and today PnL share useStrategyAccounting and combineStrategyAccounting; cross pools start at CROSS_POOL_START, only explicit no-archive HTTP responses skip reads, and failed reads suppress full totals. Why: avoid missing DT/TT or treating verification failure as zero.
 
 - Official research uses fixed server-side D1 field allowlists and separate public DTOs with unavailable states; never prediction fields. Why: references cannot bypass membership or certify frozen inputs.
+- First Wish racecard notes attach by cardBrand or cardHorseId; the bonus board keeps list horseNo and reserve. Why: a standby list number reuses a declared saddle and is not the official runner.
 - All-unavailable official reference reads reject client queries for bounded retry, not successful ten-minute caching; individual unavailable sections remain explicit. Why: transient transport errors must not masquerade as empty records.
 - Coverage RPC reads the last complete job-produced private cache snapshot and projects per viewer after reading; only managed refresh recomputes. Why: visitor detail reads must not fan out across half a year or leak cached member picks.
 

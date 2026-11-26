@@ -148,7 +148,7 @@ function FwbList({ rows }: { rows: FwbRow[] }) {
       <Count n={rows.length} />
       <ul className="mt-2 divide-y divide-hairline">
         {rows.map((row) => (
-          <li key={`${row.raceNo}-${row.horseNo}-${row.brand}`} className="py-2">
+          <li key={`${row.raceNo}-${row.reserve ? "r" : "d"}-${row.horseNo}-${row.brand}`} className="py-2">
             {horseLine(row.raceNo, row.horseNo, row.horseNameCh, [row.brand, row.reserve ? "後備" : ""].filter(Boolean).join(" · "))}
             <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{row.bonusCh || row.bonusEn}</p>
           </li>

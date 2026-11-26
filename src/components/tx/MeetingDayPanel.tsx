@@ -116,6 +116,7 @@ function RunnerRoster({
             raceNo,
             horseNo: typeof horse.horseNumber === "number" ? horse.horseNumber : null,
             brand: brandOf(horse.code, horse.id),
+            horseId: horse.id,
             reserve: false,
           });
           return (
@@ -158,7 +159,7 @@ function RunnerRoster({
     </Scroller>
     <ReserveList
       rows={reservesForRace(official.profiles, raceNo)}
-      notesFor={(row) => notes.factsFor({ raceNo: row.raceNo, horseNo: row.horseNo, brand: row.brand, reserve: true })}
+      notesFor={(row) => notes.factsFor({ raceNo: row.raceNo, horseNo: row.horseNo, brand: row.brand, horseId: row.horseId, reserve: true })}
     />
     <div className="py-2">
       <RaceFilesBlock official={official} raceNo={raceNo} showAll={false} />

@@ -140,7 +140,11 @@ describe("官方行", () => {
     expect(readFwbRows(envelope([{
       raceNo: 7, horseNo: 8, reserve: false, horseNameEn: "MASK WARRIOR", horseNameCh: "假面勇士", brand: "L518",
       bonusEn: "PP Bonus of HK$1.5M", bonusCh: "「自購曾出賽馬匹特別獎金」一百五十萬港元", notRaceResult: true,
-    }]))[0]).toMatchObject({ horseNameCh: "假面勇士", brand: "L518" });
+      cardHorseNo: 3, cardReserve: false, cardHorseId: "HK_2025_L518", cardBrand: "L518", alignedBy: "brand",
+    }]))[0]).toMatchObject({
+      horseNameCh: "假面勇士", brand: "L518", horseNo: 8, reserve: false,
+      cardHorseNo: 3, cardReserve: false, cardHorseId: "HK_2025_L518", cardBrand: "L518", alignedBy: "brand",
+    });
     expect(readFormerNames(envelope([{
       horseId: "HK_2026_J313", brand: "J313", nameEn: "BEAR CHAMP", nameCh: "叻叻熊", formerName: "Bear Champ",
       sire: "Hellbent", dam: "Mumford", importType: "PP", importTypeCh: "自購馬", originCode: "AUS", originCh: "澳洲",

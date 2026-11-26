@@ -82,6 +82,7 @@ export type RunnerSlot = {
   raceNo: number;
   horseNo: number | null;
   brand: string | null;
+  horseId?: string | null;
   reserve: boolean;
 };
 
@@ -103,6 +104,37 @@ function sameRunner(slot: RunnerSlot, row: SlotRow): boolean {
   if (row.raceNo == null || slot.horseNo == null || row.horseNo == null) return false;
   if (row.raceNo !== slot.raceNo || row.horseNo !== slot.horseNo || row.reserve !== slot.reserve) return false;
   return !brandsClash(slot.brand, row.brand ?? row.horseCode ?? null);
+}
+
+/** 由 K308、horse_K308 或 HK_2024_K308 取烙號。對唔上就當冇。 */
+function identityBrand(value: string | null | undefined): string {
+  if (typeof value !== "string") return "";
+  const match = value.trim().toUpperCase().match(/(?:^|_)([A-Z]\d{3,4})$/);
+  return match?.[1] ?? "";
+}
+
+function sameHorseId(left: string | null | undefined, right: string | null | undefined): boolean {
+  const a = left?.trim().toUpperCase() ?? "";
+  const b = right?.trim().toUpperCase() ?? "";
+  return Boolean(a && b && a === b);
+}
+
+/**
+ * 特別獎金貼排位馬：先用倉庫交來嘅烙號或馬匹編號。
+ * 名單馬號只喺未對上排位時先用，而且後備名單唔可以貼去同號正選。
+ */
+function fwbOnRunner(slot: RunnerSlot, row: FwbRow): boolean {
+  if (row.raceNo !== slot.raceNo) return false;
+  const cardBrand = identityBrand(row.cardBrand) || identityBrand(row.cardHorseId);
+  const slotBrand = identityBrand(slot.brand) || identityBrand(slot.horseId);
+  if (cardBrand && slotBrand) return cardBrand === slotBrand;
+  if (sameHorseId(slot.horseId, row.cardHorseId)) return true;
+  if (cardBrand || row.cardHorseId) {
+    if (row.cardHorseNo == null || row.cardReserve == null || slot.horseNo == null) return false;
+    return row.cardHorseNo === slot.horseNo && row.cardReserve === slot.reserve;
+  }
+  if (row.reserve !== slot.reserve) return false;
+  return sameRunner(slot, { raceNo: row.raceNo, horseNo: row.horseNo, reserve: row.reserve, brand: row.brand });
 }
 
 export type RunnerFact = { key: string; label: string; text: string };
@@ -137,7 +169,7 @@ export function runnerMeetingFacts(
       facts.push({ key: `combo-${row.horseNo}`, label: "騎練合作", text: asOf ? `${rate} · ${asOf}` : rate });
     }
   }
-  const fwb = input.fwb.find((row) => sameRunner(slot, { ...row, horseCode: row.brand }));
+  const fwb = input.fwb.find((row) => fwbOnRunner(slot, row));
   const bonus = fwb ? fwb.bonusCh || fwb.bonusEn : null;
   if (fwb && bonus) facts.push({ key: "fwb", label: "已申報特別獎金", text: bonus });
   return facts;
