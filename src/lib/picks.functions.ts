@@ -6,6 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createPicksRefresh } from "./picks-refresh";
 import { freezePublicationPending, freezePublicationDeadline } from './freeze-publication-window';
 import { FrozenEvidenceError } from './frozen-racing';
+import { presentRacingReadError } from './racing-read-error';
 
 const WORKER_BASE = "https://tianxi-backend.tianxi-entertainment.workers.dev";
 
@@ -24,15 +25,23 @@ export function isMeetingToday(date: unknown, now = new Date()): boolean {
   return date === new Date(now.getTime() + 8 * 3600_000).toISOString().slice(0, 10);
 }
 
-export async function fetchTodayPicksUpstream() {
+export async function fetchTodayPicksUpstream(options?: { verify?: boolean }) {
+  try {
+    return await loadTodayPicks(options?.verify === true);
+  } catch (error) {
+    throw presentRacingReadError(error);
+  }
+}
+
+async function loadTodayPicks(verify: boolean) {
+  const readFreeze = (date: string) => import('./frozen-racing.server').then(m => m.readFrozenRacing(date, { verify, reuseVerified: true }));
   const lockResponse = await fetch(`${WORKER_BASE}/api/analyze/lock-state`, { cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!lockResponse.ok) throw new Error('鎖定狀態暫未能核實');
   const lock = await lockResponse.json() as { date?: string; venue?: string; lockAt?: string; locked?: boolean; edition?: string };
   if (lock.locked || lock.edition === 'final' || lock.edition === 'unavailable') {
     if (!lock.date) throw new Error('凍結賽日未能核實');
-    const { readFrozenRacing } = await import('./frozen-racing.server');
     try {
-      return await readFrozenRacing(lock.date);
+      return await readFreeze(lock.date);
     } catch (error) {
       if (error instanceof FrozenEvidenceError && freezePublicationPending(lock.lockAt, error.code) && lock.lockAt) {
         return { date: lock.date, venue: lock.venue, lockAt: lock.lockAt, edition: 'pending', frozen: false, races: [], publicationDeadline: freezePublicationDeadline(lock.lockAt) };
@@ -53,8 +62,7 @@ export async function fetchTodayPicksUpstream() {
     });
     scheduledDate = meeting?.date;
     if (meeting && isPastMeetingDate(meeting.date) && ['ST', 'HV'].includes(meeting.venue ?? '')) {
-      const { readFrozenRacing } = await import('./frozen-racing.server');
-      const frozen = await readFrozenRacing(meeting.date as string);
+      const frozen = await readFreeze(meeting.date as string);
       if (frozen.venue !== meeting.venue) throw new FrozenEvidenceError('verification-failed', '凍結副本與賽程馬場不符');
       return frozen;
     }
@@ -87,8 +95,7 @@ export async function fetchTodayPicksUpstream() {
   if (!res.ok || json?.error) throw new Error(json?.error || `預測服務錯誤 ${res.status}`);
   // 舊日期即時版永不使用，毋須先核對將會棄用的即時四揀。
   if (isPastMeetingDate(json?.date)) {
-    const { readFrozenRacing } = await import('./frozen-racing.server');
-    return await readFrozenRacing(json.date);
+    return await readFreeze(json.date);
   }
   if (json?.races?.length) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(json.date ?? '') || !['ST', 'HV'].includes(json.venue)) throw new Error('預測賽日或馬場身份未能核實');
@@ -99,16 +106,19 @@ export async function fetchTodayPicksUpstream() {
   return json;
 }
 
-const refreshPicks = createPicksRefresh(fetchTodayPicksUpstream);
+const refreshSettlement = createPicksRefresh(() => fetchTodayPicksUpstream());
+const refreshVerification = createPicksRefresh(() => fetchTodayPicksUpstream({ verify: true }));
 
-export const getTodayPicksAll = createServerFn({ method: "GET" }).handler(async () => {
+export const getTodayPicksAll = createServerFn({ method: "GET" })
+  .inputValidator((data: { verify?: boolean } | undefined) => ({ verify: data?.verify === true }))
+  .handler(async ({ data }) => {
   const { setResponseHeader } = await import("@tanstack/react-start/server");
   setResponseHeader("Cache-Control", "no-store");
   // 一律喺伺服器按會籍投影（Pro 全日、其他人按 FEATURE_TIERS），唔再依賴 PRO_ENFORCEMENT 開關：
   // 上游用管理員 token 攞到全日資料，冇投影就直接交俾瀏覽器會洩漏賽前預測。
   const { projectDayPicksForViewer } = await import('./picks-projection');
   const { viewerTier } = await import('./picks-entitlement.server');
-  const [day, tier] = await Promise.all([refreshPicks(), viewerTier()]);
+  const [day, tier] = await Promise.all([data.verify ? refreshVerification() : refreshSettlement(), viewerTier()]);
   return projectDayPicksForViewer(day as import('./racing-shapes').DayPicks, tier);
 });
 

@@ -28,7 +28,7 @@ describe('上一賽日快讀仍核實原始凍結副本', () => {
   it('28/10沙田直接讀副本，不讀即時預測及其身份表', async () => {
     responses({ locked: false, source: 'no-fixture' }, { date: '2026-10-28', venue: 'ST' });
     expect(await fetchTodayPicksUpstream()).toEqual(frozen);
-    expect(mocks.frozen).toHaveBeenCalledWith('2026-10-28');
+    expect(mocks.frozen).toHaveBeenCalledWith('2026-10-28', { verify: false, reuseVerified: true });
     expect(requests.some(url => url.endsWith('/today-picks'))).toBe(false);
     expect(mocks.identity).not.toHaveBeenCalled();
   });
@@ -51,8 +51,18 @@ describe('上一賽日快讀仍核實原始凍結副本', () => {
   it('已鎖當日仍按lock-state日期核實，不讀賽程定位或即時版', async () => {
     responses({ locked: true, date: '2026-10-29', venue: 'ST' }, {});
     await fetchTodayPicksUpstream();
-    expect(mocks.frozen).toHaveBeenCalledWith('2026-10-29');
+    expect(mocks.frozen).toHaveBeenCalledWith('2026-10-29', { verify: false, reuseVerified: true });
     expect(requests).toHaveLength(1);
+  });
+  it('手動重新核對先強制再驗證已鎖副本', async () => {
+    responses({ locked: true, date: '2026-10-29', venue: 'ST' }, {});
+    await fetchTodayPicksUpstream({ verify: true });
+    expect(mocks.frozen).toHaveBeenCalledWith('2026-10-29', { verify: true, reuseVerified: true });
+  });
+  it('閘道 JSON 唔會交俾賽日頁', async () => {
+    responses({ locked: true, date: '2026-10-29', venue: 'ST' }, {});
+    mocks.frozen.mockRejectedValue(new Error('賽馬核對資料讀取失敗 [429]: {"success":false,"errors":[{"code":971,"message":"Please wait and consider throttling your request speed"}]}'));
+    await expect(fetchTodayPicksUpstream()).rejects.toThrow('資料服務繁忙，請稍後再試');
   });
   it('賽程定位失敗保留原有讀取，舊日期直接轉副本', async () => {
     responses({ locked: false }, {}, { date: '2026-10-28', venue: 'ST', races: [{ raceNumber: 1 }] });
