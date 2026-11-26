@@ -164,11 +164,13 @@ function RootComponent() {
         queryClient.removeQueries({ queryKey: ["my-membership"] });
         queryClient.removeQueries({ queryKey: ["telegram-link"] });
         queryClient.removeQueries({ queryKey: ["notification-prefs"] });
+        queryClient.removeQueries({ queryKey: ["developer-dialogue"] });
       } else {
         void queryClient.invalidateQueries({ queryKey: ["tier"] });
         void queryClient.invalidateQueries({ queryKey: ["watchlist"] });
         void queryClient.invalidateQueries({ queryKey: ["watch-notifications"] });
         void queryClient.invalidateQueries({ queryKey: ["my-membership"] });
+        void queryClient.invalidateQueries({ queryKey: ["developer-dialogue"] });
       }
     });
     return () => data.subscription.unsubscribe();

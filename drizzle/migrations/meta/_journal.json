@@ -330,6 +330,13 @@
       "when": 1795514696474,
       "tag": "0046_remove_gate_auto_open",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1795700000000,
+      "tag": "0047_developer_dialogue",
+      "breakpoints": true
     }
   ]
 }

@@ -166,6 +166,12 @@ export function AppShell({
               </Link>
             ) : null}
             <Link
+              to="/dialogue"
+              className="hidden self-center whitespace-nowrap font-serif-tc text-[12px] font-bold text-tan hover:text-gold-strong xl:inline"
+            >
+              與開發者對話
+            </Link>
+            <Link
               to="/track-record"
               className="hidden self-center whitespace-nowrap font-serif-tc text-[12px] font-bold text-tan hover:text-gold-strong sm:inline"
             >
@@ -220,7 +226,8 @@ export function AppShell({
           <TxCta variant="outline" size="sm" aria-label="返回上一頁" title="返回上一頁" onClick={() => { if (canGoBack) router.history.back(); else void navigate({ to: '/', replace: true }); }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m12 5-7 7 7 7M5 12h14" /></svg>返回
           </TxCta>
-          <span className="flex min-w-0 items-center gap-3">
+          <span className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
+            <Link to="/dialogue" className="text-[12px] font-bold text-gold">與開發者對話</Link>
             {['/today', '/horse', '/predictor'].includes(pathname) ? <Link to="/encyclopedia" className="text-[12px] font-bold text-gold">馬匹百科 →</Link> : null}
             {['/today', '/horse', '/predictor', '/race', '/schedule', '/results'].includes(pathname) ? <Link to="/official" className="text-[12px] font-bold text-gold">官方資料 →</Link> : null}
           </span>

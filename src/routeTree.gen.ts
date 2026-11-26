@@ -17,6 +17,7 @@ import { Route as CrossRacePoolsRouteImport } from './routes/cross-race-pools'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DevLogRouteImport } from './routes/dev-log'
 import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DialogueRouteImport } from './routes/dialogue'
 import { Route as EloLogRouteImport } from './routes/elo-log'
 import { Route as EncyclopediaRouteImport } from './routes/encyclopedia'
 import { Route as FeaturesRouteImport } from './routes/features'
@@ -55,6 +56,8 @@ import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as DialogueIndexRouteImport } from './routes/dialogue.index'
+import { Route as DialoguePostIdRouteImport } from './routes/dialogue.$postId'
 import { Route as EngineIndexRouteImport } from './routes/engine.index'
 import { Route as EngineAuditRouteImport } from './routes/engine.audit'
 import { Route as EngineBacktestRouteImport } from './routes/engine.backtest'
@@ -161,6 +164,11 @@ const DevLogRoute = DevLogRouteImport.update({
 const DevelopersRoute = DevelopersRouteImport.update({
   id: '/developers',
   path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DialogueRoute = DialogueRouteImport.update({
+  id: '/dialogue',
+  path: '/dialogue',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EloLogRoute = EloLogRouteImport.update({
@@ -353,6 +361,16 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   id: '/checkout/return',
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DialogueIndexRoute = DialogueIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DialogueRoute,
+} as any)
+const DialoguePostIdRoute = DialoguePostIdRouteImport.update({
+  id: '/$postId',
+  path: '/$postId',
+  getParentRoute: () => DialogueRoute,
 } as any)
 const EngineIndexRoute = EngineIndexRouteImport.update({
   id: '/engine/',
@@ -738,6 +756,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
   '/developers': typeof DevelopersRoute
+  '/dialogue': typeof DialogueRouteWithChildren
   '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
@@ -776,6 +795,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
+  '/dialogue/$postId': typeof DialoguePostIdRoute
   '/engine/audit': typeof EngineAuditRoute
   '/engine/backtest': typeof EngineBacktestRoute
   '/engine/features': typeof EngineFeaturesRoute
@@ -789,6 +809,7 @@ export interface FileRoutesByFullPath {
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
   '/my-horses/updates': typeof MyHorsesUpdatesRoute
+  '/dialogue/': typeof DialogueIndexRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/lab/': typeof LabIndexRoute
@@ -889,6 +910,7 @@ export interface FileRoutesByTo {
   '/withdrawals': typeof WithdrawalsRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
+  '/dialogue/$postId': typeof DialoguePostIdRoute
   '/engine/audit': typeof EngineAuditRoute
   '/engine/backtest': typeof EngineBacktestRoute
   '/engine/features': typeof EngineFeaturesRoute
@@ -902,6 +924,7 @@ export interface FileRoutesByTo {
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
   '/my-horses/updates': typeof MyHorsesUpdatesRoute
+  '/dialogue': typeof DialogueIndexRoute
   '/engine': typeof EngineIndexRoute
   '/explain': typeof ExplainIndexRoute
   '/lab': typeof LabIndexRoute
@@ -968,6 +991,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/dev-log': typeof DevLogRoute
   '/developers': typeof DevelopersRoute
+  '/dialogue': typeof DialogueRouteWithChildren
   '/elo-log': typeof EloLogRoute
   '/encyclopedia': typeof EncyclopediaRoute
   '/features': typeof FeaturesRoute
@@ -1006,6 +1030,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout/return': typeof CheckoutReturnRoute
+  '/dialogue/$postId': typeof DialoguePostIdRoute
   '/engine/audit': typeof EngineAuditRoute
   '/engine/backtest': typeof EngineBacktestRoute
   '/engine/features': typeof EngineFeaturesRoute
@@ -1019,6 +1044,7 @@ export interface FileRoutesById {
   '/lab/pace': typeof LabPaceRoute
   '/lab/pools': typeof LabPoolsRoute
   '/my-horses_/updates': typeof MyHorsesUpdatesRoute
+  '/dialogue/': typeof DialogueIndexRoute
   '/engine/': typeof EngineIndexRoute
   '/explain/': typeof ExplainIndexRoute
   '/lab/': typeof LabIndexRoute
@@ -1085,6 +1111,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dev-log'
     | '/developers'
+    | '/dialogue'
     | '/elo-log'
     | '/encyclopedia'
     | '/features'
@@ -1123,6 +1150,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/checkout/return'
+    | '/dialogue/$postId'
     | '/engine/audit'
     | '/engine/backtest'
     | '/engine/features'
@@ -1136,6 +1164,7 @@ export interface FileRouteTypes {
     | '/lab/pace'
     | '/lab/pools'
     | '/my-horses/updates'
+    | '/dialogue/'
     | '/engine/'
     | '/explain/'
     | '/lab/'
@@ -1236,6 +1265,7 @@ export interface FileRouteTypes {
     | '/withdrawals'
     | '/account'
     | '/checkout/return'
+    | '/dialogue/$postId'
     | '/engine/audit'
     | '/engine/backtest'
     | '/engine/features'
@@ -1249,6 +1279,7 @@ export interface FileRouteTypes {
     | '/lab/pace'
     | '/lab/pools'
     | '/my-horses/updates'
+    | '/dialogue'
     | '/engine'
     | '/explain'
     | '/lab'
@@ -1314,6 +1345,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dev-log'
     | '/developers'
+    | '/dialogue'
     | '/elo-log'
     | '/encyclopedia'
     | '/features'
@@ -1352,6 +1384,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/checkout/return'
+    | '/dialogue/$postId'
     | '/engine/audit'
     | '/engine/backtest'
     | '/engine/features'
@@ -1365,6 +1398,7 @@ export interface FileRouteTypes {
     | '/lab/pace'
     | '/lab/pools'
     | '/my-horses_/updates'
+    | '/dialogue/'
     | '/engine/'
     | '/explain/'
     | '/lab/'
@@ -1431,6 +1465,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DevLogRoute: typeof DevLogRoute
   DevelopersRoute: typeof DevelopersRoute
+  DialogueRoute: typeof DialogueRouteWithChildren
   EloLogRoute: typeof EloLogRoute
   EncyclopediaRoute: typeof EncyclopediaRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -1573,6 +1608,13 @@ declare module '@tanstack/react-router' {
       path: '/developers'
       fullPath: '/developers'
       preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dialogue': {
+      id: '/dialogue'
+      path: '/dialogue'
+      fullPath: '/dialogue'
+      preLoaderRoute: typeof DialogueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/elo-log': {
@@ -1840,6 +1882,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/checkout/return'
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dialogue/': {
+      id: '/dialogue/'
+      path: '/'
+      fullPath: '/dialogue/'
+      preLoaderRoute: typeof DialogueIndexRouteImport
+      parentRoute: typeof DialogueRoute
+    }
+    '/dialogue/$postId': {
+      id: '/dialogue/$postId'
+      path: '/$postId'
+      fullPath: '/dialogue/$postId'
+      preLoaderRoute: typeof DialoguePostIdRouteImport
+      parentRoute: typeof DialogueRoute
     }
     '/engine/': {
       id: '/engine/'
@@ -2378,6 +2434,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface DialogueRouteChildren {
+  DialoguePostIdRoute: typeof DialoguePostIdRoute
+  DialogueIndexRoute: typeof DialogueIndexRoute
+}
+
+const DialogueRouteChildren: DialogueRouteChildren = {
+  DialoguePostIdRoute: DialoguePostIdRoute,
+  DialogueIndexRoute: DialogueIndexRoute,
+}
+
+const DialogueRouteWithChildren = DialogueRoute._addFileChildren(
+  DialogueRouteChildren,
+)
+
 interface LabRouteChildren {
   LabBacktestRoute: typeof LabBacktestRoute
   LabCompareRoute: typeof LabCompareRoute
@@ -2409,6 +2479,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DevLogRoute: DevLogRoute,
   DevelopersRoute: DevelopersRoute,
+  DialogueRoute: DialogueRouteWithChildren,
   EloLogRoute: EloLogRoute,
   EncyclopediaRoute: EncyclopediaRoute,
   FeaturesRoute: FeaturesRoute,
