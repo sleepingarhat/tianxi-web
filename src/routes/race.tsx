@@ -253,6 +253,7 @@ function RacePage() {
                     raceNo: raceNumber,
                     horseNo: typeof h.horseNumber === "number" ? h.horseNumber : null,
                     brand: brandOf(h.code, h.brand, h.id, h.horseId),
+                    horseId: h.horseId || h.id,
                     reserve: false,
                   })} />
                 </article>
@@ -267,7 +268,7 @@ function RacePage() {
         {official.enabled ? (
           <ReserveList
             rows={reservesForRace(official.profiles, raceNumber)}
-            notesFor={(row) => meetingNotes.factsFor({ raceNo: row.raceNo, horseNo: row.horseNo, brand: row.brand, reserve: true })}
+            notesFor={(row) => meetingNotes.factsFor({ raceNo: row.raceNo, horseNo: row.horseNo, brand: row.brand, horseId: row.horseId, reserve: true })}
           />
         ) : null}
         {meetingNotes.error ? <p className="mt-2 text-[11px] text-ink-3">暫時讀唔到賽日附屬官方資料。</p> : null}

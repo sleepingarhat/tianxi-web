@@ -251,6 +251,14 @@ function displayFlag(row: Row): boolean {
   return row["notRaceResult"] === true;
 }
 
+function alignedByField(value: unknown): FwbAlignedBy | null {
+  return value === "brand" || value === "horse_id" ? value : null;
+}
+
+function cardReserveField(value: unknown): boolean | null {
+  return value === true || value === false ? value : null;
+}
+
 export type SpecialIndexRow = { code: string; lineNo: number; noteCh: string; notRaceResult: boolean };
 export type OveRow = {
   lineNo: number | null;
@@ -287,15 +295,25 @@ export type JtRow = {
   asOfText: string | null;
   notRaceResult: boolean;
 };
+/** 倉庫把獎金列對上排位馬嘅方式。冇對上就係 null。 */
+export type FwbAlignedBy = "brand" | "horse_id";
+
 export type FwbRow = {
   raceNo: number;
+  /** 獎金榜印出嘅名單馬號。排位標記唔用呢個號認馬。 */
   horseNo: number | null;
+  /** 獎金榜印出嘅後備旗。排位標記唔用呢面旗認馬。 */
   reserve: boolean;
   horseNameCh: string;
   horseNameEn: string | null;
   brand: string | null;
   bonusCh: string;
   bonusEn: string | null;
+  cardHorseNo: number | null;
+  cardReserve: boolean | null;
+  cardHorseId: string | null;
+  cardBrand: string | null;
+  alignedBy: FwbAlignedBy | null;
   notRaceResult: boolean;
 };
 export type FinishPhotoRow = {
@@ -437,6 +455,11 @@ export function readFwbRows(envelope: OfficialEnvelope): FwbRow[] {
       brand: textOrNull(row["brand"]),
       bonusCh: bonusCh ?? "",
       bonusEn,
+      cardHorseNo: intField(row["cardHorseNo"], 1, 20),
+      cardReserve: cardReserveField(row["cardReserve"]),
+      cardHorseId: textOrNull(row["cardHorseId"]),
+      cardBrand: asLocalBrand(row["cardBrand"]),
+      alignedBy: alignedByField(row["alignedBy"]),
       notRaceResult: displayFlag(row),
     }];
   });
